@@ -3,6 +3,7 @@ import { deepQueryTopLevelSelector } from '@/utils/host/dom/find'
 import { translateWalkedElement, walkAndLabelElement } from '@/utils/host/dom/traversal'
 import { removeAllTranslatedWrapperNodes } from '@/utils/host/translate/node-manipulation'
 import { sendMessage } from '@/utils/message'
+import { safeGetAttribute, safeHasAttribute } from '@/utils/notion-bypass'
 
 type SimpleIntersectionOptions = Omit<IntersectionObserverInit, 'threshold'> & {
   threshold?: number
@@ -184,7 +185,7 @@ export class PageTranslationManager implements IPageTranslationManager {
 
     walkAndLabelElement(container, this.walkId)
     // if container itself has paragraph and the id
-    if (container.hasAttribute('data-read-frog-paragraph') && container.getAttribute('data-read-frog-walked') === this.walkId) {
+    if (safeHasAttribute(container, 'data-read-frog-paragraph') && safeGetAttribute(container, 'data-read-frog-walked') === this.walkId) {
       observer.observe(container)
       return
     }

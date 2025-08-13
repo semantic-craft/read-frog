@@ -52,11 +52,25 @@ export async function hideOrShowNodeTranslation(point: Point) {
 export function removeAllTranslatedWrapperNodes(
   root: Document | ShadowRoot = document,
 ) {
-  const translatedNodes = deepQueryTopLevelSelector(root, isTranslatedWrapperNode)
-  translatedNodes.forEach((node) => {
-    removeShadowHostInTranslatedWrapper(node)
-    node.remove()
-  })
+  // 在 Notion 域名下使用绕过 API 查找翻译节点
+  if (window.location.hostname.includes('notion.') && typeof (window as any).__readFrogBypass === 'object') {
+    const bypass = (window as any).__readFrogBypass
+    const translatedNodes = bypass.getAllTranslationNodes()
+    translatedNodes.forEach((node: Element) => {
+      if (isHTMLElement(node)) {
+        removeShadowHostInTranslatedWrapper(node)
+        node.remove()
+      }
+    })
+  }
+  else {
+    // 在非 Notion 域名下使用常规方式
+    const translatedNodes = deepQueryTopLevelSelector(root, isTranslatedWrapperNode)
+    translatedNodes.forEach((node) => {
+      removeShadowHostInTranslatedWrapper(node)
+      node.remove()
+    })
+  }
 }
 
 /**

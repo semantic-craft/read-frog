@@ -11,6 +11,7 @@ import {
   INVALID_TRANSLATE_TAGS,
   MAIN_CONTENT_IGNORE_TAGS,
 } from '@/utils/constants/dom-tags'
+import { safeGetAttribute, safeHasAttribute, safeSetAttribute } from '@/utils/notion-bypass'
 
 import { translateNodes } from '../translate/node-manipulation'
 import {
@@ -56,7 +57,7 @@ export function walkAndLabelElement(
   element: HTMLElement,
   walkId: string,
 ): 'isOrHasBlockNode' | 'isShallowInlineNode' | false {
-  element.setAttribute(WALKED_ATTRIBUTE, walkId)
+  safeSetAttribute(element, WALKED_ATTRIBUTE, walkId)
 
   if (isDontWalkIntoElement(element)) {
     return false
@@ -113,15 +114,15 @@ export function walkAndLabelElement(
   }
 
   if (hasInlineNodeChild) {
-    element.setAttribute(PARAGRAPH_ATTRIBUTE, '')
+    safeSetAttribute(element, PARAGRAPH_ATTRIBUTE, '')
   }
 
   if (hasBlockNodeChild || isShallowBlockHTMLElement(element)) {
-    element.setAttribute(BLOCK_ATTRIBUTE, '')
+    safeSetAttribute(element, BLOCK_ATTRIBUTE, '')
     return 'isOrHasBlockNode'
   }
   else if (isShallowInlineHTMLElement(element)) {
-    element.setAttribute(INLINE_ATTRIBUTE, '')
+    safeSetAttribute(element, INLINE_ATTRIBUTE, '')
     return 'isShallowInlineNode'
   }
 
@@ -142,14 +143,14 @@ export async function translateWalkedElement(
   const promises: Promise<void>[] = []
 
   // if the walkId is not the same, return
-  if (element.getAttribute(WALKED_ATTRIBUTE) !== walkId)
+  if (safeGetAttribute(element, WALKED_ATTRIBUTE) !== walkId)
     return
 
-  if (element.hasAttribute(PARAGRAPH_ATTRIBUTE)) {
+  if (safeHasAttribute(element, PARAGRAPH_ATTRIBUTE)) {
     let hasBlockNodeChild = false
 
     for (const child of element.childNodes) {
-      if (isHTMLElement(child) && child.hasAttribute(BLOCK_ATTRIBUTE)) {
+      if (isHTMLElement(child) && safeHasAttribute(child, BLOCK_ATTRIBUTE)) {
         hasBlockNodeChild = true
         break
       }
@@ -215,7 +216,7 @@ async function dealWithConsecutiveInlineNodes(nodes: TransNode[], toggle: boolea
     // give attribute to the last node
     const lastNode = nodes[nodes.length - 1]
     if (isHTMLElement(lastNode)) {
-      lastNode.setAttribute(CONSECUTIVE_INLINE_END_ATTRIBUTE, '')
+      safeSetAttribute(lastNode, CONSECUTIVE_INLINE_END_ATTRIBUTE, '')
     }
   }
   await translateNodes(nodes, toggle)

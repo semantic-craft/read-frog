@@ -130,3 +130,16 @@ Follow conventional commits format: `type(scope): description`, keep the commit 
 - `docs: update contribution guide`
 - `i18n(extension): add Japanese translations`
 - `ai(extension): integrate new DeepSeek model`
+
+## Logging in the extension
+
+If you want to log something in the extension, you can use the `logger` object.
+
+```ts
+import { logger } from '@/utils/logger'
+
+logger.info('Hello, world!')
+logger.warn('This is a warning!')
+```
+
+The `logger` object is a wrapper around the `console` object. It only logs when you are in development mode.
