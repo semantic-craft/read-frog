@@ -8,7 +8,8 @@ popup:
   read: 閱讀文章
   translate: 翻譯
   showOriginal: 顯示原文
-  enabledFloatingButton: 開啟懸浮按鈕
+  enabledFloatingButton: 啟用懸浮按鈕
+  enabledSelectionToolbar: 啟用選擇工具列
   alwaysTranslate: 總是翻譯這個網站
   options: 選項
   hover: 滑鼠懸停
@@ -109,7 +110,8 @@ options:
       style:
         default: 無
         blur: 模糊效果
-        blockquote: 引用樣式
+        blockquote: 引用
+        weakened: 弱化
 side:
   sourceLang: 來源語言
   targetLang: 目標語言

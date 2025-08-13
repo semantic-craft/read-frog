@@ -8,7 +8,8 @@ popup:
   read: 阅读文章
   translate: 翻译
   showOriginal: 显示原文
-  enabledFloatingButton: 开启悬浮按钮
+  enabledFloatingButton: 启用悬浮按钮
+  enabledSelectionToolbar: 启用选择工具栏
   alwaysTranslate: 总是翻译这个网站
   options: 选项
   hover: 鼠标悬停
@@ -110,7 +111,8 @@ options:
       style:
         default: 无
         blur: 模糊效果
-        blockquote: 引用样式
+        blockquote: 引用
+        weakened: 弱化
 side:
   sourceLang: 来源语言
   targetLang: 目标语言

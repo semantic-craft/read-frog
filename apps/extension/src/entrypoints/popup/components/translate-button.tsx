@@ -1,11 +1,11 @@
 import { browser, i18n } from '#imports'
+import { Button } from '@repo/ui/components/button'
+import { cn } from '@repo/ui/lib/utils'
 import { useAtom, useAtomValue } from 'jotai'
-import { Button } from '@/components/ui/button'
 import { configFields } from '@/utils/atoms/config'
 import { validateTranslationConfig } from '@/utils/host/translate/translate-text'
 import { sendMessage } from '@/utils/message'
 import { formatHotkey } from '@/utils/os.ts'
-import { cn } from '@/utils/tailwind'
 import { isPageTranslatedAtom } from '../atoms/auto-translate'
 import { isIgnoreTabAtom } from '../atoms/ignore'
 

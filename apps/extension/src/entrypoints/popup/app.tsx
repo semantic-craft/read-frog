@@ -1,20 +1,20 @@
 import { browser, i18n } from '#imports'
 import { Icon } from '@iconify/react'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@repo/ui/components/tooltip'
 import { useSetAtom } from 'jotai'
 import { useEffect } from 'react'
 import FrogToast from '@/components/frog-toast'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { UserAccount } from '@/components/user-account'
 import { version } from '../../../package.json'
 import { initIsIgnoreTabAtom } from './atoms/ignore'
 import { AlwaysTranslate } from './components/always-translate'
 import FloatingButton from './components/floating-button'
 import Hotkey from './components/hotkey-selector'
-import LanguageLevelSelector from './components/language-level-selector'
 import LanguageOptionsSelector from './components/language-options-selector'
 import QuickLinks from './components/quick-links'
 import ReadButton from './components/read-button'
 import ReadProviderSelector from './components/read-provider-selector'
+import SelectionToolbar from './components/text-selection-tooltip'
 import TranslateButton from './components/translate-button'
 import TranslatePromptSelector from './components/translate-prompt-selector'
 import TranslateProviderSelector from './components/translate-provider-selector'
@@ -31,7 +31,7 @@ function App() {
       <div className="bg-background flex flex-col gap-4 px-6 pt-5 pb-4">
         <UserAccount />
         <LanguageOptionsSelector />
-        <LanguageLevelSelector />
+        {/* <LanguageLevelSelector /> */}
         <ReadProviderSelector />
         <TranslateProviderSelector />
         <TranslatePromptSelector />
@@ -42,6 +42,7 @@ function App() {
         <AlwaysTranslate />
         <Hotkey />
         <FloatingButton />
+        <SelectionToolbar />
         <QuickLinks />
       </div>
       <div className="flex items-center justify-between bg-neutral-200 px-2 py-1 dark:bg-neutral-800">
