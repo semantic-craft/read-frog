@@ -81,7 +81,7 @@ export function validateTranslationConfig(config: Pick<Config, 'providersConfig'
     }
     else if (languageConfig.sourceCode === 'auto' && languageConfig.detectedCode === languageConfig.targetCode) {
       toast.warning(i18n.t('translation.autoModeSameLanguage', [
-        LANG_CODE_TO_LOCALE_NAME[languageConfig.detectedCode],
+        LANG_CODE_TO_LOCALE_NAME[languageConfig.detectedCode] ?? languageConfig.detectedCode,
       ]))
     }
   }
