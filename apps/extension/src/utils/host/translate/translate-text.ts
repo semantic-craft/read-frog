@@ -88,7 +88,7 @@ export function validateTranslationConfig(config: Pick<Config, 'providersConfig'
 
   // 检查API密钥是否配置
   if (!isPure && !hasSetAPIKey(provider as keyof typeof translateProviderModels, providersConfig)) {
-    toast.error(i18n.t('noConfig.warning'))
+    toast.error(i18n.t('noAPIKeyConfig.warning'))
     logger.info('validateTranslationConfig: returning false (no API key)')
     return false
   }

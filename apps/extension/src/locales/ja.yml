@@ -130,7 +130,7 @@ languageLevels:
   beginner: 初級
   intermediate: 中級
   advanced: 上級
-noConfig:
+noAPIKeyConfig:
   warning: AIモデルを使用するには、まずオプションページでAPIキーを設定してください
   warningWithLink:
     youMust: まず

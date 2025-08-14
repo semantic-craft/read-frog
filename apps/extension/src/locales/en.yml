@@ -132,7 +132,7 @@ languageLevels:
   beginner: Beginner
   intermediate: Intermediate
   advanced: Advanced
-noConfig:
+noAPIKeyConfig:
   warning: If you want to use AI models, please set API key on the options page first
   warningWithLink:
     youMust: You must

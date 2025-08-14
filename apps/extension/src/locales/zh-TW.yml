@@ -132,7 +132,7 @@ languageLevels:
   beginner: 初級
   intermediate: 中級
   advanced: 高級
-noConfig:
+noAPIKeyConfig:
   warning: 如果想要使用 AI 模型，請先在選項頁設置 API Key
   warningWithLink:
     youMust: 您必須先
