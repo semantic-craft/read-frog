@@ -2,6 +2,7 @@ import type { ProxyResponse } from '@/types/proxy-fetch'
 import { browser } from '#imports'
 import { AUTH_COOKIE_PATTERNS, AUTH_COOKIE_PREFIX, AUTH_DOMAINS } from '@repo/definitions'
 import { DEFAULT_PROXY_CACHE_MAX_SIZE, DEFAULT_PROXY_CACHE_TTL_MS } from '@/utils/constants/proxy-fetch'
+import { LRUCache } from '@/utils/data-structure/rlu'
 import { logger } from '@/utils/logger'
 import { onMessage } from '@/utils/message'
 
@@ -10,8 +11,8 @@ function makeCacheKey(reqMethod: string, targetUrl: string) {
 }
 
 export function proxyFetch() {
-  // Two-level cache: groupKey -> Map<requestKey, cachedItem>
-  const cache: Map<string, Map<string, { timestamp: number, response: ProxyResponse }>> = (globalThis as any).__rfProxyCache ?? ((globalThis as any).__rfProxyCache = new Map())
+  // Two-level cache: groupKey -> LRUCache<requestKey, cachedItem>
+  const cache: Map<string, LRUCache<string, { timestamp: number, response: ProxyResponse }>> = (globalThis as any).__rfProxyCache ?? ((globalThis as any).__rfProxyCache = new Map())
 
   // Global cache invalidation function
   function invalidateAllCache() {
@@ -60,7 +61,7 @@ export function proxyFetch() {
       if (!group)
         return undefined
 
-      const item = group.get(key)
+      const item = group.get(key) // LRU automatically moves to end
       if (!item)
         return undefined
 
@@ -68,6 +69,7 @@ export function proxyFetch() {
         group.delete(key)
         return undefined
       }
+
       logger.info('[ProxyFetch] Return cached response:', { reqMethod, targetUrl })
       return item.response
     }
@@ -81,17 +83,11 @@ export function proxyFetch() {
       const key = makeCacheKey(reqMethod, targetUrl)
       let group = cache.get(cacheGroupKey)
       if (!group) {
-        group = new Map()
+        group = new LRUCache(cacheMaxSize)
         cache.set(cacheGroupKey, group)
       }
 
-      // Simple LRU: if exceeding max size, delete oldest entry
-      if (group.size >= cacheMaxSize) {
-        const firstKey = group.keys().next().value
-        if (firstKey)
-          group.delete(firstKey)
-      }
-
+      // LRU automatically handles size limits and eviction
       group.set(key, { timestamp: Date.now(), response: resp })
     }
 
@@ -105,7 +101,7 @@ export function proxyFetch() {
       }
     }
 
-    const finalMethod = (method ?? 'POST').toUpperCase()
+    const finalMethod = (method ?? 'GET').toUpperCase()
 
     // Check cache for GET requests
     if (finalMethod === 'GET' && cacheEnabled) {
@@ -114,7 +110,7 @@ export function proxyFetch() {
         return cached
     }
 
-    // Optional aggressive mode: pre-clear cache before mutations to avoid race with subsequent GETs
+    // Aggressive mode: pre-clear cache before mutations to avoid race with subsequent GETs
     if (finalMethod !== 'GET') {
       invalidateCache(cacheGroupKey)
     }
