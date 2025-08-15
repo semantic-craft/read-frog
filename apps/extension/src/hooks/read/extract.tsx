@@ -27,8 +27,6 @@ export function useExtractContent() {
     queryKey: ['extractContent'],
     queryFn: async () => {
       try {
-        await new Promise(resolve => setTimeout(resolve, 5000))
-
         const documentClone = document.cloneNode(true)
         removeDummyNodes(documentClone as Document)
         const article = new Readability(documentClone as Document, {
