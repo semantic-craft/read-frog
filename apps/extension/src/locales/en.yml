@@ -103,6 +103,12 @@ options:
         blur: Blur Effect
         blockquote: Blockquote
         weakened: Weakened
+    translationMode:
+      title: Translation Mode
+      description: 'Choose how the translated text is displayed: bilingual or translation only.'
+      mode:
+        bilingual: Bilingual
+        translationOnly: Translation Only
   config:
     title: Config
     resetConfig:

@@ -30,3 +30,4 @@ export const translateConfigSchema = z.object({
 
 export type RequestQueueConfig = z.infer<typeof requestQueueConfigSchema>
 export type TranslateConfig = z.infer<typeof translateConfigSchema>
+export type TranslationMode = z.infer<typeof translationModeSchema>
