@@ -12,6 +12,12 @@ export const betterAuthOptions: BetterAuthOptions = {
    * The name of the application.
    */
   appName: APP_NAME,
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // Cache duration in seconds
+    },
+  },
   /**
    * Base path for Better Auth.
    * @default "/api/auth"
