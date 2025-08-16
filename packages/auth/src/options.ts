@@ -1,5 +1,5 @@
 import type { BetterAuthOptions } from 'better-auth'
-import { APP_NAME } from '@repo/definitions'
+import { APP_NAME, AUTH_BASE_PATH } from '@repo/definitions'
 import { env } from './env'
 
 /**
@@ -22,7 +22,7 @@ export const betterAuthOptions: BetterAuthOptions = {
    * Base path for Better Auth.
    * @default "/api/auth"
    */
-  // basePath: "/api",
+  basePath: AUTH_BASE_PATH,
 
   /**
    * Enable email and password authentication
