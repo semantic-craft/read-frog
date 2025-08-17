@@ -154,6 +154,20 @@ After startup, access the main website at: http://localhost:8888/.
   **💡 TIP:** Use any directory for `--user-data-dir`. Current config creates a profile per project.
 </Callout>
 
+## Development Tips
+
+### Breakpoint Debugging Issues
+
+⚠️ If you encounter issues with breakpoint debugging, it might be due to Chrome DevTools ignore list settings. Content scripts injected by extensions may be automatically ignored, causing breakpoints to fail.
+
+**Solution:**
+1. Open DevTools on any webpage
+2. Click the settings icon (⚙️) in the top right corner
+3. Select "Ignore list" from the left navigation
+4. Ensure the "Content scripts injected by extensions" option is **unchecked**
+
+![Chrome Ignore List](/images/ignore-list.jpg)
+
 ## Submitting Code
 
 ### Create a new branch
