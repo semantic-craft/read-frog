@@ -2,6 +2,7 @@ import { storage } from '#imports'
 import { logger } from '@/utils/logger'
 import { SessionCache } from './session-cache-group'
 
+// TODO: solve race condition of cache group registry
 export class SessionCacheGroupRegistry {
   private static readonly REGISTRY_KEY = 'session:__system_cache_registry' as const
 

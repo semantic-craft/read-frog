@@ -10,6 +10,7 @@ interface CacheMetadata extends Record<string, unknown> {
 
 type CachedItem = ProxyResponse
 
+// TODO: solve race condition of cache group registry
 export class SessionCache {
   private prefix: string
   private keysListKey: `session:${string}`
