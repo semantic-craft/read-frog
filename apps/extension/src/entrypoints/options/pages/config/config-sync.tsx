@@ -5,6 +5,7 @@ import { Input } from '@repo/ui/components/input'
 import { Label } from '@repo/ui/components/label'
 import { saveAs } from 'file-saver'
 import { useAtomValue } from 'jotai'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { configAtom } from '@/utils/atoms/config'
 import { APP_NAME } from '@/utils/constants/app'
@@ -14,15 +15,21 @@ const CONFIG_FILE = `${APP_NAME}: config`
 
 function ConfigSync() {
   return (
-    <ConfigCard
-      title={i18n.t('options.config.title')}
-      description={i18n.t('options.config.sync.description')}
-    >
-      <div className="w-full text-end gap-3 flex justify-end">
-        <ImportConfig />
-        <ExportConfig />
-      </div>
-    </ConfigCard>
+    <div className="space-y-6">
+      <ConfigCard
+        title={i18n.t('options.config.title')}
+        description={i18n.t('options.config.sync.description')}
+      >
+        <div className="w-full space-y-4">
+          <div className="text-end gap-3 flex justify-end">
+            <ImportConfig />
+            <ExportConfig />
+          </div>
+
+          <ViewCurrentConfig />
+        </div>
+      </ConfigCard>
+    </div>
   )
 }
 
@@ -89,6 +96,35 @@ function ExportConfig() {
       <Icon icon="tabler:file-upload" className="size-4" />
       {i18n.t('options.config.sync.export')}
     </Button>
+  )
+}
+
+function ViewCurrentConfig() {
+  const config = useAtomValue(configAtom)
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  return (
+    <div className="w-full flex flex-col   justify-end">
+      <Button
+        variant="outline"
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="mb-3"
+      >
+        <Icon
+          icon={isExpanded ? 'tabler:chevron-up' : 'tabler:chevron-down'}
+          className="size-4 mr-2"
+        />
+        {isExpanded ? '收起配置' : '展开配置'}
+      </Button>
+
+      {isExpanded && (
+        <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border">
+          <pre className="text-xs overflow-auto max-h-96 whitespace-pre-wrap">
+            {JSON.stringify(config, null, 2)}
+          </pre>
+        </div>
+      )}
+    </div>
   )
 }
 
