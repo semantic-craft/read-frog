@@ -1,5 +1,16 @@
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@repo/ui/components/alert-dialog'
 import { Button } from '@repo/ui/components/button'
 import { Input } from '@repo/ui/components/input'
 import { Label } from '@repo/ui/components/label'
@@ -85,17 +96,58 @@ function ImportConfig() {
 function ExportConfig() {
   const config = useAtomValue(configAtom)
 
-  const exportConfig = () => {
-    const json = JSON.stringify(config, null, 2)
+  const exportConfig = (includeApiKeys: boolean) => {
+    let exportData = config
+
+    if (!includeApiKeys) {
+      // 创建一个不包含 API keys 的配置副本
+      exportData = {
+        ...config,
+        providersConfig: {
+          ...config.providersConfig,
+          openai: { ...config.providersConfig.openai, apiKey: undefined },
+          deepseek: { ...config.providersConfig.deepseek, apiKey: undefined },
+          gemini: { ...config.providersConfig.gemini, apiKey: undefined },
+          deeplx: { ...config.providersConfig.deeplx, apiKey: undefined },
+        },
+      }
+    }
+
+    const json = JSON.stringify(exportData, null, 2)
     const blob = new Blob([json], { type: 'text/json' })
     saveAs(blob, `${CONFIG_FILE}.json`)
+
+    toast.success(`配置已导出${includeApiKeys ? '（包含 API Keys）' : '（不包含 API Keys）'}`)
   }
 
   return (
-    <Button onClick={exportConfig}>
-      <Icon icon="tabler:file-upload" className="size-4" />
-      {i18n.t('options.config.sync.export')}
-    </Button>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button>
+          <Icon icon="tabler:file-upload" className="size-4" />
+          {i18n.t('options.config.sync.export')}
+        </Button>
+      </AlertDialogTrigger>
+
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>选择导出选项</AlertDialogTitle>
+          <AlertDialogDescription>
+            请选择是否在导出的配置中包含 API Keys。包含 API Keys 可能会泄露敏感信息，建议仅在安全环境下使用。
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel>取消</AlertDialogCancel>
+          <AlertDialogAction onClick={() => exportConfig(false)}>
+            不包含 API Keys
+          </AlertDialogAction>
+          <AlertDialogAction onClick={() => exportConfig(true)}>
+            包含 API Keys
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
 
