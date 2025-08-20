@@ -88,15 +88,8 @@ function ImportConfig() {
             let currentVersion = importStoredConfigSchemaVersion
             while (currentVersion < CONFIG_SCHEMA_VERSION) {
               const nextVersion = currentVersion + 1
-              try {
-                config = await runMigration(nextVersion, config)
-                currentVersion = nextVersion
-              }
-              catch (error) {
-                toast.error(i18n.t('options.config.sync.importError'))
-                logger.error(error, nextVersion, config)
-                currentVersion = nextVersion
-              }
+              config = await runMigration(nextVersion, config)
+              currentVersion = nextVersion
             }
           }
           if (!configSchema.safeParse(config).success) {
@@ -107,7 +100,8 @@ function ImportConfig() {
           setConfig(config)
           toast.success(`${i18n.t('options.config.sync.importSuccess')} !`)
         }
-        catch {
+        catch (error) {
+          logger.error(error)
           toast.error(i18n.t('options.config.sync.importError'))
         }
       }

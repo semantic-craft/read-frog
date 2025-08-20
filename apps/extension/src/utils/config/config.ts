@@ -37,7 +37,7 @@ export function hasSetAPIKey(provider: APIProviderNames, providersConfig: Provid
   return providersConfig[provider]?.apiKey !== undefined
 }
 
-// 动态适配所有 apikey 的情况，理论上不会挂掉
+// Dynamically adapt to all API key situations, theoretically should not fail
 export function getConfigWithoutAPIKeys<T extends Record<string, any>>(config: T): T {
   function deepClean(obj: any): any {
     if (Array.isArray(obj)) {
