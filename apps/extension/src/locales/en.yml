@@ -112,6 +112,12 @@ options:
         translationOnly: Translation Only
   config:
     title: Config
+    sync:
+      description: Import, export, and sync your configuration to the cloud
+      import: Import
+      export: Export
+      sync: Sync to Cloud
+      importSuccess: Import Success
     resetConfig:
       title: Reset Config
       description: Reset all config to default value

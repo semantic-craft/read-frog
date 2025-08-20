@@ -112,6 +112,12 @@ options:
         translationOnly: 仅显示翻译
   config:
     title: 配置
+    sync:
+      description: 导入、导出和同步您的配置到云端
+      import: 导入
+      export: 导出
+      sync: 同步到云端
+      importSuccess: 导入成功
     resetConfig:
       title: 恢复默认配置
       description:
