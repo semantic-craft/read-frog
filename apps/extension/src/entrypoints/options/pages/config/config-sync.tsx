@@ -1,4 +1,4 @@
-import { i18n } from '#imports'
+import { i18n, storage, useEffect } from '#imports'
 import { Icon } from '@iconify/react'
 import {
   AlertDialog,
@@ -14,17 +14,32 @@ import {
 import { Button } from '@repo/ui/components/button'
 import { Input } from '@repo/ui/components/input'
 import { Label } from '@repo/ui/components/label'
+import { kebabCase } from 'case-anything'
 import { saveAs } from 'file-saver'
-import { useAtomValue } from 'jotai'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { configAtom } from '@/utils/atoms/config'
+import { configSchema } from '@/types/config/config'
+import { configAtom, writeConfigAtom } from '@/utils/atoms/config'
+import { getConfigWithoutAPIKeys } from '@/utils/config/config'
+import { runMigration } from '@/utils/config/migration'
 import { APP_NAME } from '@/utils/constants/app'
+import { CONFIG_SCHEMA_VERSION } from '@/utils/constants/config'
+import { logger } from '@/utils/logger'
 import { ConfigCard } from '../../components/config-card'
-
-const CONFIG_FILE = `${APP_NAME}: config`
+import { storedConfigSchemaVersionAtom } from './atom'
 
 function ConfigSync() {
+  const setStoredConfigSchemaVersion = useSetAtom(storedConfigSchemaVersionAtom)
+
+  useEffect(() => {
+    (async () => {
+      const storedConfigSchemaVersion = await storage.getItem<number>(`local:__configSchemaVersion`)
+      setStoredConfigSchemaVersion(storedConfigSchemaVersion ?? 1)
+    })()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <div className="space-y-6">
       <ConfigCard
@@ -45,30 +60,61 @@ function ConfigSync() {
 }
 
 function ImportConfig() {
+  const storedConfigSchemaVersion = useAtomValue(storedConfigSchemaVersionAtom)
+  const setConfig = useSetAtom(writeConfigAtom)
   const importConfig = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       const file = e.target.files?.[0]
-      if (!file)
+      if (!file) {
         return
+      }
 
       const reader = new FileReader()
       reader.onload = async (event) => {
         try {
           const fileResult = event.target?.result
-          if (typeof fileResult === 'string') {
-            const _config = JSON.parse(fileResult)
-            // TODO: 验证配置格式并应用到系统
-            toast.success(`${i18n.t('options.config.sync.importSuccess')} !`)
+          if (typeof fileResult !== 'string') {
+            return
           }
+          const _config = JSON.parse(fileResult)
+          const { storedConfigSchemaVersion: importStoredConfigSchemaVersion } = _config
+          if (importStoredConfigSchemaVersion > storedConfigSchemaVersion) {
+            toast.error(i18n.t('options.config.sync.versionTooNew'))
+            return
+          }
+          let { config } = _config
+          if (importStoredConfigSchemaVersion < storedConfigSchemaVersion) {
+            // migrate
+            let currentVersion = importStoredConfigSchemaVersion
+            while (currentVersion < CONFIG_SCHEMA_VERSION) {
+              const nextVersion = currentVersion + 1
+              try {
+                config = await runMigration(nextVersion, config)
+                currentVersion = nextVersion
+              }
+              catch (error) {
+                toast.error(i18n.t('options.config.sync.importError'))
+                logger.error(error, nextVersion, config)
+                currentVersion = nextVersion
+              }
+            }
+          }
+          if (!configSchema.safeParse(config).success) {
+            toast.error(i18n.t('options.config.sync.validationError'))
+            logger.error(config, configSchema.safeParse(config).error)
+            return
+          }
+          setConfig(config)
+          toast.success(`${i18n.t('options.config.sync.importSuccess')} !`)
         }
         catch {
-          toast.error('Invalid config file format')
+          toast.error(i18n.t('options.config.sync.importError'))
         }
       }
       reader.readAsText(file)
     }
     catch {
-      toast.error('Failed to import config')
+      toast.error(i18n.t('options.config.sync.importError'))
     }
     finally {
       e.target.value = ''
@@ -95,29 +141,23 @@ function ImportConfig() {
 
 function ExportConfig() {
   const config = useAtomValue(configAtom)
+  const storedConfigSchemaVersion = useAtomValue(storedConfigSchemaVersionAtom)
 
   const exportConfig = (includeApiKeys: boolean) => {
     let exportData = config
 
     if (!includeApiKeys) {
-      // 创建一个不包含 API keys 的配置副本
-      exportData = {
-        ...config,
-        providersConfig: {
-          ...config.providersConfig,
-          openai: { ...config.providersConfig.openai, apiKey: undefined },
-          deepseek: { ...config.providersConfig.deepseek, apiKey: undefined },
-          gemini: { ...config.providersConfig.gemini, apiKey: undefined },
-          deeplx: { ...config.providersConfig.deeplx, apiKey: undefined },
-        },
-      }
+      exportData = getConfigWithoutAPIKeys(config)
     }
 
-    const json = JSON.stringify(exportData, null, 2)
+    const json = JSON.stringify({
+      config: exportData,
+      storedConfigSchemaVersion,
+    }, null, 2)
     const blob = new Blob([json], { type: 'text/json' })
-    saveAs(blob, `${CONFIG_FILE}.json`)
+    saveAs(blob, `${kebabCase(APP_NAME)}-config-v${storedConfigSchemaVersion}.json`)
 
-    toast.success(`配置已导出${includeApiKeys ? '（包含 API Keys）' : '（不包含 API Keys）'}`)
+    toast.success(i18n.t('options.config.sync.exportSuccess'))
   }
 
   return (
@@ -131,20 +171,22 @@ function ExportConfig() {
 
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>选择导出选项</AlertDialogTitle>
+          <AlertDialogTitle>{i18n.t('options.config.sync.exportOptions.title')}</AlertDialogTitle>
           <AlertDialogDescription>
-            请选择是否在导出的配置中包含 API Keys。包含 API Keys 可能会泄露敏感信息，建议仅在安全环境下使用。
+            {i18n.t('options.config.sync.exportOptions.description')}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <AlertDialogFooter>
-          <AlertDialogCancel>取消</AlertDialogCancel>
-          <AlertDialogAction onClick={() => exportConfig(false)}>
-            不包含 API Keys
-          </AlertDialogAction>
-          <AlertDialogAction onClick={() => exportConfig(true)}>
-            包含 API Keys
-          </AlertDialogAction>
+        <AlertDialogFooter className="flex !justify-between !flex-row">
+          <AlertDialogCancel>{i18n.t('options.config.sync.exportOptions.cancel')}</AlertDialogCancel>
+          <div className="flex gap-2">
+            <AlertDialogAction variant="secondary" onClick={() => exportConfig(true)}>
+              {i18n.t('options.config.sync.exportOptions.includeAPIKeys')}
+            </AlertDialogAction>
+            <AlertDialogAction onClick={() => exportConfig(false)}>
+              {i18n.t('options.config.sync.exportOptions.excludeAPIKeys')}
+            </AlertDialogAction>
+          </div>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -153,6 +195,7 @@ function ExportConfig() {
 
 function ViewCurrentConfig() {
   const config = useAtomValue(configAtom)
+  const storedConfigSchemaVersion = useAtomValue(storedConfigSchemaVersionAtom)
   const [isExpanded, setIsExpanded] = useState(false)
 
   return (
@@ -166,13 +209,16 @@ function ViewCurrentConfig() {
           icon={isExpanded ? 'tabler:chevron-up' : 'tabler:chevron-down'}
           className="size-4 mr-2"
         />
-        {isExpanded ? '收起配置' : '展开配置'}
+        {isExpanded ? i18n.t('options.config.sync.viewConfig.collapse') : i18n.t('options.config.sync.viewConfig.expand')}
       </Button>
 
       {isExpanded && (
         <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border">
           <pre className="text-xs overflow-auto max-h-96 whitespace-pre-wrap">
-            {JSON.stringify(config, null, 2)}
+            {JSON.stringify({
+              storedConfigSchemaVersion,
+              config,
+            }, null, 2)}
           </pre>
         </div>
       )}
