@@ -1,4 +1,5 @@
 import type { APICallError } from 'ai'
+import type { TranslationMode } from '@/types/config/translate'
 import type { Point, TransNode } from '@/types/dom'
 import React from 'react'
 import textSmallCSS from '@/assets/tailwind/text-small.css?inline'
@@ -6,6 +7,7 @@ import themeCSS from '@/assets/tailwind/theme.css?inline'
 import { TranslationError } from '@/components/tranlation/error'
 import { Spinner } from '@/components/tranlation/spinner'
 import { globalConfig } from '@/utils/config/config'
+import { logger } from '@/utils/logger'
 import { createReactShadowHost, removeReactShadowHost } from '@/utils/react-shadow-host/create-shadow-host'
 import {
   BLOCK_CONTENT_CLASS,
@@ -31,6 +33,12 @@ import { translateText, validateTranslationConfig } from './translate-text'
 const translatingNodes = new Set<HTMLElement | Text>()
 
 export async function hideOrShowNodeTranslation(point: Point) {
+  if (!globalConfig) {
+    return
+  }
+
+  const translationMode = globalConfig.translate.mode
+
   const node = findNearestAncestorBlockNodeAt(point)
 
   if (!node || !isHTMLElement(node))
@@ -55,7 +63,7 @@ export async function hideOrShowNodeTranslation(point: Point) {
 
   const id = crypto.randomUUID()
   walkAndLabelElement(node, id)
-  await translateWalkedElement(node, id, true)
+  await translateWalkedElement(node, id, translationMode, true)
 }
 
 export function removeAllTranslatedWrapperNodes(
@@ -71,15 +79,27 @@ export function removeAllTranslatedWrapperNodes(
 /**
  * Translate the node
  * @param nodes - The nodes to translate
+ * @param translationMode - Bilingual or Translation Only
  * @param toggle - Whether to toggle the translation, if true, the translation will be removed if it already exists
  */
-export async function translateNodes(nodes: TransNode[], toggle: boolean = false) {
+export async function translateNodes(nodes: TransNode[], translationMode: TranslationMode, toggle: boolean = false) {
+  if (translationMode === 'bilingual') {
+    await translateNodesWithBilingualMode(nodes, toggle)
+  }
+  else if (translationMode === 'translationOnly') {
+    await translateNodesWithTranslationOnlyMode(nodes, toggle)
+  }
+}
+
+async function translateNodesWithBilingualMode(nodes: TransNode[], toggle: boolean = false) {
   try {
     // prevent duplicate translation
     if (nodes.every(node => translatingNodes.has(node))) {
       return
     }
     nodes.forEach(node => translatingNodes.add(node))
+
+    // TODO: try to add the original back if there is
 
     const lastNode = nodes[nodes.length - 1]
     const targetNode
@@ -90,12 +110,14 @@ export async function translateNodes(nodes: TransNode[], toggle: boolean = false
       removeShadowHostInTranslatedWrapper(existedTranslatedWrapper)
       existedTranslatedWrapper.remove()
       if (toggle) {
+        // TODO: will this run finally?
         return
       }
     }
 
     const textContent = nodes.map(node => extractTextContent(node)).join(' ')
     if (!textContent)
+      // TODO: will this run finally?
       return
 
     const ownerDoc = getOwnerDocument(targetNode)
@@ -127,6 +149,89 @@ export async function translateNodes(nodes: TransNode[], toggle: boolean = false
   finally {
     nodes.forEach(node => translatingNodes.delete(node))
   }
+}
+
+async function translateNodesWithTranslationOnlyMode(nodes: TransNode[], toggle: boolean = false) {
+  try {
+    if (nodes.every(node => translatingNodes.has(node))) {
+      return
+    }
+    nodes.forEach(node => translatingNodes.add(node))
+
+    // TODO: try to add the original back if there is
+
+    // try to remove the bilingual if there is
+    const lastNode = nodes[nodes.length - 1]
+    const targetNode
+      = nodes.length === 1 && isHTMLElement(lastNode) ? unwrapDeepestOnlyHTMLChild(lastNode) : lastNode
+
+    const existedTranslatedWrapper = findExistedTranslatedWrapper(targetNode)
+    if (existedTranslatedWrapper) {
+      removeShadowHostInTranslatedWrapper(existedTranslatedWrapper)
+      existedTranslatedWrapper.remove()
+      if (toggle) {
+        // TODO: will this run finally?
+        return
+      }
+    }
+
+    logger.log('node.innerHTML', isTextNode(nodes[0]) ? nodes[0] : nodes[0].innerHTML)
+    // console.log('type', typeof (isTextNode(nodes[0]) ? nodes[0] : nodes[0].innerHTML))
+    // console.log('node.LLMStandard', LLMStandardHTML(isTextNode(nodes[0]) ? nodes[0] : nodes[0]))
+    // console.log('type', typeof (LLMStandardHTML(isTextNode(nodes[0]) ? nodes[0] : nodes[0])))
+  }
+  finally {
+    nodes.forEach(node => translatingNodes.delete(node))
+  }
+}
+
+export const inlineSet = new Set([
+  'a',
+  'b',
+  'strong',
+  'span',
+  'em',
+  'i',
+  'u',
+  'small',
+  'sub',
+  'sup',
+  'font',
+  'mark',
+  'cite',
+  'q',
+  'abbr',
+  'time',
+  'ruby',
+  'bdi',
+  'bdo',
+  'img',
+  'br',
+  'wbr',
+  'svg',
+])
+
+export function LLMStandardHTML(node: any) {
+  // 1. 初始化空字符串 text
+  // 2. 遍历子节点
+  // 3. 若为文本节点，拼接其文本内容
+  // 4. 若为元素节点且在 inlineSet 中，拼接其 outerHTML
+  // 5. 否则继续递归处理子节点
+  let text = ''
+  node.childNodes.forEach((child: any) => {
+    if (child.nodeType === Node.TEXT_NODE) {
+      text += child.nodeValue
+    }
+    else if (child.nodeType === Node.ELEMENT_NODE) {
+      if (inlineSet.has(child.tagName.toLowerCase())) {
+        text += child.outerHTML
+      }
+      else {
+        text += LLMStandardHTML(child)
+      }
+    }
+  })
+  return text
 }
 
 function createSpinnerInside(translatedWrapperNode: HTMLElement) {

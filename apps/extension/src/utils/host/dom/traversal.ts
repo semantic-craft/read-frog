@@ -1,3 +1,4 @@
+import type { TranslationMode } from '@/types/config/translate'
 import type { TransNode } from '@/types/dom'
 import { globalConfig } from '@/utils/config/config'
 import {
@@ -7,11 +8,11 @@ import {
   PARAGRAPH_ATTRIBUTE,
   WALKED_ATTRIBUTE,
 } from '@/utils/constants/dom-labels'
+
 import {
   INVALID_TRANSLATE_TAGS,
   MAIN_CONTENT_IGNORE_TAGS,
 } from '@/utils/constants/dom-tags'
-
 import { translateNodes } from '../translate/node-manipulation'
 import {
   isDontWalkIntoElement,
@@ -132,11 +133,13 @@ export function walkAndLabelElement(
  * Translate the element if it has inline node child
  * @param element - The element to translate
  * @param walkId - The walk id
+ * @param translationMode - Bilingual or Translation Only
  * @param toggle - Whether to toggle the translation, if true, the translation will be removed if it already exists
  */
 export async function translateWalkedElement(
   element: HTMLElement,
   walkId: string,
+  translationMode: TranslationMode,
   toggle: boolean = false,
 ) {
   const promises: Promise<void>[] = []
@@ -155,8 +158,8 @@ export async function translateWalkedElement(
       }
     }
 
-    if (!hasBlockNodeChild) {
-      promises.push(translateNodes([element], toggle))
+    if (translationMode === 'translationOnly' || !hasBlockNodeChild) {
+      promises.push(translateNodes([element], translationMode, toggle))
     }
     else {
       // prevent children change during iteration
@@ -180,7 +183,7 @@ export async function translateWalkedElement(
         }
 
         if (isHTMLElement(child)) {
-          promises.push(translateWalkedElement(child, walkId, toggle))
+          promises.push(translateWalkedElement(child, walkId, translationMode, toggle))
         }
       }
 
@@ -194,13 +197,13 @@ export async function translateWalkedElement(
     const promises: Promise<void>[] = []
     for (const child of element.childNodes) {
       if (isHTMLElement(child)) {
-        promises.push(translateWalkedElement(child, walkId, toggle))
+        promises.push(translateWalkedElement(child, walkId, translationMode, toggle))
       }
     }
     if (element.shadowRoot) {
       for (const child of element.shadowRoot.children) {
         if (isHTMLElement(child)) {
-          promises.push(translateWalkedElement(child, walkId, toggle))
+          promises.push(translateWalkedElement(child, walkId, translationMode, toggle))
         }
       }
     }
@@ -218,5 +221,5 @@ async function dealWithConsecutiveInlineNodes(nodes: TransNode[], toggle: boolea
       lastNode.setAttribute(CONSECUTIVE_INLINE_END_ATTRIBUTE, '')
     }
   }
-  await translateNodes(nodes, toggle)
+  await translateNodes(nodes, 'bilingual', toggle)
 }
