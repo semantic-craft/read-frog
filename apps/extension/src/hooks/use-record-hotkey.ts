@@ -70,9 +70,8 @@ function decorateModifier(modifier: ShortcutKeyModifier): WrappedShortcutModifie
 
 function verify(hotkey: Set<string>) {
   const hasModifier = MODIFIERS.some(modifier => hotkey.has(modifier))
-  const hasNormalKey = Array.from(hotkey).some(key => !MODIFIERS.includes(key))
 
-  return hasModifier && hasNormalKey
+  return hasModifier
 }
 
 // #region record-option
