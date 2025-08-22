@@ -35,12 +35,6 @@ const translatingNodes = new Set<HTMLElement | Text>()
 const originalContentMap = new WeakMap<HTMLElement | Text, string>()
 
 export async function hideOrShowNodeTranslation(point: Point) {
-  if (!globalConfig) {
-    return
-  }
-
-  const translationMode = globalConfig.translate.mode
-
   const node = findNearestAncestorBlockNodeAt(point)
 
   if (!node || !isHTMLElement(node))
@@ -65,7 +59,7 @@ export async function hideOrShowNodeTranslation(point: Point) {
 
   const id = crypto.randomUUID()
   walkAndLabelElement(node, id)
-  await translateWalkedElement(node, id, translationMode, true)
+  await translateWalkedElement(node, id, true)
 }
 
 export function removeAllTranslatedWrapperNodes(

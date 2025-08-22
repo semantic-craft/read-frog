@@ -1,4 +1,3 @@
-import type { TranslationMode } from '@/types/config/translate'
 import type { TransNode } from '@/types/dom'
 import { globalConfig } from '@/utils/config/config'
 import {
@@ -133,15 +132,19 @@ export function walkAndLabelElement(
  * Translate the element if it has inline node child
  * @param element - The element to translate
  * @param walkId - The walk id
- * @param translationMode - Bilingual or Translation Only
  * @param toggle - Whether to toggle the translation, if true, the translation will be removed if it already exists
  */
 export async function translateWalkedElement(
   element: HTMLElement,
   walkId: string,
-  translationMode: TranslationMode,
   toggle: boolean = false,
 ) {
+  if (!globalConfig) {
+    return
+  }
+
+  const translationMode = globalConfig.translate.mode
+
   const promises: Promise<void>[] = []
 
   // if the walkId is not the same, return
@@ -186,7 +189,7 @@ export async function translateWalkedElement(
         }
 
         if (isHTMLElement(child)) {
-          promises.push(translateWalkedElement(child, walkId, translationMode, toggle))
+          promises.push(translateWalkedElement(child, walkId, toggle))
         }
       }
 
@@ -200,13 +203,13 @@ export async function translateWalkedElement(
     const promises: Promise<void>[] = []
     for (const child of element.childNodes) {
       if (isHTMLElement(child)) {
-        promises.push(translateWalkedElement(child, walkId, translationMode, toggle))
+        promises.push(translateWalkedElement(child, walkId, toggle))
       }
     }
     if (element.shadowRoot) {
       for (const child of element.shadowRoot.children) {
         if (isHTMLElement(child)) {
-          promises.push(translateWalkedElement(child, walkId, translationMode, toggle))
+          promises.push(translateWalkedElement(child, walkId, toggle))
         }
       }
     }
