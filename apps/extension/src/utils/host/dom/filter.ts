@@ -31,10 +31,7 @@ export function isShallowInlineTransNode(node: Node): boolean {
 }
 
 export function isShallowInlineHTMLElement(element: HTMLElement): boolean {
-  if (
-    element.classList.contains(NOTRANSLATE_CLASS)
-    || !element.textContent?.trim()
-  ) {
+  if (!element.textContent?.trim()) {
     return false
   }
 
@@ -56,10 +53,7 @@ export function isShallowBlockTransNode(node: Node): boolean {
 }
 
 export function isShallowBlockHTMLElement(element: HTMLElement): boolean {
-  if (
-    element.classList.contains(NOTRANSLATE_CLASS)
-    || !element.textContent?.trim()
-  ) {
+  if (!element.textContent?.trim()) {
     return false
   }
   return (

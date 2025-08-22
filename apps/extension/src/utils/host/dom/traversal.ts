@@ -13,7 +13,7 @@ import {
   INVALID_TRANSLATE_TAGS,
   MAIN_CONTENT_IGNORE_TAGS,
 } from '@/utils/constants/dom-tags'
-import { translateNodes } from '../translate/node-manipulation'
+import { translateNodesBilingualMode, translateNodeTranslationOnlyMode } from '../translate/node-manipulation'
 import {
   isDontWalkIntoElement,
   isHTMLElement,
@@ -158,8 +158,11 @@ export async function translateWalkedElement(
       }
     }
 
-    if (translationMode === 'translationOnly' || !hasBlockNodeChild) {
-      promises.push(translateNodes([element], translationMode, toggle))
+    if (translationMode === 'translationOnly') {
+      promises.push(translateNodeTranslationOnlyMode(element, toggle))
+    }
+    else if (!hasBlockNodeChild) {
+      promises.push(translateNodesBilingualMode([element], toggle))
     }
     else {
       // prevent children change during iteration
@@ -221,5 +224,5 @@ async function dealWithConsecutiveInlineNodes(nodes: TransNode[], toggle: boolea
       lastNode.setAttribute(CONSECUTIVE_INLINE_END_ATTRIBUTE, '')
     }
   }
-  await translateNodes(nodes, 'bilingual', toggle)
+  await translateNodesBilingualMode(nodes, toggle)
 }

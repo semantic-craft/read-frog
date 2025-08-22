@@ -12,7 +12,7 @@ import {
   NOTRANSLATE_CLASS,
 } from '@/utils/constants/dom-labels'
 import { translateWalkedElement, walkAndLabelElement } from '../dom/traversal'
-import { hideOrShowNodeTranslation, translateNodes } from '../translate/node-manipulation'
+import { hideOrShowNodeTranslation, translateNodesBilingualMode } from '../translate/node-manipulation'
 import { translateText } from '../translate/translate-text'
 
 vi.mock('../translate/translate-text', () => ({
@@ -54,7 +54,7 @@ describe('translateNode', () => {
       </div>,
     )
     const node = screen.getByTestId('test-node')
-    await translateNodes([node], 'bilingual', false)
+    await translateNodesBilingualMode([node], 'bilingual', false)
     expect(node.childNodes[1]).toHaveClass(CONTENT_WRAPPER_CLASS)
     expect(node.childNodes[1].childNodes[1]).toHaveClass(BLOCK_CONTENT_CLASS)
   })
@@ -68,7 +68,7 @@ describe('translateNode', () => {
     )
     const node = screen.getByTestId('test-node')
     const textNode = node.firstChild as Text
-    await translateNodes([textNode], 'bilingual', false)
+    await translateNodesBilingualMode([textNode], 'bilingual', false)
     expect(node.childNodes[1]).toHaveClass(CONTENT_WRAPPER_CLASS)
     expect(node.childNodes[1].childNodes[1]).toHaveClass(INLINE_CONTENT_CLASS)
   })
