@@ -28,7 +28,7 @@ async function hideOrShowPageTranslation(toggle: boolean = false) {
   const id = crypto.randomUUID()
 
   walkAndLabelElement(document.body, id)
-  await translateWalkedElement(document.body, id, 'bilingual', toggle)
+  await translateWalkedElement(document.body, id, toggle)
 }
 
 describe('translateText stub', () => {
@@ -54,7 +54,7 @@ describe('translateNode', () => {
       </div>,
     )
     const node = screen.getByTestId('test-node')
-    await translateNodesBilingualMode([node], 'bilingual', false)
+    await translateNodesBilingualMode([node], false)
     expect(node.childNodes[1]).toHaveClass(CONTENT_WRAPPER_CLASS)
     expect(node.childNodes[1].childNodes[1]).toHaveClass(BLOCK_CONTENT_CLASS)
   })
@@ -68,7 +68,7 @@ describe('translateNode', () => {
     )
     const node = screen.getByTestId('test-node')
     const textNode = node.firstChild as Text
-    await translateNodesBilingualMode([textNode], 'bilingual', false)
+    await translateNodesBilingualMode([textNode], false)
     expect(node.childNodes[1]).toHaveClass(CONTENT_WRAPPER_CLASS)
     expect(node.childNodes[1].childNodes[1]).toHaveClass(INLINE_CONTENT_CLASS)
   })
