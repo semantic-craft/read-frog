@@ -29,7 +29,7 @@ import { logger } from '@/utils/logger'
 import { ConfigCard } from '../../components/config-card'
 import { storedConfigSchemaVersionAtom } from './atom'
 
-function ConfigSync() {
+export default function ConfigSync() {
   const setStoredConfigSchemaVersion = useSetAtom(storedConfigSchemaVersionAtom)
 
   useEffect(() => {
@@ -41,21 +41,19 @@ function ConfigSync() {
   }, [])
 
   return (
-    <div className="space-y-6">
-      <ConfigCard
-        title={i18n.t('options.config.title')}
-        description={i18n.t('options.config.sync.description')}
-      >
-        <div className="w-full space-y-4">
-          <div className="text-end gap-3 flex justify-end">
-            <ImportConfig />
-            <ExportConfig />
-          </div>
-
-          <ViewCurrentConfig />
+    <ConfigCard
+      title={i18n.t('options.config.title')}
+      description={i18n.t('options.config.sync.description')}
+    >
+      <div className="w-full space-y-4">
+        <div className="text-end gap-3 flex justify-end">
+          <ImportConfig />
+          <ExportConfig />
         </div>
-      </ConfigCard>
-    </div>
+
+        <ViewCurrentConfig />
+      </div>
+    </ConfigCard>
   )
 }
 
@@ -106,9 +104,7 @@ function ImportConfig() {
         }
       }
       reader.readAsText(file)
-    }
-    catch {
-      toast.error(i18n.t('options.config.sync.importError'))
+      reader.onerror = () => toast.error(i18n.t('options.config.sync.importError'))
     }
     finally {
       e.target.value = ''
@@ -171,7 +167,7 @@ function ExportConfig() {
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <AlertDialogFooter className="flex !justify-between !flex-row">
+        <AlertDialogFooter className="flex !justify-between">
           <AlertDialogCancel>{i18n.t('options.config.sync.exportOptions.cancel')}</AlertDialogCancel>
           <div className="flex gap-2">
             <AlertDialogAction variant="secondary" onClick={() => exportConfig(true)}>
@@ -193,7 +189,7 @@ function ViewCurrentConfig() {
   const [isExpanded, setIsExpanded] = useState(false)
 
   return (
-    <div className="w-full flex flex-col   justify-end">
+    <div className="w-full flex flex-col justify-end">
       <Button
         variant="outline"
         onClick={() => setIsExpanded(!isExpanded)}
@@ -219,5 +215,3 @@ function ViewCurrentConfig() {
     </div>
   )
 }
-
-export default ConfigSync
