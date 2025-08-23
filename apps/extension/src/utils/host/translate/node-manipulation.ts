@@ -67,21 +67,10 @@ export function removeAllTranslatedWrapperNodes(
 ) {
   if (!globalConfig)
     return
-  const translationMode = globalConfig.translate.mode
 
   const translatedNodes = deepQueryTopLevelSelector(root, isTranslatedWrapperNode)
   translatedNodes.forEach((contentWrapperNode) => {
-    removeShadowHostInTranslatedWrapper(contentWrapperNode)
-    const wrapperParent = contentWrapperNode.parentNode
-    contentWrapperNode.remove()
-    if (translationMode === 'translationOnly') {
-      if (wrapperParent && isHTMLElement(wrapperParent)) {
-        const originalContent = originalContentMap.get(wrapperParent)
-        if (originalContent) {
-          wrapperParent.innerHTML = originalContent
-        }
-      }
-    }
+    removeTranslatedWrapperWithRestore(contentWrapperNode)
   })
 }
 
@@ -104,8 +93,7 @@ export async function translateNodesBilingualMode(nodes: TransNode[], toggle: bo
 
     const existedTranslatedWrapper = findExistedTranslatedWrapper(targetNode)
     if (existedTranslatedWrapper) {
-      removeShadowHostInTranslatedWrapper(existedTranslatedWrapper)
-      existedTranslatedWrapper.remove()
+      removeTranslatedWrapperWithRestore(existedTranslatedWrapper)
       if (toggle) {
         return
       }
@@ -118,6 +106,7 @@ export async function translateNodesBilingualMode(nodes: TransNode[], toggle: bo
     const ownerDoc = getOwnerDocument(targetNode)
     const translatedWrapperNode = ownerDoc.createElement('span')
     translatedWrapperNode.className = `${NOTRANSLATE_CLASS} ${CONTENT_WRAPPER_CLASS}`
+    translatedWrapperNode.setAttribute('data-translation-mode', 'bilingual')
     const spinner = createSpinnerInside(translatedWrapperNode)
 
     if (isTextNode(targetNode) || nodes.length > 1) {
@@ -155,12 +144,7 @@ export async function translateNodeTranslationOnlyMode(node: HTMLElement, toggle
 
     const existedTranslatedWrapper = findExistedTranslatedWrapper(node)
     if (existedTranslatedWrapper) {
-      removeShadowHostInTranslatedWrapper(existedTranslatedWrapper)
-      existedTranslatedWrapper.remove()
-      const originalContent = originalContentMap.get(node)
-      if (originalContent) {
-        node.innerHTML = originalContent
-      }
+      removeTranslatedWrapperWithRestore(existedTranslatedWrapper)
       if (toggle) {
         return
       }
@@ -192,6 +176,7 @@ export async function translateNodeTranslationOnlyMode(node: HTMLElement, toggle
     const ownerDoc = getOwnerDocument(node)
     const translatedWrapperNode = ownerDoc.createElement('span')
     translatedWrapperNode.className = `${NOTRANSLATE_CLASS} ${CONTENT_WRAPPER_CLASS}`
+    translatedWrapperNode.setAttribute('data-translation-mode', 'translationOnly')
     translatedWrapperNode.style.display = 'contents'
     const spinner = createSpinnerInside(translatedWrapperNode)
 
@@ -242,6 +227,11 @@ function findExistedTranslatedWrapper(node: TransNode): HTMLElement | null {
     }
   }
   else if (isHTMLElement(node)) {
+    // Check if the node itself is a translated wrapper
+    if (node.classList.contains(CONTENT_WRAPPER_CLASS)) {
+      return node
+    }
+    // Otherwise, look for a wrapper as a direct child
     return node.querySelector(`:scope > .${CONTENT_WRAPPER_CLASS}`)
   }
   return null
@@ -321,4 +311,28 @@ function removeShadowHostInTranslatedWrapper(wrapper: HTMLElement) {
   if (translationShadowHost && isHTMLElement(translationShadowHost)) {
     removeReactShadowHost(translationShadowHost)
   }
+}
+
+/**
+ * Remove translated wrapper and restore original content based on translation mode
+ * @param wrapper - The translated wrapper element to remove
+ */
+function removeTranslatedWrapperWithRestore(wrapper: HTMLElement) {
+  removeShadowHostInTranslatedWrapper(wrapper)
+
+  const translationMode = wrapper.getAttribute('data-translation-mode')
+  const wrapperParent = wrapper.parentNode
+
+  if (translationMode === 'translationOnly' && wrapperParent && isHTMLElement(wrapperParent)) {
+    // For translation-only mode, restore original content
+    const originalContent = originalContentMap.get(wrapperParent)
+    if (originalContent) {
+      wrapperParent.innerHTML = originalContent
+      originalContentMap.delete(wrapperParent)
+      return
+    }
+  }
+
+  // For bilingual mode or when no original content is found, just remove the wrapper
+  wrapper.remove()
 }
