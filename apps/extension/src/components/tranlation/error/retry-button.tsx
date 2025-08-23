@@ -1,16 +1,17 @@
 import type { TransNode } from '@/types/dom'
 import { Icon } from '@iconify/react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@repo/ui/components/tooltip'
+import { useAtomValue } from 'jotai'
 import { use } from 'react'
-import { globalConfig } from '@/utils/config/config'
+import { configFields } from '@/utils/atoms/config'
 import { isHTMLElement } from '@/utils/host/dom/filter'
 import { translateNodesBilingualMode, translateNodeTranslationOnlyMode } from '@/utils/host/translate/node-manipulation'
 import { ShadowWrapperContext } from '@/utils/react-shadow-host/create-shadow-host'
 
 export function RetryButton({ nodes }: { nodes: TransNode[] }) {
   const shadowWrapper = use(ShadowWrapperContext)
-
-  const translationMode = globalConfig?.translate.mode || 'bilingual'
+  const translateConfig = useAtomValue(configFields.translate)
+  const translationMode = translateConfig.mode
 
   const handleRetry = async () => {
     if (translationMode === 'bilingual') {
