@@ -65,17 +65,29 @@ export async function hideOrShowNodeTranslation(point: Point) {
 export function removeAllTranslatedWrapperNodes(
   root: Document | ShadowRoot = document,
 ) {
+  if (!globalConfig)
+    return
+  const translationMode = globalConfig.translate.mode
+
   const translatedNodes = deepQueryTopLevelSelector(root, isTranslatedWrapperNode)
-  translatedNodes.forEach((node) => {
-    removeShadowHostInTranslatedWrapper(node)
-    node.remove()
+  translatedNodes.forEach((contentWrapperNode) => {
+    removeShadowHostInTranslatedWrapper(contentWrapperNode)
+    const wrapperParent = contentWrapperNode.parentNode
+    contentWrapperNode.remove()
+    if (translationMode === 'translationOnly') {
+      if (wrapperParent && isHTMLElement(wrapperParent)) {
+        const originalContent = originalContentMap.get(wrapperParent)
+        if (originalContent) {
+          wrapperParent.innerHTML = originalContent
+        }
+      }
+    }
   })
 }
 
 /**
  * Translate the node
  * @param nodes - The nodes to translate
- * @param translationMode - Bilingual or Translation Only
  * @param toggle - Whether to toggle the translation, if true, the translation will be removed if it already exists
  */
 export async function translateNodesBilingualMode(nodes: TransNode[], toggle: boolean = false) {
@@ -145,7 +157,10 @@ export async function translateNodeTranslationOnlyMode(node: HTMLElement, toggle
     if (existedTranslatedWrapper) {
       removeShadowHostInTranslatedWrapper(existedTranslatedWrapper)
       existedTranslatedWrapper.remove()
-      node.innerHTML = originalContentMap.get(node) || 'No original content'
+      const originalContent = originalContentMap.get(node)
+      if (originalContent) {
+        node.innerHTML = originalContent
+      }
       if (toggle) {
         return
       }
@@ -157,17 +172,13 @@ export async function translateNodeTranslationOnlyMode(node: HTMLElement, toggle
 
       let cleanedContent = content
 
-      // 移除所有 MARK_ATTRIBUTES
       for (const attribute of MARK_ATTRIBUTES) {
-        // 移除属性及其值，格式如: data-attribute="value" 或 data-attribute='value' 或 data-attribute
+        // remove attribute and its value, e.g. data-attribute="value" or data-attribute='value' or data-attribute
         const attrRegex = new RegExp(`\\s*${attribute}(?:=['""][^'"]*['""]|=[^\\s>]*)?`, 'g')
         cleanedContent = cleanedContent.replace(attrRegex, '')
       }
 
-      // 将 HTML 注释 <!-- --> 转换为空格
       cleanedContent = cleanedContent.replace(/<!--[\s\S]*?-->/g, ' ')
-
-      // 清理多余的空白字符
       cleanedContent = cleanedContent.replace(/\s+/g, ' ').trim()
 
       return cleanedContent
