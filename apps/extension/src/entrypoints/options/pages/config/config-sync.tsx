@@ -192,7 +192,7 @@ function ViewCurrentConfig() {
         <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border">
           <pre className="text-xs overflow-auto max-h-96 whitespace-pre-wrap">
             {JSON.stringify({
-              storedConfigSchemaVersion,
+              storedConfigSchemaVersion: CONFIG_SCHEMA_VERSION,
               config,
             }, null, 2)}
           </pre>
