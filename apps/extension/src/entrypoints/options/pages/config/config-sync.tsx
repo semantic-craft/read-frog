@@ -31,7 +31,7 @@ import { ConfigCard } from '../../components/config-card'
 export default function ConfigSync() {
   return (
     <ConfigCard
-      title={i18n.t('options.config.title')}
+      title={i18n.t('options.config.sync.title')}
       description={i18n.t('options.config.sync.description')}
     >
       <div className="w-full space-y-4">
@@ -192,7 +192,7 @@ function ViewCurrentConfig() {
         <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border">
           <pre className="text-xs overflow-auto max-h-96 whitespace-pre-wrap">
             {JSON.stringify({
-              storedConfigSchemaVersion: CONFIG_SCHEMA_VERSION,
+              storedConfigSchemaVersion,
               config,
             }, null, 2)}
           </pre>
