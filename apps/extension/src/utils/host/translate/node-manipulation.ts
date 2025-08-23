@@ -4,8 +4,8 @@ import type { Point, TransNode } from '@/types/dom'
 import React from 'react'
 import textSmallCSS from '@/assets/tailwind/text-small.css?inline'
 import themeCSS from '@/assets/tailwind/theme.css?inline'
-import { TranslationError } from '@/components/tranlation/error'
-import { Spinner } from '@/components/tranlation/spinner'
+import { TranslationError } from '@/components/translation/error'
+import { Spinner } from '@/components/translation/spinner'
 import { globalConfig } from '@/utils/config/config'
 import { createReactShadowHost, removeReactShadowHost } from '@/utils/react-shadow-host/create-shadow-host'
 import {
@@ -35,6 +35,9 @@ import { translateText, validateTranslationConfig } from './translate-text'
 
 const translatingNodes = new WeakSet<HTMLElement | Text>()
 const originalContentMap = new WeakMap<HTMLElement, string>()
+
+// Pre-compiled regex for better performance - removes all mark attributes
+const MARK_ATTRIBUTES_REGEX = new RegExp(`\\s*(?:${Array.from(MARK_ATTRIBUTES).join('|')})(?:=['""][^'"]*['""]|=[^\\s>]*)?`, 'g')
 
 export async function hideOrShowNodeTranslation(point: Point) {
   const node = findNearestAncestorBlockNodeAt(point)
@@ -156,14 +159,7 @@ export async function translateNodeTranslationOnlyMode(node: HTMLElement, toggle
       if (!content)
         return content
 
-      let cleanedContent = content
-
-      for (const attribute of MARK_ATTRIBUTES) {
-        // remove attribute and its value, e.g. data-attribute="value" or data-attribute='value' or data-attribute
-        const attrRegex = new RegExp(`\\s*${attribute}(?:=['""][^'"]*['""]|=[^\\s>]*)?`, 'g')
-        cleanedContent = cleanedContent.replace(attrRegex, '')
-      }
-
+      let cleanedContent = content.replace(MARK_ATTRIBUTES_REGEX, '')
       cleanedContent = cleanedContent.replace(/<!--[\s\S]*?-->/g, ' ')
       cleanedContent = cleanedContent.replace(/\s+/g, ' ').trim()
 
