@@ -1,4 +1,4 @@
-import { i18n, storage, useEffect } from '#imports'
+import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
 import {
   AlertDialog,
@@ -27,19 +27,8 @@ import { APP_NAME } from '@/utils/constants/app'
 import { CONFIG_SCHEMA_VERSION } from '@/utils/constants/config'
 import { logger } from '@/utils/logger'
 import { ConfigCard } from '../../components/config-card'
-import { storedConfigSchemaVersionAtom } from './atom'
 
 export default function ConfigSync() {
-  const setStoredConfigSchemaVersion = useSetAtom(storedConfigSchemaVersionAtom)
-
-  useEffect(() => {
-    (async () => {
-      const storedConfigSchemaVersion = await storage.getItem<number>(`local:__configSchemaVersion`)
-      setStoredConfigSchemaVersion(storedConfigSchemaVersion ?? 1)
-    })()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   return (
     <ConfigCard
       title={i18n.t('options.config.title')}
@@ -58,7 +47,6 @@ export default function ConfigSync() {
 }
 
 function ImportConfig() {
-  const storedConfigSchemaVersion = useAtomValue(storedConfigSchemaVersionAtom)
   const setConfig = useSetAtom(writeConfigAtom)
   const importConfig = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -76,12 +64,12 @@ function ImportConfig() {
           }
           const _config = JSON.parse(fileResult)
           const { storedConfigSchemaVersion: importStoredConfigSchemaVersion } = _config
-          if (importStoredConfigSchemaVersion > storedConfigSchemaVersion) {
+          if (importStoredConfigSchemaVersion > CONFIG_SCHEMA_VERSION) {
             toast.error(i18n.t('options.config.sync.versionTooNew'))
             return
           }
           let { config } = _config
-          if (importStoredConfigSchemaVersion < storedConfigSchemaVersion) {
+          if (importStoredConfigSchemaVersion < CONFIG_SCHEMA_VERSION) {
             // migrate
             let currentVersion = importStoredConfigSchemaVersion
             while (currentVersion < CONFIG_SCHEMA_VERSION) {
@@ -131,7 +119,6 @@ function ImportConfig() {
 
 function ExportConfig() {
   const config = useAtomValue(configAtom)
-  const storedConfigSchemaVersion = useAtomValue(storedConfigSchemaVersionAtom)
 
   const exportConfig = (includeApiKeys: boolean) => {
     let exportData = config
@@ -142,10 +129,10 @@ function ExportConfig() {
 
     const json = JSON.stringify({
       config: exportData,
-      storedConfigSchemaVersion,
+      storedConfigSchemaVersion: CONFIG_SCHEMA_VERSION,
     }, null, 2)
     const blob = new Blob([json], { type: 'text/json' })
-    saveAs(blob, `${kebabCase(APP_NAME)}-config-v${storedConfigSchemaVersion}.json`)
+    saveAs(blob, `${kebabCase(APP_NAME)}-config-v${CONFIG_SCHEMA_VERSION}.json`)
 
     toast.success(i18n.t('options.config.sync.exportSuccess'))
   }
@@ -185,7 +172,6 @@ function ExportConfig() {
 
 function ViewCurrentConfig() {
   const config = useAtomValue(configAtom)
-  const storedConfigSchemaVersion = useAtomValue(storedConfigSchemaVersionAtom)
   const [isExpanded, setIsExpanded] = useState(false)
 
   return (
@@ -206,7 +192,7 @@ function ViewCurrentConfig() {
         <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border">
           <pre className="text-xs overflow-auto max-h-96 whitespace-pre-wrap">
             {JSON.stringify({
-              storedConfigSchemaVersion,
+              storedConfigSchemaVersion: CONFIG_SCHEMA_VERSION,
               config,
             }, null, 2)}
           </pre>

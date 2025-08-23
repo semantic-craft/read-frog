@@ -27,7 +27,7 @@ export function ResetConfig() {
     <ConfigCard title={i18n.t('options.config.resetConfig.title')} description={i18n.t('options.config.resetConfig.description')}>
       <AlertDialog>
         <div className="w-full flex justify-end">
-          <AlertDialogTrigger>
+          <AlertDialogTrigger asChild>
             <Button variant="destructive">
               <IconRefresh className="size-4" />
               {i18n.t('options.config.resetConfig.dialog.trigger')}

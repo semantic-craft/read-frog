@@ -3,7 +3,7 @@ import { getConfigWithoutAPIKeys, hasAPIKey } from '../config'
 import { LATEST_SCHEMA_VERSION } from '../migration'
 
 describe('config utilities', () => {
-  describe('getConfigWithoutAPIKeys', async () => {
+  describe('getConfigWithoutAPIKeys', () => {
     for (let version = 2; version <= LATEST_SCHEMA_VERSION; version++) {
       const currentVersionStr = String(version).padStart(3, '0')
 
