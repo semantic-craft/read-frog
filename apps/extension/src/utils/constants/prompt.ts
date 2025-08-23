@@ -1,5 +1,4 @@
 import type { TranslatePromptObj } from '@/types/config/provider'
-import { APP_NAME } from './app'
 
 export const TARGET_LANG_TOKEN = '{{targetLang}}'
 export const INPUT_TOKEN = '{{input}}'
@@ -18,7 +17,7 @@ ${INPUT_TOKEN}
 \`\`\`
 `
 
-export const DEFAULT_TRANSLATE_PROMPT_ID = `${APP_NAME}: TRANSLATE_DEFAULT_PROMPT`
+export const DEFAULT_TRANSLATE_PROMPT_ID = 'default'
 
 export const DEFAULT_TRANSLATE_PROMPT_OBJ: TranslatePromptObj = {
   id: DEFAULT_TRANSLATE_PROMPT_ID,
