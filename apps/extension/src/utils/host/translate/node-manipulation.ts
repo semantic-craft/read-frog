@@ -166,7 +166,7 @@ export async function translateNodeTranslationOnlyMode(node: HTMLElement, toggle
       }
     }
 
-    function cleanTextContent(content: string): string {
+    const cleanTextContent = (content: string): string => {
       if (!content)
         return content
 
@@ -192,6 +192,7 @@ export async function translateNodeTranslationOnlyMode(node: HTMLElement, toggle
     const ownerDoc = getOwnerDocument(node)
     const translatedWrapperNode = ownerDoc.createElement('span')
     translatedWrapperNode.className = `${NOTRANSLATE_CLASS} ${CONTENT_WRAPPER_CLASS}`
+    translatedWrapperNode.style.display = 'contents'
     const spinner = createSpinnerInside(translatedWrapperNode)
 
     node.appendChild(translatedWrapperNode)

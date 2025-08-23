@@ -36,7 +36,7 @@ export function isShallowInlineHTMLElement(element: HTMLElement): boolean {
   }
 
   return (
-    window.getComputedStyle(element).display.includes('inline')
+    ['inline', 'contents'].includes(window.getComputedStyle(element).display)
     && !FORCE_BLOCK_TAGS.has(element.tagName)
   )
 }
@@ -57,7 +57,7 @@ export function isShallowBlockHTMLElement(element: HTMLElement): boolean {
     return false
   }
   return (
-    !window.getComputedStyle(element).display.includes('inline')
+    !['inline', 'contents'].includes(window.getComputedStyle(element).display)
     || FORCE_BLOCK_TAGS.has(element.tagName)
   )
 }
