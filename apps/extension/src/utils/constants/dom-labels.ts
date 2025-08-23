@@ -8,6 +8,8 @@ export const PARAGRAPH_ATTRIBUTE = 'data-read-frog-paragraph'
 export const BLOCK_ATTRIBUTE = 'data-read-frog-block-node'
 export const INLINE_ATTRIBUTE = 'data-read-frog-inline-node'
 
+export const TRANSLATION_MODE_ATTRIBUTE = 'data-read-frog-translation-mode'
+
 export const MARK_ATTRIBUTES = new Set([WALKED_ATTRIBUTE, PARAGRAPH_ATTRIBUTE, BLOCK_ATTRIBUTE, INLINE_ATTRIBUTE])
 
 // if the end of the consecutive inline node is a text node, we can't add this attribute to it
@@ -20,5 +22,3 @@ export const NOTRANSLATE_CLASS = 'notranslate'
 export const REACT_SHADOW_HOST_CLASS = 'read-frog-react-shadow-host'
 
 export const TRANSLATION_ERROR_CONTAINER_CLASS = 'read-frog-translation-error-container'
-
-export const TRANSLATION_MODE_ATTRIBUTE = 'read-frog-translation-mode'
