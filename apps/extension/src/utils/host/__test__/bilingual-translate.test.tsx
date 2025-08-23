@@ -11,8 +11,8 @@ import {
   INLINE_CONTENT_CLASS,
   NOTRANSLATE_CLASS,
 } from '@/utils/constants/dom-labels'
-import { translateWalkedElement, walkAndLabelElement } from '../dom/traversal'
-import { hideOrShowNodeTranslation, translateNodesBilingualMode } from '../translate/node-manipulation'
+import { walkAndLabelElement } from '../dom/traversal'
+import { hideOrShowNodeTranslation, translateNodesBilingualMode, translateWalkedElement } from '../translate/node-manipulation'
 import { translateText } from '../translate/translate-text'
 
 vi.mock('../translate/translate-text', () => ({

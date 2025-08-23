@@ -9,15 +9,18 @@ import { Spinner } from '@/components/tranlation/spinner'
 import { globalConfig } from '@/utils/config/config'
 import { createReactShadowHost, removeReactShadowHost } from '@/utils/react-shadow-host/create-shadow-host'
 import {
+  BLOCK_ATTRIBUTE,
   BLOCK_CONTENT_CLASS,
   CONSECUTIVE_INLINE_END_ATTRIBUTE,
   CONTENT_WRAPPER_CLASS,
   INLINE_CONTENT_CLASS,
   MARK_ATTRIBUTES,
   NOTRANSLATE_CLASS,
+  PARAGRAPH_ATTRIBUTE,
   REACT_SHADOW_HOST_CLASS,
   TRANSLATION_ERROR_CONTAINER_CLASS,
   TRANSLATION_MODE_ATTRIBUTE,
+  WALKED_ATTRIBUTE,
 } from '../../constants/dom-labels'
 import { FORCE_INLINE_TRANSLATION_TAGS } from '../../constants/dom-tags'
 import { isBlockTransNode, isHTMLElement, isInlineTransNode, isTextNode, isTranslatedContentNode, isTranslatedWrapperNode } from '../dom/filter'
@@ -25,16 +28,13 @@ import { deepQueryTopLevelSelector, findNearestAncestorBlockNodeAt, findTranslat
 import { getOwnerDocument } from '../dom/node'
 import {
   extractTextContent,
-  translateWalkedElement,
   walkAndLabelElement,
 } from '../dom/traversal'
 import { decorateTranslationNode } from './decorate-translation'
 import { translateText, validateTranslationConfig } from './translate-text'
 
-// TODO: WeakMap?
-const translatingNodes = new Set<HTMLElement | Text>()
-
-const originalContentMap = new WeakMap<HTMLElement | Text, string>()
+const translatingNodes = new WeakSet<HTMLElement | Text>()
+const originalContentMap = new WeakMap<HTMLElement, string>()
 
 export async function hideOrShowNodeTranslation(point: Point) {
   const node = findNearestAncestorBlockNodeAt(point)
@@ -337,4 +337,106 @@ function removeTranslatedWrapperWithRestore(wrapper: HTMLElement) {
 
   // For bilingual mode or when no original content is found, just remove the wrapper
   wrapper.remove()
+}
+
+/**
+ * Translate the element if it has inline node child
+ * @param element - The element to translate
+ * @param walkId - The walk id
+ * @param toggle - Whether to toggle the translation, if true, the translation will be removed if it already exists
+ */
+export async function translateWalkedElement(
+  element: HTMLElement,
+  walkId: string,
+  toggle: boolean = false,
+) {
+  if (!globalConfig) {
+    return
+  }
+
+  const translationMode = globalConfig.translate.mode
+
+  const promises: Promise<void>[] = []
+
+  // if the walkId is not the same, return
+  if (element.getAttribute(WALKED_ATTRIBUTE) !== walkId)
+    return
+
+  if (element.hasAttribute(PARAGRAPH_ATTRIBUTE)) {
+    let hasBlockNodeChild = false
+
+    for (const child of element.childNodes) {
+      if (isHTMLElement(child) && child.hasAttribute(BLOCK_ATTRIBUTE)) {
+        hasBlockNodeChild = true
+        break
+      }
+    }
+
+    if (translationMode === 'translationOnly') {
+      promises.push(translateNodeTranslationOnlyMode(element, toggle))
+    }
+    else if (!hasBlockNodeChild) {
+      promises.push(translateNodesBilingualMode([element], toggle))
+    }
+    else {
+      // prevent children change during iteration
+      const children = Array.from(element.childNodes)
+      let consecutiveInlineNodes: TransNode[] = []
+      for (const child of children) {
+        if (!child.textContent?.trim()) {
+          continue
+        }
+        if (!(isTextNode(child) || isHTMLElement(child))) {
+          continue
+        }
+
+        if (isInlineTransNode(child)) {
+          consecutiveInlineNodes.push(child)
+          continue
+        }
+        else if (consecutiveInlineNodes.length) {
+          promises.push(dealWithConsecutiveInlineNodes(consecutiveInlineNodes, toggle))
+          consecutiveInlineNodes = []
+        }
+
+        if (isHTMLElement(child)) {
+          promises.push(translateWalkedElement(child, walkId, toggle))
+        }
+      }
+
+      if (consecutiveInlineNodes.length) {
+        promises.push(dealWithConsecutiveInlineNodes(consecutiveInlineNodes, toggle))
+        consecutiveInlineNodes = []
+      }
+    }
+  }
+  else {
+    const promises: Promise<void>[] = []
+    for (const child of element.childNodes) {
+      if (isHTMLElement(child)) {
+        promises.push(translateWalkedElement(child, walkId, toggle))
+      }
+    }
+    if (element.shadowRoot) {
+      for (const child of element.shadowRoot.children) {
+        if (isHTMLElement(child)) {
+          promises.push(translateWalkedElement(child, walkId, toggle))
+        }
+      }
+    }
+  }
+  // This simultaneously ensures that when concurrent translation
+  // and external await call this function, all translations are completed
+  await Promise.all(promises)
+}
+
+async function dealWithConsecutiveInlineNodes(nodes: TransNode[], toggle: boolean = false) {
+  if (nodes.length > 1) {
+    // give attribute to the last node
+    const lastNode = nodes[nodes.length - 1]
+    if (isHTMLElement(lastNode)) {
+      lastNode.setAttribute(CONSECUTIVE_INLINE_END_ATTRIBUTE, '')
+    }
+  }
+  await translateNodesBilingualMode(nodes, toggle)
 }
