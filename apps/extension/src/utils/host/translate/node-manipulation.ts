@@ -1,4 +1,5 @@
 import type { APICallError } from 'ai'
+import type { TranslationMode } from '@/types/config/translate'
 import type { Point, TransNode } from '@/types/dom'
 import React from 'react'
 import textSmallCSS from '@/assets/tailwind/text-small.css?inline'
@@ -16,6 +17,7 @@ import {
   NOTRANSLATE_CLASS,
   REACT_SHADOW_HOST_CLASS,
   TRANSLATION_ERROR_CONTAINER_CLASS,
+  TRANSLATION_MODE_ATTRIBUTE,
 } from '../../constants/dom-labels'
 import { FORCE_INLINE_TRANSLATION_TAGS } from '../../constants/dom-tags'
 import { isBlockTransNode, isHTMLElement, isInlineTransNode, isTextNode, isTranslatedContentNode, isTranslatedWrapperNode } from '../dom/filter'
@@ -106,7 +108,7 @@ export async function translateNodesBilingualMode(nodes: TransNode[], toggle: bo
     const ownerDoc = getOwnerDocument(targetNode)
     const translatedWrapperNode = ownerDoc.createElement('span')
     translatedWrapperNode.className = `${NOTRANSLATE_CLASS} ${CONTENT_WRAPPER_CLASS}`
-    translatedWrapperNode.setAttribute('data-translation-mode', 'bilingual')
+    translatedWrapperNode.setAttribute(TRANSLATION_MODE_ATTRIBUTE, 'bilingual' satisfies TranslationMode)
     const spinner = createSpinnerInside(translatedWrapperNode)
 
     if (isTextNode(targetNode) || nodes.length > 1) {
@@ -176,7 +178,7 @@ export async function translateNodeTranslationOnlyMode(node: HTMLElement, toggle
     const ownerDoc = getOwnerDocument(node)
     const translatedWrapperNode = ownerDoc.createElement('span')
     translatedWrapperNode.className = `${NOTRANSLATE_CLASS} ${CONTENT_WRAPPER_CLASS}`
-    translatedWrapperNode.setAttribute('data-translation-mode', 'translationOnly')
+    translatedWrapperNode.setAttribute(TRANSLATION_MODE_ATTRIBUTE, 'translationOnly' satisfies TranslationMode)
     translatedWrapperNode.style.display = 'contents'
     const spinner = createSpinnerInside(translatedWrapperNode)
 
@@ -320,7 +322,7 @@ function removeShadowHostInTranslatedWrapper(wrapper: HTMLElement) {
 function removeTranslatedWrapperWithRestore(wrapper: HTMLElement) {
   removeShadowHostInTranslatedWrapper(wrapper)
 
-  const translationMode = wrapper.getAttribute('data-translation-mode')
+  const translationMode = wrapper.getAttribute(TRANSLATION_MODE_ATTRIBUTE)
   const wrapperParent = wrapper.parentNode
 
   if (translationMode === 'translationOnly' && wrapperParent && isHTMLElement(wrapperParent)) {
