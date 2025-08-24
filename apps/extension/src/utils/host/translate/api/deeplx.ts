@@ -26,7 +26,7 @@ export async function deeplxTranslate(
     return formattedLang
   }
 
-  const url = `${baseURL.replace(/\/$/, '')}${apiKey ? `/${apiKey}` : ''}/translate`
+  const url = buildDeepLXUrl(baseURL, apiKey)
 
   const requestBody = JSON.stringify({
     text: sourceText,
@@ -90,4 +90,37 @@ async function parseDeepLXResponse(resp: { ok: boolean, status: number, statusTe
       `Failed to parse DeepLX translation response: ${(error as Error).message}`,
     )
   }
+}
+
+export function buildDeepLXUrl(baseURL: string, apiKey?: string): string {
+  // Remove trailing slash from baseURL
+  const cleanBaseURL = baseURL.replace(/\/+$/, '')
+
+  // If baseURL contains {{token}} placeholder, replace it with the API key
+  if (cleanBaseURL.includes('{{token}}')) {
+    if (!apiKey) {
+      throw new Error('API key is required when using {{token}} placeholder in DeepLX baseURL')
+    }
+    return cleanBaseURL.replace(/\{\{token\}\}/g, apiKey)
+  }
+
+  // Special logic for api.deeplx.org: insert token between .org and /translate
+  if (cleanBaseURL === 'https://api.deeplx.org') {
+    if (apiKey) {
+      return `https://api.deeplx.org/${apiKey}/translate`
+    }
+    return `${cleanBaseURL}/translate`
+  }
+
+  // For baseURL without /translate, add it at the end
+  if (!cleanBaseURL.endsWith('/translate')) {
+    if (apiKey) {
+      return `${cleanBaseURL}/${apiKey}/translate`
+    }
+    return `${cleanBaseURL}/translate`
+  }
+
+  // If baseURL already ends with /translate, use it as-is
+  // This handles cases like "https://api.example.com/v1/translate"
+  return cleanBaseURL
 }

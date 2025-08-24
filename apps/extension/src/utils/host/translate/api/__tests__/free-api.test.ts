@@ -1,4 +1,4 @@
-import { deeplxTranslate, googleTranslate, microsoftTranslate } from '../translate/api'
+import { deeplxTranslate, googleTranslate, microsoftTranslate } from '../../api'
 
 describe('googleTranslate', () => {
   it('should translate text', async () => {
