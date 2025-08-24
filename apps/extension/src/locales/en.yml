@@ -155,3 +155,5 @@ noAPIKeyConfig:
 translation:
   sameLanguage: Source and target languages must be different
   autoModeSameLanguage: Detected language '$1' is the same as target language
+shortcutKeySelector:
+  placeholder: Please enter the shortcut
