@@ -3,29 +3,29 @@ import { buildDeepLXUrl } from '../deeplx'
 
 describe('buildDeepLXUrl', () => {
   describe('token placeholder functionality', () => {
-    it('should replace {{token}} with API key in path', () => {
-      const result = buildDeepLXUrl('https://api.deeplx.com/{{token}}/translate', 'abc123')
+    it('should replace {{apiKey}} with API key in path', () => {
+      const result = buildDeepLXUrl('https://api.deeplx.com/{{apiKey}}/translate', 'abc123')
       expect(result).toBe('https://api.deeplx.com/abc123/translate')
     })
 
-    it('should replace {{token}} with API key as query parameter', () => {
-      const result = buildDeepLXUrl('https://api.deeplx.com/v1/translate?token={{token}}', 'mykey')
+    it('should replace {{apiKey}} with API key as query parameter', () => {
+      const result = buildDeepLXUrl('https://api.deeplx.com/v1/translate?token={{apiKey}}', 'mykey')
       expect(result).toBe('https://api.deeplx.com/v1/translate?token=mykey')
     })
 
-    it('should replace multiple {{token}} occurrences', () => {
-      const result = buildDeepLXUrl('https://{{token}}.api.deeplx.com/{{token}}/translate', 'test')
+    it('should replace multiple {{apiKey}} occurrences', () => {
+      const result = buildDeepLXUrl('https://{{apiKey}}.api.deeplx.com/{{apiKey}}/translate', 'test')
       expect(result).toBe('https://test.api.deeplx.com/test/translate')
     })
 
-    it('should throw error when {{token}} is used without API key', () => {
-      expect(() => buildDeepLXUrl('https://api.deeplx.com/{{token}}/translate')).toThrow(
-        'API key is required when using {{token}} placeholder in DeepLX baseURL',
+    it('should throw error when {{apiKey}} is used without API key', () => {
+      expect(() => buildDeepLXUrl('https://api.deeplx.com/{{apiKey}}/translate')).toThrow(
+        'API key is required when using {{apiKey}} placeholder in DeepLX baseURL',
       )
     })
 
-    it('should replace {{token}} in complex URL patterns', () => {
-      const result = buildDeepLXUrl('https://api.example.com/v2/{{token}}/services/translate?version=1', 'secret')
+    it('should replace {{apiKey}} in complex URL patterns', () => {
+      const result = buildDeepLXUrl('https://api.example.com/v2/{{apiKey}}/services/translate?version=1', 'secret')
       expect(result).toBe('https://api.example.com/v2/secret/services/translate?version=1')
     })
   })
@@ -104,13 +104,13 @@ describe('buildDeepLXUrl', () => {
   })
 
   describe('real-world examples from issue description', () => {
-    it('should handle api.deeplx.com/{{token}}/translate pattern', () => {
-      const result = buildDeepLXUrl('https://api.deeplx.com/{{token}}/translate', 'user-token')
+    it('should handle api.deeplx.com/{{apiKey}}/translate pattern', () => {
+      const result = buildDeepLXUrl('https://api.deeplx.com/{{apiKey}}/translate', 'user-token')
       expect(result).toBe('https://api.deeplx.com/user-token/translate')
     })
 
     it('should handle query parameter pattern', () => {
-      const result = buildDeepLXUrl('https://api.deeplx.com/v1/translate?token={{token}}', 'query-token')
+      const result = buildDeepLXUrl('https://api.deeplx.com/v1/translate?token={{apiKey}}', 'query-token')
       expect(result).toBe('https://api.deeplx.com/v1/translate?token=query-token')
     })
 

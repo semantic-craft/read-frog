@@ -9,23 +9,23 @@ DeepLX is a free, unofficial API that provides DeepL-like translation quality th
 
 ## Flexible BaseURL Configuration
 
-read-frog supports flexible DeepLX baseURL configuration to work with different DeepLX providers. You can customize the baseURL to match your provider's specific endpoint format.
+Read Frog supports flexible DeepLX baseURL configuration to work with different DeepLX providers. You can customize the baseURL to match your provider's specific endpoint format.
 
 ### Token Placeholder Support
 
-You can use the `{{token}}` placeholder in your baseURL to insert your API token at any position. This is useful when different DeepLX providers require tokens in different URL formats.
+You can use the `{{apiKey}}` placeholder in your baseURL to insert your API token at any position. This is useful when different DeepLX providers require tokens in different URL formats.
 
 **Examples:**
 
-1. **Token in path**: `https://api.deeplx.com/{{token}}/translate`
-2. **Token as query parameter**: `https://api.deeplx.com/v1/translate?token={{token}}`
-3. **Token in subdomain**: `https://{{token}}.api.deeplx.com/translate`
+1. **Token in path**: `https://api.deeplx.com/{{apiKey}}/translate`
+2. **Token as query parameter**: `https://api.deeplx.com/v1/translate?token={{apiKey}}`
+3. **Token in subdomain**: `https://{{apiKey}}.api.deeplx.com/translate`
 
 ### Special URL Handling
 
 #### Standard DeepLX URLs
 
-For most DeepLX providers, if your baseURL doesn't end with `/translate`, read-frog will automatically append it:
+For most DeepLX providers, if your baseURL doesn't end with `/translate`, Read Frog will automatically append it:
 
 - **Input**: `https://deeplx.example.com`
 - **Output**: `https://deeplx.example.com/translate`
@@ -36,7 +36,7 @@ With API token:
 
 #### api.deeplx.org Special Logic
 
-For the official `https://api.deeplx.org` endpoint, read-frog applies special logic to insert the API token between `.org` and `/translate`:
+For the official `https://api.deeplx.org` endpoint, Read Frog applies special logic to insert the API token between `.org` and `/translate`:
 
 - **Without token**: `https://api.deeplx.org/translate`
 - **With token**: `https://api.deeplx.org/your-token/translate`
@@ -56,7 +56,7 @@ Result: https://deeplx.vercel.app/translate
 #### Token in Path
 
 ```
-BaseURL: https://api.deeplx.com/{{token}}
+BaseURL: https://api.deeplx.com/{{apiKey}}
 API Key: your-secret-token
 Result: https://api.deeplx.com/your-secret-token/translate
 ```
@@ -64,7 +64,7 @@ Result: https://api.deeplx.com/your-secret-token/translate
 #### Token as Query Parameter
 
 ```
-BaseURL: https://api.example.com/v1/translate?key={{token}}
+BaseURL: https://api.example.com/v1/translate?key={{apiKey}}
 API Key: your-api-key
 Result: https://api.example.com/v1/translate?key=your-api-key
 ```
@@ -72,19 +72,19 @@ Result: https://api.example.com/v1/translate?key=your-api-key
 #### Custom Endpoint with Token
 
 ```
-BaseURL: https://deeplx.mydomain.com/api/{{token}}/translate
+BaseURL: https://deeplx.mydomain.com/api/{{apiKey}}/translate
 API Key: abc123
 Result: https://deeplx.mydomain.com/api/abc123/translate
 ```
 
-## Setting Up DeepLX in read-frog
+## Setting Up DeepLX in Read Frog
 
-1. **Open Extension Options**: Click the read-frog extension icon and go to Options
+1. **Open Extension Options**: Click the Read Frog extension icon and go to Options
 2. **Navigate to API Providers**: Go to the API Providers section
 3. **Configure DeepLX**:
    - Set your **BaseURL** according to your provider's format
    - Add your **API Key** if required (leave empty for providers that don't need it)
-   - Use `{{token}}` placeholder if you need custom token placement
+   - Use `{{apiKey}}` placeholder if you need custom token placement
 4. **Test Translation**: Try translating some text to verify the configuration works
 
 ## Common DeepLX Providers
@@ -103,12 +103,12 @@ Result: https://deeplx.mydomain.com/api/abc123/translate
 If you're having issues with URL construction:
 
 1. **Check your baseURL format**: Ensure it follows the expected pattern
-2. **Verify token placement**: Make sure `{{token}}` is in the correct position
+2. **Verify token placement**: Make sure `{{apiKey}}` is in the correct position
 3. **Test without token first**: Try with a free provider to isolate configuration issues
 
 ### Common Errors
 
-- **"API key is required when using {{token}} placeholder"**: You specified `{{token}}` in the baseURL but didn't provide an API key
+- **"API key is required when using `{{apiKey}}` placeholder"**: You specified `{{apiKey}}` in the baseURL but didn't provide an API key
 - **"DeepLX translation request failed"**: Check if your baseURL and API key are correct
 - **Network errors**: Verify the DeepLX provider is accessible and online
 

@@ -96,12 +96,12 @@ export function buildDeepLXUrl(baseURL: string, apiKey?: string): string {
   // Remove trailing slash from baseURL
   const cleanBaseURL = baseURL.replace(/\/+$/, '')
 
-  // If baseURL contains {{token}} placeholder, replace it with the API key
-  if (cleanBaseURL.includes('{{token}}')) {
+  // If baseURL contains {{apiKey}} placeholder, replace it with the API key
+  if (cleanBaseURL.includes('{{apiKey}}')) {
     if (!apiKey) {
-      throw new Error('API key is required when using {{token}} placeholder in DeepLX baseURL')
+      throw new Error('API key is required when using {{apiKey}} placeholder in DeepLX baseURL')
     }
-    return cleanBaseURL.replace(/\{\{token\}\}/g, apiKey)
+    return cleanBaseURL.replace(/\{\{apiKey\}\}/g, apiKey)
   }
 
   // Special logic for api.deeplx.org: insert token between .org and /translate
