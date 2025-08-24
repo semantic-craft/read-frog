@@ -5,16 +5,16 @@ import { Analytics } from '@vercel/analytics/next'
 import { RootProvider } from 'fumadocs-ui/provider'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
-import { Inter } from 'next/font/google'
+// import { Inter } from 'next/font/google'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { SITE_PUBLIC_URL } from '@/lib/constants'
 import { TRPCReactProvider } from '@/trpc/react'
 import '@/styles/global.css'
 
-const inter = Inter({
-  subsets: ['latin'],
-})
+// const inter = Inter({
+//   subsets: ['latin'],
+// })
 
 export async function generateMetadata({
   params,
@@ -93,7 +93,7 @@ export default async function RootLayout({
   setRequestLocale(locale)
 
   return (
-    <html lang={locale} className={inter.className} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body className="flex flex-col min-h-screen">
         <NextIntlClientProvider>
           <RootProvider
