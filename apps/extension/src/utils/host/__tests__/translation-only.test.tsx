@@ -1,10 +1,7 @@
-import { act, render, screen } from '@testing-library/react'
-
 // @vitest-environment jsdom
+import { act, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-
 import { DEFAULT_CONFIG } from '@/utils/constants/config'
-
 import {
   CONTENT_WRAPPER_CLASS,
   NOTRANSLATE_CLASS,
