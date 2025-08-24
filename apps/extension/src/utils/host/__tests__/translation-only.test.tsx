@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -38,7 +38,9 @@ describe('translateNodeTranslationOnlyMode', () => {
     render(<div data-testid="test-node">Original content</div>)
     const node = screen.getByTestId('test-node') as HTMLElement
 
-    await translateNodeTranslationOnlyMode(node, false)
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, false)
+    })
 
     // Should have a wrapper with display: contents
     const wrapper = node.querySelector(`.${CONTENT_WRAPPER_CLASS}`) as HTMLElement
@@ -63,7 +65,9 @@ describe('translateNodeTranslationOnlyMode', () => {
     )
     const node = screen.getByTestId('test-node') as HTMLElement
 
-    await translateNodeTranslationOnlyMode(node, false)
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, false)
+    })
 
     const wrapper = node.querySelector(`.${CONTENT_WRAPPER_CLASS}`) as HTMLElement
     expect(wrapper).toBeTruthy()
@@ -86,11 +90,15 @@ describe('translateNodeTranslationOnlyMode', () => {
     const originalContent = node.innerHTML
 
     // Translate
-    await translateNodeTranslationOnlyMode(node, false)
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, false)
+    })
     expect(node.innerHTML).not.toContain('Original')
 
     // Toggle off to restore
-    await translateNodeTranslationOnlyMode(node, true)
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, true)
+    })
     expect(node.innerHTML).toBe(originalContent)
     expect(node.innerHTML).toContain('<span>Original</span>')
     expect(node.innerHTML).toContain('<strong>HTML</strong>')
@@ -101,7 +109,9 @@ describe('translateNodeTranslationOnlyMode', () => {
     const node = screen.getByTestId('test-node') as HTMLElement
 
     // Should not crash with empty content
-    await translateNodeTranslationOnlyMode(node, false)
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, false)
+    })
     expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
   })
 
@@ -110,7 +120,9 @@ describe('translateNodeTranslationOnlyMode', () => {
     const node = screen.getByTestId('test-node') as HTMLElement
 
     // Should not crash with whitespace-only content
-    await translateNodeTranslationOnlyMode(node, false)
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, false)
+    })
     expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
   })
 
@@ -119,12 +131,16 @@ describe('translateNodeTranslationOnlyMode', () => {
     const node = screen.getByTestId('test-node') as HTMLElement
 
     // First translation
-    await translateNodeTranslationOnlyMode(node, false)
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, false)
+    })
     const wrapper = node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)
     expect(wrapper).toBeTruthy()
 
     // Second translation (should replace the first)
-    await translateNodeTranslationOnlyMode(node, false)
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, false)
+    })
     const wrappers = node.querySelectorAll(`.${CONTENT_WRAPPER_CLASS}`)
     expect(wrappers).toHaveLength(1)
     expect(wrappers[0].textContent).toBe('translated content')
@@ -144,8 +160,12 @@ describe('translateNodeTranslationOnlyMode', () => {
     const originalContent = node.innerHTML
 
     // Translate and then restore
-    await translateNodeTranslationOnlyMode(node, false)
-    await translateNodeTranslationOnlyMode(node, true)
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, false)
+    })
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, true)
+    })
 
     expect(node.innerHTML).toBe(originalContent)
     expect(node.querySelector('.nested')).toBeTruthy()
@@ -164,7 +184,9 @@ describe('translateNodeTranslationOnlyMode', () => {
 
     const node = testElement as HTMLElement
 
-    await translateNodeTranslationOnlyMode(node, false)
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, false)
+    })
 
     // Should have called translateText with cleaned content
     expect(translateText).toHaveBeenCalledWith(
@@ -182,10 +204,18 @@ describe('translateNodeTranslationOnlyMode', () => {
     const originalContent = node.innerHTML
 
     // Multiple toggle operations
-    await translateNodeTranslationOnlyMode(node, false) // translate
-    await translateNodeTranslationOnlyMode(node, true) // restore
-    await translateNodeTranslationOnlyMode(node, false) // translate again
-    await translateNodeTranslationOnlyMode(node, true) // restore again
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, false) // translate
+    })
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, true) // restore
+    })
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, false) // translate again
+    })
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, true) // restore again
+    })
 
     expect(node.innerHTML).toBe(originalContent)
     expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
@@ -202,7 +232,9 @@ describe('translation wrapper properties', () => {
     render(<div data-testid="test-node">Test content</div>)
     const node = screen.getByTestId('test-node') as HTMLElement
 
-    await translateNodeTranslationOnlyMode(node, false)
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, false)
+    })
 
     const wrapper = node.querySelector(`.${CONTENT_WRAPPER_CLASS}`) as HTMLElement
     expect(wrapper.classList.contains(NOTRANSLATE_CLASS)).toBe(true)
@@ -215,7 +247,9 @@ describe('translation wrapper properties', () => {
     render(<div data-testid="test-node">Test content</div>)
     const node = screen.getByTestId('test-node') as HTMLElement
 
-    await translateNodeTranslationOnlyMode(node, false)
+    await act(async () => {
+      await translateNodeTranslationOnlyMode(node, false)
+    })
 
     const wrapper = node.querySelector(`.${CONTENT_WRAPPER_CLASS}`) as HTMLElement
     expect(wrapper.parentElement).toBe(node)
