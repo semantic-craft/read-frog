@@ -1,6 +1,9 @@
-export const description = 'Add translation mode'
+import type { Config } from '@/types/config/config'
+import { DEFAULT_TRANSLATE_SHORTCUT_KEY } from '@/utils/constants/translate'
 
-export const configExample = {
+export const description = 'Add custom translate shortcut key'
+
+export const configExample: Config = {
   language: {
     detectedCode: 'eng',
     sourceCode: 'auto',
@@ -94,6 +97,7 @@ Input:
       rate: 5,
     },
     translationNodeStyle: 'default',
+    customShortcutKey: DEFAULT_TRANSLATE_SHORTCUT_KEY,
   },
   floatingButton: {
     enabled: true,
