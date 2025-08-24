@@ -4,8 +4,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Coding Style
 
-You are a senior engineer producing production-ready code. Follow these rules:
-
 ### Design principles
 
 - SOLID:
