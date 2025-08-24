@@ -39,7 +39,7 @@ export function isShallowInlineHTMLElement(element: HTMLElement): boolean {
 
   // treat large floating letter on some news websites as inline node
   // for example: https://www.economist.com/business/2025/08/21/china-is-quietly-upstaging-america-with-its-open-models
-  if (computedStyle.float !== '') {
+  if (computedStyle.float !== 'none') {
     return true
   }
 
@@ -68,7 +68,7 @@ export function isShallowBlockHTMLElement(element: HTMLElement): boolean {
   const computedStyle = window.getComputedStyle(element)
 
   // treat large floating letter on some news websites as block node
-  if (computedStyle.float !== '') {
+  if (computedStyle.float !== 'none') {
     return false
   }
 

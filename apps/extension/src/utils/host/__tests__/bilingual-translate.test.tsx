@@ -21,6 +21,27 @@ vi.mock('@/utils/config/config', () => ({
   globalConfig: DEFAULT_CONFIG,
 }))
 
+// Mock getComputedStyle globally to return proper default values
+const originalGetComputedStyle = window.getComputedStyle
+beforeAll(() => {
+  window.getComputedStyle = vi.fn((element) => {
+    const originalStyle = originalGetComputedStyle(element)
+    if (originalStyle.float === '') {
+      Object.defineProperty(originalStyle, 'float', {
+        value: 'none',
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      })
+    }
+    return originalStyle
+  })
+})
+
+afterAll(() => {
+  window.getComputedStyle = originalGetComputedStyle
+})
+
 async function hideOrShowPageTranslation(toggle: boolean = false) {
   const id = crypto.randomUUID()
 
@@ -139,8 +160,10 @@ describe('toggle translateWalkedElement', () => {
         <div style={{ display: 'block' }}>3</div>
       </div>,
     )
+
     const node = screen.getByTestId('test-node')
     await hideOrShowPageTranslation(true)
+
     expect(node.childNodes[2]).toHaveClass(CONTENT_WRAPPER_CLASS)
     expect(node.childNodes[2].childNodes[1]).toHaveClass(INLINE_CONTENT_CLASS)
 
