@@ -160,6 +160,22 @@ describe('translatePage', () => {
     expect(node.childNodes[1].childNodes[1]).toHaveClass(BLOCK_CONTENT_CLASS)
   })
 
+  it('should translate floating element as inline node', async () => {
+    render(
+      <div data-testid="test-node">
+        <span style={{ float: 'left' }}>Floating text</span>
+        <span style={{ display: 'inline' }}>Normal text</span>
+      </div>,
+    )
+
+    const node = screen.getByTestId('test-node')
+    await hideOrShowPageTranslation()
+
+    // The floating span should be treated as inline, and translation wrapper should be at the end of parent
+    expect(node.lastChild).toHaveClass(CONTENT_WRAPPER_CLASS)
+    expect(node.lastChild?.childNodes[1]).toHaveClass(BLOCK_CONTENT_CLASS)
+  })
+
   it('should insert inline translation and block translation correctly in a node with inline and block node inside', async () => {
     render(
       <div data-testid="test-node">
