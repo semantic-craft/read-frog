@@ -25,7 +25,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm --filter=@read-frog/extension dev:firefox` - Run extension in Firefox
 - `pnpm --filter=@read-frog/extension dev:edge` - Run extension in Edge
 
-### Database (when working with website)
+### Database
 
 - `pnpm db:generate` - Generate database schema
 - `pnpm db:migrate` - Run database migrations
