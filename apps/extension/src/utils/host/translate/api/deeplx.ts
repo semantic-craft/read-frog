@@ -71,10 +71,13 @@ async function fetchDirect(url: string, body: string) {
   return resp
 }
 
-async function parseDeepLXResponse(resp: { ok: boolean, status: number, statusText: string, json: () => Promise<any> }) {
+async function parseDeepLXResponse(resp: { ok: boolean, status: number, statusText: string, text: () => Promise<string>, json: () => Promise<any> }) {
   if (!resp.ok) {
+    const errorText = await resp.text().catch(() => 'Unable to read error response')
     throw new Error(
-      `DeepLX translation request failed: ${resp.status} ${resp.statusText}`,
+      `DeepLX translation request failed: ${resp.status} ${resp.statusText}${
+        errorText ? ` - ${errorText}` : ''
+      }`,
     )
   }
 

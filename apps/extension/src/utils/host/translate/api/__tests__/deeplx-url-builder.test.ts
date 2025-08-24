@@ -69,7 +69,7 @@ describe('buildDeepLXUrl', () => {
     })
   })
 
-  describe('uRL cleaning', () => {
+  describe('url cleaning', () => {
     it('should remove trailing slash from baseURL', () => {
       const result = buildDeepLXUrl('https://deeplx.vercel.app/')
       expect(result).toBe('https://deeplx.vercel.app/translate')

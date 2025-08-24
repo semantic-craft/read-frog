@@ -9,7 +9,6 @@
       "Bash(cd:*)",
       "Bash(mkdir:*)",
       "Bash(tree:*)",
-      "Bash(chmod:*)",
       "Bash(cp:*)",
       "Bash(touch:*)",
       "Bash(pnpm test:*)",
