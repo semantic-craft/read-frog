@@ -3,7 +3,7 @@ export function migrate(oldConfig: any): any {
     ...oldConfig,
     translate: {
       ...oldConfig.translate,
-      customShortcutKey: 'bilingual',
+      mode: 'bilingual',
     },
   }
 }
