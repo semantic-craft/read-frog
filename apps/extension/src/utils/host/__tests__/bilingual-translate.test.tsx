@@ -223,7 +223,7 @@ describe('translatePage', () => {
     await hideOrShowPageTranslation()
 
     // The outer div should not have translation wrapper directly attached to it
-    expect(node.childNodes).not.toContain(
+    expect(Array.from(node.childNodes)).not.toContainEqual(
       expect.objectContaining({
         className: expect.stringContaining(CONTENT_WRAPPER_CLASS),
       }),
