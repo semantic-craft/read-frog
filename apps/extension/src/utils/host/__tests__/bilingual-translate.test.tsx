@@ -209,6 +209,37 @@ describe('translatePage', () => {
     })
   })
 
+  it('should not treat outer div as paragraph when it contains empty inline nodes and block nodes', async () => {
+    render(
+      <div data-testid="test-node">
+        <span style={{ display: 'inline' }}></span>
+        <span style={{ display: 'inline' }}>   </span>
+        <div data-testid="inner-block">Block content</div>
+        <div data-testid="another-block">Another block</div>
+      </div>,
+    )
+
+    const node = screen.getByTestId('test-node')
+    await hideOrShowPageTranslation()
+
+    // The outer div should not have translation wrapper directly attached to it
+    expect(node.childNodes).not.toContain(
+      expect.objectContaining({
+        className: expect.stringContaining(CONTENT_WRAPPER_CLASS),
+      }),
+    )
+
+    // Only the inner block divs should have translation
+    const innerBlock = screen.getByTestId('inner-block')
+    const anotherBlock = screen.getByTestId('another-block')
+
+    expect(innerBlock.childNodes[1]).toHaveClass(CONTENT_WRAPPER_CLASS)
+    expect(innerBlock.childNodes[1].childNodes[1]).toHaveClass(BLOCK_CONTENT_CLASS)
+
+    expect(anotherBlock.childNodes[1]).toHaveClass(CONTENT_WRAPPER_CLASS)
+    expect(anotherBlock.childNodes[1].childNodes[1]).toHaveClass(BLOCK_CONTENT_CLASS)
+  })
+
   it('should translate floating element as inline node', async () => {
     render(
       <div data-testid="test-node">
