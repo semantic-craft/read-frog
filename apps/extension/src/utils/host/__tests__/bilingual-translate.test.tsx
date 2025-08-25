@@ -223,11 +223,10 @@ describe('translatePage', () => {
     await hideOrShowPageTranslation()
 
     // The outer div should not have translation wrapper directly attached to it
-    expect(Array.from(node.childNodes)).not.toContainEqual(
-      expect.objectContaining({
-        className: expect.stringContaining(CONTENT_WRAPPER_CLASS),
-      }),
+    const hasTranslationWrapper = Array.from(node.childNodes).some(child =>
+      child instanceof HTMLElement && child.classList.contains(CONTENT_WRAPPER_CLASS),
     )
+    expect(hasTranslationWrapper).toBe(false)
 
     // Only the inner block divs should have translation
     const innerBlock = screen.getByTestId('inner-block')
