@@ -18,7 +18,7 @@ export function RetryButton({ nodes }: { nodes: TransNode[] }) {
       await translateNodesBilingualMode(nodes)
     }
     else if (translationMode === 'translationOnly' && isHTMLElement(nodes[0])) {
-      await translateNodeTranslationOnlyMode(nodes[0])
+      await translateNodeTranslationOnlyMode(nodes)
     }
   }
 
