@@ -16,12 +16,24 @@ export function registerNodeTranslationTriggers() {
   let timerId: NodeJS.Timeout | null = null
   let actionTriggered = false
 
+  if (!globalConfig) {
+    console.warn('Global config is not initialized')
+    return
+  }
+
+  const translationMode = globalConfig.translate.mode
+
   // Listen the hotkey means the user can't press or hold any other key during the hotkey is holding
   document.addEventListener('keydown', (e) => {
     if (!isEnabled())
       return
     if (e.target instanceof HTMLElement && isEditable(e.target))
       return
+
+    if (!globalConfig) {
+      console.warn('Global config is not initialized')
+      return
+    }
 
     if (e.key === getHotkey()) {
       if (!keyState.isHotkeyPressed) {
@@ -30,7 +42,7 @@ export function registerNodeTranslationTriggers() {
         keyState.isOtherKeyPressed = false
         timerId = setTimeout(() => {
           if (!keyState.isOtherKeyPressed && keyState.isHotkeyPressed) {
-            hideOrShowNodeTranslation(mousePosition)
+            hideOrShowNodeTranslation(mousePosition, translationMode)
             actionTriggered = true
           }
           timerId = null
@@ -60,7 +72,7 @@ export function registerNodeTranslationTriggers() {
           timerId = null
         }
         if (!actionTriggered) {
-          hideOrShowNodeTranslation(mousePosition)
+          hideOrShowNodeTranslation(mousePosition, translationMode)
         }
       }
       actionTriggered = false

@@ -47,7 +47,7 @@ async function hideOrShowPageTranslation(toggle: boolean = false) {
 
   walkAndLabelElement(document.body, id)
   await act(async () => {
-    await translateWalkedElement(document.body, id, toggle)
+    await translateWalkedElement(document.body, id, 'bilingual', toggle)
   })
 }
 
@@ -127,10 +127,12 @@ describe('toggle translateWalkedElement', () => {
     )
     const node = screen.getByTestId('test-node')
     await hideOrShowPageTranslation(true)
+
     expect(node.childNodes[1]).toHaveClass(CONTENT_WRAPPER_CLASS)
     expect(node.childNodes[1].childNodes[1]).toHaveClass(INLINE_CONTENT_CLASS)
 
     await hideOrShowPageTranslation(true)
+
     expect(node.childNodes.length).toBe(1)
   })
   it('should show then hide the inline text node translation', async () => {
@@ -260,7 +262,7 @@ describe('translatePage', () => {
       <div data-testid="test-node">
         <span style={{ display: 'inline' }}>1</span>
         <div style={{ display: 'block' }}>2</div>
-        <span style={{ display: 'inline' }}>3</span>
+        <div style={{ display: 'inline-block' }}>3</div>
         4
         <span style={{ display: 'block' }}>5</span>
         6
@@ -278,12 +280,16 @@ describe('translatePage', () => {
       INLINE_CONTENT_CLASS,
     )
 
-    const thirdDivChild = node.childNodes[1]
-    expect(thirdDivChild).toHaveAttribute('data-read-frog-paragraph')
-    expect(thirdDivChild?.childNodes[1]).toHaveClass(CONTENT_WRAPPER_CLASS)
-    expect(thirdDivChild?.childNodes[1].childNodes[1]).toHaveClass(
+    const secondDivChild = node.childNodes[1]
+    expect(secondDivChild).toHaveAttribute('data-read-frog-paragraph')
+    expect(secondDivChild?.childNodes[1]).toHaveClass(CONTENT_WRAPPER_CLASS)
+    expect(secondDivChild?.childNodes[1].childNodes[1]).toHaveClass(
       BLOCK_CONTENT_CLASS,
     )
+
+    const thirdChild = node.childNodes[2]
+    expect(thirdChild).toHaveAttribute('data-read-frog-paragraph')
+    expect(thirdChild.childNodes.length).toBe(1)
 
     const sixthInlineTranslationChild = node.childNodes[4]
     expect(sixthInlineTranslationChild).toHaveClass(CONTENT_WRAPPER_CLASS)
@@ -380,7 +386,7 @@ describe('hideOrShowNodeTranslation', () => {
     document.elementFromPoint = vi.fn(() => originalElement)
 
     await act(async () => {
-      await hideOrShowNodeTranslation({ x: 150, y: 125 })
+      await hideOrShowNodeTranslation({ x: 150, y: 125 }, 'bilingual')
     })
 
     // Should find translation wrapper
@@ -423,7 +429,7 @@ describe('hideOrShowNodeTranslation', () => {
     document.elementFromPoint = vi.fn(() => translatedContent)
 
     await act(async () => {
-      await hideOrShowNodeTranslation({ x: 150, y: 125 })
+      await hideOrShowNodeTranslation({ x: 150, y: 125 }, 'bilingual')
     })
 
     // Wrapper should be removed

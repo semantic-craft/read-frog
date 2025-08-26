@@ -1,3 +1,4 @@
+import { globalConfig } from '@/utils/config/config'
 import { isDontWalkIntoElement, isHTMLElement, isIFrameElement } from '@/utils/host/dom/filter'
 import { deepQueryTopLevelSelector } from '@/utils/host/dom/find'
 import { walkAndLabelElement } from '@/utils/host/dom/traversal'
@@ -66,6 +67,11 @@ export class PageTranslationManager implements IPageTranslationManager {
   }
 
   start(): void {
+    if (!globalConfig) {
+      console.warn('Global config is not initialized')
+      return
+    }
+
     if (this.isAutoTranslating) {
       console.warn('AutoTranslationManager is already active')
       return
@@ -77,13 +83,14 @@ export class PageTranslationManager implements IPageTranslationManager {
     })
 
     // Listen to existing elements when they enter the viewpoint
+    const translationMode = globalConfig.translate.mode
     const walkId = crypto.randomUUID()
     this.walkId = walkId
     this.intersectionObserver = new IntersectionObserver((entries, observer) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           if (isHTMLElement(entry.target)) {
-            translateWalkedElement(entry.target, walkId)
+            translateWalkedElement(entry.target, walkId, translationMode)
           }
           observer.unobserve(entry.target)
         }

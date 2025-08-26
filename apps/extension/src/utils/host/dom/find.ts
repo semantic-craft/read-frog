@@ -1,5 +1,6 @@
 import type { Point } from '@/types/dom'
 
+import { CONTENT_WRAPPER_CLASS } from '@/utils/constants/dom-labels'
 import { isHTMLElement, isIFrameElement, isShallowInlineHTMLElement, isTranslatedContentNode, isTranslatedWrapperNode } from './filter'
 import { smashTruncationStyle } from './style'
 
@@ -63,6 +64,8 @@ function findElementAt(root: Document | ShadowRoot, point: Point): Element | nul
  */
 export function findNearestAncestorBlockNodeAt(point: Point) {
   let currentNode = findElementAt(document, point)
+
+  currentNode = currentNode?.closest(`.${CONTENT_WRAPPER_CLASS}`) || currentNode
 
   while (
     currentNode && isHTMLElement(currentNode)
