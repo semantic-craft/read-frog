@@ -79,13 +79,12 @@ export default defineContentScript({
       handleUrlChange(from, to)
     })
 
-    onMessage('setTranslationCustomShortcutKey', (msg) => {
-      const { customShortcutKey } = msg.data
-      const customTranslateShortcutKey = customShortcutKey.join('+')
+    const bindShortcutKey = (shortcutKey: string[] = globalConfig!.translate.customShortcutKey) => {
+      const customShortcutKey = shortcutKey.join('+')
 
       hotkeys.unbind()
 
-      hotkeys(customTranslateShortcutKey, () => {
+      hotkeys(customShortcutKey, () => {
         if (manager.isActive) {
           manager.stop()
         }
@@ -100,6 +99,13 @@ export default defineContentScript({
           manager.start()
         }
       })
+    }
+
+    bindShortcutKey()
+
+    onMessage('setTranslationCustomShortcutKey', (msg) => {
+      const { shortcutKey } = msg.data
+      bindShortcutKey(shortcutKey)
     })
 
     port.onMessage.addListener((msg) => {

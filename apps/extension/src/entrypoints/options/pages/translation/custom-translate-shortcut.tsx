@@ -3,6 +3,7 @@ import { useAtom } from 'jotai'
 import { ShortcutKeySelector } from '@/components/shortcut-key-selector'
 import { configFields } from '@/utils/atoms/config'
 import { DEFAULT_TRANSLATE_SHORTCUT_KEY } from '@/utils/constants/translate'
+import { sendMessage } from '@/utils/message'
 import { ConfigCard } from '../../components/config-card'
 
 export function CustomTranslateShortcut() {
@@ -14,6 +15,7 @@ export function CustomTranslateShortcut() {
       ...translateConfig,
       customShortcutKey: shortcutKey,
     })
+    sendMessage('setTranslationCustomShortcutKey', { shortcutKey })
   }
 
   return (
