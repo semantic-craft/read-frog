@@ -3,17 +3,13 @@ import { Input } from '@repo/ui/components/input'
 import { cn } from '@repo/ui/lib/utils'
 import hotkeys from 'hotkeys-js'
 import { useEffect, useRef, useState } from 'react'
-
-// metaKey : command
-// altKey : alt or option
-// shiftKey: shift
-// ctrlKey: ctrl or control
+import { formatHotkey } from '@/utils/os'
 
 const MODIFIERS = ['shift', 'alt', 'ctrl', 'command'] as const
 
-const UPPERCASE_MODIFIERS = ['Shift', 'Alt', 'Control', 'Meta']
+const HOTKEYS_MODIFIERS = Object.keys(hotkeys.modifier)
 
-const isModifier = (event: KeyboardEvent) => UPPERCASE_MODIFIERS.includes(event.key)
+const DISMISS_CODE = ['Space', 'Escape']
 
 hotkeys.filter = (event: KeyboardEvent) => {
   return (event.target as HTMLInputElement).tagName === 'INPUT'
@@ -26,29 +22,42 @@ export function ShortcutKeySelector(
   const [inRecording, setInRecording] = useState(false)
   const [shortcutKey, setShortcutKey] = useState(initialHotkeys)
 
-  const formatShortcut = shortcutKey.map(shortcut => shortcut.toUpperCase()).join('+')
+  const formatShortcut = formatHotkey(shortcutKey)
 
   const recordDomRef = useRef<HTMLInputElement>(null)
 
   const clearHotkeys = () => setShortcutKey([])
 
+  const resetShortcutKey = () => {
+    setShortcutKey(initialHotkeys)
+    onChange?.(initialHotkeys)
+  }
+
   const startRecord = () => {
-    recordDomRef.current?.focus()
     setInRecording(true)
+    setShortcutKey([])
   }
 
   const endRecord = () => {
     setInRecording(false)
-    setShortcutKey((hotkeys) => {
-      const newHotkeys = isValidShortcut(hotkeys) ? hotkeys : initialHotkeys
-      onChange?.(newHotkeys)
-      return newHotkeys
-    })
+    if (shortcutKey.length === 0) {
+      resetShortcutKey()
+    }
   }
 
   useEffect(() => {
-    hotkeys('*', { keyup: true, single: false }, (event: KeyboardEvent) => {
+    if (isValidShortcut(shortcutKey) && inRecording) {
+      recordDomRef.current?.blur()
+      onChange?.(shortcutKey)
+    }
+  }, [shortcutKey, inRecording, onChange, initialHotkeys])
+
+  useEffect(() => {
+    hotkeys('*', { keyup: true, single: true }, (event: KeyboardEvent) => {
       if (!inRecording)
+        return
+
+      if (DISMISS_CODE.includes(event.code))
         return
 
       const ownModifiers = collectModifiers()
@@ -56,13 +65,11 @@ export function ShortcutKeySelector(
       if (!ownModifiers.length)
         return
 
-      const normalKey = isModifier(event) ? [] : [event.key]
+      const pressedKeyString = hotkeys.getPressedKeyString()
+
+      const normalKey = getNormalKey(pressedKeyString)
 
       const targetHotkeys = [...ownModifiers, ...normalKey]
-
-      if (!targetHotkeys.length || isValidShortcut(targetHotkeys)) {
-        recordDomRef.current?.blur()
-      }
 
       setShortcutKey(targetHotkeys)
     })
@@ -83,16 +90,24 @@ export function ShortcutKeySelector(
   )
 }
 
+function getNormalKey(pressedKeyString: string[]) {
+  return pressedKeyString.filter(key => !HOTKEYS_MODIFIERS.includes(key))
+}
+
+function getModifiers(pressedKeyString: string[]) {
+  return pressedKeyString.filter(key => HOTKEYS_MODIFIERS.includes(key))
+}
+
 function isValidShortcut(hotkeys: string[]) {
-  // 大于一个修饰符 仅有一个非修饰符
-  const hasModifiers = MODIFIERS.some(modifier => hotkeys.includes(modifier))
-  const onlyHasOneNormalKey = hotkeys.filter(hotkey => MODIFIERS.findIndex(modifier => modifier === hotkey) === -1).length === 1
+  const modifiers = getModifiers(hotkeys)
+  const hasModifiers = !!modifiers.length
+
+  const normalKey = getNormalKey(hotkeys)
+  const onlyHasOneNormalKey = normalKey.length === 1
   return hasModifiers && onlyHasOneNormalKey
 }
 
 function collectModifiers() {
-  const ownModifiers = MODIFIERS.filter((modifier) => {
-    return hotkeys[modifier]
-  })
+  const ownModifiers = MODIFIERS.filter(modifier => hotkeys[modifier])
   return Array.from(new Set(ownModifiers))
 }
