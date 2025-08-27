@@ -1,5 +1,6 @@
 import { browser, createShadowRootUi, defineContentScript } from '#imports'
 import { kebabCase } from 'case-anything'
+import hotkeys from 'hotkeys-js'
 import ReactDOM from 'react-dom/client'
 // import eruda from 'eruda'
 import { globalConfig, loadGlobalConfig } from '@/utils/config/config'
@@ -7,7 +8,7 @@ import { APP_NAME } from '@/utils/constants/app'
 import { shouldEnableAutoTranslation } from '@/utils/host/translate/auto-translation'
 import { validateTranslationConfig } from '@/utils/host/translate/translate-text'
 import { logger } from '@/utils/logger'
-import { sendMessage } from '@/utils/message'
+import { onMessage, sendMessage } from '@/utils/message'
 import { protectSelectAllShadowRoot } from '@/utils/select-all'
 import { insertShadowRootUIWrapperInto } from '@/utils/shadow-root'
 import { addStyleToShadow } from '@/utils/styles'
@@ -78,16 +79,13 @@ export default defineContentScript({
       handleUrlChange(from, to)
     })
 
-    window.addEventListener('keydown', (e: KeyboardEvent) => {
-      // Listen for Alt + Q for translation toggle (Windows: Alt + Q, Mac: Option + Q)
-      if (
-        e.altKey
-        && !e.ctrlKey
-        && !e.shiftKey
-        && !e.metaKey
-        && (e.code === 'KeyQ' || (typeof e.key === 'string' && e.key.toLowerCase() === 'q'))
-      ) {
-        e.preventDefault() // Prevent any default browser behavior
+    onMessage('setTranslationCustomShortcutKey', (msg) => {
+      const { customShortcutKey } = msg.data
+      const customTranslateShortcutKey = customShortcutKey.join('+')
+
+      hotkeys.unbind()
+
+      hotkeys(customTranslateShortcutKey, () => {
         if (manager.isActive) {
           manager.stop()
         }
@@ -101,8 +99,8 @@ export default defineContentScript({
           }
           manager.start()
         }
-      }
-    }, { capture: true })
+      })
+    })
 
     port.onMessage.addListener((msg) => {
       logger.info('onMessage', msg)
