@@ -26,6 +26,7 @@ export const translateConfigSchema = z.object({
   promptsConfig: promptsConfigSchema,
   requestQueueConfig: requestQueueConfigSchema,
   translationNodeStyle: translationNodeStyleSchema,
+  customShortcutKey: z.array(z.string()),
 })
 
 export type RequestQueueConfig = z.infer<typeof requestQueueConfigSchema>
