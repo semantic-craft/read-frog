@@ -1,8 +1,6 @@
-import type { Config } from '@/types/config/config'
-
 export const description = 'Add translation mode'
 
-export const configExample: Config = {
+export const configExample = {
   language: {
     detectedCode: 'eng',
     sourceCode: 'auto',
