@@ -72,6 +72,9 @@ export function ShortcutKeySelector(
       const targetHotkeys = [...ownModifiers, ...normalKey]
 
       setShortcutKey(targetHotkeys)
+
+      // Returning false stops the event and prevents default browser events
+      return false
     })
 
     return () => hotkeys.unbind()
@@ -81,7 +84,7 @@ export function ShortcutKeySelector(
     <Input
       ref={recordDomRef}
       className={cn('select-none', className)}
-      onClick={startRecord}
+      onFocus={startRecord}
       onBlur={endRecord}
       onKeyUp={clearHotkeys}
       value={formatShortcut}
