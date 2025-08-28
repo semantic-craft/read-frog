@@ -1,4 +1,4 @@
-import { browser, createShadowRootUi, defineContentScript } from '#imports'
+import { browser, createShadowRootUi, defineContentScript, storage } from '#imports'
 import { kebabCase } from 'case-anything'
 import hotkeys from 'hotkeys-js'
 import ReactDOM from 'react-dom/client'
@@ -8,13 +8,12 @@ import { APP_NAME } from '@/utils/constants/app'
 import { shouldEnableAutoTranslation } from '@/utils/host/translate/auto-translation'
 import { validateTranslationConfig } from '@/utils/host/translate/translate-text'
 import { logger } from '@/utils/logger'
-import { onMessage, sendMessage } from '@/utils/message'
+import { sendMessage } from '@/utils/message'
 import { protectSelectAllShadowRoot } from '@/utils/select-all'
 import { insertShadowRootUIWrapperInto } from '@/utils/shadow-root'
 import { addStyleToShadow } from '@/utils/styles'
 import App from './app'
 import { registerNodeTranslationTriggers } from './translation-control/node-translation'
-
 import { PageTranslationManager } from './translation-control/page-translation'
 import './listen'
 import './style.css'
@@ -79,7 +78,7 @@ export default defineContentScript({
       handleUrlChange(from, to)
     })
 
-    const bindShortcutKey = (shortcutKey: string[] = globalConfig!.translate.customShortcutKey) => {
+    const bindTranslationShortcutKey = (shortcutKey: string[] = globalConfig!.translate.customShortcutKey) => {
       const customShortcutKey = shortcutKey.join('+')
 
       hotkeys.unbind()
@@ -98,14 +97,14 @@ export default defineContentScript({
           }
           manager.start()
         }
+        return false
       })
     }
 
-    bindShortcutKey()
+    bindTranslationShortcutKey()
 
-    onMessage('setTranslationCustomShortcutKey', (msg) => {
-      const { shortcutKey } = msg.data
-      bindShortcutKey(shortcutKey)
+    storage.watch('local:config', () => {
+      bindTranslationShortcutKey()
     })
 
     port.onMessage.addListener((msg) => {
