@@ -4,4 +4,4 @@ export const MIN_TRANSLATE_CAPACITY = 1
 export const DEFAULT_REQUEST_RATE = 8
 export const DEFAULT_REQUEST_CAPACITY = 200
 
-export const DEFAULT_TRANSLATE_SHORTCUT_KEY = ['Alt', 'Q']
+export const DEFAULT_TRANSLATE_SHORTCUT_KEY = ['alt', 'q']

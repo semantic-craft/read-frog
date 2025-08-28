@@ -7,20 +7,22 @@ import { formatHotkey } from '@/utils/os'
 
 const MODIFIERS = ['shift', 'alt', 'ctrl', 'command'] as const
 
+const DISMISS_CODE = ['Space', 'Escape']
+
 const HOTKEYS_MODIFIERS = Object.keys(hotkeys.modifier)
 
-const DISMISS_CODE = ['Space', 'Escape']
+const SHORTCUT_KEY_SELECTOR_SCOPE = 'shortcut-key-selector'
 
 hotkeys.filter = (event: KeyboardEvent) => {
   return (event.target as HTMLInputElement).tagName === 'INPUT'
 }
 
 export function ShortcutKeySelector(
-  { value: initialHotkeys, onChange, className }:
-  { value: string[], onChange?: (hotkeys: string[]) => void, className?: string },
+  { shortcutKey: initialShortcutKey, onChange, className }:
+  { shortcutKey: string[], onChange?: (shortcutKey: string[]) => void, className?: string },
 ) {
   const [inRecording, setInRecording] = useState(false)
-  const [shortcutKey, setShortcutKey] = useState(initialHotkeys)
+  const [shortcutKey, setShortcutKey] = useState(initialShortcutKey)
 
   const formatShortcut = formatHotkey(shortcutKey)
 
@@ -29,16 +31,19 @@ export function ShortcutKeySelector(
   const clearHotkeys = () => setShortcutKey([])
 
   const resetShortcutKey = () => {
-    setShortcutKey(initialHotkeys)
-    onChange?.(initialHotkeys)
+    setShortcutKey(initialShortcutKey)
+    onChange?.(initialShortcutKey)
   }
 
   const startRecord = () => {
+    hotkeys.setScope(SHORTCUT_KEY_SELECTOR_SCOPE)
     setInRecording(true)
     setShortcutKey([])
   }
 
   const endRecord = () => {
+    // reset scope to all
+    hotkeys.deleteScope(SHORTCUT_KEY_SELECTOR_SCOPE)
     setInRecording(false)
     if (shortcutKey.length === 0) {
       resetShortcutKey()
@@ -50,10 +55,10 @@ export function ShortcutKeySelector(
       recordDomRef.current?.blur()
       onChange?.(shortcutKey)
     }
-  }, [shortcutKey, inRecording, onChange, initialHotkeys])
+  }, [shortcutKey, inRecording, onChange])
 
   useEffect(() => {
-    hotkeys('*', { keyup: true, single: true }, (event: KeyboardEvent) => {
+    hotkeys('*', { keyup: true, single: true, scope: SHORTCUT_KEY_SELECTOR_SCOPE }, (event: KeyboardEvent) => {
       if (!inRecording)
         return
 
@@ -76,8 +81,6 @@ export function ShortcutKeySelector(
       // Returning false stops the event and prevents default browser events
       return false
     })
-
-    return () => hotkeys.unbind()
   }, [inRecording])
 
   return (

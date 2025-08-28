@@ -18,7 +18,7 @@ export function CustomTranslateShortcut() {
 
   return (
     <ConfigCard title={i18n.t('options.translation.customTranslateShortcutKey.title')} description={i18n.t('options.translation.customTranslateShortcutKey.description')}>
-      <ShortcutKeySelector value={shortcutKey} onChange={updateShortcutKey} />
+      <ShortcutKeySelector shortcutKey={shortcutKey} onChange={updateShortcutKey} />
     </ConfigCard>
   )
 }
