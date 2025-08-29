@@ -13,6 +13,7 @@ interface ProtocolMap {
   setEnablePageTranslation: (data: { tabId: number, enabled: boolean }) => void
   setEnablePageTranslationOnContentScript: (data: { enabled: boolean }) => void
   resetPageTranslationOnNavigation: (data: { url: string }) => void
+  setTranslationCustomShortcutKey: (data: { customShortcutKey: string[] }) => void
   // read article
   readArticle: () => void
   popupRequestReadArticle: (data: { tabId: number }) => void
