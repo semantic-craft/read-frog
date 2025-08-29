@@ -128,7 +128,7 @@ options:
       mode:
         bilingual: バイリンガル
         translationOnly: 翻訳のみ
-    customTranslateShortcutKey:
+    customAutoTranslateShortcutKey:
       title: 翻訳ショートカットキーをカスタマイズ
       description: ウェブページ翻訳のショートカットキーをカスタマイズできます
   config:

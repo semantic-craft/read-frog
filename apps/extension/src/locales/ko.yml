@@ -129,7 +129,7 @@ options:
       mode:
         bilingual: 이중 언어
         translationOnly: 번역만
-    customTranslateShortcutKey:
+    customAutoTranslateShortcutKey:
       title: 번역 단축키 사용자 지정
       description: 웹페이지 번역 단축키를 사용자 지정할 수 있습니다
   config:

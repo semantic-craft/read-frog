@@ -129,7 +129,7 @@ options:
       mode:
         bilingual: 双语对照
         translationOnly: 仅显示翻译
-    customTranslateShortcutKey:
+    customAutoTranslateShortcutKey:
       title: 自定义翻译快捷键
       description: 允许您自定义网页翻译快捷键
   config:

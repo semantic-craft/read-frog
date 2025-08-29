@@ -10,7 +10,7 @@ import { API_PROVIDER_NAMES, PURE_TRANSLATE_PROVIDERS, READ_PROVIDER_NAMES, TRAN
 import { omit, pick } from '@/types/utils'
 import { DEFAULT_TRANSLATE_PROMPTS_CONFIG } from './prompt'
 import { DEFAULT_SIDE_CONTENT_WIDTH } from './side'
-import { DEFAULT_REQUEST_CAPACITY, DEFAULT_REQUEST_RATE, DEFAULT_TRANSLATE_SHORTCUT_KEY } from './translate'
+import { DEFAULT_AUTO_TRANSLATE_SHORTCUT_KEY, DEFAULT_REQUEST_CAPACITY, DEFAULT_REQUEST_RATE } from './translate'
 import { DEFAULT_TRANSLATION_NODE_STYLE } from './translation-node-style'
 
 export const CONFIG_STORAGE_KEY = 'config'
@@ -104,7 +104,7 @@ export const DEFAULT_CONFIG: Config = {
       rate: DEFAULT_REQUEST_RATE,
     },
     translationNodeStyle: DEFAULT_TRANSLATION_NODE_STYLE,
-    customShortcutKey: DEFAULT_TRANSLATE_SHORTCUT_KEY,
+    customAutoTranslateShortcutKey: DEFAULT_AUTO_TRANSLATE_SHORTCUT_KEY,
   },
   floatingButton: {
     enabled: true,

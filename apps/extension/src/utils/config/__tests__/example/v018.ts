@@ -1,5 +1,5 @@
 import type { Config } from '@/types/config/config'
-import { DEFAULT_TRANSLATE_SHORTCUT_KEY } from '@/utils/constants/translate'
+import { DEFAULT_AUTO_TRANSLATE_SHORTCUT_KEY } from '@/utils/constants/translate'
 
 export const description = 'Implement customize translation shortcut key'
 
@@ -106,7 +106,7 @@ Translate to {{targetLang}}:
       rate: 5,
     },
     translationNodeStyle: 'default',
-    customShortcutKey: DEFAULT_TRANSLATE_SHORTCUT_KEY,
+    customAutoTranslateShortcutKey: DEFAULT_AUTO_TRANSLATE_SHORTCUT_KEY,
   },
   floatingButton: {
     enabled: true,

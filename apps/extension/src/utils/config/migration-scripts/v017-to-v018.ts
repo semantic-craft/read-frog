@@ -1,11 +1,11 @@
-import { DEFAULT_TRANSLATE_SHORTCUT_KEY } from '@/utils/constants/translate'
+import { DEFAULT_AUTO_TRANSLATE_SHORTCUT_KEY } from '@/utils/constants/translate'
 
 export function migrate(oldConfig: any): any {
   return {
     ...oldConfig,
     translate: {
       ...oldConfig.translate,
-      customShortcutKey: DEFAULT_TRANSLATE_SHORTCUT_KEY,
+      customAutoTranslateShortcutKey: DEFAULT_AUTO_TRANSLATE_SHORTCUT_KEY,
     },
   }
 }

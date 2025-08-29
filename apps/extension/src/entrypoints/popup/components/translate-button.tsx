@@ -51,7 +51,7 @@ export default function TranslateButton({ className }: { className?: string }) {
     >
       {isPageTranslated
         ? i18n.t('popup.showOriginal')
-        : `${i18n.t('popup.translate')} (${formatHotkey(translateConfig.customShortcutKey)})`}
+        : `${i18n.t('popup.translate')} (${formatHotkey(translateConfig.customAutoTranslateShortcutKey)})`}
     </Button>
   )
 }

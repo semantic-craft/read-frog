@@ -13,7 +13,7 @@ const HOTKEYS_MODIFIERS = Object.keys(hotkeys.modifier)
 
 const SHORTCUT_KEY_SELECTOR_SCOPE = 'shortcut-key-selector'
 
-export function ShortcutKeySelector(
+export function ShortcutKeyRecorder(
   { shortcutKey: initialShortcutKey, onChange, className }:
   { shortcutKey: string[], onChange?: (shortcutKey: string[]) => void, className?: string },
 ) {
