@@ -13,14 +13,14 @@ const HOTKEYS_MODIFIERS = Object.keys(hotkeys.modifier)
 
 const SHORTCUT_KEY_SELECTOR_SCOPE = 'shortcut-key-selector'
 
-hotkeys.filter = (event: KeyboardEvent) => {
-  return (event.target as HTMLInputElement).tagName === 'INPUT'
-}
-
 export function ShortcutKeySelector(
   { shortcutKey: initialShortcutKey, onChange, className }:
   { shortcutKey: string[], onChange?: (shortcutKey: string[]) => void, className?: string },
 ) {
+  hotkeys.filter = (event: KeyboardEvent) => {
+    return (event.target as HTMLInputElement).tagName === 'INPUT'
+  }
+
   const [inRecording, setInRecording] = useState(false)
   const [shortcutKey, setShortcutKey] = useState(initialShortcutKey)
 
