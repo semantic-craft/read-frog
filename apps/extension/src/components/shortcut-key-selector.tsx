@@ -72,6 +72,9 @@ export function ShortcutKeySelector(
       const targetHotkeys = [...ownModifiers, ...normalKey]
 
       setShortcutKey(targetHotkeys)
+
+      // Returning false stops the event and prevents default browser events
+      return false
     })
 
     return () => hotkeys.unbind()
