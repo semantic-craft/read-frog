@@ -29,9 +29,10 @@ export function formatHotkey(keys: string[]): string {
       ? {
           // Option is the Mac equivalent of Alt
           alt: '⌥',
-          ctrl: '⌘',
+          ctrl: '⌃',
           shift: '⇧',
           enter: '↩︎',
+          command: '⌘',
           backspace: '⌫',
           up: '↑',
           down: '↓',
@@ -43,6 +44,7 @@ export function formatHotkey(keys: string[]): string {
           ctrl: 'Ctrl',
           shift: 'Shift',
           enter: 'Enter',
+          command: 'Command',
           backspace: 'Backspace',
           up: '↑',
           down: '↓',

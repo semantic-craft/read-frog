@@ -111,7 +111,7 @@ Translate to {{targetLang}}:
     position: 0.66,
   },
   sideContent: {
-    width: 400,
+    width: 600,
   },
   selectionToolbar: { enabled: true },
 }
