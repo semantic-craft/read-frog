@@ -129,6 +129,9 @@ options:
       mode:
         bilingual: 雙語對照
         translationOnly: 僅顯示翻譯
+    customTranslateShortcutKey:
+      title: 自訂翻譯快捷鍵
+      description: 允許您自訂全文翻譯快捷鍵
   config:
     title: 設定
     sync:
