@@ -1,16 +1,19 @@
-<<<<<<< HEAD
 import { i18n } from '#imports'
 import { Input } from '@repo/ui/components/input'
 import { cn } from '@repo/ui/lib/utils'
 import hotkeys from 'hotkeys-js'
 import { useEffect, useRef, useState } from 'react'
-import { formatHotkey } from '@/utils/os'
+
+// metaKey : command
+// altKey : alt or option
+// shiftKey: shift
+// ctrlKey: ctrl or control
 
 const MODIFIERS = ['shift', 'alt', 'ctrl', 'command'] as const
 
-const HOTKEYS_MODIFIERS = Object.keys(hotkeys.modifier)
+const UPPERCASE_MODIFIERS = ['Shift', 'Alt', 'Control', 'Meta']
 
-const DISMISS_CODE = ['Space', 'Escape']
+const isModifier = (event: KeyboardEvent) => UPPERCASE_MODIFIERS.includes(event.key)
 
 hotkeys.filter = (event: KeyboardEvent) => {
   return (event.target as HTMLInputElement).tagName === 'INPUT'
@@ -23,42 +26,29 @@ export function ShortcutKeySelector(
   const [inRecording, setInRecording] = useState(false)
   const [shortcutKey, setShortcutKey] = useState(initialHotkeys)
 
-  const formatShortcut = formatHotkey(shortcutKey)
+  const formatShortcut = shortcutKey.map(shortcut => shortcut.toUpperCase()).join('+')
 
   const recordDomRef = useRef<HTMLInputElement>(null)
 
   const clearHotkeys = () => setShortcutKey([])
 
-  const resetShortcutKey = () => {
-    setShortcutKey(initialHotkeys)
-    onChange?.(initialHotkeys)
-  }
-
   const startRecord = () => {
+    recordDomRef.current?.focus()
     setInRecording(true)
-    setShortcutKey([])
   }
 
   const endRecord = () => {
     setInRecording(false)
-    if (shortcutKey.length === 0) {
-      resetShortcutKey()
-    }
+    setShortcutKey((hotkeys) => {
+      const newHotkeys = isValidShortcut(hotkeys) ? hotkeys : initialHotkeys
+      onChange?.(newHotkeys)
+      return newHotkeys
+    })
   }
 
   useEffect(() => {
-    if (isValidShortcut(shortcutKey) && inRecording) {
-      recordDomRef.current?.blur()
-      onChange?.(shortcutKey)
-    }
-  }, [shortcutKey, inRecording, onChange, initialHotkeys])
-
-  useEffect(() => {
-    hotkeys('*', { keyup: true, single: true }, (event: KeyboardEvent) => {
+    hotkeys('*', { keyup: true, single: false }, (event: KeyboardEvent) => {
       if (!inRecording)
-        return
-
-      if (DISMISS_CODE.includes(event.code))
         return
 
       const ownModifiers = collectModifiers()
@@ -66,44 +56,27 @@ export function ShortcutKeySelector(
       if (!ownModifiers.length)
         return
 
-      const pressedKeyString = hotkeys.getPressedKeyString()
-
-      const normalKey = getNormalKey(pressedKeyString)
+      const normalKey = isModifier(event) ? [] : [event.key]
 
       const targetHotkeys = [...ownModifiers, ...normalKey]
 
-      setShortcutKey(targetHotkeys)
+      if (!targetHotkeys.length || isValidShortcut(targetHotkeys)) {
+        recordDomRef.current?.blur()
+      }
 
-      // Returning false stops the event and prevents default browser events
-      return false
+      setShortcutKey(targetHotkeys)
     })
 
     return () => hotkeys.unbind()
   }, [inRecording])
-=======
-import { Input } from '@repo/ui/components/input'
-import { useRecordHotkey } from '@/hooks/use-record-hotkey'
-import { logger } from '@/utils/logger'
-
-export function ShortcutKeySelector(
-  { value, className }:
-  { value: Set<string>, className?: string },
-) {
-  const [recordDomRef, { start }] = useRecordHotkey({
-    onConfirm: (keys) => {
-      logger.log(keys, 'onConfirm')
-    },
-  })
-
-  const hotkey = Array.from(value).join('+')
->>>>>>> a70797e (feat: implement shortcut)
 
   return (
     <Input
       ref={recordDomRef}
-<<<<<<< HEAD
+
       className={cn('select-none', className)}
       onFocus={startRecord}
+      onClick={startRecord}
       onBlur={endRecord}
       onKeyUp={clearHotkeys}
       value={formatShortcut}
@@ -133,18 +106,3 @@ function collectModifiers() {
   const ownModifiers = MODIFIERS.filter(modifier => hotkeys[modifier])
   return Array.from(new Set(ownModifiers))
 }
-=======
-      className={className}
-      // className={cn(
-      //   'px-2 py-1 border rounded text-sm w-60 h-12 flex items-center justify-start cursor-pointer',
-      //   'file:text-foreground placeholder:text-muted-foreground dark:bg-input/30 border-input min-w-0 border bg-transparent text-base shadow-xs transition-[color,box-shadow] outline-none ',
-      //   'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
-      //   inRecording ? 'border-blue-500' : '',
-      //   className,
-      // )}
-      value={hotkey}
-      onDoubleClick={start}
-    />
-  )
-}
->>>>>>> a70797e (feat: implement shortcut)
