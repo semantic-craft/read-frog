@@ -119,7 +119,7 @@ options:
       mode:
         bilingual: 雙語對照
         translationOnly: 僅顯示翻譯
-    customTranslateShortcutKey:
+    customAutoTranslateShortcutKey:
       title: 自訂翻譯快捷鍵
       description: 允許您自訂全文翻譯快捷鍵
   config:

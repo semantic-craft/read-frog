@@ -9,25 +9,25 @@ interface ITranslationShortcutKeyManager {
 
 export class TranslationShortcutKeyManager implements ITranslationShortcutKeyManager {
   private pageTranslationManager: PageTranslationManager
-  private bindingPageTranslationShortcutKey: string = ''
+  private bindingAutoTranslationShortcutKey: string = ''
 
   constructor({ pageTranslationManager }: { pageTranslationManager: PageTranslationManager }) {
     this.pageTranslationManager = pageTranslationManager
   }
 
   bindTranslationShortcutKey() {
-    this.bindPageTranslationShortcutKey()
+    this.bindAutoTranslationShortcutKey()
   }
 
-  private bindPageTranslationShortcutKey() {
+  private bindAutoTranslationShortcutKey() {
     if (!globalConfig)
       return
 
-    hotkeys.unbind(this.bindingPageTranslationShortcutKey)
+    hotkeys.unbind(this.bindingAutoTranslationShortcutKey)
 
-    this.bindingPageTranslationShortcutKey = globalConfig.translate.customShortcutKey.join('+')
+    this.bindingAutoTranslationShortcutKey = globalConfig.translate.customAutoTranslateShortcutKey.join('+')
 
-    hotkeys(this.bindingPageTranslationShortcutKey, () => {
+    hotkeys(this.bindingAutoTranslationShortcutKey, () => {
       if (!globalConfig)
         return
 

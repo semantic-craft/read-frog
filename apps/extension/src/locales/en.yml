@@ -119,7 +119,7 @@ options:
       mode:
         bilingual: Bilingual
         translationOnly: Translation Only
-    customTranslateShortcutKey:
+    customAutoTranslateShortcutKey:
       title: Customize translation shortcut
       description: Allows you to customize the full-text translation shortcut
   config:
