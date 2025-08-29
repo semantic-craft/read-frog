@@ -86,10 +86,8 @@ export function ShortcutKeyRecorder(
   return (
     <Input
       ref={recordDomRef}
-
       className={cn('select-none', className)}
       onFocus={startRecord}
-      onClick={startRecord}
       onBlur={endRecord}
       onKeyUp={clearHotkeys}
       value={formatShortcut}
