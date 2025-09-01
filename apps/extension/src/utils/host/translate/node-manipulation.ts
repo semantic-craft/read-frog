@@ -44,10 +44,14 @@ export async function removeOrShowNodeTranslation(point: Point, translationMode:
   if (!node || !isHTMLElement(node))
     return
 
+  if (!globalConfig) {
+    throw new Error('Global config is not initialized')
+  }
+
   if (!validateTranslationConfig({
-    providersConfig: globalConfig!.providersConfig,
-    translate: globalConfig!.translate,
-    language: globalConfig!.language,
+    providersConfig: globalConfig.providersConfig,
+    translate: globalConfig.translate,
+    language: globalConfig.language,
   })) {
     return
   }
@@ -60,8 +64,9 @@ export async function removeOrShowNodeTranslation(point: Point, translationMode:
 export function removeAllTranslatedWrapperNodes(
   root: Document | ShadowRoot = document,
 ) {
-  if (!globalConfig)
-    return
+  if (!globalConfig) {
+    throw new Error('Global config is not initialized')
+  }
 
   const translatedNodes = deepQueryTopLevelSelector(root, isTranslatedWrapperNode)
   translatedNodes.forEach((contentWrapperNode) => {
@@ -146,7 +151,6 @@ export async function translateNodesBilingualMode(nodes: ChildNode[], walkId: st
   }
 }
 
-// TODO: add a test to put the comment dom back
 export async function translateNodeTranslationOnlyMode(nodes: ChildNode[], walkId: string, toggle: boolean = false) {
   const outerTransNodes = nodes.filter(node => isTransNode(node))
   if (outerTransNodes.length === 0) {
@@ -441,10 +445,6 @@ export async function translateWalkedElement(
       const children = Array.from(element.childNodes)
       let consecutiveInlineNodes: ChildNode[] = []
       for (const child of children) {
-        // if (!(isTextNode(child) || isElement(child))) {
-        //   continue
-        // }
-
         if (isTransNode(child) && isBlockTransNode(child) && !isTextNode(child)) {
           promises.push(translateNodes(consecutiveInlineNodes, translationMode, walkId, toggle))
           consecutiveInlineNodes = []

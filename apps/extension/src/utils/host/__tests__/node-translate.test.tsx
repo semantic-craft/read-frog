@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { act, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { DEFAULT_CONFIG } from '@/utils/constants/config'
 import { BLOCK_ATTRIBUTE, BLOCK_CONTENT_CLASS, CONTENT_WRAPPER_CLASS, PARAGRAPH_ATTRIBUTE } from '@/utils/constants/dom-labels'
 import { removeOrShowNodeTranslation } from '../translate/node-manipulation'
