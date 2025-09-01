@@ -152,6 +152,25 @@ export async function translateNodesBilingualMode(nodes: ChildNode[], walkId: st
 // TODO: add a test to put the comment dom back
 export async function translateNodeTranslationOnlyMode(nodes: ChildNode[], walkId: string, toggle: boolean = false) {
   const outerTransNodes = nodes.filter(node => isTransNode(node))
+  if (outerTransNodes.length === 0) {
+    return
+  }
+
+  // snapshot the outer parent element, to prevent lose it if we go to deeper by unwrapDeepestOnlyHTMLChild
+  // test case is:
+  // <div data-testid="test-node">
+  //   <span style={{ display: 'inline' }}>原文</span> // get the outer parent snapshot before go to inner element
+  //   <br />
+  //   <span style={{ display: 'inline' }}>原文</span>
+  //   原文
+  //   <br />
+  //   <span style={{ display: 'inline' }}>原文</span>
+  // </div>,
+  const outerParentElement = outerTransNodes[0].parentElement
+  if (outerParentElement && !originalContentMap.has(outerParentElement)) {
+    originalContentMap.set(outerParentElement, outerParentElement.innerHTML)
+  }
+
   let transNodes: TransNode[] = []
   let allChildNodes: ChildNode[] = []
   if (outerTransNodes.length === 1 && isHTMLElement(outerTransNodes[0])) {
