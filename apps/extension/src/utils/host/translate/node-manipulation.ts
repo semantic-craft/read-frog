@@ -135,7 +135,7 @@ export async function translateNodesBilingualMode(nodes: ChildNode[], walkId: st
       targetNode.appendChild(translatedWrapperNode)
     }
 
-    const translatedText = await getTranslatedTextAndRemoveSpinner(transNodes, textContent, spinner, translatedWrapperNode)
+    const translatedText = await getTranslatedTextAndRemoveSpinner(nodes, textContent, spinner, translatedWrapperNode)
 
     if (!translatedText)
       return
@@ -253,7 +253,7 @@ export async function translateNodeTranslationOnlyMode(nodes: ChildNode[], walkI
       targetNode.appendChild(translatedWrapperNode)
     }
 
-    const translatedText = await getTranslatedTextAndRemoveSpinner(transNodes, textContent, spinner, translatedWrapperNode)
+    const translatedText = await getTranslatedTextAndRemoveSpinner(nodes, textContent, spinner, translatedWrapperNode)
 
     if (!translatedText)
       return
@@ -337,7 +337,7 @@ function insertTranslatedNodeIntoWrapper(
   translatedWrapperNode.appendChild(translatedNode)
 }
 
-async function getTranslatedTextAndRemoveSpinner(nodes: TransNode[], textContent: string, spinner: HTMLElement, translatedWrapperNode: HTMLElement) {
+async function getTranslatedTextAndRemoveSpinner(nodes: ChildNode[], textContent: string, spinner: HTMLElement, translatedWrapperNode: HTMLElement) {
   let translatedText: string | undefined
 
   try {
