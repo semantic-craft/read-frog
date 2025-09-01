@@ -112,6 +112,11 @@ export async function translateNodesBilingualMode(nodes: ChildNode[], walkId: st
       if (toggle) {
         return
       }
+      else {
+        nodes.forEach(node => translatingNodes.delete(node))
+        translateNodesBilingualMode(nodes, walkId, toggle)
+        return
+      }
     }
 
     const textContent = transNodes.map(node => extractTextContent(node)).join(' ')
@@ -209,6 +214,17 @@ export async function translateNodeTranslationOnlyMode(nodes: ChildNode[], walkI
     if (existedTranslatedWrapper) {
       removeTranslatedWrapperWithRestore(existedTranslatedWrapper)
       if (toggle) {
+        return
+      }
+      else {
+        // In translationOnly mode, removeTranslatedWrapperWithRestore uses innerHTML to restore content,
+        // which destroys the original DOM nodes and creates new ones. The 'nodes' array still references
+        // the old detached nodes, and targetNode can't reference to the new dom added by innerHTML anymore.
+        // Therefore, by recursively calling translateNodeTranslationOnlyMode here with the
+        // same nodes array, we ensure the translation uses the newly created DOM elements since the
+        // function will re-query and find the correct parent and child nodes from the restored DOM.
+        nodes.forEach(node => translatingNodes.delete(node))
+        translateNodeTranslationOnlyMode(nodes, walkId, toggle)
         return
       }
     }
