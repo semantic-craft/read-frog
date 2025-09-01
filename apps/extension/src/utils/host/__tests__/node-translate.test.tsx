@@ -2,8 +2,9 @@
 import { act, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { DEFAULT_CONFIG } from '@/utils/constants/config'
-import { BLOCK_CONTENT_CLASS, CONTENT_WRAPPER_CLASS } from '@/utils/constants/dom-labels'
+import { BLOCK_ATTRIBUTE, BLOCK_CONTENT_CLASS, CONTENT_WRAPPER_CLASS, PARAGRAPH_ATTRIBUTE } from '@/utils/constants/dom-labels'
 import { removeOrShowNodeTranslation } from '../translate/node-manipulation'
+import { expectNodeLabels, expectTranslatedContent, expectTranslationWrapper, MOCK_ORIGINAL_TEXT } from './utils'
 
 vi.mock('@/utils/host/translate/translate-text', () => ({
   translateText: vi.fn(() => Promise.resolve('translation')),
@@ -13,10 +14,6 @@ vi.mock('@/utils/host/translate/translate-text', () => ({
 vi.mock('@/utils/config/config', () => ({
   globalConfig: DEFAULT_CONFIG,
 }))
-
-const TEST_UUID = '12345678-1234-1234-1234-123456789012'
-
-vi.spyOn(crypto, 'randomUUID').mockReturnValue(TEST_UUID)
 
 describe('node translation', () => {
   const originalGetComputedStyle = window.getComputedStyle
@@ -43,7 +40,7 @@ describe('node translation', () => {
     it('should show the translation when point is over the original text', async () => {
       render(
         <div data-testid="test-node">
-          原文
+          {MOCK_ORIGINAL_TEXT}
         </div>,
       )
       const node = screen.getByTestId('test-node')
@@ -53,28 +50,10 @@ describe('node translation', () => {
         await removeOrShowNodeTranslation({ x: 150, y: 125 }, 'bilingual')
       })
 
-      expect(node).toMatchInlineSnapshot(`
-        <div
-          data-read-frog-block-node=""
-          data-read-frog-paragraph=""
-          data-read-frog-walked="12345678-1234-1234-1234-123456789012"
-          data-testid="test-node"
-        >
-          原文
-          <span
-            class="notranslate read-frog-translated-content-wrapper"
-            data-read-frog-translation-mode="bilingual"
-          >
-            <br />
-            <span
-              class="notranslate read-frog-translated-block-content"
-              data-read-frog-custom-translation-style="default"
-            >
-              translation
-            </span>
-          </span>
-        </div>
-      `)
+      expectNodeLabels(node, [BLOCK_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+      const wrapper = expectTranslationWrapper(node, 'bilingual')
+      expect(wrapper).toBe(node.childNodes[1])
+      expectTranslatedContent(wrapper, BLOCK_CONTENT_CLASS)
 
       document.elementFromPoint = originalElementFromPoint
     })
@@ -83,7 +62,7 @@ describe('node translation', () => {
     it('should hide the translation when point is over the translation content node', async () => {
       render(
         <div data-testid="test-node">
-          原文
+          {MOCK_ORIGINAL_TEXT}
         </div>,
       )
       const node = screen.getByTestId('test-node')
@@ -101,14 +80,14 @@ describe('node translation', () => {
       })
 
       expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
-      expect(node.textContent?.trim()).toBe('原文')
+      expect(node.textContent?.trim()).toBe(MOCK_ORIGINAL_TEXT)
 
       document.elementFromPoint = originalElementFromPoint
     })
     it('should hide the translation when point is over the translation wrapper', async () => {
       render(
         <div data-testid="test-node">
-          原文
+          {MOCK_ORIGINAL_TEXT}
         </div>,
       )
       const node = screen.getByTestId('test-node')
@@ -124,7 +103,7 @@ describe('node translation', () => {
       })
 
       expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
-      expect(node.textContent?.trim()).toBe('原文')
+      expect(node.textContent?.trim()).toBe(MOCK_ORIGINAL_TEXT)
 
       document.elementFromPoint = originalElementFromPoint
     })

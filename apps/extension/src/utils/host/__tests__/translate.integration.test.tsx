@@ -9,16 +9,12 @@ import {
   CONTENT_WRAPPER_CLASS,
   INLINE_ATTRIBUTE,
   INLINE_CONTENT_CLASS,
-  NOTRANSLATE_CLASS,
   PARAGRAPH_ATTRIBUTE,
-  TRANSLATION_MODE_ATTRIBUTE,
 } from '@/utils/constants/dom-labels'
 import { walkAndLabelElement } from '@/utils/host/dom/traversal'
 import { translateWalkedElement } from '@/utils/host/translate/node-manipulation'
 import { translateText } from '@/utils/host/translate/translate-text'
-
-const MOCK_ORIGINAL_TEXT = '原文'
-const MOCK_TRANSLATION = 'translation'
+import { expectNodeLabels, expectTranslatedContent, expectTranslationWrapper, MOCK_ORIGINAL_TEXT, MOCK_TRANSLATION } from './utils'
 
 vi.mock('@/utils/host/translate/translate-text', () => ({
   translateText: vi.fn(() => Promise.resolve(MOCK_TRANSLATION)),
@@ -28,29 +24,6 @@ vi.mock('@/utils/host/translate/translate-text', () => ({
 vi.mock('@/utils/config/config', () => ({
   globalConfig: DEFAULT_CONFIG,
 }))
-
-// Helper functions for assertions
-function expectTranslationWrapper(node: Element, mode: TranslationMode) {
-  const wrapper = node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)
-  expect(wrapper).toBeTruthy()
-  expect(wrapper).toHaveAttribute(TRANSLATION_MODE_ATTRIBUTE, mode)
-  expect(wrapper).toHaveClass(NOTRANSLATE_CLASS)
-  return wrapper
-}
-
-function expectTranslatedContent(wrapper: Element | null, contentClass: string, text: string = MOCK_TRANSLATION) {
-  const content = wrapper?.querySelector(`.${contentClass}`)
-  expect(content).toBeTruthy()
-  expect(content).toHaveTextContent(text)
-  expect(content).toHaveClass(NOTRANSLATE_CLASS)
-  return content
-}
-
-function expectNodeLabels(node: Element, attributes: string[]) {
-  attributes.forEach((attr) => {
-    expect(node).toHaveAttribute(attr)
-  })
-}
 
 describe('translate', () => {
   // Setup and teardown for getComputedStyle mock
