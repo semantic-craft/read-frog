@@ -14,11 +14,12 @@ export function RetryButton({ nodes }: { nodes: TransNode[] }) {
   const translationMode = translateConfig.mode
 
   const handleRetry = async () => {
+    const walkId = crypto.randomUUID()
     if (translationMode === 'bilingual') {
-      await translateNodesBilingualMode(nodes)
+      await translateNodesBilingualMode(nodes, walkId)
     }
     else if (translationMode === 'translationOnly' && isHTMLElement(nodes[0])) {
-      await translateNodeTranslationOnlyMode(nodes)
+      await translateNodeTranslationOnlyMode(nodes, walkId)
     }
   }
 

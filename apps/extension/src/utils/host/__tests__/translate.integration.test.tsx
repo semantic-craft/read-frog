@@ -107,7 +107,7 @@ describe('translate', () => {
         render(
           <div data-testid="test-node">
             <div style={{ display: 'inline' }}>
-              原文
+              {MOCK_ORIGINAL_TEXT}
             </div>
           </div>,
         )
@@ -128,7 +128,7 @@ describe('translate', () => {
         render(
           <div data-testid="test-node">
             <span style={{ display: 'inline' }}>
-              原文
+              {MOCK_ORIGINAL_TEXT}
             </span>
           </div>,
         )
@@ -149,7 +149,7 @@ describe('translate', () => {
       it('bilingual mode: should insert translation wrapper after child block node content', async () => {
         render(
           <div data-testid="test-node">
-            <div>原文</div>
+            <div>{MOCK_ORIGINAL_TEXT}</div>
           </div>,
         )
         const node = screen.getByTestId('test-node')
@@ -168,7 +168,7 @@ describe('translate', () => {
       it('translation only mode: should replace child block node content with translation wrapper', async () => {
         render(
           <div data-testid="test-node">
-            <div>原文</div>
+            <div>{MOCK_ORIGINAL_TEXT}</div>
           </div>,
         )
         const node = screen.getByTestId('test-node')
@@ -188,7 +188,7 @@ describe('translate', () => {
       it('bilingual mode: should insert translation wrapper after deepest inline node', async () => {
         render(
           <div data-testid="test-node">
-            <div><span style={{ display: 'inline' }}>原文</span></div>
+            <div><span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span></div>
           </div>,
         )
         const node = screen.getByTestId('test-node')
@@ -208,7 +208,7 @@ describe('translate', () => {
       it('translation only mode: should replace deepest inline node content with translation wrapper', async () => {
         render(
           <div data-testid="test-node">
-            <div><span style={{ display: 'inline' }}>原文</span></div>
+            <div><span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span></div>
           </div>,
         )
         const node = screen.getByTestId('test-node')
@@ -229,7 +229,7 @@ describe('translate', () => {
       it('bilingual mode: should insert translation wrapper after deepest block node content', async () => {
         render(
           <div data-testid="test-node">
-            <div style={{ display: 'inline' }}><div>原文</div></div>
+            <div style={{ display: 'inline' }}><div>{MOCK_ORIGINAL_TEXT}</div></div>
           </div>,
         )
         const node = screen.getByTestId('test-node')
@@ -249,7 +249,7 @@ describe('translate', () => {
       it('translation only mode: should replace deepest block node content with translation wrapper', async () => {
         render(
           <div data-testid="test-node">
-            <div style={{ display: 'inline' }}><div>原文</div></div>
+            <div style={{ display: 'inline' }}><div>{MOCK_ORIGINAL_TEXT}</div></div>
           </div>,
         )
         const node = screen.getByTestId('test-node')
@@ -270,7 +270,7 @@ describe('translate', () => {
       it('bilingual mode: should insert translation wrapper after nested inline node content', async () => {
         render(
           <div data-testid="test-node">
-            <div style={{ display: 'inline' }}><span style={{ display: 'inline' }}>原文</span></div>
+            <div style={{ display: 'inline' }}><span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span></div>
           </div>,
         )
         const node = screen.getByTestId('test-node')
@@ -290,7 +290,7 @@ describe('translate', () => {
       it('translation only mode: should replace nested inline node content with translation wrapper', async () => {
         render(
           <div data-testid="test-node">
-            <div style={{ display: 'inline' }}><span style={{ display: 'inline' }}>原文</span></div>
+            <div style={{ display: 'inline' }}><span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span></div>
           </div>,
         )
         const node = screen.getByTestId('test-node')
@@ -312,8 +312,8 @@ describe('translate', () => {
         render(
           <div data-testid="test-node">
             <div style={{ display: 'inline' }}>
-              <span style={{ display: 'inline' }}>原文</span>
-              原文
+              <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+              {MOCK_ORIGINAL_TEXT}
             </div>
           </div>,
         )
@@ -335,8 +335,8 @@ describe('translate', () => {
         render(
           <div data-testid="test-node">
             <div style={{ display: 'inline' }}>
-              <span style={{ display: 'inline' }}>原文</span>
-              原文
+              <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+              {MOCK_ORIGINAL_TEXT}
             </div>
           </div>,
         )
@@ -359,8 +359,8 @@ describe('translate', () => {
         render(
           <div data-testid="test-node">
             <div style={{ display: 'inline' }}>
-              <span style={{ display: 'inline' }}>原文</span>
-              <div>原文</div>
+              <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+              <div>{MOCK_ORIGINAL_TEXT}</div>
             </div>
           </div>,
         )
@@ -386,8 +386,8 @@ describe('translate', () => {
         render(
           <div data-testid="test-node">
             <div style={{ display: 'inline' }}>
-              <span style={{ display: 'inline' }}>原文</span>
-              <div>原文</div>
+              <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+              <div>{MOCK_ORIGINAL_TEXT}</div>
             </div>
           </div>,
         )
@@ -411,9 +411,9 @@ describe('translate', () => {
         render(
           <div data-testid="test-node">
             <div style={{ display: 'inline' }}>
-              <span style={{ display: 'inline' }}>原文</span>
-              <span style={{ display: 'inline' }}>原文</span>
-              <div>原文</div>
+              <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+              <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+              <div>{MOCK_ORIGINAL_TEXT}</div>
             </div>
           </div>,
         )
@@ -438,9 +438,9 @@ describe('translate', () => {
         render(
           <div data-testid="test-node">
             <div style={{ display: 'inline' }}>
-              <span style={{ display: 'inline' }}>原文</span>
-              <span style={{ display: 'inline' }}>原文</span>
-              <div>原文</div>
+              <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+              <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+              <div>{MOCK_ORIGINAL_TEXT}</div>
             </div>
           </div>,
         )
