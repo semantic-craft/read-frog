@@ -462,23 +462,196 @@ describe('translate', () => {
 
   describe('block node with multiple child nodes', () => {
     describe('all inline HTML nodes', () => {
+      it('bilingual mode: should insert wrapper after the last inline node', async () => {
+        render(
+          <div data-testid="test-node">
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+          </div>,
+        )
+        const node = screen.getByTestId('test-node')
+        await removeOrShowPageTranslation('bilingual', true)
+
+        expectNodeLabels(node, [BLOCK_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        expectNodeLabels(node.children[0], [INLINE_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        expectNodeLabels(node.children[1], [INLINE_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        expectNodeLabels(node.children[2], [INLINE_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+
+        const wrapper = expectTranslationWrapper(node, 'bilingual')
+        expect(wrapper).toBe(node.lastChild)
+        expectTranslatedContent(wrapper, BLOCK_CONTENT_CLASS)
+
+        await removeOrShowPageTranslation('bilingual', true)
+        expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+        expect(node.textContent).toBe(`${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}`)
+      })
+
+      it('translation only mode: should insert wrapper and replace all inline nodes with wrapper', async () => {
+        render(
+          <div data-testid="test-node">
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+          </div>,
+        )
+        const node = screen.getByTestId('test-node')
+        await removeOrShowPageTranslation('translationOnly', true)
+
+        expectNodeLabels(node, [BLOCK_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        const wrapper = expectTranslationWrapper(node, 'translationOnly')
+        expect(wrapper).toBe(node.childNodes[0])
+
+        await removeOrShowPageTranslation('translationOnly', true)
+        expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+        expect(node.textContent).toBe(`${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}`)
+      })
     })
     describe('text node and inline HTML nodes', () => {
+      it('bilingual mode: should insert wrapper after the last inline node', async () => {
+        render(
+          <div data-testid="test-node">
+            {MOCK_ORIGINAL_TEXT}
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+            {MOCK_ORIGINAL_TEXT}
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+          </div>,
+        )
+        const node = screen.getByTestId('test-node')
+        await removeOrShowPageTranslation('bilingual', true)
+
+        expectNodeLabels(node, [BLOCK_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        const wrapper = expectTranslationWrapper(node, 'bilingual')
+        expect(wrapper).toBe(node.lastChild)
+        expectTranslatedContent(wrapper, BLOCK_CONTENT_CLASS)
+
+        await removeOrShowPageTranslation('bilingual', true)
+        expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+        expect(node.textContent).toBe(`${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}`)
+      })
+      it('translation only mode: should insert wrapper and replace all inline nodes', async () => {
+        render(
+          <div data-testid="test-node">
+            {MOCK_ORIGINAL_TEXT}
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+            {MOCK_ORIGINAL_TEXT}
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+          </div>,
+        )
+        const node = screen.getByTestId('test-node')
+        await removeOrShowPageTranslation('translationOnly', true)
+
+        expectNodeLabels(node, [BLOCK_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        const wrapper = expectTranslationWrapper(node, 'translationOnly')
+        expect(wrapper).toBe(node.childNodes[0])
+
+        await removeOrShowPageTranslation('translationOnly', true)
+        expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+        expect(node.textContent).toBe(`${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}`)
+      })
     })
     describe('inline nodes + block node + inline nodes', () => {
+      it('bilingual mode: should insert three wrappers', async () => {
+        render(
+          <div data-testid="test-node">
+            {MOCK_ORIGINAL_TEXT}
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+            <div>{MOCK_ORIGINAL_TEXT}</div>
+            {MOCK_ORIGINAL_TEXT}
+          </div>,
+        )
+        const node = screen.getByTestId('test-node')
+        await removeOrShowPageTranslation('bilingual', true)
+
+        expectNodeLabels(node, [BLOCK_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        const wrapper1 = expectTranslationWrapper(node, 'bilingual')
+        expect(wrapper1).toBe(node.childNodes[2])
+        expectTranslatedContent(wrapper1, INLINE_CONTENT_CLASS)
+        const wrapper2 = expectTranslationWrapper(node.children[2], 'bilingual')
+        expect(wrapper2).toBe(node.childNodes[3].childNodes[1])
+        expectTranslatedContent(wrapper2, BLOCK_CONTENT_CLASS)
+        const wrapper3 = node.lastChild
+        expect(wrapper3).toHaveClass(CONTENT_WRAPPER_CLASS)
+        expectTranslatedContent(wrapper3 as Element, INLINE_CONTENT_CLASS)
+
+        await removeOrShowPageTranslation('bilingual', true)
+        expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+        expect(node.textContent).toBe(`${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}`)
+      })
+      it('translation only mode: should insert three wrappers', async () => {
+        render(
+          <div data-testid="test-node">
+            {MOCK_ORIGINAL_TEXT}
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+            <div>{MOCK_ORIGINAL_TEXT}</div>
+            {MOCK_ORIGINAL_TEXT}
+          </div>,
+        )
+        const node = screen.getByTestId('test-node')
+        await removeOrShowPageTranslation('translationOnly', true)
+
+        expectNodeLabels(node, [BLOCK_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        const wrapper1 = expectTranslationWrapper(node, 'translationOnly')
+        expect(wrapper1).toBe(node.childNodes[0])
+        const wrapper2 = expectTranslationWrapper(node.children[1], 'translationOnly')
+        expect(wrapper2).toBe(node.childNodes[1].childNodes[0])
+        const wrapper3 = node.lastChild
+        expect(wrapper3).toHaveClass(CONTENT_WRAPPER_CLASS)
+
+        await removeOrShowPageTranslation('translationOnly', true)
+        expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+        expect(node.textContent).toBe(`${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}`)
+      })
     })
     describe('floating inline HTML nodes', () => {
+      it('bilingual mode: should insert wrapper after the last inline node', async () => {
+        render(
+          <div data-testid="test-node">
+            <span style={{ float: 'left' }}>{MOCK_ORIGINAL_TEXT}</span>
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+          </div>,
+        )
+        const node = screen.getByTestId('test-node')
+        await removeOrShowPageTranslation('bilingual', true)
+
+        expectNodeLabels(node, [BLOCK_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        const wrapper = expectTranslationWrapper(node, 'bilingual')
+        expect(wrapper).toBe(node.childNodes[2])
+        expectTranslatedContent(wrapper, BLOCK_CONTENT_CLASS)
+
+        await removeOrShowPageTranslation('bilingual', true)
+        expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+        expect(node.textContent).toBe(`${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}`)
+      })
+      it('translation only mode: should insert wrapper after the last inline node', async () => {
+        render(
+          <div data-testid="test-node">
+            <span style={{ float: 'left' }}>{MOCK_ORIGINAL_TEXT}</span>
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+          </div>,
+        )
+        const node = screen.getByTestId('test-node')
+        await removeOrShowPageTranslation('translationOnly', true)
+
+        expectNodeLabels(node, [BLOCK_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        const wrapper = expectTranslationWrapper(node, 'translationOnly')
+        expect(wrapper).toBe(node.childNodes[0])
+
+        await removeOrShowPageTranslation('translationOnly', true)
+        expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+        expect(node.textContent).toBe(`${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}`)
+      })
     })
     describe('br dom between inline nodes', () => {
       it('bilingual mode: should insert wrapper into inline nodes', async () => {
         render(
           <div data-testid="test-node">
-            <span style={{ display: 'inline' }}>原文</span>
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
             <br />
-            <span style={{ display: 'inline' }}>原文</span>
-            原文
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+            {MOCK_ORIGINAL_TEXT}
             <br />
-            <span style={{ display: 'inline' }}>原文</span>
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
           </div>,
         )
         const node = screen.getByTestId('test-node')
@@ -505,12 +678,12 @@ describe('translate', () => {
       it('translation only mode: should insert wrapper into the end of the inline nodes', async () => {
         render(
           <div data-testid="test-node">
-            <span style={{ display: 'inline' }}>原文</span>
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
             <br />
-            <span style={{ display: 'inline' }}>原文</span>
-            原文
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+            {MOCK_ORIGINAL_TEXT}
             <br />
-            <span style={{ display: 'inline' }}>原文</span>
+            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
           </div>,
         )
         const node = screen.getByTestId('test-node')
