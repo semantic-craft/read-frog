@@ -83,14 +83,17 @@ export class PageTranslationManager implements IPageTranslationManager {
     })
 
     // Listen to existing elements when they enter the viewpoint
-    const translationMode = globalConfig.translate.mode
     const walkId = crypto.randomUUID()
     this.walkId = walkId
     this.intersectionObserver = new IntersectionObserver((entries, observer) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           if (isHTMLElement(entry.target)) {
-            translateWalkedElement(entry.target, walkId, translationMode)
+            if (!globalConfig) {
+              console.warn('Global config is not initialized')
+              return
+            }
+            translateWalkedElement(entry.target, walkId, globalConfig.translate.mode)
           }
           observer.unobserve(entry.target)
         }
