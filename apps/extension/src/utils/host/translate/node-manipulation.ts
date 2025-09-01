@@ -176,7 +176,11 @@ export async function translateNodeTranslationOnlyMode(nodes: ChildNode[], walkI
   let allChildNodes: ChildNode[] = []
   if (outerTransNodes.length === 1 && isHTMLElement(outerTransNodes[0])) {
     const unwrappedHTMLChild = unwrapDeepestOnlyHTMLChild(outerTransNodes[0])
-    transNodes = Array.from(unwrappedHTMLChild.childNodes).filter(isTransNode)
+    transNodes = Array.from(unwrappedHTMLChild.childNodes).filter((node): node is TransNode => {
+      if (isHTMLElement(node) && node.classList.contains(CONTENT_WRAPPER_CLASS))
+        return false
+      return isTransNode(node)
+    })
     allChildNodes = Array.from(unwrappedHTMLChild.childNodes)
   }
   else {
