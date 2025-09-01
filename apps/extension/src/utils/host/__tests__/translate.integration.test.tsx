@@ -494,6 +494,66 @@ describe('translate', () => {
     })
     describe('floating inline HTML nodes', () => {
     })
+    describe('br dom between inline nodes', () => {
+      it('bilingual mode: should insert wrapper into inline nodes', async () => {
+        render(
+          <div data-testid="test-node">
+            <span style={{ display: 'inline' }}>原文</span>
+            <br />
+            <span style={{ display: 'inline' }}>原文</span>
+            原文
+            <br />
+            <span style={{ display: 'inline' }}>原文</span>
+          </div>,
+        )
+        const node = screen.getByTestId('test-node')
+        await removeOrShowPageTranslation('bilingual', true)
+
+        expectNodeLabels(node, [BLOCK_ATTRIBUTE])
+        expectNodeLabels(node.children[0], [INLINE_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        const wrapper1 = expectTranslationWrapper(node.children[0], 'bilingual')
+        expect(wrapper1).toBe(node.childNodes[0].childNodes[1])
+        expectNodeLabels(node.children[2], [INLINE_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        const wrapper2 = node.childNodes[4]
+        expect(wrapper2).toHaveClass(CONTENT_WRAPPER_CLASS)
+        expectNodeLabels(node.children[5], [INLINE_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        const wrapper3 = expectTranslationWrapper(node.children[5], 'bilingual')
+        expect(wrapper3).toBe(node.children[5].childNodes[1])
+
+        await removeOrShowPageTranslation('bilingual', true)
+        expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+        expect(node.textContent).toBe(`${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}`)
+      })
+      it('translation only mode: should insert wrapper into the end of the inline nodes', async () => {
+        render(
+          <div data-testid="test-node">
+            <span style={{ display: 'inline' }}>原文</span>
+            <br />
+            <span style={{ display: 'inline' }}>原文</span>
+            原文
+            <br />
+            <span style={{ display: 'inline' }}>原文</span>
+          </div>,
+        )
+        // const node = screen.getByTestId('test-node')
+        // await removeOrShowPageTranslation('translationOnly', true)
+
+        // console.log(printNodeStructure(node))
+
+        // expectNodeLabels(node, [BLOCK_ATTRIBUTE])
+        // expectNodeLabels(node.children[0], [INLINE_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        // const wrapper1 = expectTranslationWrapper(node.children[0], 'translationOnly')
+        // expect(wrapper1).toBe(node.childNodes[0].childNodes[1])
+        // const wrapper2 = expectTranslationWrapper(node.children[2], 'translationOnly')
+        // expect(wrapper2).toBe(node.childNodes[2].childNodes[1])
+        // const wrapper3 = expectTranslationWrapper(node.children[4], 'translationOnly')
+        // expect(wrapper3).toBe(node.childNodes[4].childNodes[1])
+
+        // await removeOrShowPageTranslation('translationOnly', true)
+        // expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+        // expect(node.textContent).toBe(`${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}`)
+      })
+    })
   })
 })
 

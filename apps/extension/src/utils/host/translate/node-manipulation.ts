@@ -72,21 +72,22 @@ export function removeAllTranslatedWrapperNodes(
   })
 }
 
-export async function translateNodes(nodes: ChildNode[], translationMode: TranslationMode, toggle: boolean = false) {
+export async function translateNodes(nodes: ChildNode[], translationMode: TranslationMode, walkId: string, toggle: boolean = false) {
   if (translationMode === 'translationOnly') {
-    await translateNodeTranslationOnlyMode(nodes, toggle)
+    await translateNodeTranslationOnlyMode(nodes, walkId, toggle)
   }
   else {
-    await translateNodesBilingualMode(nodes, toggle)
+    await translateNodesBilingualMode(nodes, walkId, toggle)
   }
 }
 
 /**
  * Translate the node
  * @param nodes - The nodes to translate
+ * @param walkId - The walk ID for the translation
  * @param toggle - Whether to toggle the translation, if true, the translation will be removed if it already exists
  */
-export async function translateNodesBilingualMode(nodes: ChildNode[], toggle: boolean = false) {
+export async function translateNodesBilingualMode(nodes: ChildNode[], walkId: string, toggle: boolean = false) {
   const transNodes = nodes.filter(node => isTransNode(node))
   if (transNodes.length === 0) {
     return
@@ -103,7 +104,7 @@ export async function translateNodesBilingualMode(nodes: ChildNode[], toggle: bo
     const targetNode
       = transNodes.length === 1 && isBlockTransNode(lastNode) && isHTMLElement(lastNode) ? unwrapDeepestOnlyHTMLChild(lastNode) : lastNode
 
-    const existedTranslatedWrapper = findExistedTranslatedWrapper(targetNode)
+    const existedTranslatedWrapper = findPreviousTranslatedWrapper(targetNode, walkId)
     if (existedTranslatedWrapper) {
       removeTranslatedWrapperWithRestore(existedTranslatedWrapper)
       if (toggle) {
@@ -119,6 +120,7 @@ export async function translateNodesBilingualMode(nodes: ChildNode[], toggle: bo
     const translatedWrapperNode = ownerDoc.createElement('span')
     translatedWrapperNode.className = `${NOTRANSLATE_CLASS} ${CONTENT_WRAPPER_CLASS}`
     translatedWrapperNode.setAttribute(TRANSLATION_MODE_ATTRIBUTE, 'bilingual' satisfies TranslationMode)
+    translatedWrapperNode.setAttribute(WALKED_ATTRIBUTE, walkId)
     const spinner = createSpinnerInside(translatedWrapperNode)
 
     if (isTextNode(targetNode) || transNodes.length > 1) {
@@ -148,7 +150,7 @@ export async function translateNodesBilingualMode(nodes: ChildNode[], toggle: bo
 }
 
 // TODO: add a test to put the comment dom back
-export async function translateNodeTranslationOnlyMode(nodes: ChildNode[], toggle: boolean = false) {
+export async function translateNodeTranslationOnlyMode(nodes: ChildNode[], walkId: string, toggle: boolean = false) {
   const outerTransNodes = nodes.filter(node => isTransNode(node))
   let transNodes: TransNode[] = []
   let allChildNodes: ChildNode[] = []
@@ -179,9 +181,7 @@ export async function translateNodeTranslationOnlyMode(nodes: ChildNode[], toggl
       console.error('targetNode.parentElement is not HTMLElement', targetNode.parentElement)
       return
     }
-    const existedTranslatedWrapper = findExistedTranslatedWrapper(
-      findNearestAncestorBlockNodeFor(targetNode.parentElement),
-    )
+    const existedTranslatedWrapper = findPreviousTranslatedWrapper(findNearestAncestorBlockNodeFor(targetNode.parentElement), walkId)
     if (existedTranslatedWrapper) {
       removeTranslatedWrapperWithRestore(existedTranslatedWrapper)
       if (toggle) {
@@ -219,6 +219,7 @@ export async function translateNodeTranslationOnlyMode(nodes: ChildNode[], toggl
     const translatedWrapperNode = ownerDoc.createElement('span')
     translatedWrapperNode.className = `${NOTRANSLATE_CLASS} ${CONTENT_WRAPPER_CLASS}`
     translatedWrapperNode.setAttribute(TRANSLATION_MODE_ATTRIBUTE, 'translationOnly' satisfies TranslationMode)
+    translatedWrapperNode.setAttribute(WALKED_ATTRIBUTE, walkId)
     translatedWrapperNode.style.display = 'contents'
     const spinner = createSpinnerInside(translatedWrapperNode)
 
@@ -271,14 +272,14 @@ function createSpinnerInside(translatedWrapperNode: HTMLElement) {
   return container
 }
 
-function findExistedTranslatedWrapper(node: Element | Text): HTMLElement | null {
+function findPreviousTranslatedWrapper(node: Element | Text, walkId: string): HTMLElement | null {
   if (isHTMLElement(node)) {
     // Check if the node itself is a translated wrapper
-    if (node.classList.contains(CONTENT_WRAPPER_CLASS)) {
+    if (node.classList.contains(CONTENT_WRAPPER_CLASS) && node.getAttribute(WALKED_ATTRIBUTE) !== walkId) {
       return node
     }
-    // Otherwise, look for a wrapper as a child
-    return node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)
+    // Otherwise, look for a wrapper as a child that doesn't match the current walkId
+    return node.querySelector(`.${CONTENT_WRAPPER_CLASS}:not([${WALKED_ATTRIBUTE}="${walkId}"])`)
   }
   return null
 }
@@ -417,7 +418,7 @@ export async function translateWalkedElement(
     }
 
     if (!hasBlockNodeChild) {
-      promises.push(translateNodes([element], translationMode, toggle))
+      promises.push(translateNodes([element], translationMode, walkId, toggle))
     }
     else {
       // prevent children change during iteration
@@ -429,7 +430,7 @@ export async function translateWalkedElement(
         // }
 
         if (isTransNode(child) && isBlockTransNode(child) && !isTextNode(child)) {
-          promises.push(translateNodes(consecutiveInlineNodes, translationMode, toggle))
+          promises.push(translateNodes(consecutiveInlineNodes, translationMode, walkId, toggle))
           consecutiveInlineNodes = []
           promises.push(translateWalkedElement(child, walkId, translationMode, toggle))
         }
@@ -439,7 +440,7 @@ export async function translateWalkedElement(
       }
 
       if (consecutiveInlineNodes.length) {
-        promises.push(translateNodes(consecutiveInlineNodes, translationMode, toggle))
+        promises.push(translateNodes(consecutiveInlineNodes, translationMode, walkId, toggle))
         consecutiveInlineNodes = []
       }
     }
