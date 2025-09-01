@@ -33,9 +33,6 @@ import { decorateTranslationNode } from './decorate-translation'
 import { translateText, validateTranslationConfig } from './translate-text'
 
 const translatingNodes = new WeakSet<ChildNode>()
-// TODO: 把翻译的 ChildNode[] 的父节点是这里的 key，string 是翻译前的 innerHTML
-// 翻译之前，先记录进去这个 Map，记录的时候，如果 key 已经存在，则不记录，保证记录的是最老的旧节点真正的样子
-// 翻译之后，如果翻译的节点是翻译过的，则直接恢复原来的样子，否则，恢复翻译前的样子，寻找翻译的那个 node 的父亲节点，然后还原这个父亲节点里面的内容
 const originalContentMap = new Map<Element, string>()
 
 // Pre-compiled regex for better performance - removes all mark attributes

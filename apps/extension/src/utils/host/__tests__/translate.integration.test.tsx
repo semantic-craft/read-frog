@@ -704,4 +704,33 @@ describe('translate', () => {
       })
     })
   })
+
+  describe('switching between translation modes', () => {
+    it('should properly clean up translations when switching from bilingual to translation-only mode', async () => {
+      render(
+        <div data-testid="test-node">
+          {MOCK_ORIGINAL_TEXT}
+        </div>,
+      )
+      const node = screen.getByTestId('test-node')
+      await removeOrShowPageTranslation('bilingual', true)
+      await removeOrShowPageTranslation('translationOnly', true)
+
+      expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+      expect(node.textContent).toBe(MOCK_ORIGINAL_TEXT)
+    })
+    it('should properly clean up translations when switching from translation-only to bilingual mode', async () => {
+      render(
+        <div data-testid="test-node">
+          {MOCK_ORIGINAL_TEXT}
+        </div>,
+      )
+      const node = screen.getByTestId('test-node')
+      await removeOrShowPageTranslation('translationOnly', true)
+      await removeOrShowPageTranslation('bilingual', true)
+
+      expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+      expect(node.textContent).toBe(MOCK_ORIGINAL_TEXT)
+    })
+  })
 })

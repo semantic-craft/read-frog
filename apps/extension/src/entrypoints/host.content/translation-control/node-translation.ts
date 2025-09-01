@@ -16,13 +16,6 @@ export function registerNodeTranslationTriggers() {
   let timerId: NodeJS.Timeout | null = null
   let actionTriggered = false
 
-  if (!globalConfig) {
-    console.warn('Global config is not initialized')
-    return
-  }
-
-  const translationMode = globalConfig.translate.mode
-
   // Listen the hotkey means the user can't press or hold any other key during the hotkey is holding
   document.addEventListener('keydown', (e) => {
     if (!isEnabled())
@@ -30,19 +23,18 @@ export function registerNodeTranslationTriggers() {
     if (e.target instanceof HTMLElement && isEditable(e.target))
       return
 
-    if (!globalConfig) {
-      console.warn('Global config is not initialized')
-      return
-    }
-
     if (e.key === getHotkey()) {
       if (!keyState.isHotkeyPressed) {
         keyState.isHotkeyPressed = true
         // If user hold other key, it will trigger keyState.isOtherKeyPressed = true; later by repeat event
         keyState.isOtherKeyPressed = false
         timerId = setTimeout(() => {
+          if (!globalConfig) {
+            console.warn('Global config is not initialized')
+            return
+          }
           if (!keyState.isOtherKeyPressed && keyState.isHotkeyPressed) {
-            removeOrShowNodeTranslation(mousePosition, translationMode)
+            removeOrShowNodeTranslation(mousePosition, globalConfig.translate.mode)
             actionTriggered = true
           }
           timerId = null
@@ -64,6 +56,10 @@ export function registerNodeTranslationTriggers() {
       return
     if (e.target instanceof HTMLElement && isEditable(e.target))
       return
+    if (!globalConfig) {
+      console.warn('Global config is not initialized')
+      return
+    }
     if (e.key === getHotkey()) {
       // translate if user release the hotkey and no other key is pressed
       if (!keyState.isOtherKeyPressed) {
@@ -72,7 +68,7 @@ export function registerNodeTranslationTriggers() {
           timerId = null
         }
         if (!actionTriggered) {
-          removeOrShowNodeTranslation(mousePosition, translationMode)
+          removeOrShowNodeTranslation(mousePosition, globalConfig.translate.mode)
         }
       }
       actionTriggered = false
