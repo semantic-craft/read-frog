@@ -77,7 +77,6 @@ export function mirrorDynamicStyles(selector: string, shadowRoot: ShadowRoot, co
   // Observe the head for added style elements
   const headObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
-      console.log(mutation.addedNodes)
       mutation.addedNodes.forEach((node) => {
         if (node instanceof HTMLStyleElement && node.matches(selector)) {
           // Only check content if contentMatch is provided
