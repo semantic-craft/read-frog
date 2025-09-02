@@ -45,6 +45,7 @@ export function hasSetAPIKey(provider: APIProviderNames, providersConfig: Provid
   return providersConfig[provider]?.apiKey !== undefined
 }
 
+// TODO: test this on new provider config type
 // Dynamically adapt to all API key situations, theoretically should not fail
 export function getConfigWithoutAPIKeys<T extends Record<string, any>>(config: T): T {
   function deepClean(obj: any): any {

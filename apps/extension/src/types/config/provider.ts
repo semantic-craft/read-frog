@@ -141,6 +141,8 @@ export const providersConfigSchema = z.array(providerConfigItemSchema).superRefi
   },
 )
 export type ProvidersConfig = z.infer<typeof providersConfigSchema>
+export type ProviderConfig = ProvidersConfig[number]
+export type LLMProviderConfig = Extract<ProviderConfig, { provider: LLMTranslateProviderNames }>
 
 /* ──────────────────────────────
   read or translate config helpers
