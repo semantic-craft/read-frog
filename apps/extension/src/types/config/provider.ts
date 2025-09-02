@@ -69,33 +69,19 @@ export function isPureTranslateProvider(provider: TranslateProviderNames): provi
   Providers config schema
   ────────────────────────────── */
 
-function getReadModelSchema<T extends Exclude<APIProviderNames, 'deeplx'>>(provider: T) {
-  if (isReadProvider(provider)) {
-    return z.object({
+// Helper function to create provider-specific models schema
+function createProviderModelsSchema<T extends LLMTranslateProviderNames>(provider: T) {
+  return z.object({
+    read: z.object({
       model: z.enum(READ_PROVIDER_MODELS[provider]),
       isCustomModel: z.boolean(),
       customModel: z.string().optional(),
-    })
-  }
-  return z.undefined()
-}
-
-function getTranslateModelSchema<T extends Exclude<APIProviderNames, 'deeplx'>>(provider: T) {
-  if (isTranslateProvider(provider)) {
-    return z.object({
+    }),
+    translate: z.object({
       model: z.enum(TRANSLATE_PROVIDER_MODELS[provider]),
       isCustomModel: z.boolean(),
       customModel: z.string().optional(),
-    })
-  }
-  return z.undefined()
-}
-
-// Helper function to create provider-specific models schema
-function createProviderModelsSchema<T extends Exclude<APIProviderNames, 'deeplx'>>(provider: T) {
-  return z.object({
-    read: getReadModelSchema(provider),
-    translate: getTranslateModelSchema(provider),
+    }),
   })
 }
 
