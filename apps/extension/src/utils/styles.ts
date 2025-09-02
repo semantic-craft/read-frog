@@ -15,7 +15,7 @@ export function addStyleToShadow(shadow: ShadowRoot) {
   })
 }
 
-function isInnerDom(node: Node) {
+function isInternalStyleElement(node: Node) {
   if (!node)
     return false
 
@@ -89,7 +89,7 @@ export function mirrorDynamicStyles(selector: string, shadowRoot: ShadowRoot, co
       })
       // protect inner dom
       mutation.removedNodes.forEach((node) => {
-        if (isInnerDom(node)) {
+        if (isInternalStyleElement(node)) {
           document.head.append(node)
         }
       })
