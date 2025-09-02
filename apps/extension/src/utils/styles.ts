@@ -27,7 +27,7 @@ function isInnerDom(node: Node) {
     return true
   }
 
-  if (node instanceof HTMLStyleElement && node.textContent.includes('[data-sonner-toaster]')) {
+  if (node instanceof HTMLStyleElement && node.textContent?.includes('[data-sonner-toaster]')) {
     return true
   }
 
