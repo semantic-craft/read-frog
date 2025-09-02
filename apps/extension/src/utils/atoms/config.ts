@@ -1,9 +1,11 @@
 import type { Config } from '@/types/config/config'
+import type { LLMProviderConfig, ProviderConfig } from '@/types/config/provider'
 import deepmerge from 'deepmerge'
 import { atom } from 'jotai'
 
 import { selectAtom } from 'jotai/utils'
 
+import { getDeepLXProvidersConfig, getLLMProvidersConfig, getProviderConfigByName } from '../config/helpers'
 import { CONFIG_STORAGE_KEY, DEFAULT_CONFIG } from '../constants/config'
 import { storageAdapter } from './storage-adapter'
 
@@ -64,3 +66,47 @@ function buildConfigFields<C extends Config>(cfg: C) {
 }
 
 export const configFields = buildConfigFields(DEFAULT_CONFIG)
+
+// Derived atom for read provider config
+export const readProviderConfigAtom = atom(
+  (get) => {
+    const readConfig = get(configFields.read)
+    const providersConfig = get(configFields.providersConfig)
+    const LLMProvidersConfig = getLLMProvidersConfig(providersConfig)
+    return getProviderConfigByName(LLMProvidersConfig, readConfig.providerName)
+  },
+  (get, set, newProviderConfig: LLMProviderConfig) => {
+    const readConfig = get(configFields.read)
+    const providersConfig = get(configFields.providersConfig)
+
+    const updatedProviders = providersConfig.map(provider =>
+      provider.name === readConfig.providerName ? newProviderConfig : provider,
+    )
+
+    set(configFields.providersConfig, updatedProviders)
+  },
+)
+
+// Derived atom for translate provider config
+export const translateProviderConfigAtom = atom(
+  (get) => {
+    const translateConfig = get(configFields.translate)
+    const providersConfig = get(configFields.providersConfig)
+
+    const providerConfig = getProviderConfigByName(providersConfig, translateConfig.providerName)
+    if (providerConfig) return providerConfig
+    
+    // Non API translate providers (google, microsoft) don't have config
+    return undefined
+  },
+  (get, set, newProviderConfig: ProviderConfig) => {
+    const translateConfig = get(configFields.translate)
+    const providersConfig = get(configFields.providersConfig)
+    
+    const updatedProviders = providersConfig.map(provider =>
+      provider.name === translateConfig.providerName ? newProviderConfig : provider,
+    )
+    
+    set(configFields.providersConfig, updatedProviders)
+  },
+)

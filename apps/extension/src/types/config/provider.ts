@@ -92,8 +92,7 @@ const baseProviderConfigSchema = z.object({
   baseURL: z.string().optional(),
 })
 
-// Discriminated union with dynamic models constraint
-const providerConfigItemSchema = z.discriminatedUnion('provider', [
+const llmProviderConfigSchemaList = [
   baseProviderConfigSchema.extend({
     provider: z.literal('openai'),
     models: createProviderModelsSchema<'openai'>('openai'),
@@ -106,10 +105,17 @@ const providerConfigItemSchema = z.discriminatedUnion('provider', [
     provider: z.literal('gemini'),
     models: createProviderModelsSchema<'gemini'>('gemini'),
   }),
+] as const
+
+const providerConfigSchemaList = [
+  ...llmProviderConfigSchemaList,
   baseProviderConfigSchema.extend({
     provider: z.literal('deeplx'),
   }),
-])
+] as const
+
+export const llmProviderConfigItemSchema = z.discriminatedUnion('provider', llmProviderConfigSchemaList)
+export const providerConfigItemSchema = z.discriminatedUnion('provider', providerConfigSchemaList)
 
 export const providersConfigSchema = z.array(providerConfigItemSchema).superRefine(
   (providers, ctx) => {
