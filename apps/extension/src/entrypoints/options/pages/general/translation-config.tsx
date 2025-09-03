@@ -1,6 +1,4 @@
-import type { LLMProviderConfig } from '@/types/config/provider'
 import type { PageTranslateRange } from '@/types/config/translate'
-
 import { i18n } from '#imports'
 import { Checkbox } from '@repo/ui/components/checkbox'
 import { Input } from '@repo/ui/components/input'
@@ -16,9 +14,9 @@ import {
 import { deepmerge } from 'deepmerge-ts'
 import { useAtom, useAtomValue } from 'jotai'
 import ProviderIcon from '@/components/provider-icon'
-import { llmProviderConfigItemSchema, TRANSLATE_PROVIDER_MODELS } from '@/types/config/provider'
+import { TRANSLATE_PROVIDER_MODELS } from '@/types/config/provider'
 import { pageTranslateRangeSchema } from '@/types/config/translate'
-import { configFields, translateProviderConfigAtom } from '@/utils/atoms/config'
+import { configFields, translateProviderConfigAtom, updateLLMProviderConfig } from '@/utils/atoms/config'
 import { getDeepLXProvidersConfig, getLLMProvidersConfig } from '@/utils/config/helpers'
 import { NON_API_TRANSLATE_PROVIDER_ITEMS, PROVIDER_ITEMS } from '@/utils/constants/config'
 import { ConfigCard } from '../../components/config-card'
@@ -125,21 +123,6 @@ function TranslateProviderSelector() {
       </Select>
     </FieldWithLabel>
   )
-}
-
-// TODO: move this to utils
-// DeepPartial type helper for nested partial updates
-type DeepPartial<T> = T extends object ? {
-  [P in keyof T]?: DeepPartial<T[P]>
-} : T
-
-// TODO: update all places use deepmerge-ts
-function updateLLMProviderConfig(
-  config: LLMProviderConfig,
-  updates: DeepPartial<LLMProviderConfig>,
-): LLMProviderConfig {
-  const result = deepmerge(config, updates)
-  return llmProviderConfigItemSchema.parse(result)
 }
 
 function TranslateModelSelector() {

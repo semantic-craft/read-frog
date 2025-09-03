@@ -1,11 +1,13 @@
 import type { Config } from '@/types/config/config'
 import type { LLMProviderConfig, ProviderConfig } from '@/types/config/provider'
-import deepmerge from 'deepmerge'
+import type { DeepPartial } from '@/types/utils'
+import { deepmerge } from 'deepmerge-ts'
+
 import { atom } from 'jotai'
 
 import { selectAtom } from 'jotai/utils'
-
-import { getDeepLXProvidersConfig, getLLMProvidersConfig, getProviderConfigByName } from '../config/helpers'
+import { llmProviderConfigItemSchema, providerConfigItemSchema } from '@/types/config/provider'
+import { getLLMProvidersConfig, getProviderConfigByName } from '../config/helpers'
 import { CONFIG_STORAGE_KEY, DEFAULT_CONFIG } from '../constants/config'
 import { storageAdapter } from './storage-adapter'
 
@@ -73,7 +75,11 @@ export const readProviderConfigAtom = atom(
     const readConfig = get(configFields.read)
     const providersConfig = get(configFields.providersConfig)
     const LLMProvidersConfig = getLLMProvidersConfig(providersConfig)
-    return getProviderConfigByName(LLMProvidersConfig, readConfig.providerName)
+    const providerConfig = getProviderConfigByName(LLMProvidersConfig, readConfig.providerName)
+    if (!providerConfig) {
+      throw new Error(`Provider ${readConfig.providerName} not found`)
+    }
+    return providerConfig
   },
   (get, set, newProviderConfig: LLMProviderConfig) => {
     const readConfig = get(configFields.read)
@@ -94,19 +100,37 @@ export const translateProviderConfigAtom = atom(
     const providersConfig = get(configFields.providersConfig)
 
     const providerConfig = getProviderConfigByName(providersConfig, translateConfig.providerName)
-    if (providerConfig) return providerConfig
-    
+    if (providerConfig)
+      return providerConfig
+
     // Non API translate providers (google, microsoft) don't have config
     return undefined
   },
   (get, set, newProviderConfig: ProviderConfig) => {
     const translateConfig = get(configFields.translate)
     const providersConfig = get(configFields.providersConfig)
-    
+
     const updatedProviders = providersConfig.map(provider =>
       provider.name === translateConfig.providerName ? newProviderConfig : provider,
     )
-    
+
     set(configFields.providersConfig, updatedProviders)
   },
 )
+
+// TODO: update all places use deepmerge-ts
+export function updateLLMProviderConfig(
+  config: LLMProviderConfig,
+  updates: DeepPartial<LLMProviderConfig>,
+): LLMProviderConfig {
+  const result = deepmerge(config, updates)
+  return llmProviderConfigItemSchema.parse(result)
+}
+
+export function updateProviderConfig(
+  config: ProviderConfig,
+  updates: DeepPartial<ProviderConfig>,
+): ProviderConfig {
+  const result = deepmerge(config, updates)
+  return providerConfigItemSchema.parse(result)
+}
