@@ -24,6 +24,10 @@ export async function translateText(sourceText: string) {
   // replace /\u200B/g is for Feishu, it's a zero-width space
   const cleanSourceText = sourceText.replace(/\u200B/g, '').trim()
 
+  if (!cleanSourceText) {
+    return ''
+  }
+
   let translatedText = ''
 
   if (isPureTranslateProvider(provider)) {
