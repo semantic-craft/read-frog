@@ -1,6 +1,6 @@
+import type { PartialDeep } from 'type-fest'
 import type { Config } from '@/types/config/config'
 import type { LLMProviderConfig, ProviderConfig } from '@/types/config/provider'
-import type { DeepPartial } from '@/types/utils'
 import { deepmerge } from 'deepmerge-ts'
 
 import { atom } from 'jotai'
@@ -121,7 +121,7 @@ export const translateProviderConfigAtom = atom(
 // TODO: update all places use deepmerge-ts
 export function updateLLMProviderConfig(
   config: LLMProviderConfig,
-  updates: DeepPartial<LLMProviderConfig>,
+  updates: PartialDeep<LLMProviderConfig>,
 ): LLMProviderConfig {
   const result = deepmerge(config, updates)
   return llmProviderConfigItemSchema.parse(result)
@@ -129,7 +129,7 @@ export function updateLLMProviderConfig(
 
 export function updateProviderConfig(
   config: ProviderConfig,
-  updates: DeepPartial<ProviderConfig>,
+  updates: PartialDeep<ProviderConfig>,
 ): ProviderConfig {
   const result = deepmerge(config, updates)
   return providerConfigItemSchema.parse(result)
