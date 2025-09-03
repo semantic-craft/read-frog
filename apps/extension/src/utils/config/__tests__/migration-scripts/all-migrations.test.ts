@@ -14,7 +14,6 @@ describe('all Config Migrations', () => {
     const maxKey = Math.max(...Object.keys(migrations).map(Number))
     expect(maxKey).toBe(LATEST_SCHEMA_VERSION)
 
-    // 验证最新版本的 example 能够通过当前 config schema 解析
     const latestVersionStr = String(LATEST_SCHEMA_VERSION).padStart(3, '0')
     const latestExampleModule = await import(`../example/v${latestVersionStr}.ts`)
     const latestExampleConfig = latestExampleModule.configExample
