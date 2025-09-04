@@ -2,4 +2,4 @@
 "@read-frog/extension": patch
 ---
 
-feat: skip empty word when translate
+fix: skip empty word when translate
