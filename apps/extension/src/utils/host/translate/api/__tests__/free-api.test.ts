@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { DEFAULT_DEEPLX_CONFIG } from '@/utils/constants/config'
 import { deeplxTranslate, googleTranslate, microsoftTranslate } from '../../api'
 
