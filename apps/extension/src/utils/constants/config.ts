@@ -49,6 +49,8 @@ export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
   },
 }
 
+export const DEFAULT_DEEPLX_BASE_URL = 'https://deeplx.vercel.app'
+
 export const DEFAULT_PROVIDER_CONFIG: ProvidersConfig = [
   {
     name: 'OpenAI',
@@ -77,7 +79,7 @@ export const DEFAULT_PROVIDER_CONFIG: ProvidersConfig = [
   {
     name: 'DeepLX',
     provider: 'deeplx',
-    baseURL: 'https://deeplx.vercel.app',
+    baseURL: DEFAULT_DEEPLX_BASE_URL,
   },
 ]
 

@@ -1,13 +1,7 @@
-import type { PartialDeep } from 'type-fest'
 import type { Config } from '@/types/config/config'
-import type { LLMProviderConfig, ProviderConfig } from '@/types/config/provider'
-import { deepmerge } from 'deepmerge-ts'
-
+import deepmerge from 'deepmerge'
 import { atom } from 'jotai'
-
 import { selectAtom } from 'jotai/utils'
-import { llmProviderConfigItemSchema, providerConfigItemSchema } from '@/types/config/provider'
-import { getLLMProvidersConfig, getProviderConfigByName } from '../config/helpers'
 import { CONFIG_STORAGE_KEY, DEFAULT_CONFIG } from '../constants/config'
 import { storageAdapter } from './storage-adapter'
 
@@ -20,6 +14,7 @@ export const writeConfigAtom = atom(
   async (get, set, patch: Partial<Config>) => {
     // ! If we don't use HydrateAtoms, there will be a bug that every time refresh the page, the config will be reset to default
     // ! because we call this function when the page is loaded by extractContent useQuery, that time, configAtom is DEFAULT_CONFIG and the next will be deepmerge(DEFAULT_CONFIG, patch)
+    // TODO: deepmerge(get(configAtom), patch, { arrayMerge: overwriteMerge }) has the same behavior of deepmerge from deepmerge
     const next = deepmerge(get(configAtom), patch, { arrayMerge: overwriteMerge })
     set(configAtom, next) // UI 乐观更新，这会让 react 多一次渲染，因为 react 渲染只有浅比较，前后两个 object 值一样会触发两次渲染
     await storageAdapter.set(CONFIG_STORAGE_KEY, next) // 成功后会调用 onMount 的 callback，设置真正的值，第二次渲染
@@ -68,69 +63,3 @@ function buildConfigFields<C extends Config>(cfg: C) {
 }
 
 export const configFields = buildConfigFields(DEFAULT_CONFIG)
-
-// Derived atom for read provider config
-export const readProviderConfigAtom = atom(
-  (get) => {
-    const readConfig = get(configFields.read)
-    const providersConfig = get(configFields.providersConfig)
-    const LLMProvidersConfig = getLLMProvidersConfig(providersConfig)
-    const providerConfig = getProviderConfigByName(LLMProvidersConfig, readConfig.providerName)
-    if (!providerConfig) {
-      throw new Error(`Provider ${readConfig.providerName} not found`)
-    }
-    return providerConfig
-  },
-  (get, set, newProviderConfig: LLMProviderConfig) => {
-    const readConfig = get(configFields.read)
-    const providersConfig = get(configFields.providersConfig)
-
-    const updatedProviders = providersConfig.map(provider =>
-      provider.name === readConfig.providerName ? newProviderConfig : provider,
-    )
-
-    set(configFields.providersConfig, updatedProviders)
-  },
-)
-
-// Derived atom for translate provider config
-export const translateProviderConfigAtom = atom(
-  (get) => {
-    const translateConfig = get(configFields.translate)
-    const providersConfig = get(configFields.providersConfig)
-
-    const providerConfig = getProviderConfigByName(providersConfig, translateConfig.providerName)
-    if (providerConfig)
-      return providerConfig
-
-    // Non API translate providers (google, microsoft) don't have config
-    return undefined
-  },
-  (get, set, newProviderConfig: ProviderConfig) => {
-    const translateConfig = get(configFields.translate)
-    const providersConfig = get(configFields.providersConfig)
-
-    const updatedProviders = providersConfig.map(provider =>
-      provider.name === translateConfig.providerName ? newProviderConfig : provider,
-    )
-
-    set(configFields.providersConfig, updatedProviders)
-  },
-)
-
-// TODO: update all places use deepmerge-ts
-export function updateLLMProviderConfig(
-  config: LLMProviderConfig,
-  updates: PartialDeep<LLMProviderConfig>,
-): LLMProviderConfig {
-  const result = deepmerge(config, updates)
-  return llmProviderConfigItemSchema.parse(result)
-}
-
-export function updateProviderConfig(
-  config: ProviderConfig,
-  updates: PartialDeep<ProviderConfig>,
-): ProviderConfig {
-  const result = deepmerge(config, updates)
-  return providerConfigItemSchema.parse(result)
-}

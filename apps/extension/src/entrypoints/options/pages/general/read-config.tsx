@@ -3,12 +3,13 @@ import { i18n } from '#imports'
 import { Checkbox } from '@repo/ui/components/checkbox'
 import { Input } from '@repo/ui/components/input'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/components/select'
-import { deepmerge } from 'deepmerge-ts'
 import { useAtom, useAtomValue } from 'jotai'
 import ProviderIcon from '@/components/provider-icon'
 import { READ_PROVIDER_MODELS } from '@/types/config/provider'
-import { configFields, readProviderConfigAtom, updateLLMProviderConfig } from '@/utils/atoms/config'
-import { READ_PROVIDER_ITEMS } from '@/utils/constants/config'
+import { configFields } from '@/utils/atoms/config'
+import { readProviderConfigAtom, updateLLMProviderConfig } from '@/utils/atoms/provider'
+import { getLLMProvidersConfig } from '@/utils/config/helpers'
+import { PROVIDER_ITEMS } from '@/utils/constants/config'
 import { ConfigCard } from '../../components/config-card'
 import { FieldWithLabel } from '../../components/field-with-label'
 import { SetApiKeyWarning } from '../../components/set-api-key-warning'
@@ -28,7 +29,7 @@ function ReadProviderSelector() {
   const [readConfig, setReadConfig] = useAtom(configFields.read)
   const providersConfig = useAtomValue(configFields.providersConfig)
   const readProviderConfig = useAtomValue(readProviderConfigAtom)
-  
+
   return (
     <FieldWithLabel
       id="readProvider"
@@ -51,9 +52,9 @@ function ReadProviderSelector() {
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            {Object.entries(READ_PROVIDER_ITEMS).map(([value, { logo, name }]) => (
-              <SelectItem key={value} value={value}>
-                <ProviderIcon logo={logo} name={name} />
+            {getLLMProvidersConfig(providersConfig).map(({ name, provider }) => (
+              <SelectItem key={name} value={name}>
+                <ProviderIcon logo={PROVIDER_ITEMS[provider].logo} name={name} />
               </SelectItem>
             ))}
           </SelectGroup>
@@ -64,9 +65,9 @@ function ReadProviderSelector() {
 }
 
 function ReadModelSelector() {
-  const [readConfig, setReadConfig] = useAtom(configFields.read)
-  const modelConfig = readConfig.models[readConfig.providerName]
-  const provider = readConfig.providerName
+  const [readProviderConfig, setReadProviderConfig] = useAtom(readProviderConfigAtom)
+  const provider = readProviderConfig.provider
+  const modelConfig = readProviderConfig.models.read
 
   return (
     <FieldWithLabel id="readModel" label={i18n.t('options.general.readConfig.model.title')}>
@@ -75,10 +76,10 @@ function ReadModelSelector() {
             <Input
               value={modelConfig.customModel}
               onChange={e =>
-                setReadConfig(
-                  deepmerge(readConfig, {
+                setReadProviderConfig(
+                  updateLLMProviderConfig(readProviderConfig, {
                     models: {
-                      [provider]: {
+                      read: {
                         customModel: e.target.value,
                       },
                     },
@@ -90,10 +91,10 @@ function ReadModelSelector() {
             <Select
               value={modelConfig.model}
               onValueChange={value =>
-                setReadConfig(
-                  deepmerge(readConfig, {
+                setReadProviderConfig(
+                  updateLLMProviderConfig(readProviderConfig, {
                     models: {
-                      [provider]: {
+                      read: {
                         model: value as any,
                       },
                     },
@@ -120,11 +121,11 @@ function ReadModelSelector() {
           checked={modelConfig.isCustomModel}
           onCheckedChange={(checked) => {
             if (checked === false) {
-              setReadConfig(
-                deepmerge(readConfig, {
+              setReadProviderConfig(
+                updateLLMProviderConfig(readProviderConfig, {
                   models: {
-                    [provider]: {
-                      customModel: undefined,
+                    read: {
+                      customModel: undefined, // TODO: test will this overwrite the customModel in readProviderConfig
                       isCustomModel: false,
                     },
                   },
@@ -132,10 +133,10 @@ function ReadModelSelector() {
               )
             }
             else {
-              setReadConfig(
-                deepmerge(readConfig, {
+              setReadProviderConfig(
+                updateLLMProviderConfig(readProviderConfig, {
                   models: {
-                    [provider]: {
+                    read: {
                       customModel: modelConfig.model,
                       isCustomModel: true,
                     },
