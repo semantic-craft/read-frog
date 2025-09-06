@@ -1,3 +1,4 @@
+import { DEFAULT_DEEPLX_CONFIG } from '@/utils/constants/config'
 import { deeplxTranslate, googleTranslate, microsoftTranslate } from '../../api'
 
 describe('googleTranslate', () => {
@@ -24,11 +25,11 @@ describe('microsoftTranslate', () => {
 
 describe('deeplxTranslate', () => {
   it('should translate text', async () => {
-    const result = await deeplxTranslate('Library', 'en', 'zh')
+    const result = await deeplxTranslate(DEFAULT_DEEPLX_CONFIG, 'Library', 'en', 'zh')
     expect(result).toBe('图书馆')
   })
   it('should translate text to traditional chinese', async () => {
-    const result = await deeplxTranslate('Library', 'en', 'zh-TW')
+    const result = await deeplxTranslate(DEFAULT_DEEPLX_CONFIG, 'Library', 'en', 'zh-TW')
     expect(result).toBe('圖書館')
   })
 })

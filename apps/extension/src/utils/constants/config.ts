@@ -1,5 +1,5 @@
 import type { Config } from '@/types/config/config'
-import type { AllProviderNames, ProvidersConfig, ReadModels, TranslateLLMModels } from '@/types/config/provider'
+import type { AllProviderNames, DeepLXProviderConfig, ProvidersConfig, ReadModels, TranslateLLMModels } from '@/types/config/provider'
 import type { PageTranslateRange } from '@/types/config/translate'
 import deeplxLogo from '@/assets/providers/deeplx.png'
 import deepseekLogo from '@/assets/providers/deepseek.png'
@@ -50,6 +50,11 @@ export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
 }
 
 export const DEFAULT_DEEPLX_BASE_URL = 'https://deeplx.vercel.app'
+export const DEFAULT_DEEPLX_CONFIG: DeepLXProviderConfig = {
+  name: 'DeepLX',
+  provider: 'deeplx',
+  baseURL: DEFAULT_DEEPLX_BASE_URL,
+}
 
 export const DEFAULT_PROVIDER_CONFIG: ProvidersConfig = [
   {
@@ -76,11 +81,7 @@ export const DEFAULT_PROVIDER_CONFIG: ProvidersConfig = [
       translate: DEFAULT_TRANSLATE_MODELS.gemini,
     },
   },
-  {
-    name: 'DeepLX',
-    provider: 'deeplx',
-    baseURL: DEFAULT_DEEPLX_BASE_URL,
-  },
+  DEFAULT_DEEPLX_CONFIG,
 ]
 
 export const DEFAULT_CONFIG: Config = {
