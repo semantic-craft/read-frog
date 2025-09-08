@@ -1,7 +1,7 @@
 import type { Point } from '@/types/dom'
 import { globalConfig } from '@/utils/config/config'
 import { isEditable } from '@/utils/host/dom/filter'
-import { removeOrShowNodeTranslation } from '@/utils/host/translate/node-manipulation'
+import { removeOrShowTextNodeTranslation } from '@/utils/host/translate/node-manipulation'
 
 export function registerNodeTranslationTriggers() {
   const mousePosition: Point = { x: 0, y: 0 }
@@ -34,7 +34,7 @@ export function registerNodeTranslationTriggers() {
             return
           }
           if (!keyState.isOtherKeyPressed && keyState.isHotkeyPressed) {
-            removeOrShowNodeTranslation(mousePosition, globalConfig.translate.mode)
+            removeOrShowTextNodeTranslation(mousePosition, globalConfig.translate.mode)
             actionTriggered = true
           }
           timerId = null
@@ -68,7 +68,7 @@ export function registerNodeTranslationTriggers() {
           timerId = null
         }
         if (!actionTriggered) {
-          removeOrShowNodeTranslation(mousePosition, globalConfig.translate.mode)
+          removeOrShowTextNodeTranslation(mousePosition, globalConfig.translate.mode)
         }
       }
       actionTriggered = false

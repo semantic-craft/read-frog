@@ -23,7 +23,7 @@ import {
 } from '../../constants/dom-labels'
 import { FORCE_INLINE_TRANSLATION_TAGS } from '../../constants/dom-tags'
 import { isBlockTransNode, isHTMLElement, isInlineTransNode, isTextNode, isTranslatedWrapperNode, isTransNode } from '../dom/filter'
-import { deepQueryTopLevelSelector, findNearestAncestorBlockNodeAt, unwrapDeepestOnlyHTMLChild } from '../dom/find'
+import { deepQueryTopLevelSelector, findNearestAncestorBlockNodeAt, findNearestAncestorBlockNodeFor, unwrapDeepestOnlyHTMLChild } from '../dom/find'
 import { getOwnerDocument } from '../dom/node'
 import {
   extractTextContent,
@@ -37,6 +37,62 @@ const originalContentMap = new Map<Element, string>()
 
 // Pre-compiled regex for better performance - removes all mark attributes
 const MARK_ATTRIBUTES_REGEX = new RegExp(`\\s*(?:${Array.from(MARK_ATTRIBUTES).join('|')})(?:=['""][^'"]*['""]|=[^\\s>]*)?`, 'g')
+
+/**
+ * Find the text node at the given point, prioritizing caretPositionFromPoint
+ * @param point - The point to find the text node
+ * @returns The text node at the point, or null if not found
+ */
+function findTextNodeAtPoint(point: Point): Text | null {
+  const { x, y } = point
+
+  let textNode: Text | null = null
+
+  if (document.caretPositionFromPoint) {
+    const caretPos = document.caretPositionFromPoint(x, y)
+    if (caretPos && caretPos.offsetNode && caretPos.offset > 0 && caretPos.offset < (caretPos.offsetNode.textContent?.length ?? 0)) {
+      textNode = isTextNode(caretPos.offsetNode) ? caretPos.offsetNode : null
+    }
+  }
+  else if (document.caretRangeFromPoint) {
+    const range = document.caretRangeFromPoint(x, y)
+    if (range && range.startContainer && range.startOffset > 0 && range.startOffset < (range.startContainer.textContent?.length ?? 0)) {
+      textNode = isTextNode(range.startContainer) ? range.startContainer : null
+    }
+  }
+
+  return textNode
+}
+
+export async function removeOrShowTextNodeTranslation(point: Point, translationMode: TranslationMode) {
+  const textNode = findTextNodeAtPoint(point)
+
+  if (!textNode || !isTextNode(textNode))
+    return
+
+  if (!globalConfig) {
+    throw new Error('Global config is not initialized')
+  }
+
+  if (!validateTranslationConfig({
+    providersConfig: globalConfig.providersConfig,
+    translate: globalConfig.translate,
+    language: globalConfig.language,
+  })) {
+    return
+  }
+
+  if (!textNode.parentElement)
+    return
+
+  const node = findNearestAncestorBlockNodeFor(textNode.parentElement)
+  if (!node || !isHTMLElement(node))
+    return
+
+  const id = crypto.randomUUID()
+  walkAndLabelElement(node, id)
+  await translateWalkedElement(node, id, translationMode, true)
+}
 
 export async function removeOrShowNodeTranslation(point: Point, translationMode: TranslationMode) {
   const node = findNearestAncestorBlockNodeAt(point)
