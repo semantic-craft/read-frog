@@ -98,36 +98,5 @@ export default defineContentScript({
     const autoEnable = globalConfig && await shouldEnableAutoTranslation(window.location.href, globalConfig)
     if (autoEnable && !manager.isActive)
       manager.start()
-
-    // const siliconflow = createOpenAICompatible({
-    //   name: 'lmstudio',
-    //   baseURL: 'https://api.siliconflow.com',
-    //   apiKey: 'sk-tpmbmllxfawrplooqmycoguniymkyfrejcxrllykcpzjxebm',
-    // })
-
-    // const model = siliconflow('Qwen/Qwen3-30B-A3B-Instruct-2507')
-    // const { text } = await generateText({
-    //   model,
-    //   prompt: 'How are you?',
-    //   maxRetries: 1,
-    // })
-
-    // console.log('[siliconflow] text is', text)
-
-    // const registry = await createProviderRegistry({
-    //   custom1: createOpenAICompatible({
-    //     name: 'custom1',
-    //     baseURL: 'https://api.siliconflow.com',
-    //     apiKey: 'sk-tpmbmllxfawrplooqmycoguniymkyfrejcxrllykcpzjxebm',
-    //   }),
-    // })
-
-    // const model = registry.languageModel('custom1:Qwen/Qwen3-30B-A3B-Instruct-2507')
-    // const { text } = await generateText({
-    //   model,
-    //   prompt: 'How are you?',
-    //   maxRetries: 1,
-    // })
-    // console.log('[siliconflow-registry] text is', text)
   },
 })
