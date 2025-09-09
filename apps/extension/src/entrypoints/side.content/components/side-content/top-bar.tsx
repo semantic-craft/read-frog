@@ -74,11 +74,11 @@ function ProviderSelect() {
 
   return (
     <Select
-      value={readConfig.provider}
+      value={readConfig.providerName}
       onValueChange={(value: ReadProviderNames) => {
         setReadConfig({
           ...readConfig,
-          provider: value,
+          providerName: value,
         })
       }}
     >
@@ -87,8 +87,8 @@ function ProviderSelect() {
         className="flex !size-7 items-center justify-center p-0"
       >
         <img
-          src={READ_PROVIDER_ITEMS[readConfig.provider].logo}
-          alt={readConfig.provider}
+          src={READ_PROVIDER_ITEMS[readConfig.providerName].logo}
+          alt={readConfig.providerName}
           className="size-4 p-0.5 bg-white rounded-full"
         />
       </SelectTrigger>

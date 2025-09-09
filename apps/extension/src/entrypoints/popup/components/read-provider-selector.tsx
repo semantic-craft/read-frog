@@ -34,11 +34,11 @@ export default function ReadProviderSelector() {
         </Tooltip>
       </span>
       <Select
-        value={readConfig.provider}
+        value={readConfig.providerName}
         onValueChange={(value: ReadProviderNames) => {
           setReadConfig({
             ...readConfig,
-            provider: value,
+            providerName: value,
           })
         }}
       >

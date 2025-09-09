@@ -1,12 +1,13 @@
 import type { Config } from '@/types/config/config'
-import type { AllProviderNames, PageTranslateRange, ProvidersConfig, ReadModels, TranslateModels } from '@/types/config/provider'
+import type { AllProviderNames, ProvidersConfig, ReadModels, TranslateLLMModels } from '@/types/config/provider'
+import type { PageTranslateRange } from '@/types/config/translate'
 import deeplxLogo from '@/assets/providers/deeplx.png'
 import deepseekLogo from '@/assets/providers/deepseek.png'
 import geminiLogo from '@/assets/providers/gemini.png'
 import googleLogo from '@/assets/providers/google.png'
 import microsoftLogo from '@/assets/providers/microsoft.png'
 import openaiLogo from '@/assets/providers/openai.jpg'
-import { API_PROVIDER_NAMES, PURE_TRANSLATE_PROVIDERS, READ_PROVIDER_NAMES, TRANSLATE_PROVIDER_NAMES } from '@/types/config/provider'
+import { API_PROVIDER_NAMES, NON_API_TRANSLATE_PROVIDERS, PURE_TRANSLATE_PROVIDERS, READ_PROVIDER_NAMES, TRANSLATE_PROVIDER_NAMES } from '@/types/config/provider'
 import { omit, pick } from '@/types/utils'
 import { DEFAULT_TRANSLATE_PROMPTS_CONFIG } from './prompt'
 import { DEFAULT_SIDE_CONTENT_WIDTH } from './side'
@@ -14,65 +15,71 @@ import { DEFAULT_AUTO_TRANSLATE_SHORTCUT_KEY, DEFAULT_REQUEST_CAPACITY, DEFAULT_
 import { DEFAULT_TRANSLATION_NODE_STYLE } from './translation-node-style'
 
 export const CONFIG_STORAGE_KEY = 'config'
-export const CONFIG_SCHEMA_VERSION = 21
+export const CONFIG_SCHEMA_VERSION = 22
 
-export const DEFAULT_PROVIDER_CONFIG: ProvidersConfig = {
-  openai: {
-    apiKey: undefined,
-    baseURL: 'https://api.openai.com/v1',
-  },
-  deepseek: {
-    apiKey: undefined,
-    baseURL: 'https://api.deepseek.com/v1',
-  },
-  gemini: {
-    apiKey: undefined,
-    baseURL: 'https://generativelanguage.googleapis.com/v1beta',
-  },
-  deeplx: {
-    apiKey: undefined,
-    baseURL: 'https://deeplx.vercel.app',
-  },
-}
+export const DEFAULT_FLOATING_BUTTON_POSITION = 0.66
 
 export const DEFAULT_READ_MODELS: ReadModels = {
   openai: {
     model: 'gpt-4.1-mini',
     isCustomModel: false,
-    customModel: '',
   },
   deepseek: {
     model: 'deepseek-chat',
     isCustomModel: false,
-    customModel: '',
   },
   gemini: {
     model: 'gemini-2.5-pro',
     isCustomModel: false,
-    customModel: '',
   },
 }
 
-export const DEFAULT_TRANSLATE_MODELS: TranslateModels = {
-  microsoft: null,
-  google: null,
-  deeplx: null,
+export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
   openai: {
     model: 'gpt-4.1-mini',
     isCustomModel: false,
-    customModel: '',
   },
   deepseek: {
     model: 'deepseek-chat',
     isCustomModel: false,
-    customModel: '',
   },
   gemini: {
     model: 'gemini-1.5-flash',
     isCustomModel: false,
-    customModel: '',
   },
 }
+
+export const DEFAULT_PROVIDER_CONFIG: ProvidersConfig = [
+  {
+    name: 'OpenAI',
+    provider: 'openai',
+    models: {
+      read: DEFAULT_READ_MODELS.openai,
+      translate: DEFAULT_TRANSLATE_MODELS.openai,
+    },
+  },
+  {
+    name: 'DeepSeek',
+    provider: 'deepseek',
+    models: {
+      read: DEFAULT_READ_MODELS.deepseek,
+      translate: DEFAULT_TRANSLATE_MODELS.deepseek,
+    },
+  },
+  {
+    name: 'Gemini',
+    provider: 'gemini',
+    models: {
+      read: DEFAULT_READ_MODELS.gemini,
+      translate: DEFAULT_TRANSLATE_MODELS.gemini,
+    },
+  },
+  {
+    name: 'DeepLX',
+    provider: 'deeplx',
+    baseURL: 'https://deeplx.vercel.app',
+  },
+]
 
 export const DEFAULT_CONFIG: Config = {
   language: {
@@ -83,12 +90,10 @@ export const DEFAULT_CONFIG: Config = {
   },
   providersConfig: DEFAULT_PROVIDER_CONFIG,
   read: {
-    provider: 'openai',
-    models: DEFAULT_READ_MODELS,
+    providerName: 'OpenAI',
   },
   translate: {
-    provider: 'microsoft',
-    models: DEFAULT_TRANSLATE_MODELS,
+    providerName: 'Microsoft Translator',
     mode: 'bilingual',
     node: {
       enabled: true,
@@ -109,7 +114,7 @@ export const DEFAULT_CONFIG: Config = {
   },
   floatingButton: {
     enabled: true,
-    position: 0.66,
+    position: DEFAULT_FLOATING_BUTTON_POSITION,
     disabledFloatingButtonPatterns: [],
   },
   selectionToolbar: {
@@ -147,6 +152,15 @@ export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: string, name: stri
       name: 'Gemini',
     },
   }
+
+export const NON_API_TRANSLATE_PROVIDER_NAMES = NON_API_TRANSLATE_PROVIDERS.map(
+  provider => PROVIDER_ITEMS[provider].name,
+)
+
+export const NON_API_TRANSLATE_PROVIDER_ITEMS = pick(
+  PROVIDER_ITEMS,
+  NON_API_TRANSLATE_PROVIDERS,
+)
 
 export const TRANSLATE_PROVIDER_ITEMS = pick(
   PROVIDER_ITEMS,

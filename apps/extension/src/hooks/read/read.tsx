@@ -51,12 +51,12 @@ export function useAnalyzeContent() {
       const maxAttempts = 3
       let lastError
 
-      const modelConfig = read.models[read.provider]
+      const modelConfig = read.models[read.providerName]
       const modelString = modelConfig.isCustomModel ? modelConfig.customModel : modelConfig.model
       if (!modelString) {
         throw new Error('No model string available for summary generation')
       }
-      const model = await getReadModel(read.provider, modelString)
+      const model = await getReadModel(read.providerName, modelString)
       const targetLang = LANG_CODE_TO_EN_NAME[language.targetCode]
 
       while (attempts < maxAttempts) {
@@ -115,14 +115,14 @@ async function explainBatch(batch: string[], articleAnalysis: ArticleAnalysis, c
         : language.sourceCode
     ]
 
-  const modelConfig = read.models[read.provider]
+  const modelConfig = read.models[read.providerName]
   const modelString = modelConfig.isCustomModel ? modelConfig.customModel : modelConfig.model
 
   if (!modelString) {
     throw new Error('No model string available for explanation generation')
   }
 
-  const model = await getReadModel(read.provider, modelString)
+  const model = await getReadModel(read.providerName, modelString)
   while (attempts < MAX_ATTEMPTS) {
     try {
       const { object: articleExplanation } = await generateObject({

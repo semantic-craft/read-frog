@@ -1,8 +1,11 @@
 import { langCodeISO6393Schema, langLevel } from '@repo/definitions'
 
 import { z } from 'zod'
+
+import { NON_API_TRANSLATE_PROVIDER_NAMES } from '@/utils/constants/config'
 import { MIN_SIDE_CONTENT_WIDTH } from '@/utils/constants/side'
-import { providersConfigSchema, readConfigSchema } from './provider'
+import { providersConfigSchema } from './provider'
+import { readConfigSchema } from './read'
 import { translateConfigSchema } from './translate'
 
 // Language schema
@@ -39,6 +42,30 @@ export const configSchema = z.object({
   floatingButton: floatingButtonSchema,
   selectionToolbar: selectionToolbarSchema,
   sideContent: sideContentSchema,
+}).superRefine((data, ctx) => {
+  const providerNamesSet = new Set(data.providersConfig.map(p => p.name))
+  const providerNames = Array.from(providerNamesSet)
+
+  if (!providerNamesSet.has(data.read.providerName)) {
+    ctx.addIssue({
+      code: 'invalid_value',
+      values: providerNames,
+      message: `Invalid provider name "${data.read.providerName}". Must be one of: ${providerNames.join(', ')}`,
+      path: ['read', 'providerName'],
+    })
+  }
+
+  const validTranslateProviders = [...providerNames, ...NON_API_TRANSLATE_PROVIDER_NAMES]
+  const validTranslateProvidersSet = new Set(validTranslateProviders)
+
+  if (!validTranslateProvidersSet.has(data.translate.providerName)) {
+    ctx.addIssue({
+      code: 'invalid_value',
+      values: validTranslateProviders,
+      message: `Invalid provider name "${data.translate.providerName}". Must be one of: ${validTranslateProviders.join(', ')}`,
+      path: ['translate', 'providerName'],
+    })
+  }
 })
 
 export type Config = z.infer<typeof configSchema>

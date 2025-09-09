@@ -27,7 +27,7 @@ export function ReadConfig() {
 function ReadProviderSelector() {
   const [readConfig, setReadConfig] = useAtom(configFields.read)
   const providersConfig = useAtomValue(configFields.providersConfig)
-  const providerConfig = providersConfig[readConfig.provider]
+  const providerConfig = providersConfig[readConfig.providerName]
   return (
     <FieldWithLabel
       id="readProvider"
@@ -39,10 +39,10 @@ function ReadProviderSelector() {
       )}
     >
       <Select
-        value={readConfig.provider}
+        value={readConfig.providerName}
         onValueChange={(value: ReadProviderNames) =>
           setReadConfig(
-            { ...readConfig, provider: value },
+            { ...readConfig, providerName: value },
           )}
       >
         <SelectTrigger className="w-full">
@@ -64,7 +64,7 @@ function ReadProviderSelector() {
 
 function ReadModelSelector() {
   const [readConfig, setReadConfig] = useAtom(configFields.read)
-  const modelConfig = readConfig.models[readConfig.provider]
+  const modelConfig = readConfig.models[readConfig.providerName]
   return (
     <FieldWithLabel id="readModel" label={i18n.t('options.general.readConfig.model.title')}>
       {modelConfig.isCustomModel
@@ -74,7 +74,7 @@ function ReadModelSelector() {
               onChange={e =>
                 setReadConfig(deepmerge(readConfig, {
                   models: {
-                    [readConfig.provider]: {
+                    [readConfig.providerName]: {
                       customModel: e.target.value,
                     },
                   },
@@ -87,7 +87,7 @@ function ReadModelSelector() {
               onValueChange={value =>
                 setReadConfig(deepmerge(readConfig, {
                   models: {
-                    [readConfig.provider]: {
+                    [readConfig.providerName]: {
                       model: value,
                     },
                   },
@@ -98,7 +98,7 @@ function ReadModelSelector() {
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  {READ_PROVIDER_MODELS[readConfig.provider].map(model => (
+                  {READ_PROVIDER_MODELS[readConfig.providerName].map(model => (
                     <SelectItem key={model} value={model}>
                       {model}
                     </SelectItem>
@@ -109,13 +109,13 @@ function ReadModelSelector() {
           )}
       <div className="mt-0.5 flex items-center space-x-2">
         <Checkbox
-          id={`isCustomModel-read-${readConfig.provider}`}
+          id={`isCustomModel-read-${readConfig.providerName}`}
           checked={modelConfig.isCustomModel}
           onCheckedChange={(checked) => {
             if (checked === false) {
               setReadConfig(deepmerge(readConfig, {
                 models: {
-                  [readConfig.provider]: {
+                  [readConfig.providerName]: {
                     customModel: '',
                     isCustomModel: false,
                   },
@@ -125,8 +125,8 @@ function ReadModelSelector() {
             else {
               setReadConfig(deepmerge(readConfig, {
                 models: {
-                  [readConfig.provider]: {
-                    customModel: readConfig.models[readConfig.provider].model,
+                  [readConfig.providerName]: {
+                    customModel: readConfig.models[readConfig.providerName].model,
                     isCustomModel: true,
                   },
                 },
@@ -135,7 +135,7 @@ function ReadModelSelector() {
           }}
         />
         <label
-          htmlFor={`isCustomModel-read-${readConfig.provider}`}
+          htmlFor={`isCustomModel-read-${readConfig.providerName}`}
           className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
         >
           {i18n.t('options.general.readConfig.model.enterCustomModel')}
