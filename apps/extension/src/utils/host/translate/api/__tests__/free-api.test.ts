@@ -26,11 +26,11 @@ describe('microsoftTranslate', () => {
 
 describe('deeplxTranslate', () => {
   it('should translate text', async () => {
-    const result = await deeplxTranslate(DEFAULT_DEEPLX_CONFIG, 'Library', 'en', 'zh')
+    const result = await deeplxTranslate('Library', 'en', 'zh', DEFAULT_DEEPLX_CONFIG)
     expect(result).toBe('图书馆')
   })
   it('should translate text to traditional chinese', async () => {
-    const result = await deeplxTranslate(DEFAULT_DEEPLX_CONFIG, 'Library', 'en', 'zh-TW')
+    const result = await deeplxTranslate('Library', 'en', 'zh-TW', DEFAULT_DEEPLX_CONFIG)
     expect(result).toBe('圖書館')
   })
 })
