@@ -38,7 +38,7 @@ export function isAnyAPIKeyForReadProviders(providersConfig: ProvidersConfig) {
 }
 
 // Dynamically adapt to all API key situations, theoretically should not fail
-export function getConfigWithoutAPIKeys<T extends Record<string, any>>(config: T): T {
+export function getObjectWithoutAPIKeys<T extends Record<string, any>>(originalObject: T): T {
   function deepClean(obj: any): any {
     if (Array.isArray(obj)) {
       return obj.map(deepClean)
@@ -57,10 +57,10 @@ export function getConfigWithoutAPIKeys<T extends Record<string, any>>(config: T
   }
 
   try {
-    return deepClean(config)
+    return deepClean(originalObject)
   }
   catch {
-    return config
+    return originalObject
   }
 }
 
