@@ -47,7 +47,6 @@ export function TranslatePopover() {
   const [isTranslating, setIsTranslating] = useState(false)
   const [translatedText, setTranslatedText] = useState<string | undefined>(undefined)
   const translateProviderConfig = useAtomValue(translateProviderConfigAtom)
-  // TODO: this will change the config back? without hybrid atom?
   const languageConfig = useAtomValue(configFields.language)
   const mouseClickPosition = useAtomValue(mouseClickPositionAtom)
   const selectionContent = useAtomValue(selectionContentAtom)
