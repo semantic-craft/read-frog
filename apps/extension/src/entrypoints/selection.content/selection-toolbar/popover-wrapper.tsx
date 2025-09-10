@@ -2,6 +2,7 @@ import { Icon } from '@iconify/react'
 import { useAtom, useAtomValue } from 'jotai'
 import { useCallback, useEffect, useRef } from 'react'
 import { isTranslatePopoverVisibleAtom, mouseClickPositionAtom, selectionContentAtom } from './atom'
+import { useDraggable } from './use-draggable'
 
 interface PopoverWrapperProps {
   title: string
@@ -15,6 +16,10 @@ export function PopoverWrapper({ title, icon, children, onClose }: PopoverWrappe
   const mouseClickPosition = useAtomValue(mouseClickPositionAtom)
   const selectionContent = useAtomValue(selectionContentAtom)
   const popoverRef = useRef<HTMLDivElement>(null)
+
+  const { ref: dragRef, style: dragStyle } = useDraggable({
+    initialPosition: mouseClickPosition || { x: 0, y: 0 },
+  })
 
   const handleClose = useCallback(() => {
     setIsVisible(false)
@@ -49,12 +54,12 @@ export function PopoverWrapper({ title, icon, children, onClose }: PopoverWrappe
     <div
       ref={popoverRef}
       className="fixed z-[2147483647] bg-white dark:bg-zinc-800 border rounded-lg w-[300px] shadow-lg"
-      style={{
-        left: mouseClickPosition.x,
-        top: mouseClickPosition.y,
-      }}
+      style={dragStyle}
     >
-      <div className="flex items-center justify-between p-4 border-b">
+      <div
+        ref={dragRef as React.RefObject<HTMLDivElement>}
+        className="flex items-center justify-between p-4 border-b hover:cursor-grab active:cursor-grabbing select-none"
+      >
         <div className="flex items-center gap-2">
           <Icon icon={icon} strokeWidth={0.8} className="size-4.5 text-zinc-600 dark:text-zinc-400" />
           <h2 className="text-base font-medium text-zinc-900 dark:text-zinc-100">{title}</h2>
