@@ -13,6 +13,10 @@ export const TRANSLATE_PROVIDER_MODELS = {
   gemini: ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-2.0-flash-exp'],
 } as const
 export const NON_API_TRANSLATE_PROVIDERS = ['google', 'microsoft'] as const
+export const NON_API_TRANSLATE_PROVIDERS_MAP: Record<typeof NON_API_TRANSLATE_PROVIDERS[number], string> = {
+  google: 'Google Translate',
+  microsoft: 'Microsoft Translator',
+}
 export const PURE_TRANSLATE_PROVIDERS = ['google', 'microsoft', 'deeplx'] as const
 
 export const THINKING_MODELS = ['gemini-2.5-pro', 'gemini-1.5-pro'] as const

@@ -1,13 +1,10 @@
 import { langCodeISO6393Schema, langLevel } from '@repo/definitions'
 
 import { z } from 'zod'
-
-import { NON_API_TRANSLATE_PROVIDER_NAMES } from '@/utils/constants/config'
 import { MIN_SIDE_CONTENT_WIDTH } from '@/utils/constants/side'
-import { providersConfigSchema } from './provider'
+import { NON_API_TRANSLATE_PROVIDERS_MAP, providersConfigSchema } from './provider'
 import { readConfigSchema } from './read'
 import { translateConfigSchema } from './translate'
-
 // Language schema
 const languageSchema = z.object({
   detectedCode: langCodeISO6393Schema,
@@ -55,7 +52,7 @@ export const configSchema = z.object({
     })
   }
 
-  const validTranslateProviders = [...providerNames, ...NON_API_TRANSLATE_PROVIDER_NAMES]
+  const validTranslateProviders = [...providerNames, ...Object.values(NON_API_TRANSLATE_PROVIDERS_MAP)]
   const validTranslateProvidersSet = new Set(validTranslateProviders)
 
   if (!validTranslateProvidersSet.has(data.translate.providerName)) {
