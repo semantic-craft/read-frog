@@ -10,6 +10,7 @@ import { useSetAtom } from 'jotai'
 import { useEffect, useState } from 'react'
 import LoadingDots from '@/components/loading-dots'
 import { providerConfigAtom } from '@/utils/atoms/provider'
+import { getObjectWithoutAPIKeys } from '@/utils/config/config'
 import { API_PROVIDER_ITEMS, DEFAULT_CONFIG } from '@/utils/constants/config'
 import { executeTranslate } from '@/utils/host/translate/translate-text'
 import { ConfigCard } from '../../components/config-card'
@@ -111,7 +112,8 @@ function ConnectionTestButton({ providerConfig }: { providerConfig: APIProviderC
   const { apiKey, baseURL, provider } = providerConfig
 
   const mutation = useMutation({
-    mutationKey: ['apiConnection', providerConfig],
+    // for safety, we should not include apiKey in the mutationKey
+    mutationKey: ['apiConnection', getObjectWithoutAPIKeys(providerConfig)],
     mutationFn: async () => {
       return await executeTranslate('Hi', DEFAULT_CONFIG.language, providerConfig)
     },

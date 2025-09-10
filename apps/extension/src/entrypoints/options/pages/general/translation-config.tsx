@@ -77,7 +77,8 @@ function TranslateProviderSelector() {
   const providersConfig = useAtomValue(configFields.providersConfig)
   const translateProviderConfig = useAtomValue(translateProviderConfigAtom)
 
-  const needSetAPIKey = translateProviderConfig && isAPIProviderConfig(translateProviderConfig) && translateProviderConfig.apiKey === undefined
+  // some deeplx providers don't need api key
+  const needSetAPIKey = translateProviderConfig && isAPIProviderConfig(translateProviderConfig) && translateProviderConfig.provider !== 'deeplx' && translateProviderConfig.apiKey === undefined
 
   // TODO: extract the selector to a separate component and use it in translation config and popup
   return (
