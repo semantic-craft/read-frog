@@ -1,6 +1,6 @@
 import type { Config } from '@/types/config/config'
-import type { LLMProviderConfig, ProviderConfig, ProvidersConfig } from '@/types/config/provider'
-import { isLLMTranslateProvider } from '@/types/config/provider'
+import type { LLMTranslateProviderConfig, NonAPIProviderConfig, ProviderConfig, ProvidersConfig, PureAPIProviderConfig, ReadProviderConfig } from '@/types/config/provider'
+import { isAPIProviderConfig, isLLMTranslateProviderConfig, isNonAPIProviderConfig, isPureAPIProviderConfig, isReadProviderConfig } from '@/types/config/provider'
 
 export function getProviderConfigByName<T extends ProviderConfig>(providersConfig: T[], providerName: string): T | undefined {
   return providersConfig.find(p => p.name === providerName)
@@ -10,14 +10,20 @@ export function getProviderConfigByKey<T extends ProviderConfig>(providersConfig
   return providersConfig.find(p => p.provider === providerKey)
 }
 
-export function getLLMProvidersConfig(providersConfig: ProvidersConfig): LLMProviderConfig[] {
-  return providersConfig.filter((p): p is LLMProviderConfig =>
-    isLLMTranslateProvider(p.provider),
-  )
+export function getLLMTranslateProvidersConfig(providersConfig: ProvidersConfig): LLMTranslateProviderConfig[] {
+  return providersConfig.filter(isLLMTranslateProviderConfig)
 }
 
-export function getDeepLXProvidersConfig(providersConfig: ProvidersConfig) {
-  return providersConfig.filter(p => p.provider === 'deeplx')
+export function getPureAPIProviderConfig(providersConfig: ProvidersConfig): PureAPIProviderConfig[] {
+  return providersConfig.filter(isPureAPIProviderConfig)
+}
+
+export function getNonAPIProvidersConfig(providersConfig: ProvidersConfig): NonAPIProviderConfig[] {
+  return providersConfig.filter(isNonAPIProviderConfig)
+}
+
+export function getReadProvidersConfig(providersConfig: ProvidersConfig): ReadProviderConfig[] {
+  return providersConfig.filter(isReadProviderConfig)
 }
 
 export function getProviderKeyByName(providersConfig: ProvidersConfig, providerName: string): string | undefined {
@@ -27,20 +33,32 @@ export function getProviderKeyByName(providersConfig: ProvidersConfig, providerN
 
 export function getReadModelConfig(config: Config, providerName: string) {
   const provider = getProviderConfigByName(config.providersConfig, providerName)
-  return provider && 'models' in provider ? provider.models?.read : undefined
+  if (provider && isReadProviderConfig(provider)) {
+    return provider.models.read
+  }
+  return undefined
 }
 
 export function getTranslateModelConfig(config: Config, providerName: string) {
-  const provider = getProviderConfigByName(config.providersConfig, providerName)
-  return provider && 'models' in provider ? provider.models?.translate : undefined
+  const providerConfig = getProviderConfigByName(config.providersConfig, providerName)
+  if (providerConfig && isLLMTranslateProviderConfig(providerConfig)) {
+    return providerConfig.models.translate
+  }
+  return undefined
 }
 
 export function getProviderApiKey(providersConfig: ProvidersConfig, providerName: string): string | undefined {
-  const provider = getProviderConfigByName(providersConfig, providerName)
-  return provider?.apiKey
+  const providerConfig = getProviderConfigByName(providersConfig, providerName)
+  if (providerConfig && isAPIProviderConfig(providerConfig)) {
+    return providerConfig.apiKey
+  }
+  return undefined
 }
 
 export function getProviderBaseURL(providersConfig: ProvidersConfig, providerName: string): string | undefined {
-  const provider = getProviderConfigByName(providersConfig, providerName)
-  return provider?.baseURL
+  const providerConfig = getProviderConfigByName(providersConfig, providerName)
+  if (providerConfig && isAPIProviderConfig(providerConfig)) {
+    return providerConfig.baseURL
+  }
+  return undefined
 }

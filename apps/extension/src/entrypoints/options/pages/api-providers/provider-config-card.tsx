@@ -1,4 +1,4 @@
-import type { ProviderConfig } from '@/types/config/provider'
+import type { APIProviderConfig } from '@/types/config/provider'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
 import { Button } from '@repo/ui/components/button'
@@ -10,12 +10,12 @@ import { useSetAtom } from 'jotai'
 import { useEffect, useState } from 'react'
 import LoadingDots from '@/components/loading-dots'
 import { providerConfigAtom } from '@/utils/atoms/provider'
-import { API_PROVIDER_ITEMS } from '@/utils/constants/config'
-import { aiTranslate, deeplxTranslate } from '@/utils/host/translate/api'
+import { API_PROVIDER_ITEMS, DEFAULT_CONFIG } from '@/utils/constants/config'
+import { executeTranslate } from '@/utils/host/translate/translate-text'
 import { ConfigCard } from '../../components/config-card'
 import { FieldWithLabel } from '../../components/field-with-label'
 
-export function ProviderConfigCard({ providerConfig }: { providerConfig: ProviderConfig }) {
+export function ProviderConfigCard({ providerConfig }: { providerConfig: APIProviderConfig }) {
   const setProviderConfig = useSetAtom(providerConfigAtom(providerConfig.name))
   // const [providersConfig, setProvidersConfig] = useAtom(configFields.providersConfig)
   const [showAPIKey, setShowAPIKey] = useState(false)
@@ -107,19 +107,13 @@ const ConnectionTestResultIconMap = {
   error: <ConnectionErrorIcon />,
 }
 
-function ConnectionTestButton({ providerConfig }: { providerConfig: ProviderConfig }) {
+function ConnectionTestButton({ providerConfig }: { providerConfig: APIProviderConfig }) {
   const { apiKey, baseURL, provider } = providerConfig
 
   const mutation = useMutation({
     mutationKey: ['apiConnection', providerConfig],
     mutationFn: async () => {
-      if (provider === 'deeplx') {
-        // TODO: change this
-        await deeplxTranslate(providerConfig, 'Hi', 'en', 'zh')
-      }
-      else {
-        await aiTranslate(providerConfig, 'Hi')
-      }
+      return await executeTranslate('Hi', DEFAULT_CONFIG.language, providerConfig)
     },
   })
 
@@ -129,7 +123,7 @@ function ConnectionTestButton({ providerConfig }: { providerConfig: ProviderConf
 
   useEffect(() => {
     mutation.reset()
-  }, [provider, apiKey, baseURL, mutation])
+  }, [provider, apiKey, baseURL])
 
   const testResult = mutation.isSuccess ? 'success' : mutation.isError ? 'error' : null
   const ConnectionTestResultIcon = testResult ? ConnectionTestResultIconMap[testResult] : null
@@ -163,7 +157,7 @@ function ConnectionTestButton({ providerConfig }: { providerConfig: ProviderConf
   )
 }
 
-function AdvancedProviderConfig({ providerConfig }: { providerConfig: ProviderConfig }) {
+function AdvancedProviderConfig({ providerConfig }: { providerConfig: APIProviderConfig }) {
   const setProviderConfig = useSetAtom(providerConfigAtom(providerConfig.name))
   const [showAdvanced, setShowAdvanced] = useState(false)
 

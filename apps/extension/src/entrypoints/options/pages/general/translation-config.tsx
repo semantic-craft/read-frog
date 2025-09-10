@@ -14,12 +14,12 @@ import {
 import { deepmerge } from 'deepmerge-ts'
 import { useAtom, useAtomValue } from 'jotai'
 import ProviderIcon from '@/components/provider-icon'
-import { TRANSLATE_PROVIDER_MODELS } from '@/types/config/provider'
+import { isAPIProviderConfig, isLLMTranslateProviderConfig, TRANSLATE_PROVIDER_MODELS } from '@/types/config/provider'
 import { pageTranslateRangeSchema } from '@/types/config/translate'
 import { configFields } from '@/utils/atoms/config'
 import { translateProviderConfigAtom, updateLLMProviderConfig } from '@/utils/atoms/provider'
-import { getDeepLXProvidersConfig, getLLMProvidersConfig } from '@/utils/config/helpers'
-import { NON_API_TRANSLATE_PROVIDER_ITEMS, PROVIDER_ITEMS } from '@/utils/constants/config'
+import { getLLMTranslateProvidersConfig, getNonAPIProvidersConfig, getPureAPIProviderConfig } from '@/utils/config/helpers'
+import { PROVIDER_ITEMS } from '@/utils/constants/config'
 import { ConfigCard } from '../../components/config-card'
 import { FieldWithLabel } from '../../components/field-with-label'
 import { SetApiKeyWarning } from '../../components/set-api-key-warning'
@@ -77,6 +77,8 @@ function TranslateProviderSelector() {
   const providersConfig = useAtomValue(configFields.providersConfig)
   const translateProviderConfig = useAtomValue(translateProviderConfigAtom)
 
+  const needSetAPIKey = translateProviderConfig && isAPIProviderConfig(translateProviderConfig) && translateProviderConfig.apiKey === undefined
+
   // TODO: extract the selector to a separate component and use it in translation config and popup
   return (
     <FieldWithLabel
@@ -84,7 +86,7 @@ function TranslateProviderSelector() {
       label={(
         <div className="flex gap-2">
           {i18n.t('options.general.translationConfig.provider')}
-          {translateProviderConfig && !translateProviderConfig.apiKey && translateProviderConfig.provider !== 'deeplx' && <SetApiKeyWarning />}
+          {needSetAPIKey && <SetApiKeyWarning />}
         </div>
       )}
     >
@@ -101,7 +103,7 @@ function TranslateProviderSelector() {
         <SelectContent>
           <SelectGroup>
             <SelectLabel>{i18n.t('translateService.aiTranslator')}</SelectLabel>
-            {getLLMProvidersConfig(providersConfig).map(({ name, provider }) => (
+            {getLLMTranslateProvidersConfig(providersConfig).map(({ name, provider }) => (
               <SelectItem key={name} value={name}>
                 <ProviderIcon logo={PROVIDER_ITEMS[provider].logo} name={name} />
               </SelectItem>
@@ -109,12 +111,12 @@ function TranslateProviderSelector() {
           </SelectGroup>
           <SelectGroup>
             <SelectLabel>{i18n.t('translateService.normalTranslator')}</SelectLabel>
-            {Object.entries(NON_API_TRANSLATE_PROVIDER_ITEMS).map(([value, { logo, name }]) => (
-              <SelectItem key={value} value={name}>
-                <ProviderIcon logo={logo} name={name} />
+            {getNonAPIProvidersConfig(providersConfig).map(({ name, provider }) => (
+              <SelectItem key={name} value={name}>
+                <ProviderIcon logo={PROVIDER_ITEMS[provider].logo} name={name} />
               </SelectItem>
             ))}
-            {getDeepLXProvidersConfig(providersConfig).map(({ name, provider }) => (
+            {getPureAPIProviderConfig(providersConfig).map(({ name, provider }) => (
               <SelectItem key={name} value={name}>
                 <ProviderIcon logo={PROVIDER_ITEMS[provider].logo} name={name} />
               </SelectItem>
@@ -129,7 +131,7 @@ function TranslateProviderSelector() {
 function TranslateModelSelector() {
   const [translateProviderConfig, setTranslateProviderConfig] = useAtom(translateProviderConfigAtom)
 
-  if (!translateProviderConfig || translateProviderConfig.provider === 'deeplx') {
+  if (!translateProviderConfig || !isLLMTranslateProviderConfig(translateProviderConfig)) {
     return null
   }
 
@@ -141,13 +143,13 @@ function TranslateModelSelector() {
       {modelConfig.isCustomModel
         ? (
             <Input
-              value={modelConfig.customModel}
+              value={modelConfig.customModel ?? ''}
               onChange={e =>
                 setTranslateProviderConfig(
                   updateLLMProviderConfig(translateProviderConfig, {
                     models: {
                       translate: {
-                        customModel: e.target.value,
+                        customModel: e.target.value === '' ? null : e.target.value,
                       },
                     },
                   }),
@@ -192,7 +194,7 @@ function TranslateModelSelector() {
                 updateLLMProviderConfig(translateProviderConfig, {
                   models: {
                     translate: {
-                      customModel: undefined, // TODO: test will this overwrite the customModel in translateProviderConfig
+                      customModel: null,
                       isCustomModel: false,
                     },
                   },

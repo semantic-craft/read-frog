@@ -1,13 +1,13 @@
 import type { Config } from '@/types/config/config'
 
-import type { APIProviderNames, ProvidersConfig } from '@/types/config/provider'
+import type { ProvidersConfig } from '@/types/config/provider'
 
 import { storage } from '#imports'
 import { configSchema } from '@/types/config/config'
+import { isReadProviderConfig } from '@/types/config/provider'
 import {
   CONFIG_STORAGE_KEY,
 } from '../constants/config'
-import { logger } from '../logger'
 import { sendMessage } from '../message'
 
 // eslint-disable-next-line import/no-mutable-exports
@@ -23,26 +23,18 @@ export function shouldDisableFloatingButton(url: string, config: Config): boolea
 
 export async function loadGlobalConfig() {
   const config = await sendMessage('getInitialConfig', undefined)
-  if (configSchema.safeParse(config).success) {
-    logger.info('Loaded global config', config)
-    globalConfig = config
-  }
+  globalConfig = configSchema.parse(config)
 }
 
 storage.watch<Config>(`local:${CONFIG_STORAGE_KEY}`, (newConfig) => {
-  if (configSchema.safeParse(newConfig).success) {
-    globalConfig = newConfig
-  }
+  globalConfig = configSchema.parse(newConfig)
 })
 
-export function isAnyAPIKey(providersConfig: ProvidersConfig) {
-  return Object.values(providersConfig).some((providerConfig) => {
+export function isAnyAPIKeyForReadProviders(providersConfig: ProvidersConfig) {
+  const readProvidersConfig = providersConfig.filter(isReadProviderConfig)
+  return readProvidersConfig.some((providerConfig) => {
     return providerConfig.apiKey
   })
-}
-
-export function hasSetAPIKey(provider: APIProviderNames, providersConfig: ProvidersConfig) {
-  return providersConfig[provider]?.apiKey !== undefined
 }
 
 // TODO: test this on new provider config type

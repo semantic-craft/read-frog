@@ -3,8 +3,8 @@ import { storage } from '#imports'
 import { createDeepSeek } from '@ai-sdk/deepseek'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createOpenAI } from '@ai-sdk/openai'
-import { getLLMProvidersConfig, getProviderConfigByName } from './config/helpers'
-import { CONFIG_STORAGE_KEY } from './constants/config'
+import { getLLMTranslateProvidersConfig, getProviderConfigByName } from '../config/helpers'
+import { CONFIG_STORAGE_KEY } from '../constants/config'
 
 interface ProviderFactoryMap {
   openai: typeof createOpenAI
@@ -24,7 +24,7 @@ async function getLanguageModel(providerName: string, modelType: 'read' | 'trans
     throw new Error('Config not found')
   }
 
-  const LLMProvidersConfig = getLLMProvidersConfig(config.providersConfig)
+  const LLMProvidersConfig = getLLMTranslateProvidersConfig(config.providersConfig)
   const providerConfig = getProviderConfigByName(LLMProvidersConfig, providerName)
   if (!providerConfig) {
     throw new Error(`Provider ${providerName} not found`)

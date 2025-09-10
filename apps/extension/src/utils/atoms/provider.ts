@@ -1,10 +1,10 @@
 import type { PartialDeep } from 'type-fest'
-import type { LLMProviderConfig, ProviderConfig } from '@/types/config/provider'
+import type { LLMTranslateProviderConfig, ProviderConfig } from '@/types/config/provider'
 import { deepmerge } from 'deepmerge-ts'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 import { llmProviderConfigItemSchema, providerConfigItemSchema } from '@/types/config/provider'
-import { getLLMProvidersConfig, getProviderConfigByName } from '../config/helpers'
+import { getLLMTranslateProvidersConfig, getProviderConfigByName } from '../config/helpers'
 import { configFields } from './config'
 
 // Derived atom for read provider config
@@ -12,14 +12,14 @@ export const readProviderConfigAtom = atom(
   (get) => {
     const readConfig = get(configFields.read)
     const providersConfig = get(configFields.providersConfig)
-    const LLMProvidersConfig = getLLMProvidersConfig(providersConfig)
+    const LLMProvidersConfig = getLLMTranslateProvidersConfig(providersConfig)
     const providerConfig = getProviderConfigByName(LLMProvidersConfig, readConfig.providerName)
     if (!providerConfig) {
       throw new Error(`Provider ${readConfig.providerName} not found`)
     }
     return providerConfig
   },
-  (get, set, newProviderConfig: LLMProviderConfig) => {
+  (get, set, newProviderConfig: LLMTranslateProviderConfig) => {
     const readConfig = get(configFields.read)
     const providersConfig = get(configFields.providersConfig)
 
@@ -77,9 +77,9 @@ export const providerConfigAtom = atomFamily((name: string) =>
 
 // TODO: update all places use deepmerge-ts
 export function updateLLMProviderConfig(
-  config: LLMProviderConfig,
-  updates: PartialDeep<LLMProviderConfig>,
-): LLMProviderConfig {
+  config: LLMTranslateProviderConfig,
+  updates: PartialDeep<LLMTranslateProviderConfig>,
+): LLMTranslateProviderConfig {
   const result = deepmerge(config, updates)
   return llmProviderConfigItemSchema.parse(result)
 }

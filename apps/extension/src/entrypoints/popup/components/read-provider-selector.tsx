@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@repo/ui/components/too
 import { useAtom, useAtomValue } from 'jotai'
 import ProviderIcon from '@/components/provider-icon'
 import { configFields } from '@/utils/atoms/config'
+import { getReadProvidersConfig } from '@/utils/config/helpers'
 import { PROVIDER_ITEMS } from '@/utils/constants/config'
 
 export default function ReadProviderSelector() {
@@ -45,7 +46,7 @@ export default function ReadProviderSelector() {
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {providersConfig.map(({ name, provider }) => (
+          {getReadProvidersConfig(providersConfig).map(({ name, provider }) => (
             <SelectItem key={name} value={name}>
               <ProviderIcon logo={PROVIDER_ITEMS[provider].logo} name={name} />
             </SelectItem>

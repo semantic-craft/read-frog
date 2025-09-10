@@ -1,5 +1,5 @@
 import type { Config } from '@/types/config/config'
-import type { AllProviderNames, DeepLXProviderConfig, ProvidersConfig, ReadModels, TranslateLLMModels } from '@/types/config/provider'
+import type { AllProviderNames, ProvidersConfig, PureAPIProviderConfig, ReadModels, TranslateLLMModels } from '@/types/config/provider'
 import type { PageTranslateRange } from '@/types/config/translate'
 import deeplxLogo from '@/assets/providers/deeplx.png'
 import deepseekLogo from '@/assets/providers/deepseek.png'
@@ -23,14 +23,17 @@ export const DEFAULT_READ_MODELS: ReadModels = {
   openai: {
     model: 'gpt-4.1-mini',
     isCustomModel: false,
+    customModel: null,
   },
   deepseek: {
     model: 'deepseek-chat',
     isCustomModel: false,
+    customModel: null,
   },
   gemini: {
     model: 'gemini-2.5-pro',
     isCustomModel: false,
+    customModel: null,
   },
 }
 
@@ -38,25 +41,36 @@ export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
   openai: {
     model: 'gpt-4.1-mini',
     isCustomModel: false,
+    customModel: null,
   },
   deepseek: {
     model: 'deepseek-chat',
     isCustomModel: false,
+    customModel: null,
   },
   gemini: {
     model: 'gemini-1.5-flash',
     isCustomModel: false,
+    customModel: null,
   },
 }
 
 export const DEFAULT_DEEPLX_BASE_URL = 'https://deeplx.vercel.app'
-export const DEFAULT_DEEPLX_CONFIG: DeepLXProviderConfig = {
+export const DEFAULT_DEEPLX_CONFIG: PureAPIProviderConfig = {
   name: 'DeepLX',
   provider: 'deeplx',
   baseURL: DEFAULT_DEEPLX_BASE_URL,
 }
 
 export const DEFAULT_PROVIDER_CONFIG: ProvidersConfig = [
+  {
+    name: 'Google Translate',
+    provider: 'google',
+  },
+  {
+    name: 'Microsoft Translator',
+    provider: 'microsoft',
+  },
   {
     name: 'OpenAI',
     provider: 'openai',
@@ -88,7 +102,7 @@ export const DEFAULT_CONFIG: Config = {
   language: {
     detectedCode: 'eng',
     sourceCode: 'auto',
-    targetCode: 'eng',
+    targetCode: 'cmn',
     level: 'intermediate',
   },
   providersConfig: DEFAULT_PROVIDER_CONFIG,

@@ -8,7 +8,7 @@ import ProviderIcon from '@/components/provider-icon'
 import { READ_PROVIDER_MODELS } from '@/types/config/provider'
 import { configFields } from '@/utils/atoms/config'
 import { readProviderConfigAtom, updateLLMProviderConfig } from '@/utils/atoms/provider'
-import { getLLMProvidersConfig } from '@/utils/config/helpers'
+import { getLLMTranslateProvidersConfig } from '@/utils/config/helpers'
 import { PROVIDER_ITEMS } from '@/utils/constants/config'
 import { ConfigCard } from '../../components/config-card'
 import { FieldWithLabel } from '../../components/field-with-label'
@@ -52,7 +52,7 @@ function ReadProviderSelector() {
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            {getLLMProvidersConfig(providersConfig).map(({ name, provider }) => (
+            {getLLMTranslateProvidersConfig(providersConfig).map(({ name, provider }) => (
               <SelectItem key={name} value={name}>
                 <ProviderIcon logo={PROVIDER_ITEMS[provider].logo} name={name} />
               </SelectItem>
@@ -74,13 +74,13 @@ function ReadModelSelector() {
       {modelConfig.isCustomModel
         ? (
             <Input
-              value={modelConfig.customModel}
+              value={modelConfig.customModel ?? ''}
               onChange={e =>
                 setReadProviderConfig(
                   updateLLMProviderConfig(readProviderConfig, {
                     models: {
                       read: {
-                        customModel: e.target.value,
+                        customModel: e.target.value === '' ? null : e.target.value,
                       },
                     },
                   }),
@@ -125,7 +125,7 @@ function ReadModelSelector() {
                 updateLLMProviderConfig(readProviderConfig, {
                   models: {
                     read: {
-                      customModel: undefined, // TODO: test will this overwrite the customModel in readProviderConfig
+                      customModel: null,
                       isCustomModel: false,
                     },
                   },
