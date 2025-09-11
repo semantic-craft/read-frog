@@ -16,7 +16,6 @@ export default function ReadProviderSelector({ className, hideChevron = false, c
   const providersConfig = useAtomValue(configFields.providersConfig)
 
   return (
-
     <Select
       value={readConfig.providerName}
       onValueChange={(value: string) => {
