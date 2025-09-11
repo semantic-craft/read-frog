@@ -2,7 +2,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import { configFields } from '@/utils/atoms/config'
 import { MARGIN } from '@/utils/constants/selection'
-import AiButton from './ai-button'
+import AiButton, { AiPopover } from './ai-button'
 import { isTooltipVisibleAtom, selectionContentAtom } from './atom'
 import { TranslateButton, TranslatePopover } from './translate-button'
 
@@ -140,6 +140,7 @@ export function SelectionToolbar() {
         </div>
       )}
       <TranslatePopover />
+      <AiPopover />
     </div>
   )
 }

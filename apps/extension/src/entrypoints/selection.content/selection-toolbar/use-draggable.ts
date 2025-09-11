@@ -10,6 +10,7 @@ interface UseDraggableOptions {
   initialPosition?: Position
   onPositionChange?: (position: Position) => void
   margin?: number
+  isVisible: boolean
 }
 
 interface UseDraggableReturn {
@@ -25,8 +26,8 @@ interface UseDraggableReturn {
  * @param options - Configuration options for draggable behavior
  * @returns Object containing position, drag state, ref and styles
  */
-export function useDraggable(options: UseDraggableOptions = {}): UseDraggableReturn {
-  const { initialPosition = { x: 0, y: 0 }, onPositionChange, margin = 0 } = options
+export function useDraggable(options: UseDraggableOptions): UseDraggableReturn {
+  const { initialPosition = { x: 0, y: 0 }, onPositionChange, margin = 0, isVisible } = options ?? {}
 
   const [isDragging, setIsDragging] = useState(false)
   const dragOffsetRef = useRef<Position>({ x: 0, y: 0 })
@@ -110,15 +111,14 @@ export function useDraggable(options: UseDraggableOptions = {}): UseDraggableRet
 
   useEffect(() => {
     const element = dragRef.current
-    if (!element)
+    if (!element || !isVisible)
       return
 
     element.addEventListener('mousedown', handleMouseDown)
     return () => {
       element.removeEventListener('mousedown', handleMouseDown)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handleMouseDown, dragRef.current])
+  }, [handleMouseDown, isVisible])
 
   // Monitor container height changes and update position accordingly
   useEffect(() => {

@@ -1,8 +1,8 @@
 import { Icon } from '@iconify/react'
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtomValue } from 'jotai'
 import { useCallback, useEffect } from 'react'
 import { MARGIN } from '@/utils/constants/selection'
-import { isTranslatePopoverVisibleAtom, mouseClickPositionAtom, selectionContentAtom } from './atom'
+import { mouseClickPositionAtom, selectionContentAtom } from './atom'
 import { useDraggable } from './use-draggable'
 
 interface PopoverWrapperProps {
@@ -10,16 +10,18 @@ interface PopoverWrapperProps {
   icon: string
   children: React.ReactNode
   onClose?: () => void
+  isVisible: boolean
+  setIsVisible: (isVisible: boolean) => void
 }
 
-export function PopoverWrapper({ title, icon, children, onClose }: PopoverWrapperProps) {
-  const [isVisible, setIsVisible] = useAtom(isTranslatePopoverVisibleAtom)
+export function PopoverWrapper({ title, icon, children, onClose, isVisible, setIsVisible }: PopoverWrapperProps) {
   const mouseClickPosition = useAtomValue(mouseClickPositionAtom)
   const selectionContent = useAtomValue(selectionContentAtom)
 
   const { dragRef, containerRef: popoverRef, style: popoverStyle, isDragging } = useDraggable({
     initialPosition: mouseClickPosition || { x: 0, y: 0 },
     margin: MARGIN,
+    isVisible,
   })
 
   const handleClose = useCallback(() => {

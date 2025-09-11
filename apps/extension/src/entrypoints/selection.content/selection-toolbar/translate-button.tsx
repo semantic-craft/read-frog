@@ -3,7 +3,7 @@ import { Icon } from '@iconify/react'
 import { ISO6393_TO_6391, LANG_CODE_TO_EN_NAME } from '@repo/definitions'
 import { useMutation } from '@tanstack/react-query'
 import { readUIMessageStream, streamText } from 'ai'
-import { useAtomValue, useSetAtom } from 'jotai'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { isLLMTranslateProviderConfig, isNonAPIProvider, isPureAPIProvider, THINKING_MODELS } from '@/types/config/provider'
@@ -49,7 +49,7 @@ export function TranslatePopover() {
   const translateProviderConfig = useAtomValue(translateProviderConfigAtom)
   const languageConfig = useAtomValue(configFields.language)
   const selectionContent = useAtomValue(selectionContentAtom)
-  const isVisible = useAtomValue(isTranslatePopoverVisibleAtom)
+  const [isVisible, setIsVisible] = useAtom(isTranslatePopoverVisibleAtom)
   const { data: session } = authClient.useSession()
 
   const createVocabulary = useMutation({
@@ -207,6 +207,8 @@ export function TranslatePopover() {
       title="Translation"
       icon="ri:translate"
       onClose={handleClose}
+      isVisible={isVisible}
+      setIsVisible={setIsVisible}
     >
       <div className="p-4 border-b">
         <div className="border-b pb-4"><p className="text-sm text-zinc-600 dark:text-zinc-400">{selectionContent}</p></div>
