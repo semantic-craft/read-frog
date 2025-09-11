@@ -1,7 +1,7 @@
 import { Icon } from '@iconify/react'
 import { useAtom, useAtomValue } from 'jotai'
 import { useCallback, useEffect } from 'react'
-import { MARGIN } from '.'
+import { MARGIN } from '@/utils/constants/selection'
 import { isTranslatePopoverVisibleAtom, mouseClickPositionAtom, selectionContentAtom } from './atom'
 import { useDraggable } from './use-draggable'
 

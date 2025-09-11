@@ -1,11 +1,10 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import { configFields } from '@/utils/atoms/config'
+import { MARGIN } from '@/utils/constants/selection'
 import AiButton from './ai-button'
 import { isTooltipVisibleAtom, selectionContentAtom } from './atom'
 import { TranslateButton, TranslatePopover } from './translate-button'
-
-export const MARGIN = 25
 
 export function SelectionToolbar() {
   const tooltipRef = useRef<HTMLDivElement>(null)
