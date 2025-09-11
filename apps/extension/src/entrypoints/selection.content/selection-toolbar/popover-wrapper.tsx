@@ -16,7 +16,7 @@ export function PopoverWrapper({ title, icon, children, onClose }: PopoverWrappe
   const mouseClickPosition = useAtomValue(mouseClickPositionAtom)
   const selectionContent = useAtomValue(selectionContentAtom)
 
-  const { dragRef, containerRef: popoverRef, style: popoverStyle } = useDraggable({
+  const { dragRef, containerRef: popoverRef, style: popoverStyle, isDragging } = useDraggable({
     initialPosition: mouseClickPosition || { x: 0, y: 0 },
   })
 
@@ -56,8 +56,18 @@ export function PopoverWrapper({ title, icon, children, onClose }: PopoverWrappe
     >
       <div
         ref={dragRef as React.RefObject<HTMLDivElement>}
-        className="flex items-center justify-between p-4 border-b hover:cursor-grab active:cursor-grabbing select-none"
+        className="group relative flex items-center justify-between p-4 border-b hover:cursor-grab active:cursor-grabbing select-none"
       >
+        {/* Drag icon positioned at top */}
+        <div
+          className={`absolute top-0 left-1/2 transform -translate-x-1/2 p-1 transition-all duration-200 ${isDragging ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+          style={{
+            color: isDragging ? 'var(--read-frog-primary)' : undefined,
+          }}
+        >
+          <Icon icon="tabler:grip-horizontal" className="size-4" />
+        </div>
+
         <div className="flex items-center gap-2">
           <Icon icon={icon} strokeWidth={0.8} className="size-4.5 text-zinc-600 dark:text-zinc-400" />
           <h2 className="text-base font-medium text-zinc-900 dark:text-zinc-100">{title}</h2>
