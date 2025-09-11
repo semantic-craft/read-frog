@@ -8,7 +8,7 @@ import {
   NOTRANSLATE_CLASS,
 } from '@/utils/constants/dom-labels'
 import { FORCE_BLOCK_TAGS } from '@/utils/constants/dom-tags'
-import { customDontWalkElementManager } from './custom-dont-walk-dom'
+import { customDontWalkElementManager } from './custom-dont-walk'
 
 export function isEditable(element: HTMLElement): boolean {
   const tag = element.tagName

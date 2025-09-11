@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client'
 // import eruda from 'eruda'
 import { globalConfig, loadGlobalConfig } from '@/utils/config/config'
 import { APP_NAME } from '@/utils/constants/app'
-import { customDontWalkElementManager } from '@/utils/host/dom/custom-dont-walk-dom'
+import { customDontWalkElementManager } from '@/utils/host/dom/custom-dont-walk'
 import { shouldEnableAutoTranslation } from '@/utils/host/translate/auto-translation'
 import { logger } from '@/utils/logger'
 import { sendMessage } from '@/utils/message'
@@ -77,14 +77,12 @@ export default defineContentScript({
       }
     }
 
-    customDontWalkElementManager.loadDontWalkRulesAndElements()
-
     window.addEventListener('extension:URLChange', (e: any) => {
       const { from, to } = e.detail
       handleUrlChange(from, to)
-
-      customDontWalkElementManager.loadDontWalkRulesAndElements()
     })
+
+    customDontWalkElementManager.loadDontWalkRulesAndElements()
 
     shortcutKeyManager.bindTranslationShortcutKey()
 
