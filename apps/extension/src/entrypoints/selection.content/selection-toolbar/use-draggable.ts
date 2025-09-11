@@ -9,6 +9,7 @@ interface Position {
 interface UseDraggableOptions {
   initialPosition?: Position
   onPositionChange?: (position: Position) => void
+  margin?: number
 }
 
 interface UseDraggableReturn {
@@ -25,7 +26,7 @@ interface UseDraggableReturn {
  * @returns Object containing position, drag state, ref and styles
  */
 export function useDraggable(options: UseDraggableOptions = {}): UseDraggableReturn {
-  const { initialPosition = { x: 0, y: 0 }, onPositionChange } = options
+  const { initialPosition = { x: 0, y: 0 }, onPositionChange, margin = 20 } = options
 
   const [isDragging, setIsDragging] = useState(false)
   const dragOffsetRef = useRef<Position>({ x: 0, y: 0 })
@@ -38,10 +39,28 @@ export function useDraggable(options: UseDraggableOptions = {}): UseDraggableRet
     if (!containerRef.current) {
       return
     }
-    containerRef.current.style.transform = `translate(${newPosition.x}px, ${newPosition.y}px)`
-    positionRef.current = newPosition
-    onPositionChange?.(newPosition)
-  }, [onPositionChange])
+
+    // Get container dimensions for boundary detection
+    const containerRect = containerRef.current.getBoundingClientRect()
+    const containerWidth = containerRect.width
+    const containerHeight = containerRect.height
+
+    // Calculate boundaries considering container size
+    const minX = margin
+    const maxX = window.innerWidth - containerWidth - margin
+    const minY = margin
+    const maxY = window.innerHeight - containerHeight - margin
+
+    // Clamp position to keep container within viewport
+    const clampedPosition = {
+      x: Math.max(minX, Math.min(newPosition.x, maxX)),
+      y: Math.max(minY, Math.min(newPosition.y, maxY)),
+    }
+
+    containerRef.current.style.transform = `translate(${clampedPosition.x}px, ${clampedPosition.y}px)`
+    positionRef.current = clampedPosition
+    onPositionChange?.(clampedPosition)
+  }, [onPositionChange, margin])
 
   useLayoutEffect(() => {
     updatePosition(initialPosition)
@@ -107,7 +126,7 @@ export function useDraggable(options: UseDraggableOptions = {}): UseDraggableRet
     dragRef,
     containerRef,
     style: {
-      position: 'absolute',
+      position: 'fixed',
     },
   }
 }
