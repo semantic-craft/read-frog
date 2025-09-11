@@ -120,6 +120,31 @@ export function useDraggable(options: UseDraggableOptions = {}): UseDraggableRet
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handleMouseDown, dragRef.current])
 
+  // Monitor container height changes and update position accordingly
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container)
+      return
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        // Only update position if height has changed
+        const { height } = entry.contentRect
+        if (height > 0) {
+          // Use current position to trigger boundary recalculation
+          updatePosition(positionRef.current)
+        }
+      }
+    })
+
+    resizeObserver.observe(container)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updatePosition, containerRef.current])
+
   return {
     position: positionRef.current,
     isDragging,
