@@ -26,7 +26,7 @@ interface UseDraggableReturn {
  * @returns Object containing position, drag state, ref and styles
  */
 export function useDraggable(options: UseDraggableOptions = {}): UseDraggableReturn {
-  const { initialPosition = { x: 0, y: 0 }, onPositionChange, margin = 20 } = options
+  const { initialPosition = { x: 0, y: 0 }, onPositionChange, margin = 0 } = options
 
   const [isDragging, setIsDragging] = useState(false)
   const dragOffsetRef = useRef<Position>({ x: 0, y: 0 })

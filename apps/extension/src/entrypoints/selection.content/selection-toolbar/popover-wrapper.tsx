@@ -1,6 +1,7 @@
 import { Icon } from '@iconify/react'
 import { useAtom, useAtomValue } from 'jotai'
 import { useCallback, useEffect } from 'react'
+import { MARGIN } from '.'
 import { isTranslatePopoverVisibleAtom, mouseClickPositionAtom, selectionContentAtom } from './atom'
 import { useDraggable } from './use-draggable'
 
@@ -18,6 +19,7 @@ export function PopoverWrapper({ title, icon, children, onClose }: PopoverWrappe
 
   const { dragRef, containerRef: popoverRef, style: popoverStyle, isDragging } = useDraggable({
     initialPosition: mouseClickPosition || { x: 0, y: 0 },
+    margin: MARGIN,
   })
 
   const handleClose = useCallback(() => {
