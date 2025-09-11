@@ -8,6 +8,7 @@ import {
   NOTRANSLATE_CLASS,
 } from '@/utils/constants/dom-labels'
 import { FORCE_BLOCK_TAGS } from '@/utils/constants/dom-tags'
+import { customDontWalkElementManager } from './custom-dont-walk-dom'
 
 export function isEditable(element: HTMLElement): boolean {
   const tag = element.tagName
@@ -80,6 +81,10 @@ export function isShallowBlockHTMLElement(element: HTMLElement): boolean {
 }
 
 export function isDontWalkIntoElement(element: HTMLElement): boolean {
+  const dontWalkCustomElement = customDontWalkElementManager.isDontWalkIntoElement(element)
+
+  // console.log('dontWalkCustomElement', dontWalkCustomElement)
+
   const dontWalkClass = [NOTRANSLATE_CLASS, 'sr-only'].some(className =>
     element.classList.contains(className),
   )
@@ -90,7 +95,7 @@ export function isDontWalkIntoElement(element: HTMLElement): boolean {
 
   const dontWalkAttr = element.getAttribute('translate') === 'no'
 
-  return dontWalkClass || dontWalkCSS || dontWalkAttr
+  return dontWalkCustomElement || dontWalkClass || dontWalkCSS || dontWalkAttr
 }
 
 export function isInlineTransNode(node: TransNode): boolean {
