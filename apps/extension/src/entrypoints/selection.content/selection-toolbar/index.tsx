@@ -33,7 +33,7 @@ export function SelectionToolbar() {
     const rightBoundary = clientWidth - tooltipWidth - MARGIN
 
     // calculate the position of the tooltip, but strictly limit it within the boundaries
-    const clampedX = Math.max(Math.min(rightBoundary, selectionPositionRef.current.x), leftBoundary)
+    const clampedX = Math.max(leftBoundary, Math.min(rightBoundary, selectionPositionRef.current.x))
     const clampedY = Math.max(topBoundary, Math.min(bottomBoundary, selectionPositionRef.current.y))
 
     // directly operate the DOM, avoid React re-rendering
