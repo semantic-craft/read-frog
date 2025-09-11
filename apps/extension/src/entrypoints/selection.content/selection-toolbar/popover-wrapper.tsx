@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react'
 import { useAtom, useAtomValue } from 'jotai'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect } from 'react'
 import { isTranslatePopoverVisibleAtom, mouseClickPositionAtom, selectionContentAtom } from './atom'
 import { useDraggable } from './use-draggable'
 
@@ -15,9 +15,8 @@ export function PopoverWrapper({ title, icon, children, onClose }: PopoverWrappe
   const [isVisible, setIsVisible] = useAtom(isTranslatePopoverVisibleAtom)
   const mouseClickPosition = useAtomValue(mouseClickPositionAtom)
   const selectionContent = useAtomValue(selectionContentAtom)
-  const popoverRef = useRef<HTMLDivElement>(null)
 
-  const { ref: dragRef, style: dragStyle } = useDraggable({
+  const { dragRef, containerRef: popoverRef, style: popoverStyle } = useDraggable({
     initialPosition: mouseClickPosition || { x: 0, y: 0 },
   })
 
@@ -28,23 +27,22 @@ export function PopoverWrapper({ title, icon, children, onClose }: PopoverWrappe
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (popoverRef.current) {
-        const eventPath = event.composedPath()
-        const isClickInsideTooltip = eventPath.includes(popoverRef.current)
-        if (!isClickInsideTooltip) {
-          handleClose()
-        }
+      if (!popoverRef.current) {
+        return
+      }
+      const eventPath = event.composedPath()
+      const isClickInsideTooltip = eventPath.includes(popoverRef.current)
+      if (!isClickInsideTooltip) {
+        handleClose()
       }
     }
 
-    if (isVisible) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
+    document.addEventListener('mousedown', handleClickOutside)
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [isVisible, handleClose])
+  }, [handleClose, popoverRef])
 
   if (!isVisible || !mouseClickPosition || !selectionContent) {
     return null
@@ -52,9 +50,9 @@ export function PopoverWrapper({ title, icon, children, onClose }: PopoverWrappe
 
   return (
     <div
-      ref={popoverRef}
       className="fixed z-[2147483647] bg-white dark:bg-zinc-800 border rounded-lg w-[300px] shadow-lg"
-      style={dragStyle}
+      ref={popoverRef as React.RefObject<HTMLDivElement>}
+      style={popoverStyle}
     >
       <div
         ref={dragRef as React.RefObject<HTMLDivElement>}

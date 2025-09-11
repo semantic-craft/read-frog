@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 interface Position {
@@ -13,11 +14,9 @@ interface UseDraggableOptions {
 interface UseDraggableReturn {
   position: Position
   isDragging: boolean
-  ref: React.RefObject<HTMLElement | null>
-  style: {
-    left: number
-    top: number
-  }
+  dragRef: React.RefObject<HTMLElement | null>
+  containerRef: React.RefObject<HTMLElement | null>
+  style: CSSProperties
 }
 
 /**
@@ -29,28 +28,35 @@ export function useDraggable(options: UseDraggableOptions = {}): UseDraggableRet
   const { initialPosition = { x: 0, y: 0 }, onPositionChange } = options
 
   const [isDragging, setIsDragging] = useState(false)
-  const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 })
-  const [position, setPosition] = useState<Position>(initialPosition)
-  const ref = useRef<HTMLElement>(null)
+  const dragOffsetRef = useRef<Position>({ x: 0, y: 0 })
+  const positionRef = useRef<Position>(initialPosition)
+  const dragRef = useRef<HTMLElement>(null)
+  const containerRef = useRef<HTMLElement>(null)
+
+  // 直接操作 DOM 的 transform; not React re-rendering and browser layout re-rendering
+  const updatePosition = useCallback((newPosition: Position) => {
+    if (!containerRef.current) {
+      return
+    }
+    containerRef.current.style.transform = `translate(${newPosition.x}px, ${newPosition.y}px)`
+    positionRef.current = newPosition
+    onPositionChange?.(newPosition)
+  }, [onPositionChange])
 
   useLayoutEffect(() => {
-    setPosition({
-      x: initialPosition.x,
-      y: initialPosition.y,
-    })
-  }, [initialPosition.x, initialPosition.y])
+    updatePosition(initialPosition)
+  }, [initialPosition, updatePosition])
 
   // Handle mouse move during drag
   const handleMouseMove = useCallback((event: MouseEvent) => {
     if (isDragging) {
       const newPosition = {
-        x: event.clientX - dragOffset.x,
-        y: event.clientY - dragOffset.y,
+        x: event.clientX - dragOffsetRef.current.x,
+        y: event.clientY - dragOffsetRef.current.y,
       }
-      setPosition(newPosition)
-      onPositionChange?.(newPosition)
+      updatePosition(newPosition)
     }
-  }, [isDragging, dragOffset, onPositionChange])
+  }, [isDragging, updatePosition])
 
   // Handle mouse up to end drag
   const handleMouseUp = useCallback(() => {
@@ -59,14 +65,14 @@ export function useDraggable(options: UseDraggableOptions = {}): UseDraggableRet
 
   // Handle mouse down to start drag
   const handleMouseDown = useCallback((event: MouseEvent) => {
-    if (!ref.current || event.button !== 0)
+    if (!dragRef.current || event.button !== 0)
       return
 
-    const rect = ref.current.getBoundingClientRect()
-    setDragOffset({
+    const rect = dragRef.current.getBoundingClientRect()
+    dragOffsetRef.current = {
       x: event.clientX - rect.left,
       y: event.clientY - rect.top,
-    })
+    }
     setIsDragging(true)
 
     // Prevent text selection during drag
@@ -75,36 +81,33 @@ export function useDraggable(options: UseDraggableOptions = {}): UseDraggableRet
 
   // Add/remove event listeners for drag
   useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove)
-      document.addEventListener('mouseup', handleMouseUp)
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove)
-        document.removeEventListener('mouseup', handleMouseUp)
-      }
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [isDragging, handleMouseMove, handleMouseUp])
+  }, [handleMouseMove, handleMouseUp])
 
-  // Add/remove mousedown listener to the ref element
   useEffect(() => {
-    const element = ref.current
-    if (element) {
-      element.addEventListener('mousedown', handleMouseDown)
-      return () => {
-        element.removeEventListener('mousedown', handleMouseDown)
-      }
+    const element = dragRef.current
+    if (!element)
+      return
+
+    element.addEventListener('mousedown', handleMouseDown)
+    return () => {
+      element.removeEventListener('mousedown', handleMouseDown)
     }
-  // ref.current may be null. Add the listener when it becomes available and update it on ref changes.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handleMouseDown, ref.current])
+  }, [handleMouseDown, dragRef.current])
 
   return {
-    position,
+    position: positionRef.current,
     isDragging,
-    ref,
+    dragRef,
+    containerRef,
     style: {
-      left: position.x,
-      top: position.y,
+      position: 'absolute',
     },
   }
 }
