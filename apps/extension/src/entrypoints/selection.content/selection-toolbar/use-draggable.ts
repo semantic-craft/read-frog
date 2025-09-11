@@ -128,9 +128,9 @@ export function useDraggable(options: UseDraggableOptions = {}): UseDraggableRet
 
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        // Only update position if height has changed
-        const { height } = entry.contentRect
-        if (height > 0) {
+        // Update position if width or height has changed
+        const { width, height } = entry.contentRect
+        if (width > 0 || height > 0) {
           // Use current position to trigger boundary recalculation
           updatePosition(positionRef.current)
         }
