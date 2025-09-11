@@ -83,8 +83,6 @@ export function isShallowBlockHTMLElement(element: HTMLElement): boolean {
 export function isDontWalkIntoElement(element: HTMLElement): boolean {
   const dontWalkCustomElement = customDontWalkElementManager.isDontWalkIntoElement(element)
 
-  // console.log('dontWalkCustomElement', dontWalkCustomElement)
-
   const dontWalkClass = [NOTRANSLATE_CLASS, 'sr-only'].some(className =>
     element.classList.contains(className),
   )
