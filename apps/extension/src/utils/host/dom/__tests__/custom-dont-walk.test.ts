@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
-import { customDontWalkElementManager } from '../custom-dont-walk'
-import { isDontWalkIntoElement } from '../filter'
+import { isCustomDontWalkIntoElement, isDontWalkIntoElement } from '../filter'
 
 function setHost(host: string) {
   // jsdom exposes location as read-only; override via defineProperty
@@ -11,7 +10,7 @@ function setHost(host: string) {
   })
 }
 
-describe('customDontWalkElementManager', () => {
+describe('isCustomDontWalkIntoElement', () => {
   it('loads rules and identifies elements on configured host', () => {
     setHost('www.reddit.com')
 
@@ -21,9 +20,7 @@ describe('customDontWalkElementManager', () => {
     shredditApp.appendChild(header)
     document.body.appendChild(shredditApp)
 
-    customDontWalkElementManager.loadDontWalkRulesAndElements()
-
-    expect(customDontWalkElementManager.isDontWalkIntoElement(header)).toBe(true)
+    expect(isCustomDontWalkIntoElement(header)).toBe(true)
     // integration via filter.ts
     expect(isDontWalkIntoElement(header as unknown as HTMLElement)).toBe(true)
   })
@@ -34,9 +31,7 @@ describe('customDontWalkElementManager', () => {
     const el = document.createElement('div')
     document.body.appendChild(el)
 
-    customDontWalkElementManager.loadDontWalkRulesAndElements()
-
-    expect(customDontWalkElementManager.isDontWalkIntoElement(el)).toBe(false)
+    expect(isCustomDontWalkIntoElement(el)).toBe(false)
     expect(isDontWalkIntoElement(el as unknown as HTMLElement)).toBe(false)
   })
 
@@ -50,10 +45,8 @@ describe('customDontWalkElementManager', () => {
     shredditApp.appendChild(other)
     document.body.appendChild(shredditApp)
 
-    customDontWalkElementManager.loadDontWalkRulesAndElements()
-
-    expect(customDontWalkElementManager.isDontWalkIntoElement(header)).toBe(true)
-    expect(customDontWalkElementManager.isDontWalkIntoElement(other)).toBe(false)
+    expect(isCustomDontWalkIntoElement(header)).toBe(true)
+    expect(isCustomDontWalkIntoElement(other)).toBe(false)
     expect(isDontWalkIntoElement(header as unknown as HTMLElement)).toBe(true)
     expect(isDontWalkIntoElement(other as unknown as HTMLElement)).toBe(false)
   })
