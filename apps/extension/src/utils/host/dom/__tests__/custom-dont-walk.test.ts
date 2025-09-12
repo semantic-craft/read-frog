@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
-import { customDontWalkElementManager } from '../custom-dont-walk-dom'
+import { customDontWalkElementManager } from '../custom-dont-walk'
 import { isDontWalkIntoElement } from '../filter'
 
 function setHost(host: string) {
