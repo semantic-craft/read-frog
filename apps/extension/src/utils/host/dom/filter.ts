@@ -95,25 +95,24 @@ export function isCustomDontWalkIntoElement(element: HTMLElement): boolean {
 }
 
 export function isDontWalkIntoButTranslateAsChildElement(element: HTMLElement): boolean {
-  const dontWalkCustomElement = isCustomDontWalkIntoElement(element)
-
   const dontWalkClass = [NOTRANSLATE_CLASS, 'sr-only'].some(className =>
     element.classList.contains(className),
   )
 
   const dontWalkAttr = element.getAttribute('translate') === 'no'
 
-  return dontWalkCustomElement || dontWalkClass || dontWalkAttr
+  return dontWalkClass || dontWalkAttr
 }
 
 export function isDontWalkIntoAndDontTranslateAsChildElement(element: HTMLElement): boolean {
+  const dontWalkCustomElement = isCustomDontWalkIntoElement(element)
   const dontWalkContent = globalConfig && globalConfig.translate.page.range !== 'all' && MAIN_CONTENT_IGNORE_TAGS.has(element.tagName)
   const dontWalkInvalidTag = INVALID_TRANSLATE_TAGS.has(element.tagName)
   const dontWalkCSS
     = window.getComputedStyle(element).display === 'none'
       || window.getComputedStyle(element).visibility === 'hidden'
 
-  return dontWalkContent || dontWalkInvalidTag || dontWalkCSS
+  return dontWalkCustomElement || dontWalkContent || dontWalkInvalidTag || dontWalkCSS
 }
 
 export function isInlineTransNode(node: TransNode): boolean {
