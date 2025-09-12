@@ -54,7 +54,7 @@ export function PopoverWrapper({ title, icon, children, onClose, isVisible, setI
 
   return (
     <div
-      className="fixed z-[2147483647] bg-white dark:bg-zinc-800 border rounded-lg w-[300px] shadow-lg"
+      className="fixed z-[2147483647] bg-white dark:bg-zinc-800 border rounded-lg w-[500px] shadow-lg"
       ref={popoverRef as React.RefObject<HTMLDivElement>}
       style={popoverStyle}
     >
