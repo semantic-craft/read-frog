@@ -57,6 +57,14 @@ export function PopoverWrapper({ title, icon, children, onClose, isVisible, setI
       className="fixed z-[2147483647] bg-white dark:bg-zinc-800 border rounded-lg w-[500px] shadow-lg"
       ref={popoverRef as React.RefObject<HTMLDivElement>}
       style={popoverStyle}
+      onWheel={(e) => {
+        // 防止滚动穿透到背景页面
+        e.stopPropagation()
+      }}
+      onTouchMove={(e) => {
+        // 防止触摸滚动穿透到背景页面
+        e.stopPropagation()
+      }}
     >
       <div
         ref={dragRef as React.RefObject<HTMLDivElement>}

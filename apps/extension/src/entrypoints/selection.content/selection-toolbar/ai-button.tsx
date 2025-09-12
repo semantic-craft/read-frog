@@ -140,6 +140,14 @@ export function AiPopover() {
             <div
               ref={scrollContainerRef}
               className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap max-h-64 overflow-y-auto"
+              onWheel={(e) => {
+                // 防止滚动穿透
+                e.stopPropagation()
+              }}
+              onTouchMove={(e) => {
+                // 防止触摸滚动穿透
+                e.stopPropagation()
+              }}
             >
               {aiResponse}
               {isLoading && <span className="animate-pulse">|</span>}
