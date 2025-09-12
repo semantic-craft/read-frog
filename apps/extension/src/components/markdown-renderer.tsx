@@ -38,19 +38,19 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
 
           // 段落样式 - 更好的间距和可读性
           p: ({ children }) => (
-            <p className="text-sm text-slate-700 dark:text-slate-300 mb-3 leading-relaxed">
+            <p className="text-sm text-slate-700 dark:text-slate-300 mb-3 mt-3 first:mt-0 leading-relaxed">
               {children}
             </p>
           ),
 
           // 列表样式 - 更美观的列表
           ul: ({ children }) => (
-            <ul className="mb-3 space-y-2">
+            <ul className="mb-3 mt-3 first:mt-0 space-y-2">
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="mb-3 space-y-2">
+            <ol className="mb-3 mt-3 first:mt-0 space-y-2">
               {children}
             </ol>
           ),
@@ -60,10 +60,9 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
               <span className="flex-1">{children}</span>
             </li>
           ),
-
           // 强调样式 - 更突出的设计
           strong: ({ children }) => (
-            <strong className="font-semibold text-slate-900 dark:text-slate-100 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded">
+            <strong className="font-semibold text-emerald-800 dark:text-emerald-200 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded">
               {children}
             </strong>
           ),
@@ -73,16 +72,9 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
             </em>
           ),
 
-          // 添加代码样式 - 简单的内联代码
-          code: ({ children }) => (
-            <code className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-1.5 py-0.5 rounded text-xs font-mono border border-slate-200 dark:border-slate-700">
-              {children}
-            </code>
-          ),
-
           // 添加引用样式
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20 pl-4 py-2 mb-3 italic text-slate-700 dark:text-slate-300 rounded-r">
+            <blockquote className="border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20 pl-4 py-2 mb-3 mt-3 first:mt-0 italic text-slate-700 dark:text-slate-300 rounded-r">
               {children}
             </blockquote>
           ),

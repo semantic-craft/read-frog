@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from '#imports'
 import { Icon } from '@iconify/react'
 import { streamText } from 'ai'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { StreamingMarkdown } from '@/components/streaming-markdown'
+import { MarkdownRenderer } from '@/components/markdown-renderer'
 import { configAtom } from '@/utils/atoms/config'
 import { readProviderConfigAtom } from '@/utils/atoms/provider'
 import { getReadModel } from '@/utils/providers/model'
@@ -64,38 +64,24 @@ export function AiPopover() {
     try {
       const model = await getReadModel(readProviderConfig.name)
 
-      const prompt = `请分析以下选中的文本内容，提供详细的语言学习解释。请使用Markdown格式回答：
+      const prompt = `请解释以下选中的单词或短语，提供简洁明了的语言学习解释：
 
-选中文本: "${highlightData.context.selection}"
-前文: "${highlightData.context.before}"
-后文: "${highlightData.context.after}"
+选中内容: "${highlightData.context.selection}"
+上下文: "${highlightData.context.before}${highlightData.context.selection}${highlightData.context.after}"
 
-请按以下结构提供分析（使用Markdown格式）：
+请按以下结构提供解释（使用Markdown格式）：
 
-## 📝 文本分析
+## 📖 词汇解释
+- **含义**: 单词/短语的基本含义
+- **词性**: 词性分类
+- **发音**: 音标或发音提示
 
-### 语法结构
-- 分析句子的语法结构
-- 指出重要的语法点
+## 💡 用法说明
+- **常见搭配**: 常用搭配和短语
+- **例句**: 1-2个简单例句
+- **注意事项**: 使用时的注意点
 
-### 词汇解析
-- **重点词汇**: 解释关键词汇的含义和用法
-- **短语搭配**: 分析重要的短语和搭配
-
-## 🌍 文化背景
-- 解释相关的文化背景或语境
-- 提供文化知识补充
-
-## 💡 学习建议
-- 提供具体的学习建议
-- 推荐相关的学习资源
-
-## 📚 扩展知识
-- 相关的语法规则
-- 类似的表达方式
-- 常见错误提醒
-
-请用中文回答，并使用丰富的Markdown格式让内容更易读。`
+请用${config.language.targetCode}回答，内容简洁明了，重点突出。`
 
       const result = await streamText({
         model,
@@ -194,8 +180,8 @@ export function AiPopover() {
             </div>
           )}
           {aiResponse && (
-            <div className="bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-800 dark:to-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-              <StreamingMarkdown content={aiResponse} />
+            <div className="rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+              <MarkdownRenderer content={aiResponse} />
             </div>
           )}
         </div>
