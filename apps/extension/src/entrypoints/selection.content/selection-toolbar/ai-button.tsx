@@ -1,6 +1,8 @@
+import { useEffect } from '#imports'
 import { Icon } from '@iconify/react'
-import { useAtom, useSetAtom } from 'jotai'
-import { isAiPopoverVisibleAtom, isTooltipVisibleAtom, mouseClickPositionAtom } from './atom'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { createHighlightData } from '../utils'
+import { isAiPopoverVisibleAtom, isTooltipVisibleAtom, mouseClickPositionAtom, selectionContentAtom, selectionRangeAtom } from './atom'
 import { PopoverWrapper } from './popover-wrapper'
 
 export function AiButton() {
@@ -32,6 +34,19 @@ export function AiButton() {
 
 export function AiPopover() {
   const [isVisible, setIsVisible] = useAtom(isAiPopoverVisibleAtom)
+  const selectionContent = useAtomValue(selectionContentAtom)
+  const selectionRange = useAtomValue(selectionRangeAtom)
+
+  useEffect(() => {
+    if (!selectionRange || !isVisible) {
+      return
+    }
+
+    const highlightData = createHighlightData(selectionRange)
+    // eslint-disable-next-line no-console
+    console.log('%c seda [ highlightData.context ]-46', 'font-size:13px; background:pink; color:#bf2c9f;', highlightData.context)
+  }, [selectionRange, isVisible])
+
   return (
     <PopoverWrapper
       title="AI"
@@ -39,7 +54,16 @@ export function AiPopover() {
       isVisible={isVisible}
       setIsVisible={setIsVisible}
     >
-      <h1>AiPopover</h1>
+      <div className="p-4 border-b">
+        <div className="border-b pb-4">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">{selectionContent}</p>
+        </div>
+        <div className="pt-4">
+          <p className="text-sm">
+            AI Generating ...
+          </p>
+        </div>
+      </div>
     </PopoverWrapper>
   )
 }
