@@ -1,5 +1,6 @@
 import type { HighlightData } from '../utils'
-import { useCallback, useEffect, useState } from '#imports'
+import type { PopoverWrapperRef } from './popover-wrapper'
+import { useCallback, useEffect, useRef, useState } from '#imports'
 import { Icon } from '@iconify/react'
 import { streamText } from 'ai'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
@@ -43,6 +44,7 @@ export function AiPopover() {
   const config = useAtomValue(configAtom)
   const readProviderConfig = useAtomValue(readProviderConfigAtom)
   const [highlightData, setHighlightData] = useState<HighlightData | null>(null)
+  const popoverRef = useRef<PopoverWrapperRef>(null)
 
   const [aiResponse, setAiResponse] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
@@ -83,6 +85,8 @@ export function AiPopover() {
       // 流式读取响应
       for await (const delta of result.textStream) {
         setAiResponse(prev => prev + delta)
+        // 每次更新内容后自动滚动到底部
+        popoverRef.current?.scrollToBottom()
       }
     }
     catch (err) {
@@ -110,6 +114,7 @@ export function AiPopover() {
 
   return (
     <PopoverWrapper
+      ref={popoverRef}
       title="AI"
       icon="hugeicons:ai-innovation-02"
       isVisible={isVisible}
