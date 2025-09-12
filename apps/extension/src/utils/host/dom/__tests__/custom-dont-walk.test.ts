@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
-import { isCustomDontWalkIntoElement, isDontWalkIntoElement } from '../filter'
+import { isCustomDontWalkIntoElement, isDontWalkIntoAndDontTranslateAsChildElement } from '../filter'
 
 function setHost(host: string) {
   // jsdom exposes location as read-only; override via defineProperty
@@ -12,17 +12,15 @@ function setHost(host: string) {
 
 describe('isCustomDontWalkIntoElement', () => {
   it('loads rules and identifies elements on configured host', () => {
-    setHost('www.reddit.com')
+    setHost('chatgpt.com')
 
-    // Build DOM matching default selector: 'body > shreddit-app > reddit-header-large'
-    const shredditApp = document.createElement('shreddit-app')
-    const header = document.createElement('reddit-header-large')
-    shredditApp.appendChild(header)
-    document.body.appendChild(shredditApp)
+    const proseMirror = document.createElement('div')
+    proseMirror.classList.add('ProseMirror')
+    document.body.appendChild(proseMirror)
 
-    expect(isCustomDontWalkIntoElement(header)).toBe(true)
+    expect(isCustomDontWalkIntoElement(proseMirror)).toBe(true)
     // integration via filter.ts
-    expect(isDontWalkIntoElement(header as unknown as HTMLElement)).toBe(true)
+    expect(isDontWalkIntoAndDontTranslateAsChildElement(proseMirror as unknown as HTMLElement)).toBe(true)
   })
 
   it('does not match on non-configured host', () => {
@@ -32,22 +30,23 @@ describe('isCustomDontWalkIntoElement', () => {
     document.body.appendChild(el)
 
     expect(isCustomDontWalkIntoElement(el)).toBe(false)
-    expect(isDontWalkIntoElement(el as unknown as HTMLElement)).toBe(false)
+    expect(isDontWalkIntoAndDontTranslateAsChildElement(el as unknown as HTMLElement)).toBe(false)
   })
 
   it('only matches configured element when multiple nodes present on reddit', () => {
-    setHost('www.reddit.com')
+    setHost('chatgpt.com')
 
-    const shredditApp = document.createElement('shreddit-app')
-    const header = document.createElement('reddit-header-large')
+    const proseMirror = document.createElement('div')
+    proseMirror.classList.add('ProseMirror')
+
     const other = document.createElement('div')
-    shredditApp.appendChild(header)
-    shredditApp.appendChild(other)
-    document.body.appendChild(shredditApp)
 
-    expect(isCustomDontWalkIntoElement(header)).toBe(true)
+    document.body.appendChild(proseMirror)
+    document.body.appendChild(other)
+
+    expect(isCustomDontWalkIntoElement(proseMirror)).toBe(true)
     expect(isCustomDontWalkIntoElement(other)).toBe(false)
-    expect(isDontWalkIntoElement(header as unknown as HTMLElement)).toBe(true)
-    expect(isDontWalkIntoElement(other as unknown as HTMLElement)).toBe(false)
+    expect(isDontWalkIntoAndDontTranslateAsChildElement(proseMirror as unknown as HTMLElement)).toBe(true)
+    expect(isDontWalkIntoAndDontTranslateAsChildElement(other as unknown as HTMLElement)).toBe(false)
   })
 })
