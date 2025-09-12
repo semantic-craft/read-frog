@@ -9,6 +9,7 @@ import {
   NOTRANSLATE_CLASS,
 } from '@/utils/constants/dom-labels'
 import { FORCE_BLOCK_TAGS, INVALID_TRANSLATE_TAGS, MAIN_CONTENT_IGNORE_TAGS } from '@/utils/constants/dom-tags'
+import { CUSTOM_DONT_WALK_INTO_ELEMENT_SELECTOR_MAP } from '@/utils/constants/translate'
 
 export function isEditable(element: HTMLElement): boolean {
   const tag = element.tagName
@@ -80,14 +81,29 @@ export function isShallowBlockHTMLElement(element: HTMLElement): boolean {
   )
 }
 
+export function isCustomDontWalkIntoElement(element: HTMLElement): boolean {
+  const customDontWalkIntoElementSelectorMap = CUSTOM_DONT_WALK_INTO_ELEMENT_SELECTOR_MAP
+  const hasCustomDontWalkElementHostSet = new Set(Object.keys(customDontWalkIntoElementSelectorMap))
+  const host = window.location.host
+
+  if (!hasCustomDontWalkElementHostSet.has(host))
+    return false
+
+  const dontWalkIntoElementSelectorList = customDontWalkIntoElementSelectorMap[host] ?? []
+  const dontWalkSelector = dontWalkIntoElementSelectorList.filter(Boolean).join(',')
+  return element.matches(dontWalkSelector)
+}
+
 export function isDontWalkIntoButTranslateAsChildElement(element: HTMLElement): boolean {
+  const dontWalkCustomElement = isCustomDontWalkIntoElement(element)
+
   const dontWalkClass = [NOTRANSLATE_CLASS, 'sr-only'].some(className =>
     element.classList.contains(className),
   )
 
   const dontWalkAttr = element.getAttribute('translate') === 'no'
 
-  return dontWalkClass || dontWalkAttr
+  return dontWalkCustomElement || dontWalkClass || dontWalkAttr
 }
 
 export function isDontWalkIntoAndDontTranslateAsChildElement(element: HTMLElement): boolean {
