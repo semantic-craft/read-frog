@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from '#imports'
+import type { HighlightData } from '../utils'
+import { useCallback, useEffect, useState } from '#imports'
 import { Icon } from '@iconify/react'
 import { streamText } from 'ai'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
@@ -6,7 +7,7 @@ import { configAtom } from '@/utils/atoms/config'
 import { readProviderConfigAtom } from '@/utils/atoms/provider'
 import { getReadModel } from '@/utils/providers/model'
 import { createHighlightData } from '../utils'
-import { isAiPopoverVisibleAtom, isTooltipVisibleAtom, mouseClickPositionAtom, selectionContentAtom, selectionRangeAtom } from './atom'
+import { isAiPopoverVisibleAtom, isTooltipVisibleAtom, mouseClickPositionAtom, selectionRangeAtom } from './atom'
 import { PopoverWrapper } from './popover-wrapper'
 
 export function AiButton() {
@@ -38,15 +39,14 @@ export function AiButton() {
 
 export function AiPopover() {
   const [isVisible, setIsVisible] = useAtom(isAiPopoverVisibleAtom)
-  const selectionContent = useAtomValue(selectionContentAtom)
   const selectionRange = useAtomValue(selectionRangeAtom)
   const config = useAtomValue(configAtom)
   const readProviderConfig = useAtomValue(readProviderConfigAtom)
+  const [highlightData, setHighlightData] = useState<HighlightData | null>(null)
 
   const [aiResponse, setAiResponse] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string>('')
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   const analyzeSelection = useCallback(async (highlightData: any) => {
     if (!readProviderConfig || !config) {
@@ -83,12 +83,6 @@ export function AiPopover() {
       // 流式读取响应
       for await (const delta of result.textStream) {
         setAiResponse(prev => prev + delta)
-        // 自动滚动到底部
-        setTimeout(() => {
-          if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight
-          }
-        }, 0)
       }
     }
     catch (err) {
@@ -107,10 +101,12 @@ export function AiPopover() {
     const highlightData = createHighlightData(selectionRange)
     // eslint-disable-next-line no-console
     console.log('%c seda [ highlightData.context ]-46', 'font-size:13px; background:pink; color:#bf2c9f;', highlightData.context)
+    // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
+    setHighlightData(highlightData)
 
     // 自动触发AI分析
     analyzeSelection(highlightData)
-  }, [selectionRange, isVisible, analyzeSelection])
+  }, [selectionRange, isVisible, analyzeSelection, setHighlightData])
 
   return (
     <PopoverWrapper
@@ -119,9 +115,32 @@ export function AiPopover() {
       isVisible={isVisible}
       setIsVisible={setIsVisible}
     >
-      <div className="p-4 border-b">
-        <div className="border-b pb-4">
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">{selectionContent}</p>
+      <div className="p-4 border-b pt-0">
+        <div className="border-b pb-4 sticky pt-4 top-0 bg-white dark:bg-zinc-800 z-10">
+          <p className="text-xs text-zinc-500 dark:text-zinc-500 mb-2">上下文:</p>
+          <div className="text-sm text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 p-3 rounded leading-relaxed">
+            {highlightData?.context.before && (
+              <span className="text-zinc-500 dark:text-zinc-400">
+                {highlightData.context.before}
+              </span>
+            )}
+            {highlightData?.context.selection && (
+              <span
+                className="mx-1.5 rounded font-medium px-0.5"
+                style={{ backgroundColor: 'var(--read-frog-primary)' }}
+              >
+                {highlightData.context.selection}
+              </span>
+            )}
+            {highlightData?.context.after && (
+              <span className="text-zinc-500 dark:text-zinc-400">
+                {highlightData.context.after}
+              </span>
+            )}
+            {!highlightData?.context.selection && (
+              <span className="text-zinc-400 dark:text-zinc-500">无选中内容</span>
+            )}
+          </div>
         </div>
         <div className="pt-4">
           {isLoading && !aiResponse && (
@@ -137,18 +156,7 @@ export function AiPopover() {
             </p>
           )}
           {aiResponse && (
-            <div
-              ref={scrollContainerRef}
-              className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap max-h-64 overflow-y-auto"
-              onWheel={(e) => {
-                // 防止滚动穿透
-                e.stopPropagation()
-              }}
-              onTouchMove={(e) => {
-                // 防止触摸滚动穿透
-                e.stopPropagation()
-              }}
-            >
+            <div className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">
               {aiResponse}
               {isLoading && <span className="animate-pulse">|</span>}
             </div>

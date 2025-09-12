@@ -68,7 +68,7 @@ export function getContext(selectionRange: Range) {
   return { before, selection, after }
 }
 
-interface HighlightData {
+export interface HighlightData {
   type: 'highlight'
   context: {
     before: string
