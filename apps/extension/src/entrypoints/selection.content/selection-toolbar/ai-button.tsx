@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from '#imports'
 import { Icon } from '@iconify/react'
 import { streamText } from 'ai'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { StreamingMarkdown } from '@/components/streaming-markdown'
 import { configAtom } from '@/utils/atoms/config'
 import { readProviderConfigAtom } from '@/utils/atoms/provider'
 import { getReadModel } from '@/utils/providers/model'
@@ -63,19 +64,38 @@ export function AiPopover() {
     try {
       const model = await getReadModel(readProviderConfig.name)
 
-      const prompt = `请分析以下选中的文本内容，提供详细的语言学习解释：
+      const prompt = `请分析以下选中的文本内容，提供详细的语言学习解释。请使用Markdown格式回答：
 
 选中文本: "${highlightData.context.selection}"
 前文: "${highlightData.context.before}"
 后文: "${highlightData.context.after}"
 
-请提供：
-1. 文本的语言分析（语法、词汇、句式）
-2. 重点词汇和短语的解释
-3. 文化背景或语境说明
-4. 学习建议
+请按以下结构提供分析（使用Markdown格式）：
 
-请用中文回答。`
+## 📝 文本分析
+
+### 语法结构
+- 分析句子的语法结构
+- 指出重要的语法点
+
+### 词汇解析
+- **重点词汇**: 解释关键词汇的含义和用法
+- **短语搭配**: 分析重要的短语和搭配
+
+## 🌍 文化背景
+- 解释相关的文化背景或语境
+- 提供文化知识补充
+
+## 💡 学习建议
+- 提供具体的学习建议
+- 推荐相关的学习资源
+
+## 📚 扩展知识
+- 相关的语法规则
+- 类似的表达方式
+- 常见错误提醒
+
+请用中文回答，并使用丰富的Markdown格式让内容更易读。`
 
       const result = await streamText({
         model,
@@ -149,21 +169,33 @@ export function AiPopover() {
         </div>
         <div className="pt-4">
           {isLoading && !aiResponse && (
-            <p className="text-sm text-zinc-500">
-              AI正在分析中...
-            </p>
+            <div className="flex items-center justify-center py-8">
+              <div className="flex items-center space-x-3 text-slate-500">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                </div>
+                <span className="text-sm font-medium">AI正在分析中...</span>
+              </div>
+            </div>
           )}
           {error && (
-            <p className="text-sm text-red-500">
-              错误:
-              {' '}
-              {error}
-            </p>
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs">!</span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-red-800 dark:text-red-200">分析失败</p>
+                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">{error}</p>
+                </div>
+              </div>
+            </div>
           )}
           {aiResponse && (
-            <div className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">
-              {aiResponse}
-              {isLoading && <span className="animate-pulse">|</span>}
+            <div className="bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-800 dark:to-slate-900 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+              <StreamingMarkdown content={aiResponse} />
             </div>
           )}
         </div>

@@ -24,6 +24,7 @@ export function PopoverWrapper({ title, icon, children, onClose, isVisible, setI
   const selectionContent = useAtomValue(selectionContentAtom)
   const contentRef = useRef<HTMLDivElement>(null)
   const isUserScrollingRef = useRef(false)
+  const isAutoScrollingRef = useRef(false)
 
   const { dragRef, containerRef: popoverRef, style: popoverStyle, isDragging } = useDraggable({
     initialPosition: mouseClickPosition || { x: 0, y: 0 },
@@ -36,7 +37,12 @@ export function PopoverWrapper({ title, icon, children, onClose, isVisible, setI
     scrollToBottom: () => {
       // 只有在用户没有滚动时才自动滚动到底部
       if (contentRef.current && !isUserScrollingRef.current) {
+        isAutoScrollingRef.current = true
         contentRef.current.scrollTop = contentRef.current.scrollHeight
+        // 短暂延迟后重置自动滚动标志
+        setTimeout(() => {
+          isAutoScrollingRef.current = false
+        }, 100)
       }
     },
   }), [])
@@ -50,6 +56,11 @@ export function PopoverWrapper({ title, icon, children, onClose, isVisible, setI
     let scrollTimeout: NodeJS.Timeout
 
     const handleScroll = () => {
+      // 如果是自动滚动触发的，忽略这次事件
+      if (isAutoScrollingRef.current) {
+        return
+      }
+
       const { scrollTop, scrollHeight, clientHeight } = contentElement
       const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1
 
