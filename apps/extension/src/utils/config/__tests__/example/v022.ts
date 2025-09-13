@@ -191,7 +191,7 @@ Translate to {{targetLang}}:
           name: 'Gemini',
           provider: 'gemini',
           apiKey: undefined,
-          baseURL: 'https://generativelanguage.googleapis.com/v1beta',
+          baseURL: undefined,
           models: {
             read: {
               model: 'gemini-2.5-pro',

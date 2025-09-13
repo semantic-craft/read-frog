@@ -137,7 +137,7 @@ Translate to {{targetLang}}:
         },
         gemini: {
           apiKey: undefined,
-          baseURL: 'https://generativelanguage.googleapis.com/v1beta',
+          baseURL: '',
         },
         deeplx: {
           apiKey: undefined,
