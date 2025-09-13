@@ -1,98 +1,99 @@
-import type { Config } from '@/types/config/config'
+import type { TestSeriesObject } from './types'
 
-export const description = 'Allow arbitrary custom providers'
-
-export const configExample: Config = {
-  language: {
-    detectedCode: 'eng',
-    sourceCode: 'auto',
-    targetCode: 'jpn',
-    level: 'intermediate',
-  },
-  providersConfig: [
-    {
-      name: 'OpenAI',
-      provider: 'openai',
-      apiKey: 'sk-1234567890',
-      baseURL: 'https://api.openai.com/v1',
-      models: {
-        read: {
-          model: 'gpt-4o-mini',
-          isCustomModel: true,
-          customModel: 'gpt-4.1-nano',
-        },
-        translate: {
-          model: 'gpt-4o-mini',
-          isCustomModel: true,
-          customModel: 'gpt-4.1-nano',
-        },
+export const testSeries: TestSeriesObject = {
+  default: {
+    description: 'Allow arbitrary custom providers',
+    config: {
+      language: {
+        detectedCode: 'eng',
+        sourceCode: 'auto',
+        targetCode: 'jpn',
+        level: 'intermediate',
       },
-    },
-    {
-      name: 'DeepSeek',
-      provider: 'deepseek',
-      apiKey: undefined,
-      baseURL: 'https://api.deepseek.com/v1',
-      models: {
-        read: {
-          model: 'deepseek-chat',
-          isCustomModel: false,
-          customModel: '',
-        },
-        translate: {
-          model: 'deepseek-chat',
-          isCustomModel: false,
-          customModel: '',
-        },
-      },
-    },
-    {
-      name: 'Gemini',
-      provider: 'gemini',
-      apiKey: undefined,
-      baseURL: 'https://generativelanguage.googleapis.com/v1beta',
-      models: {
-        read: {
-          model: 'gemini-2.5-pro',
-          isCustomModel: false,
-          customModel: '',
-        },
-        translate: {
-          model: 'gemini-2.5-pro',
-          isCustomModel: false,
-          customModel: '',
-        },
-      },
-    },
-    {
-      name: 'DeepLX',
-      provider: 'deeplx',
-      apiKey: undefined,
-      baseURL: 'https://deeplx.vercel.app',
-    },
-  ],
-  read: {
-    providerName: 'OpenAI',
-  },
-  translate: {
-    providerName: 'Microsoft Translator',
-    mode: 'bilingual',
-    node: {
-      enabled: true,
-      hotkey: 'Control',
-    },
-    page: {
-      range: 'main',
-      autoTranslatePatterns: ['news.ycombinator.com'],
-      autoTranslateLanguages: [],
-    },
-    promptsConfig: {
-      prompt: 'default',
-      patterns: [
+      providersConfig: [
         {
-          id: 'default',
-          name: 'default',
-          prompt: `You are a professional {{targetLang}} native translator who needs to fluently translate text into {{targetLang}}.
+          name: 'OpenAI',
+          provider: 'openai',
+          apiKey: 'sk-1234567890',
+          baseURL: 'https://api.openai.com/v1',
+          models: {
+            read: {
+              model: 'gpt-4o-mini',
+              isCustomModel: true,
+              customModel: 'gpt-4.1-nano',
+            },
+            translate: {
+              model: 'gpt-4o-mini',
+              isCustomModel: true,
+              customModel: 'gpt-4.1-nano',
+            },
+          },
+        },
+        {
+          name: 'DeepSeek',
+          provider: 'deepseek',
+          apiKey: undefined,
+          baseURL: 'https://api.deepseek.com/v1',
+          models: {
+            read: {
+              model: 'deepseek-chat',
+              isCustomModel: false,
+              customModel: '',
+            },
+            translate: {
+              model: 'deepseek-chat',
+              isCustomModel: false,
+              customModel: '',
+            },
+          },
+        },
+        {
+          name: 'Gemini',
+          provider: 'gemini',
+          apiKey: undefined,
+          baseURL: 'https://generativelanguage.googleapis.com/v1beta',
+          models: {
+            read: {
+              model: 'gemini-2.5-pro',
+              isCustomModel: false,
+              customModel: '',
+            },
+            translate: {
+              model: 'gemini-2.5-pro',
+              isCustomModel: false,
+              customModel: '',
+            },
+          },
+        },
+        {
+          name: 'DeepLX',
+          provider: 'deeplx',
+          apiKey: undefined,
+          baseURL: 'https://deeplx.vercel.app',
+        },
+      ],
+      read: {
+        providerName: 'OpenAI',
+      },
+      translate: {
+        providerName: 'Microsoft Translator',
+        mode: 'bilingual',
+        node: {
+          enabled: true,
+          hotkey: 'Control',
+        },
+        page: {
+          range: 'main',
+          autoTranslatePatterns: ['news.ycombinator.com'],
+          autoTranslateLanguages: [],
+        },
+        promptsConfig: {
+          prompt: 'default',
+          patterns: [
+            {
+              id: 'default',
+              name: 'default',
+              prompt: `You are a professional {{targetLang}} native translator who needs to fluently translate text into {{targetLang}}.
 
 ## Translation Rules
 1. Output only the translated content, without explanations or additional content (such as "Here's the translation:" or "Translation as follows:")
@@ -103,23 +104,25 @@ export const configExample: Config = {
 Translate to {{targetLang}}:
 {{input}}
 `,
+            },
+          ],
         },
-      ],
+        requestQueueConfig: {
+          capacity: 300,
+          rate: 5,
+        },
+        translationNodeStyle: 'default',
+        customAutoTranslateShortcutKey: ['alt', 'q'],
+      },
+      floatingButton: {
+        enabled: true,
+        position: 0.66,
+        disabledFloatingButtonPatterns: [],
+      },
+      sideContent: {
+        width: 600,
+      },
+      selectionToolbar: { enabled: true },
     },
-    requestQueueConfig: {
-      capacity: 300,
-      rate: 5,
-    },
-    translationNodeStyle: 'default',
-    customAutoTranslateShortcutKey: ['alt', 'q'],
   },
-  floatingButton: {
-    enabled: true,
-    position: 0.66,
-    disabledFloatingButtonPatterns: [],
-  },
-  sideContent: {
-    width: 600,
-  },
-  selectionToolbar: { enabled: true },
 }
