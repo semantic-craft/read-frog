@@ -10,6 +10,14 @@ const NAME_MAPPING = {
 export function migrate(oldConfig: any): any {
   const newProvidersConfig = [
     {
+      name: 'Google Translate',
+      provider: 'google',
+    },
+    {
+      name: 'Microsoft Translator',
+      provider: 'microsoft',
+    },
+    {
       name: NAME_MAPPING.openai,
       provider: 'openai',
       apiKey: oldConfig.providersConfig.openai.apiKey,
