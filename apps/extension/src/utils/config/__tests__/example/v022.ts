@@ -2,7 +2,7 @@ import type { TestSeriesObject } from './types'
 
 export const testSeries: TestSeriesObject = {
   'default': {
-    description: 'Standard provider configuration migration',
+    description: 'Allow arbitrary custom providers',
     config: {
       language: {
         detectedCode: 'eng',
@@ -134,7 +134,7 @@ Translate to {{targetLang}}:
     },
   },
   'complex-config-from-v020': {
-    description: 'Add empty autoTranslateLanguages',
+    description: 'Allow arbitrary custom providers',
     config: {
       language: {
         detectedCode: 'spa',
