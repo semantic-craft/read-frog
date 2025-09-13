@@ -82,9 +82,9 @@ export function isShallowBlockHTMLElement(element: HTMLElement): boolean {
 }
 
 export function isCustomDontWalkIntoElement(element: HTMLElement): boolean {
-  const dontWalkIntoElementSelectorList = CUSTOM_DONT_WALK_INTO_ELEMENT_SELECTOR_MAP[window.location.host] ?? []
+  const dontWalkIntoElementSelectorList = CUSTOM_DONT_WALK_INTO_ELEMENT_SELECTOR_MAP[window.location.hostname] ?? []
 
-  const dontWalkSelector = dontWalkIntoElementSelectorList.filter(Boolean).join(',')
+  const dontWalkSelector = dontWalkIntoElementSelectorList.join(',')
 
   if (!dontWalkSelector)
     return false

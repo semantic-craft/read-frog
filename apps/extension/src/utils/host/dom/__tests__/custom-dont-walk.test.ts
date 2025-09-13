@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { isCustomDontWalkIntoElement, isDontWalkIntoAndDontTranslateAsChildElement } from '../filter'
 
 function setHost(host: string) {
@@ -11,6 +11,10 @@ function setHost(host: string) {
 }
 
 describe('isCustomDontWalkIntoElement', () => {
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
+
   it('loads rules and identifies elements on configured host', () => {
     setHost('chatgpt.com')
 
@@ -20,7 +24,7 @@ describe('isCustomDontWalkIntoElement', () => {
 
     expect(isCustomDontWalkIntoElement(proseMirror)).toBe(true)
     // integration via filter.ts
-    expect(isDontWalkIntoAndDontTranslateAsChildElement(proseMirror as unknown as HTMLElement)).toBe(true)
+    expect(isDontWalkIntoAndDontTranslateAsChildElement(proseMirror)).toBe(true)
   })
 
   it('does not match on non-configured host', () => {
@@ -30,10 +34,10 @@ describe('isCustomDontWalkIntoElement', () => {
     document.body.appendChild(el)
 
     expect(isCustomDontWalkIntoElement(el)).toBe(false)
-    expect(isDontWalkIntoAndDontTranslateAsChildElement(el as unknown as HTMLElement)).toBe(false)
+    expect(isDontWalkIntoAndDontTranslateAsChildElement(el)).toBe(false)
   })
 
-  it('only matches configured element when multiple nodes present on reddit', () => {
+  it('only matches configured element when multiple nodes present on chatgpt.com', () => {
     setHost('chatgpt.com')
 
     const proseMirror = document.createElement('div')
@@ -46,7 +50,47 @@ describe('isCustomDontWalkIntoElement', () => {
 
     expect(isCustomDontWalkIntoElement(proseMirror)).toBe(true)
     expect(isCustomDontWalkIntoElement(other)).toBe(false)
-    expect(isDontWalkIntoAndDontTranslateAsChildElement(proseMirror as unknown as HTMLElement)).toBe(true)
-    expect(isDontWalkIntoAndDontTranslateAsChildElement(other as unknown as HTMLElement)).toBe(false)
+    expect(isDontWalkIntoAndDontTranslateAsChildElement(proseMirror)).toBe(true)
+    expect(isDontWalkIntoAndDontTranslateAsChildElement(other)).toBe(false)
+  })
+
+  it('uses hostname when host includes port (host !== hostname)', () => {
+    setHost('chatgpt.com:3000')
+
+    const proseMirror = document.createElement('div')
+    proseMirror.classList.add('ProseMirror')
+
+    const other = document.createElement('div')
+
+    document.body.appendChild(proseMirror)
+    document.body.appendChild(other)
+
+    expect(window.location.host).toContain(':')
+    expect(window.location.hostname).toBe('chatgpt.com')
+
+    expect(isCustomDontWalkIntoElement(proseMirror)).toBe(true)
+    expect(isCustomDontWalkIntoElement(other)).toBe(false)
+    expect(isDontWalkIntoAndDontTranslateAsChildElement(proseMirror)).toBe(true)
+    expect(isDontWalkIntoAndDontTranslateAsChildElement(other)).toBe(false)
+  })
+
+  it('does not match on non-configured host when host !== hostname', () => {
+    setHost('example.com:8080')
+
+    const proseMirror = document.createElement('div')
+    proseMirror.classList.add('ProseMirror')
+
+    const other = document.createElement('div')
+
+    document.body.appendChild(proseMirror)
+    document.body.appendChild(other)
+
+    expect(window.location.host).toContain(':')
+    expect(window.location.hostname).toBe('example.com')
+
+    expect(isCustomDontWalkIntoElement(proseMirror)).toBe(false)
+    expect(isCustomDontWalkIntoElement(other)).toBe(false)
+    expect(isDontWalkIntoAndDontTranslateAsChildElement(proseMirror)).toBe(false)
+    expect(isDontWalkIntoAndDontTranslateAsChildElement(other)).toBe(false)
   })
 })
