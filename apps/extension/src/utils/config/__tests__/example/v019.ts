@@ -12,7 +12,7 @@ export const testSeries: TestSeriesObject = {
       },
       providersConfig: {
         openai: {
-          apiKey: 'sk-1234567890',
+          apiKey: undefined,
           baseURL: 'https://api.openai.com/v1',
         },
         deepseek: {
