@@ -11,12 +11,13 @@ import {
 import { useAtom, useAtomValue } from 'jotai'
 import ProviderIcon from '@/components/provider-icon'
 import { configFields } from '@/utils/atoms/config'
-import { getLLMTranslateProvidersConfig, getNonAPIProvidersConfig, getPureAPIProvidersConfig } from '@/utils/config/helpers'
+import { filterEnabledProvidersConfig, getLLMTranslateProvidersConfig, getNonAPIProvidersConfig, getPureAPIProvidersConfig } from '@/utils/config/helpers'
 import { PROVIDER_ITEMS } from '@/utils/constants/config'
 
 export default function TranslateProviderSelector({ className }: { className?: string }) {
   const [translateConfig, setTranslateConfig] = useAtom(configFields.translate)
   const providersConfig = useAtomValue(configFields.providersConfig)
+  const filteredProvidersConfig = filterEnabledProvidersConfig(providersConfig)
 
   return (
     <Select
@@ -33,7 +34,7 @@ export default function TranslateProviderSelector({ className }: { className?: s
       <SelectContent>
         <SelectGroup>
           <SelectLabel>{i18n.t('translateService.aiTranslator')}</SelectLabel>
-          {getLLMTranslateProvidersConfig(providersConfig).map(({ id, name, provider }) => (
+          {getLLMTranslateProvidersConfig(filteredProvidersConfig).map(({ id, name, provider }) => (
             <SelectItem key={id} value={id}>
               <ProviderIcon logo={PROVIDER_ITEMS[provider].logo} name={name} />
             </SelectItem>
@@ -41,12 +42,12 @@ export default function TranslateProviderSelector({ className }: { className?: s
         </SelectGroup>
         <SelectGroup>
           <SelectLabel>{i18n.t('translateService.normalTranslator')}</SelectLabel>
-          {getNonAPIProvidersConfig(providersConfig).map(({ id, name, provider }) => (
+          {getNonAPIProvidersConfig(filteredProvidersConfig).map(({ id, name, provider }) => (
             <SelectItem key={id} value={id}>
               <ProviderIcon logo={PROVIDER_ITEMS[provider].logo} name={name} />
             </SelectItem>
           ))}
-          {getPureAPIProvidersConfig(providersConfig).map(({ id, name, provider }) => (
+          {getPureAPIProvidersConfig(filteredProvidersConfig).map(({ id, name, provider }) => (
             <SelectItem key={id} value={id}>
               <ProviderIcon logo={PROVIDER_ITEMS[provider].logo} name={name} />
             </SelectItem>
