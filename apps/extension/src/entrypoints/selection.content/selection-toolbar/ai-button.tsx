@@ -73,7 +73,7 @@ export function AiPopover() {
 
 ## 📖 词汇解释
 - **含义**: 单词/短语的基本含义
-- **词性**: 词性分类
+- **词性**: 词性分类(如果非原形，给出原形)
 - **发音**: 音标或发音提示
 
 ## 💡 用法说明
@@ -140,7 +140,7 @@ export function AiPopover() {
                 className="mx-1.5 rounded font-medium px-0.5"
                 style={{ backgroundColor: 'var(--read-frog-primary)' }}
               >
-                {highlightData.context.selection}
+                {` ${highlightData.context.selection} `}
               </span>
             )}
             {highlightData?.context.after && (

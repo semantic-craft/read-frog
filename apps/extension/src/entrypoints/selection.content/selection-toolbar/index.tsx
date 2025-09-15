@@ -137,8 +137,8 @@ export function SelectionToolbar() {
           ref={tooltipRef}
           className="absolute z-[2147483647] bg-zinc-200 dark:bg-zinc-800 rounded-sm shadow-lg overflow-hidden flex items-center"
         >
-          <TranslateButton />
           <AiButton />
+          <TranslateButton />
         </div>
       )}
       <AiPopover />
