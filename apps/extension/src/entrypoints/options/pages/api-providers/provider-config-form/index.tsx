@@ -4,6 +4,7 @@ import { useForm } from '@tanstack/react-form'
 import { useAtom, useAtomValue } from 'jotai'
 import { useEffect } from 'react'
 import { apiProviderConfigItemSchema, isAPIProviderConfig } from '@/types/config/provider'
+import { configFields } from '@/utils/atoms/config'
 import { providerConfigAtom } from '@/utils/atoms/provider'
 import { FieldWithLabel } from '../../../components/field-with-label'
 import { selectedProviderIdAtom } from '../atoms'
@@ -11,6 +12,7 @@ import { selectedProviderIdAtom } from '../atoms'
 export function ProviderConfigForm() {
   const selectedProviderId = useAtomValue(selectedProviderIdAtom)
   const [selectedProviderConfig, setSelectedProviderConfig] = useAtom(providerConfigAtom(selectedProviderId ?? ''))
+  const allProviders = useAtomValue(configFields.providersConfig)
 
   const form = useForm({
     // defaultValues: selectedProviderConfig && isAPIProviderConfig(selectedProviderConfig) ? selectedProviderConfig : undefined,
@@ -42,7 +44,20 @@ export function ProviderConfigForm() {
       //   void form.handleSubmit()
       // }}
     >
-      <form.Field name="name">
+      <form.Field
+        name="name"
+        validators={{
+          onChange: ({ value }) => {
+            const duplicateProvider = allProviders.find(provider =>
+              provider.name === value && provider.id !== selectedProviderId,
+            )
+            if (duplicateProvider) {
+              return `Custom: Duplicate provider name "${value}"`
+            }
+            return undefined
+          },
+        }}
+      >
         {field => (
           <FieldWithLabel
             label="Name"
@@ -61,40 +76,41 @@ export function ProviderConfigForm() {
             />
             {!field.state.meta.isValid && (
               <em id={`${field.name}-error`} className="text-sm text-destructive mt-1">
-                {field.state.meta.errors.map(error => error?.message).join(', ')}
+                {field.state.meta.errors.map(error =>
+                  typeof error === 'string' ? error : error?.message,
+                ).join(', ')}
               </em>
             )}
           </FieldWithLabel>
         )}
       </form.Field>
 
-      {/* <form.Field name="description">
-          {field => (
-            <FieldWithLabel
-              label="Description"
+      <form.Field name="description">
+        {field => (
+          <FieldWithLabel
+            label="Description"
+            id={field.name}
+          >
+            <Input
               id={field.name}
-              className={field.state.meta.errors.length > 0 ? 'has-error' : ''}
-            >
-              <Input
-                id={field.name}
-                value={field.state.value ?? ''}
-                onBlur={field.handleBlur}
-                onChange={(e) => {
-                  field.handleChange(e.target.value)
-                  handleAutoSave()
-                }}
-                placeholder="Optional description for this provider"
-                aria-invalid={field.state.meta.errors.length > 0}
-                aria-describedby={field.state.meta.errors.length > 0 ? `${field.name}-error` : undefined}
-              />
-              {field.state.meta.errors.length > 0 && (
-                <p id={`${field.name}-error`} className="text-sm text-destructive mt-1">
-                  {field.state.meta.errors[0]}
-                </p>
-              )}
-            </FieldWithLabel>
-          )}
-        </form.Field> */}
+              value={field.state.value ?? ''}
+              onBlur={field.handleBlur}
+              onChange={(e) => {
+                field.handleChange(e.target.value)
+                void form.handleSubmit()
+              }}
+              placeholder="Optional description for this provider"
+              aria-invalid={!field.state.meta.isValid}
+              aria-describedby={!field.state.meta.isValid ? `${field.name}-error` : undefined}
+            />
+            {!field.state.meta.isValid && (
+              <em id={`${field.name}-error`} className="text-sm text-destructive mt-1">
+                {field.state.meta.errors.map(error => error?.message).join(', ')}
+              </em>
+            )}
+          </FieldWithLabel>
+        )}
+      </form.Field>
 
       {/* <APIKeyField /> */}
     </form>
