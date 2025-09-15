@@ -1,118 +1,78 @@
-import type { APIProviderConfig } from '@/types/config/provider'
-import { Input } from '@repo/ui/components/input'
-import { useForm } from '@tanstack/react-form'
+import { cn } from '@repo/ui/lib/utils'
 import { useAtom, useAtomValue } from 'jotai'
 import { useEffect } from 'react'
-import { apiProviderConfigItemSchema, isAPIProviderConfig } from '@/types/config/provider'
+import { isAPIProviderConfig } from '@/types/config/provider'
 import { configFields } from '@/utils/atoms/config'
 import { providerConfigAtom } from '@/utils/atoms/provider'
-import { FieldWithLabel } from '../../../components/field-with-label'
 import { selectedProviderIdAtom } from '../atoms'
+import { APIKeyField } from './api-key-field'
+import { formOpts, useAppForm } from './form'
 
 export function ProviderConfigForm() {
   const selectedProviderId = useAtomValue(selectedProviderIdAtom)
-  const [selectedProviderConfig, setSelectedProviderConfig] = useAtom(providerConfigAtom(selectedProviderId ?? ''))
+  const [providerConfig, setProviderConfig] = useAtom(providerConfigAtom(selectedProviderId ?? ''))
   const allProviders = useAtomValue(configFields.providersConfig)
 
-  const form = useForm({
-    // defaultValues: selectedProviderConfig && isAPIProviderConfig(selectedProviderConfig) ? selectedProviderConfig : undefined,
-    validators: {
-      onChange: apiProviderConfigItemSchema,
-    },
-    onSubmit: async ({ value }: { value: APIProviderConfig }) => {
-      void setSelectedProviderConfig(value)
+  const specificFormOpts = {
+    ...formOpts,
+    defaultValues: providerConfig && isAPIProviderConfig(providerConfig) ? providerConfig : undefined,
+  }
+
+  const form = useAppForm({
+    ...specificFormOpts,
+    onSubmit: async ({ value }) => {
+      if (value.baseURL === '') {
+        value.baseURL = undefined
+      }
+      void setProviderConfig(value)
     },
   })
 
   // Reset form when selectedProviderId changes
   useEffect(() => {
-    if (selectedProviderConfig && isAPIProviderConfig(selectedProviderConfig)) {
-      form.reset(selectedProviderConfig)
+    if (providerConfig && isAPIProviderConfig(providerConfig)) {
+      form.reset(providerConfig)
     }
-  }, [selectedProviderId, selectedProviderConfig, form])
+  }, [providerConfig, form])
 
-  if (!selectedProviderConfig || !isAPIProviderConfig(selectedProviderConfig)) {
+  if (!providerConfig || !isAPIProviderConfig(providerConfig)) {
     return null
   }
 
   return (
-    <form
-      className="flex-1 bg-card rounded-xl p-4 border flex flex-col gap-4"
+    <form.AppForm
       // onSubmit={(e) => {
       //   e.preventDefault()
       //   e.stopPropagation()
       //   void form.handleSubmit()
       // }}
     >
-      <form.Field
-        name="name"
-        validators={{
-          onChange: ({ value }) => {
-            const duplicateProvider = allProviders.find(provider =>
-              provider.name === value && provider.id !== selectedProviderId,
-            )
-            if (duplicateProvider) {
-              return `Custom: Duplicate provider name "${value}"`
-            }
-            return undefined
-          },
-        }}
-      >
-        {field => (
-          <FieldWithLabel
-            label="Name"
-            id={field.name}
-          >
-            <Input
-              id={field.name}
-              value={field.state.value}
-              onBlur={field.handleBlur}
-              onChange={(e) => {
-                field.handleChange(e.target.value)
-                void form.handleSubmit()
-              }}
-              aria-invalid={!field.state.meta.isValid}
-              aria-describedby={!field.state.meta.isValid ? `${field.name}-error` : undefined}
-            />
-            {!field.state.meta.isValid && (
-              <em id={`${field.name}-error`} className="text-sm text-destructive mt-1">
-                {field.state.meta.errors.map(error =>
-                  typeof error === 'string' ? error : error?.message,
-                ).join(', ')}
-              </em>
-            )}
-          </FieldWithLabel>
-        )}
-      </form.Field>
+      <div className={cn('flex-1 bg-card rounded-xl p-4 border flex flex-col gap-4', selectedProviderId !== providerConfig.id && 'hidden')}>
+        <form.AppField
+          name="name"
+          validators={{
+            onChange: ({ value }) => {
+              const duplicateProvider = allProviders.find(provider =>
+                provider.name === value && provider.id !== providerConfig.id,
+              )
+              if (duplicateProvider) {
+                return `Custom: Duplicate provider name "${value}"`
+              }
+              return undefined
+            },
+          }}
+        >
+          {field => <field.InputField formForSubmit={form} label="Name" />}
+        </form.AppField>
+        <form.AppField name="description">
+          {field => <field.InputField formForSubmit={form} label="Description" />}
+        </form.AppField>
 
-      <form.Field name="description">
-        {field => (
-          <FieldWithLabel
-            label="Description"
-            id={field.name}
-          >
-            <Input
-              id={field.name}
-              value={field.state.value ?? ''}
-              onBlur={field.handleBlur}
-              onChange={(e) => {
-                field.handleChange(e.target.value)
-                void form.handleSubmit()
-              }}
-              placeholder="Optional description for this provider"
-              aria-invalid={!field.state.meta.isValid}
-              aria-describedby={!field.state.meta.isValid ? `${field.name}-error` : undefined}
-            />
-            {!field.state.meta.isValid && (
-              <em id={`${field.name}-error`} className="text-sm text-destructive mt-1">
-                {field.state.meta.errors.map(error => error?.message).join(', ')}
-              </em>
-            )}
-          </FieldWithLabel>
-        )}
-      </form.Field>
-
-      {/* <APIKeyField /> */}
-    </form>
+        <APIKeyField form={form} />
+        <form.AppField name="baseURL">
+          {field => <field.InputField formForSubmit={form} label="Base URL" value={providerConfig.baseURL ?? ''} />}
+        </form.AppField>
+      </div>
+    </form.AppForm>
   )
 }

@@ -21,6 +21,7 @@ export function ProvidersConfig() {
       <div className="flex gap-4">
         <ProviderCardList />
         <ProviderConfigForm />
+
       </div>
     </ConfigCard>
   )
