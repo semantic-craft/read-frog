@@ -78,7 +78,7 @@ importers:
         specifier: ^3.34.0
         version: 3.34.0(react@19.1.1)
       '@tanstack/react-form':
-        specifier: ^1.20.0
+        specifier: 1.20.0
         version: 1.20.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@tanstack/react-query':
         specifier: ^5.84.2
@@ -351,7 +351,7 @@ importers:
         version: link:../definitions
       '@trpc/server':
         specifier: ^11.4.4
-        version: 11.4.4(typescript@5.8.3)
+        version: 11.4.4(typescript@5.9.2)
       superjson:
         specifier: ^2.2.2
         version: 2.2.2
@@ -6226,8 +6226,7 @@ packages:
           targets:
             - cpu: x86
               os: win32
-    version: 22.19.0
-    hasBin: true
+    version: 0.0.0
 
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
@@ -10243,6 +10242,10 @@ snapshots:
   '@trpc/server@11.4.4(typescript@5.8.3)':
     dependencies:
       typescript: 5.8.3
+
+  '@trpc/server@11.4.4(typescript@5.9.2)':
+    dependencies:
+      typescript: 5.9.2
 
   '@trpc/tanstack-react-query@11.4.4(@tanstack/react-query@5.84.2(react@19.1.1))(@trpc/client@11.4.4(@trpc/server@11.4.4(typescript@5.8.3))(typescript@5.8.3))(@trpc/server@11.4.4(typescript@5.8.3))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.8.3)':
     dependencies:
