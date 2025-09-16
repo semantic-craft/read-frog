@@ -7,6 +7,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { MarkdownRenderer } from '@/components/markdown-renderer'
 import { configAtom } from '@/utils/atoms/config'
 import { readProviderConfigAtom } from '@/utils/atoms/provider'
+import { getWordExplainPrompt } from '@/utils/prompts/word-explain'
 import { getReadModel } from '@/utils/providers/model'
 import { createHighlightData } from '../utils'
 import { isAiPopoverVisibleAtom, isTooltipVisibleAtom, mouseClickPositionAtom, selectionRangeAtom } from './atom'
@@ -64,24 +65,12 @@ export function AiPopover() {
     try {
       const model = await getReadModel(readProviderConfig.name)
 
-      const prompt = `请解释以下选中的单词或短语，提供简洁明了的语言学习解释：
-
-选中内容: "${highlightData.context.selection}"
-上下文: "${highlightData.context.before}${highlightData.context.selection}${highlightData.context.after}"
-
-请按以下结构提供解释（使用Markdown格式）：
-
-## 📖 词汇解释
-- **含义**: 单词/短语的基本含义
-- **词性**: 词性分类(如果非原形，给出原形)
-- **发音**: 音标或发音提示
-
-## 💡 用法说明
-- **常见搭配**: 常用搭配和短语
-- **例句**: 1-2个简单例句
-- **注意事项**: 使用时的注意点
-
-请用${config.language.targetCode}回答，内容简洁明了，重点突出。`
+      const prompt = getWordExplainPrompt(
+        config.language.sourceCode,
+        config.language.targetCode,
+        config.language.level,
+        highlightData,
+      )
 
       const result = await streamText({
         model,
