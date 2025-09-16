@@ -379,7 +379,6 @@ async function getTranslatedTextAndRemoveSpinner(nodes: ChildNode[], textContent
     translatedText = await translateText(textContent)
   }
   catch (error) {
-    console.error('Error during translation', error)
     removeReactShadowHost(spinner)
 
     const errorComponent = React.createElement(TranslationError, {
