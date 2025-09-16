@@ -19,7 +19,7 @@ export default function ReadProviderSelector({ className, hideChevron = false, c
     <Select
       value={readConfig.providerId}
       onValueChange={(value: string) => {
-        setReadConfig({
+        void setReadConfig({
           providerId: value,
         })
       }}

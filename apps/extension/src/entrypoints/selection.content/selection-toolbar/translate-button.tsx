@@ -65,7 +65,7 @@ export function TranslatePopover() {
 
   const handleCopy = useCallback(() => {
     if (translatedText) {
-      navigator.clipboard.writeText(translatedText)
+      void navigator.clipboard.writeText(translatedText)
       toast.success('Translation copied to clipboard!')
     }
   }, [translatedText])
@@ -198,7 +198,7 @@ export function TranslatePopover() {
     }
 
     if (isVisible) {
-      translate()
+      void translate()
     }
   }, [isVisible, selectionContent, languageConfig.sourceCode, languageConfig.targetCode, translateProviderConfig])
 

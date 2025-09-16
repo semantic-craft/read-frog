@@ -18,7 +18,7 @@ export function ProviderConfigForm() {
       onChange: apiProviderConfigItemSchema,
     },
     onSubmit: async ({ value }: { value: APIProviderConfig }) => {
-      setSelectedProviderConfig(value)
+      void setSelectedProviderConfig(value)
     },
   })
 
@@ -54,7 +54,7 @@ export function ProviderConfigForm() {
               onBlur={field.handleBlur}
               onChange={(e) => {
                 field.handleChange(e.target.value)
-                form.handleSubmit()
+                void form.handleSubmit()
               }}
               aria-invalid={!field.state.meta.isValid}
               aria-describedby={!field.state.meta.isValid ? `${field.name}-error` : undefined}

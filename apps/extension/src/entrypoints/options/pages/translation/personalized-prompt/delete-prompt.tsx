@@ -11,7 +11,7 @@ export function DeletePrompt({ originPrompt }: { originPrompt: TranslatePromptOb
   const [translateConfig, setTranslateConfig] = useAtom(configFields.translate)
   const { patterns, prompt } = translateConfig.promptsConfig
   const deletePrompt = () => {
-    setTranslateConfig({
+    void setTranslateConfig({
       promptsConfig: {
         ...translateConfig.promptsConfig,
         patterns: patterns.filter(p => p.id !== originPrompt.id),

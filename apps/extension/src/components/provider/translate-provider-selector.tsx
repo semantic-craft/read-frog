@@ -22,7 +22,7 @@ export default function TranslateProviderSelector({ className }: { className?: s
     <Select
       value={translateConfig.providerId}
       onValueChange={(value: string) => {
-        setTranslateConfig({
+        void setTranslateConfig({
           providerId: value,
         })
       }}

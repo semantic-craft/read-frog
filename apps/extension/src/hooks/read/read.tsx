@@ -70,7 +70,7 @@ export function useAnalyzeContent() {
           })
 
           // TODO: if und, then UI need to show UI to ask user to select the language or not continue
-          setLanguage({
+          void setLanguage({
             detectedCode:
               articleAnalysis.detectedLang === 'und'
                 ? 'eng'

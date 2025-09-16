@@ -19,7 +19,7 @@ export const readProviderConfigAtom = atom(
     }
     return providerConfig
   },
-  (get, set, newProviderConfig: LLMTranslateProviderConfig) => {
+  async (get, set, newProviderConfig: LLMTranslateProviderConfig) => {
     const readConfig = get(configFields.read)
     const providersConfig = get(configFields.providersConfig)
 
@@ -27,7 +27,7 @@ export const readProviderConfigAtom = atom(
       provider.id === readConfig.providerId ? newProviderConfig : provider,
     )
 
-    set(configFields.providersConfig, updatedProviders)
+    await set(configFields.providersConfig, updatedProviders)
   },
 )
 
@@ -44,7 +44,7 @@ export const translateProviderConfigAtom = atom(
     // Non API translate providers (google, microsoft) don't have config
     return undefined
   },
-  (get, set, newProviderConfig: ProviderConfig) => {
+  async (get, set, newProviderConfig: ProviderConfig) => {
     const translateConfig = get(configFields.translate)
     const providersConfig = get(configFields.providersConfig)
 
@@ -52,7 +52,7 @@ export const translateProviderConfigAtom = atom(
       provider.id === translateConfig.providerId ? newProviderConfig : provider,
     )
 
-    set(configFields.providersConfig, updatedProviders)
+    await set(configFields.providersConfig, updatedProviders)
   },
 )
 
@@ -63,14 +63,14 @@ export const providerConfigAtom = atomFamily((id: string) =>
       const providersConfig = get(configFields.providersConfig)
       return getProviderConfigById(providersConfig, id)
     },
-    (get, set, newProviderConfig: ProviderConfig) => {
+    async (get, set, newProviderConfig: ProviderConfig) => {
       const providersConfig = get(configFields.providersConfig)
 
       const updatedProviders = providersConfig.map(provider =>
         provider.id === id ? newProviderConfig : provider,
       )
 
-      set(configFields.providersConfig, updatedProviders)
+      await set(configFields.providersConfig, updatedProviders)
     },
   ),
 )

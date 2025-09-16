@@ -19,7 +19,7 @@ export function ImportPrompts() {
       id: crypto.randomUUID(),
     }))
 
-    setTranslateConfig({
+    void setTranslateConfig({
       promptsConfig: {
         ...translateConfig.promptsConfig,
         patterns: [...originPatterns, ...patterns],
