@@ -56,7 +56,7 @@ export const DEFAULT_DEEPLX_BASE_URL = 'https://deeplx.vercel.app'
 export const DEFAULT_DEEPLX_CONFIG: PureAPIProviderConfig = {
   id: 'deeplx-default',
   name: 'DeepLX',
-  description: i18n.t('options.apiProviders.description.deeplx'),
+  description: i18n.t('options.apiProviders.providers.description.deeplx'),
   enabled: true,
   provider: 'deeplx',
   baseURL: DEFAULT_DEEPLX_BASE_URL,
@@ -78,7 +78,7 @@ export const DEFAULT_PROVIDER_CONFIG: ProvidersConfig = [
   {
     id: 'openai-default',
     name: 'OpenAI',
-    description: i18n.t('options.apiProviders.description.openai'),
+    description: i18n.t('options.apiProviders.providers.description.openai'),
     enabled: true,
     provider: 'openai',
     models: {
@@ -89,7 +89,7 @@ export const DEFAULT_PROVIDER_CONFIG: ProvidersConfig = [
   {
     id: 'deepseek-default',
     name: 'DeepSeek',
-    description: i18n.t('options.apiProviders.description.deepseek'),
+    description: i18n.t('options.apiProviders.providers.description.deepseek'),
     enabled: true,
     provider: 'deepseek',
     models: {
@@ -100,7 +100,7 @@ export const DEFAULT_PROVIDER_CONFIG: ProvidersConfig = [
   {
     id: 'gemini-default',
     name: 'Gemini',
-    description: i18n.t('options.apiProviders.description.gemini'),
+    description: i18n.t('options.apiProviders.providers.description.gemini'),
     enabled: true,
     provider: 'gemini',
     models: {

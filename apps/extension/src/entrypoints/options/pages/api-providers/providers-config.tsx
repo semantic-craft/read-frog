@@ -1,4 +1,5 @@
 import type { APIProviderConfig } from '@/types/config/provider'
+import { i18n } from '#imports'
 import { Switch } from '@repo/ui/components/switch'
 import { cn } from '@repo/ui/lib/utils'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
@@ -14,14 +15,13 @@ export function ProvidersConfig() {
   // TODO: add i18n
   return (
     <ConfigCard
-      title="API Providers Config"
-      description="Configure the API providers for translation and reading functions here"
+      title={i18n.t('options.apiProviders.title')}
+      description={i18n.t('options.apiProviders.description')}
       className="lg:flex-col"
     >
       <div className="flex gap-4">
         <ProviderCardList />
         <ProviderConfigForm />
-
       </div>
     </ConfigCard>
   )
