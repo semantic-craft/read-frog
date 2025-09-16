@@ -145,9 +145,11 @@ export async function translateNodesBilingualMode(nodes: ChildNode[], walkId: st
     const translatedText = realTranslatedText === textContent ? '' : realTranslatedText
 
     if (!translatedText) {
-      if (translatedText === '')
+      // Only remove wrapper if translation returned empty (not needed),
+      // but keep it for error display (undefined)
+      if (translatedText === '') {
         translatedWrapperNode.remove()
-      // if translatedText is undefined, means error when translation, need show error component in translatedWrapperNode
+      }
       return
     }
 
