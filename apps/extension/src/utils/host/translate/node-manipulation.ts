@@ -143,8 +143,11 @@ export async function translateNodesBilingualMode(nodes: ChildNode[], walkId: st
     const realTranslatedText = await getTranslatedTextAndRemoveSpinner(nodes, textContent, spinner, translatedWrapperNode)
 
     const translatedText = realTranslatedText === textContent ? '' : realTranslatedText
+
     if (!translatedText) {
-      translatedWrapperNode.remove()
+      if (translatedText === '')
+        translatedWrapperNode.remove()
+      // if translatedText is undefined, means error when translation, need show error component in translatedWrapperNode
       return
     }
 
@@ -376,6 +379,7 @@ async function getTranslatedTextAndRemoveSpinner(nodes: ChildNode[], textContent
     translatedText = await translateText(textContent)
   }
   catch (error) {
+    console.error('Error during translation', error)
     removeReactShadowHost(spinner)
 
     const errorComponent = React.createElement(TranslationError, {
