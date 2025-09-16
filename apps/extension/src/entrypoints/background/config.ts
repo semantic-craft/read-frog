@@ -19,7 +19,7 @@ export function getConfigFromBackground() {
   onMessage('getInitialConfig', async () => {
     const config = await ensureInitializedConfig()
     if (!configSchema.safeParse(config).success) {
-      console.error('Config is invalid. re-initializing config:', config)
+      console.error('Config is invalid. re-initializing config')
       await initializeConfig()
       return storage.getItem<Config>(`local:${CONFIG_STORAGE_KEY}`)
     }
