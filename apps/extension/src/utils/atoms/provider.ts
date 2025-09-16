@@ -4,7 +4,7 @@ import { deepmerge } from 'deepmerge-ts'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai/utils'
 import { llmProviderConfigItemSchema, providerConfigItemSchema } from '@/types/config/provider'
-import { getLLMTranslateProvidersConfig, getProviderConfigByName } from '../config/helpers'
+import { getLLMTranslateProvidersConfig, getProviderConfigById } from '../config/helpers'
 import { configFields } from './config'
 
 // Derived atom for read provider config
@@ -13,9 +13,9 @@ export const readProviderConfigAtom = atom(
     const readConfig = get(configFields.read)
     const providersConfig = get(configFields.providersConfig)
     const LLMProvidersConfig = getLLMTranslateProvidersConfig(providersConfig)
-    const providerConfig = getProviderConfigByName(LLMProvidersConfig, readConfig.providerName)
+    const providerConfig = getProviderConfigById(LLMProvidersConfig, readConfig.providerId)
     if (!providerConfig) {
-      throw new Error(`Provider ${readConfig.providerName} not found`)
+      throw new Error(`Provider ${readConfig.providerId} not found`)
     }
     return providerConfig
   },
@@ -24,7 +24,7 @@ export const readProviderConfigAtom = atom(
     const providersConfig = get(configFields.providersConfig)
 
     const updatedProviders = providersConfig.map(provider =>
-      provider.name === readConfig.providerName ? newProviderConfig : provider,
+      provider.id === readConfig.providerId ? newProviderConfig : provider,
     )
 
     set(configFields.providersConfig, updatedProviders)
@@ -37,7 +37,7 @@ export const translateProviderConfigAtom = atom(
     const translateConfig = get(configFields.translate)
     const providersConfig = get(configFields.providersConfig)
 
-    const providerConfig = getProviderConfigByName(providersConfig, translateConfig.providerName)
+    const providerConfig = getProviderConfigById(providersConfig, translateConfig.providerId)
     if (providerConfig)
       return providerConfig
 
@@ -49,7 +49,7 @@ export const translateProviderConfigAtom = atom(
     const providersConfig = get(configFields.providersConfig)
 
     const updatedProviders = providersConfig.map(provider =>
-      provider.name === translateConfig.providerName ? newProviderConfig : provider,
+      provider.id === translateConfig.providerId ? newProviderConfig : provider,
     )
 
     set(configFields.providersConfig, updatedProviders)
@@ -57,17 +57,17 @@ export const translateProviderConfigAtom = atom(
 )
 
 // Generic provider config atom family that accepts a name parameter
-export const providerConfigAtom = atomFamily((name: string) =>
+export const providerConfigAtom = atomFamily((id: string) =>
   atom(
     (get) => {
       const providersConfig = get(configFields.providersConfig)
-      return getProviderConfigByName(providersConfig, name)
+      return getProviderConfigById(providersConfig, id)
     },
     (get, set, newProviderConfig: ProviderConfig) => {
       const providersConfig = get(configFields.providersConfig)
 
       const updatedProviders = providersConfig.map(provider =>
-        provider.name === name ? newProviderConfig : provider,
+        provider.id === id ? newProviderConfig : provider,
       )
 
       set(configFields.providersConfig, updatedProviders)

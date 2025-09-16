@@ -75,7 +75,6 @@ export function ProviderConfigCard({ providerConfig }: { providerConfig: APIProv
             </label>
           </div>
         </FieldWithLabel>
-
         <AdvancedProviderConfig providerConfig={providerConfig} />
       </div>
     </ConfigCard>

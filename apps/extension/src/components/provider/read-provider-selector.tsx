@@ -17,10 +17,10 @@ export default function ReadProviderSelector({ className, hideChevron = false, c
 
   return (
     <Select
-      value={readConfig.providerName}
+      value={readConfig.providerId}
       onValueChange={(value: string) => {
         setReadConfig({
-          providerName: value,
+          providerId: value,
         })
       }}
     >
@@ -28,8 +28,8 @@ export default function ReadProviderSelector({ className, hideChevron = false, c
         {customTrigger || <SelectValue />}
       </SelectTrigger>
       <SelectContent>
-        {getReadProvidersConfig(providersConfig).map(({ name, provider }) => (
-          <SelectItem key={name} value={name}>
+        {getReadProvidersConfig(providersConfig).map(({ id, name, provider }) => (
+          <SelectItem key={id} value={id}>
             <ProviderIcon logo={PROVIDER_ITEMS[provider].logo} name={name} />
           </SelectItem>
         ))}
