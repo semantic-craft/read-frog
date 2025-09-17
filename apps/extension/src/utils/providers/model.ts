@@ -1,10 +1,19 @@
 import type { Config } from '@/types/config/config'
 import { storage } from '#imports'
+import { createAmazonBedrock } from '@ai-sdk/amazon-bedrock'
 import { createAnthropic } from '@ai-sdk/anthropic'
+import { createCohere } from '@ai-sdk/cohere'
+import { createDeepInfra } from '@ai-sdk/deepinfra'
 import { createDeepSeek } from '@ai-sdk/deepseek'
+import { createFal } from '@ai-sdk/fal'
+import { createFireworks } from '@ai-sdk/fireworks'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
+import { createVertex } from '@ai-sdk/google-vertex'
+import { createGroq } from '@ai-sdk/groq'
+import { createMistral } from '@ai-sdk/mistral'
 import { createOpenAI } from '@ai-sdk/openai'
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
+import { createTogetherAI } from '@ai-sdk/togetherai'
 import { createXai } from '@ai-sdk/xai'
 import { getLLMTranslateProvidersConfig, getProviderConfigById } from '../config/helpers'
 import { CONFIG_STORAGE_KEY } from '../constants/config'
@@ -16,6 +25,15 @@ interface ProviderFactoryMap {
   anthropic: typeof createAnthropic
   grok: typeof createXai
   openaiCompatible: typeof createOpenAICompatible
+  amazonBedrock: typeof createAmazonBedrock
+  groq: typeof createGroq
+  fal: typeof createFal
+  deepinfra: typeof createDeepInfra
+  vertex: typeof createVertex
+  mistral: typeof createMistral
+  togetherai: typeof createTogetherAI
+  cohere: typeof createCohere
+  fireworks: typeof createFireworks
 }
 
 const CREATE_AI_MAPPER: ProviderFactoryMap = {
@@ -25,6 +43,15 @@ const CREATE_AI_MAPPER: ProviderFactoryMap = {
   anthropic: createAnthropic,
   grok: createXai,
   openaiCompatible: createOpenAICompatible,
+  amazonBedrock: createAmazonBedrock,
+  groq: createGroq,
+  fal: createFal,
+  deepinfra: createDeepInfra,
+  vertex: createVertex,
+  mistral: createMistral,
+  togetherai: createTogetherAI,
+  cohere: createCohere,
+  fireworks: createFireworks,
 }
 
 async function getLanguageModelById(providerId: string, modelType: 'read' | 'translate') {

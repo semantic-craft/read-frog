@@ -39,6 +39,51 @@ export const DEFAULT_READ_MODELS: ReadModels = {
     isCustomModel: false,
     customModel: null,
   },
+  amazonBedrock: {
+    model: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+    isCustomModel: false,
+    customModel: null,
+  },
+  groq: {
+    model: 'llama-3.3-70b-versatile',
+    isCustomModel: false,
+    customModel: null,
+  },
+  fal: {
+    model: 'fal-ai/llama-3.1-405b-instruct',
+    isCustomModel: false,
+    customModel: null,
+  },
+  deepinfra: {
+    model: 'meta-llama/Llama-3.3-70B-Instruct',
+    isCustomModel: false,
+    customModel: null,
+  },
+  vertex: {
+    model: 'gemini-1.5-pro',
+    isCustomModel: false,
+    customModel: null,
+  },
+  mistral: {
+    model: 'mistral-large-latest',
+    isCustomModel: false,
+    customModel: null,
+  },
+  togetherai: {
+    model: 'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo',
+    isCustomModel: false,
+    customModel: null,
+  },
+  cohere: {
+    model: 'command-r-plus',
+    isCustomModel: false,
+    customModel: null,
+  },
+  fireworks: {
+    model: 'accounts/fireworks/models/llama-v3p1-405b-instruct',
+    isCustomModel: false,
+    customModel: null,
+  },
 }
 
 export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
@@ -69,6 +114,51 @@ export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
   },
   grok: {
     model: 'grok-3-mini',
+    isCustomModel: false,
+    customModel: null,
+  },
+  amazonBedrock: {
+    model: 'anthropic.claude-3-5-haiku-20241022-v1:0',
+    isCustomModel: false,
+    customModel: null,
+  },
+  groq: {
+    model: 'llama-3.1-70b-versatile',
+    isCustomModel: false,
+    customModel: null,
+  },
+  fal: {
+    model: 'fal-ai/llama-3.1-70b-instruct',
+    isCustomModel: false,
+    customModel: null,
+  },
+  deepinfra: {
+    model: 'meta-llama/Llama-3.1-70B-Instruct',
+    isCustomModel: false,
+    customModel: null,
+  },
+  vertex: {
+    model: 'gemini-1.5-flash',
+    isCustomModel: false,
+    customModel: null,
+  },
+  mistral: {
+    model: 'mistral-small-latest',
+    isCustomModel: false,
+    customModel: null,
+  },
+  togetherai: {
+    model: 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
+    isCustomModel: false,
+    customModel: null,
+  },
+  cohere: {
+    model: 'command-r',
+    isCustomModel: false,
+    customModel: null,
+  },
+  fireworks: {
+    model: 'accounts/fireworks/models/llama-v3p1-70b-instruct',
     isCustomModel: false,
     customModel: null,
   },
@@ -162,6 +252,105 @@ export const DEFAULT_PROVIDER_CONFIG = {
     provider: 'deeplx',
     baseURL: 'https://deeplx.vercel.app',
   },
+  amazonBedrock: {
+    id: 'amazon-bedrock-default',
+    name: 'Amazon Bedrock',
+    description: i18n.t('options.apiProviders.providers.description.amazonBedrock'),
+    enabled: true,
+    provider: 'amazonBedrock',
+    models: {
+      read: DEFAULT_READ_MODELS.amazonBedrock,
+      translate: DEFAULT_TRANSLATE_MODELS.amazonBedrock,
+    },
+  },
+  groq: {
+    id: 'groq-default',
+    name: 'Groq',
+    description: i18n.t('options.apiProviders.providers.description.groq'),
+    enabled: true,
+    provider: 'groq',
+    models: {
+      read: DEFAULT_READ_MODELS.groq,
+      translate: DEFAULT_TRANSLATE_MODELS.groq,
+    },
+  },
+  fal: {
+    id: 'fal-default',
+    name: 'Fal',
+    description: i18n.t('options.apiProviders.providers.description.fal'),
+    enabled: true,
+    provider: 'fal',
+    models: {
+      read: DEFAULT_READ_MODELS.fal,
+      translate: DEFAULT_TRANSLATE_MODELS.fal,
+    },
+  },
+  deepinfra: {
+    id: 'deepinfra-default',
+    name: 'DeepInfra',
+    description: i18n.t('options.apiProviders.providers.description.deepinfra'),
+    enabled: true,
+    provider: 'deepinfra',
+    models: {
+      read: DEFAULT_READ_MODELS.deepinfra,
+      translate: DEFAULT_TRANSLATE_MODELS.deepinfra,
+    },
+  },
+  vertex: {
+    id: 'vertex-default',
+    name: 'Google Vertex AI',
+    description: i18n.t('options.apiProviders.providers.description.vertex'),
+    enabled: true,
+    provider: 'vertex',
+    models: {
+      read: DEFAULT_READ_MODELS.vertex,
+      translate: DEFAULT_TRANSLATE_MODELS.vertex,
+    },
+  },
+  mistral: {
+    id: 'mistral-default',
+    name: 'Mistral AI',
+    description: i18n.t('options.apiProviders.providers.description.mistral'),
+    enabled: true,
+    provider: 'mistral',
+    models: {
+      read: DEFAULT_READ_MODELS.mistral,
+      translate: DEFAULT_TRANSLATE_MODELS.mistral,
+    },
+  },
+  togetherai: {
+    id: 'togetherai-default',
+    name: 'Together.ai',
+    description: i18n.t('options.apiProviders.providers.description.togetherai'),
+    enabled: true,
+    provider: 'togetherai',
+    models: {
+      read: DEFAULT_READ_MODELS.togetherai,
+      translate: DEFAULT_TRANSLATE_MODELS.togetherai,
+    },
+  },
+  cohere: {
+    id: 'cohere-default',
+    name: 'Cohere',
+    description: i18n.t('options.apiProviders.providers.description.cohere'),
+    enabled: true,
+    provider: 'cohere',
+    models: {
+      read: DEFAULT_READ_MODELS.cohere,
+      translate: DEFAULT_TRANSLATE_MODELS.cohere,
+    },
+  },
+  fireworks: {
+    id: 'fireworks-default',
+    name: 'Fireworks AI',
+    description: i18n.t('options.apiProviders.providers.description.fireworks'),
+    enabled: true,
+    provider: 'fireworks',
+    models: {
+      read: DEFAULT_READ_MODELS.fireworks,
+      translate: DEFAULT_TRANSLATE_MODELS.fireworks,
+    },
+  },
 } as const satisfies Record<AllProviderNames, ProviderConfig>
 
 export const DEFAULT_PROVIDER_CONFIG_LIST: ProvidersConfig = [
@@ -174,6 +363,15 @@ export const DEFAULT_PROVIDER_CONFIG_LIST: ProvidersConfig = [
   DEFAULT_PROVIDER_CONFIG.grok,
   DEFAULT_PROVIDER_CONFIG.openaiCompatible,
   DEFAULT_PROVIDER_CONFIG.deeplx,
+  DEFAULT_PROVIDER_CONFIG.amazonBedrock,
+  DEFAULT_PROVIDER_CONFIG.groq,
+  DEFAULT_PROVIDER_CONFIG.fal,
+  DEFAULT_PROVIDER_CONFIG.deepinfra,
+  DEFAULT_PROVIDER_CONFIG.vertex,
+  DEFAULT_PROVIDER_CONFIG.mistral,
+  DEFAULT_PROVIDER_CONFIG.togetherai,
+  DEFAULT_PROVIDER_CONFIG.cohere,
+  DEFAULT_PROVIDER_CONFIG.fireworks,
 ]
 
 export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: (isDark: boolean) => string, name: string }>
@@ -213,6 +411,42 @@ export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: (isDark: boolean) 
     openaiCompatible: {
       logo: (isDark: boolean) => isDark ? openaiCompatibleLogoDark : openaiCompatibleLogoLight,
       name: 'OpenAI Compatible',
+    },
+    amazonBedrock: {
+      logo: getLobeIconsCDNUrlFn('amazon-color'),
+      name: 'Amazon Bedrock',
+    },
+    groq: {
+      logo: getLobeIconsCDNUrlFn('groq-color'),
+      name: 'Groq',
+    },
+    fal: {
+      logo: getLobeIconsCDNUrlFn('fal'),
+      name: 'Fal',
+    },
+    deepinfra: {
+      logo: getLobeIconsCDNUrlFn('deepinfra'),
+      name: 'DeepInfra',
+    },
+    vertex: {
+      logo: getLobeIconsCDNUrlFn('google-color'),
+      name: 'Google Vertex AI',
+    },
+    mistral: {
+      logo: getLobeIconsCDNUrlFn('mistral-color'),
+      name: 'Mistral AI',
+    },
+    togetherai: {
+      logo: getLobeIconsCDNUrlFn('togetherai'),
+      name: 'Together.ai',
+    },
+    cohere: {
+      logo: getLobeIconsCDNUrlFn('cohere-color'),
+      name: 'Cohere',
+    },
+    fireworks: {
+      logo: getLobeIconsCDNUrlFn('fireworks-color'),
+      name: 'Fireworks AI',
     },
   }
 

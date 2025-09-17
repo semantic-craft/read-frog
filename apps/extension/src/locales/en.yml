@@ -53,6 +53,15 @@ options:
         xai: Provide models such as Grok-4
         openaiCompatible: Third-party and OpenAI API compatible
         deeplx: Unofficial DeepL API
+        amazonBedrock: AWS Bedrock provides access to Claude, Llama, and other foundation models
+        groq: Ultra-fast inference for open-source language models
+        fal: Fast serverless inference for AI models
+        deepinfra: Scalable inference for open-source AI models
+        vertex: Google Cloud's enterprise AI platform with advanced Gemini models
+        mistral: Advanced open and closed source models from Mistral AI
+        togetherai: Open-source model inference with optimized performance
+        cohere: Enterprise-grade language models with powerful Command series
+        fireworks: Lightning-fast inference for open-source models
     apiKey:
       showAPIKey: Show API Key
     testConnection:
