@@ -62,6 +62,9 @@ importers:
       '@ai-sdk/react':
         specifier: ^2.0.29
         version: 2.0.29(react@19.1.1)(zod@4.0.17)
+      '@ai-sdk/xai':
+        specifier: ^2.0.20
+        version: 2.0.20(zod@4.0.17)
       '@mozilla/readability':
         specifier: ^0.6.0
         version: 0.6.0
@@ -609,6 +612,12 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4
 
+  '@ai-sdk/openai-compatible@1.0.18':
+    resolution: {integrity: sha512-WSxF83ZVvTpj2vKhgSNe95qr46TaTBRitF7LlX817r1vKAHw3MDFjjrxZTHbR58jcQWX6N9B3D2aX2Ro9fPBNA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4
+
   '@ai-sdk/openai@2.0.23':
     resolution: {integrity: sha512-uOXk8HzmMUoCmD0JMX/Y1HC/ABOR/Jza2Z2rkCaJISDYz3fp5pnb6eNjcPRL48JSMzRAGp9UP5p0OpxS06IJZg==}
     engines: {node: '>=18'}
@@ -617,6 +626,12 @@ packages:
 
   '@ai-sdk/provider-utils@3.0.7':
     resolution: {integrity: sha512-o3BS5/t8KnBL3ubP8k3w77AByOypLm+pkIL/DCw0qKkhDbvhCy+L3hRTGPikpdb8WHcylAeKsjgwOxhj4cqTUA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4
+
+  '@ai-sdk/provider-utils@3.0.9':
+    resolution: {integrity: sha512-Pm571x5efqaI4hf9yW4KsVlDBDme8++UepZRnq+kqVBWWjgvGhQlzU8glaFq0YJEB9kkxZHbRRyVeHoV2sRYaQ==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4
@@ -634,6 +649,12 @@ packages:
     peerDependenciesMeta:
       zod:
         optional: true
+
+  '@ai-sdk/xai@2.0.20':
+    resolution: {integrity: sha512-5hjOfYdJMtPirDPlN3rqKvW/GGpcXAKAtxTg0oQFxSDYYje5aeHzG/pY7RRwpn15opT8HKS4kxttA6CXirDwSQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4
 
   '@aklinker1/rollup-plugin-visualizer@5.12.0':
     resolution: {integrity: sha512-X24LvEGw6UFmy0lpGJDmXsMyBD58XmX1bbwsaMLhNoM+UMQfQ3b2RtC+nz4b/NoRK5r6QJSKJHBNVeUdwqybaQ==}
@@ -8040,6 +8061,12 @@ snapshots:
       '@ai-sdk/provider-utils': 3.0.7(zod@4.0.17)
       zod: 4.0.17
 
+  '@ai-sdk/openai-compatible@1.0.18(zod@4.0.17)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.9(zod@4.0.17)
+      zod: 4.0.17
+
   '@ai-sdk/openai@2.0.23(zod@4.0.17)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
@@ -8047,6 +8074,13 @@ snapshots:
       zod: 4.0.17
 
   '@ai-sdk/provider-utils@3.0.7(zod@4.0.17)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0
+      '@standard-schema/spec': 1.0.0
+      eventsource-parser: 3.0.6
+      zod: 4.0.17
+
+  '@ai-sdk/provider-utils@3.0.9(zod@4.0.17)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@standard-schema/spec': 1.0.0
@@ -8065,6 +8099,13 @@ snapshots:
       swr: 2.3.4(react@19.1.1)
       throttleit: 2.1.0
     optionalDependencies:
+      zod: 4.0.17
+
+  '@ai-sdk/xai@2.0.20(zod@4.0.17)':
+    dependencies:
+      '@ai-sdk/openai-compatible': 1.0.18(zod@4.0.17)
+      '@ai-sdk/provider': 2.0.0
+      '@ai-sdk/provider-utils': 3.0.9(zod@4.0.17)
       zod: 4.0.17
 
   '@aklinker1/rollup-plugin-visualizer@5.12.0(rollup@4.45.1)':

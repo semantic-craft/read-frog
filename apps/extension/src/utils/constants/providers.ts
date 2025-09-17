@@ -29,6 +29,11 @@ export const DEFAULT_READ_MODELS: ReadModels = {
     isCustomModel: true,
     customModel: null,
   },
+  grok: {
+    model: 'grok-4',
+    isCustomModel: false,
+    customModel: null,
+  },
 }
 
 export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
@@ -50,6 +55,11 @@ export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
   openaiCompatible: {
     model: 'use-custom-model',
     isCustomModel: true,
+    customModel: null,
+  },
+  grok: {
+    model: 'grok-3-mini',
+    isCustomModel: false,
     customModel: null,
   },
 }
@@ -100,6 +110,17 @@ export const DEFAULT_PROVIDER_CONFIG = {
       translate: DEFAULT_TRANSLATE_MODELS.gemini,
     },
   },
+  grok: {
+    id: 'xai-default',
+    name: 'XAI',
+    description: i18n.t('options.apiProviders.providers.description.xai'),
+    enabled: true,
+    provider: 'grok',
+    models: {
+      read: DEFAULT_READ_MODELS.grok,
+      translate: DEFAULT_TRANSLATE_MODELS.grok,
+    },
+  },
   openaiCompatible: {
     id: 'openai-compatible-default',
     name: 'OpenAI Compatible',
@@ -128,7 +149,7 @@ export const DEFAULT_PROVIDER_CONFIG_LIST: ProvidersConfig = [
   DEFAULT_PROVIDER_CONFIG.openai,
   DEFAULT_PROVIDER_CONFIG.deepseek,
   DEFAULT_PROVIDER_CONFIG.gemini,
-  // DEFAULT_PROVIDER_CONFIG.openaiCompatible,
+  DEFAULT_PROVIDER_CONFIG.openaiCompatible,
   DEFAULT_PROVIDER_CONFIG.deeplx,
 ]
 
@@ -157,6 +178,10 @@ export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: (isDark: boolean) 
     gemini: {
       logo: getLobeIconsCDNUrlFn('gemini-color'),
       name: 'Gemini',
+    },
+    grok: {
+      logo: getLobeIconsCDNUrlFn('grok'),
+      name: 'Grok',
     },
     openaiCompatible: {
       logo: (isDark: boolean) => isDark ? openaiCompatibleLogoDark : openaiCompatibleLogoLight,

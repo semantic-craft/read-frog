@@ -4,6 +4,7 @@ import { createDeepSeek } from '@ai-sdk/deepseek'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createOpenAI } from '@ai-sdk/openai'
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
+import { createXai } from '@ai-sdk/xai'
 import { getLLMTranslateProvidersConfig, getProviderConfigById } from '../config/helpers'
 import { CONFIG_STORAGE_KEY } from '../constants/config'
 
@@ -11,6 +12,7 @@ interface ProviderFactoryMap {
   openai: typeof createOpenAI
   deepseek: typeof createDeepSeek
   gemini: typeof createGoogleGenerativeAI
+  grok: typeof createXai
   openaiCompatible: typeof createOpenAICompatible
 }
 
@@ -18,6 +20,7 @@ const CREATE_AI_MAPPER: ProviderFactoryMap = {
   openai: createOpenAI,
   deepseek: createDeepSeek,
   gemini: createGoogleGenerativeAI,
+  grok: createXai,
   openaiCompatible: createOpenAICompatible,
 }
 

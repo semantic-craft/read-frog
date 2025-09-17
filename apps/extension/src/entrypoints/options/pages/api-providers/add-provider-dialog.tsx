@@ -45,7 +45,7 @@ export default function AddProviderDialog({ onClose }: { onClose: () => void }) 
           <button
             type="button"
             key={providerType}
-            className="h-auto p-3 flex flex-col items-center space-y-2 hover:bg-muted/50 rounded-lg"
+            className="h-auto p-3 flex flex-col items-center space-y-2 hover:bg-muted/70 rounded-lg"
             onClick={() => handleAddProvider(providerType)}
           >
             <ProviderIcon logo={API_PROVIDER_ITEMS[providerType].logo(isDarkMode())} size="xl" />
