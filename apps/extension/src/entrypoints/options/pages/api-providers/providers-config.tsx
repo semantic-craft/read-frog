@@ -39,41 +39,66 @@ function ProviderCardList() {
   const apiProvidersConfig = getAPIProvidersConfig(providersConfig)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [canScroll, setCanScroll] = useState(false)
-  const [isScrolledToBottom, setIsScrolledToBottom] = useState(false)
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(true)
+  const [isScrolledToTop, setIsScrolledToTop] = useState(true)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   // Update scroll state when apiProvidersConfig changes
   useLayoutEffect(() => {
-    const container = scrollContainerRef.current
-    if (container) {
-      const canScrollDown = container.scrollHeight > container.clientHeight
-      const isAtBottom = Math.abs(container.scrollHeight - container.clientHeight - container.scrollTop) < 1
-      setCanScroll(canScrollDown)
-      setIsScrolledToBottom(isAtBottom)
-    }
+    const timeoutId = setTimeout(() => {
+      const container = scrollContainerRef.current
+      if (container) {
+        const canScrollDown = container.scrollHeight > container.clientHeight
+        const isAtBottom = Math.abs(container.scrollHeight - container.clientHeight - container.scrollTop) < 2
+        const isAtTop = container.scrollTop < 2
+        setCanScroll(canScrollDown)
+        setIsScrolledToBottom(isAtBottom || !canScrollDown)
+        setIsScrolledToTop(isAtTop)
+      }
+    }, 100)
+
+    return () => clearTimeout(timeoutId)
   }, [apiProvidersConfig])
 
-  // Add scroll listener
+  // Add scroll listener and resize observer
   useEffect(() => {
     const handleScroll = () => {
       const container = scrollContainerRef.current
       if (container) {
         const canScrollDown = container.scrollHeight > container.clientHeight
-        const isAtBottom = Math.abs(container.scrollHeight - container.clientHeight - container.scrollTop) < 1
+        const isAtBottom = Math.abs(container.scrollHeight - container.clientHeight - container.scrollTop) < 2
+        const isAtTop = container.scrollTop < 2
+
         setCanScroll(canScrollDown)
-        setIsScrolledToBottom(isAtBottom)
+        setIsScrolledToBottom(isAtBottom || !canScrollDown)
+        setIsScrolledToTop(isAtTop)
       }
     }
 
     const container = scrollContainerRef.current
     if (container) {
+      // Add scroll listener
       container.addEventListener('scroll', handleScroll)
-      return () => container.removeEventListener('scroll', handleScroll)
+
+      // Add resize observer to detect content changes
+      const resizeObserver = new ResizeObserver(() => {
+        handleScroll()
+      })
+      resizeObserver.observe(container)
+
+      // Call once to set initial state
+      const timeoutId = setTimeout(handleScroll, 50)
+
+      return () => {
+        clearTimeout(timeoutId)
+        container.removeEventListener('scroll', handleScroll)
+        resizeObserver.disconnect()
+      }
     }
   }, [])
 
   return (
-    <div className="w-40 lg:w-52 flex flex-col gap-4 max-h-[500px] relative">
+    <div className="w-40 lg:w-52 flex flex-col gap-4">
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogTrigger asChild>
           <Button
@@ -89,19 +114,26 @@ function ProviderCardList() {
         </DialogTrigger>
         <AddProviderDialog onClose={() => setIsAddDialogOpen(false)} />
       </Dialog>
-      <div
-        ref={scrollContainerRef}
-        className="flex flex-col gap-4 pt-4 overflow-y-auto overflow-x-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-      >
-        {apiProvidersConfig.map(providerConfig => (
-          <ProviderCard key={providerConfig.name} providerConfig={providerConfig} />
-        ))}
-      </div>
-      {canScroll && !isScrolledToBottom && (
-        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-background to-transparent flex items-center justify-center">
-          <Icon icon="tabler:chevron-down" className="size-4 text-muted-foreground animate-bounce" />
+      <div className="relative max-h-[450px]">
+        {canScroll && !isScrolledToTop && (
+          <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-background to-transparent flex items-center justify-center z-10 pointer-events-none">
+            <Icon icon="tabler:chevron-up" className="size-4 text-muted-foreground animate-bounce" />
+          </div>
+        )}
+        <div
+          ref={scrollContainerRef}
+          className="flex flex-col gap-4 pt-3 overflow-y-auto overflow-x-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] max-h-[450px]"
+        >
+          {apiProvidersConfig.map(providerConfig => (
+            <ProviderCard key={providerConfig.name} providerConfig={providerConfig} />
+          ))}
         </div>
-      )}
+        {canScroll && !isScrolledToBottom && (
+          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-background to-transparent flex items-center justify-center pointer-events-none">
+            <Icon icon="tabler:chevron-down" className="size-4 text-muted-foreground animate-bounce" />
+          </div>
+        )}
+      </div>
     </div>
   )
 }
