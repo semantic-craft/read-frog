@@ -1,8 +1,15 @@
+import type { LangCodeISO6393 } from '@repo/definitions'
+import { Readability } from '@mozilla/readability'
+import { franc } from 'franc-min'
+import { flattenToParagraphs } from '@/entrypoints/side.content/utils/article'
+import { isDontWalkIntoButTranslateAsChildElement } from '@/utils/host/dom/filter'
+import { logger } from '@/utils/logger'
+
 /**
- * 获取页面 favicon 的最通用方法
- * @return {string} favicon 的 URL
+ * get the favicon url
+ * @return {string} favicon url
  */
-export function getFaviconUrl() {
+export function getFaviconUrl(): string {
   // 优先级列表：常见 rel 属性
   const relList = [
     'icon',
@@ -61,4 +68,43 @@ export function getFaviconUrl() {
   // 如果依然没找到，就回退到站点根目录的 /favicon.ico
   const { origin } = window.location
   return `${origin}/favicon.ico`
+}
+
+function removeDummyNodes(root: Document) {
+  const elements = root.querySelectorAll('*')
+  elements.forEach((element) => {
+    if (element instanceof HTMLElement && isDontWalkIntoButTranslateAsChildElement(element)) {
+      element.remove()
+    }
+  })
+}
+
+export function getDocumentInfo(): {
+  article: ReturnType<Readability<Node>['parse']>
+  paragraphs: string[]
+  lang: string
+  detectedCode: LangCodeISO6393
+} {
+  const documentClone = document.cloneNode(true)
+  removeDummyNodes(documentClone as Document)
+  const article = new Readability(documentClone as Document, {
+    serializer: el => el,
+  }).parse()
+  const paragraphs = article?.content
+    ? flattenToParagraphs(article.content)
+    : []
+
+  // TODO: in analyzing, we should re-extract the article in case it changed, and reset the lang
+  const lang = article?.textContent ? franc(article.textContent) : 'und'
+
+  logger.log('franc detected lang', lang)
+
+  const detectedCode = lang === 'und' ? 'eng' : (lang as LangCodeISO6393)
+
+  return {
+    article,
+    paragraphs,
+    lang,
+    detectedCode,
+  }
 }

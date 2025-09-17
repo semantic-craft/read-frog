@@ -2,7 +2,7 @@ import type { Browser } from '#imports'
 import type { Config } from '@/types/config/config'
 import { browser, storage } from '#imports'
 import { CONFIG_STORAGE_KEY } from '@/utils/constants/config'
-import { shouldEnableAutoTranslation } from '@/utils/host/translate/auto-translation'
+import { shouldEnableAutoTranslationByUrl } from '@/utils/host/translate/auto-translation'
 import { logger } from '@/utils/logger'
 import { onMessage } from '@/utils/message'
 import { ensureKeyInMap } from '@/utils/utils'
@@ -26,7 +26,7 @@ export function translationMessage() {
     }))
 
     const config = await storage.getItem<Config>(`local:${CONFIG_STORAGE_KEY}`)
-    const autoEnable = config && tabUrl && await shouldEnableAutoTranslation(tabUrl, config)
+    const autoEnable = config && tabUrl && await shouldEnableAutoTranslationByUrl(tabUrl, config)
     if (entry.ports.length === 0 && autoEnable) {
       entry.enabled = true
     }
@@ -80,7 +80,7 @@ export function translationMessage() {
       const config = await storage.getItem<Config>(`local:${CONFIG_STORAGE_KEY}`)
       if (!config)
         return
-      const shouldEnable = await shouldEnableAutoTranslation(url, config)
+      const shouldEnable = await shouldEnableAutoTranslationByUrl(url, config)
       setEnabled(tabId, shouldEnable)
     }
   })
