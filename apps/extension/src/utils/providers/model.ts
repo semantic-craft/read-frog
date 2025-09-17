@@ -2,16 +2,18 @@ import type { Config } from '@/types/config/config'
 import { storage } from '#imports'
 import { createAmazonBedrock } from '@ai-sdk/amazon-bedrock'
 import { createAnthropic } from '@ai-sdk/anthropic'
+import { createCerebras } from '@ai-sdk/cerebras'
 import { createCohere } from '@ai-sdk/cohere'
 import { createDeepInfra } from '@ai-sdk/deepinfra'
 import { createDeepSeek } from '@ai-sdk/deepseek'
-import { createFal } from '@ai-sdk/fal'
 import { createFireworks } from '@ai-sdk/fireworks'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createGroq } from '@ai-sdk/groq'
 import { createMistral } from '@ai-sdk/mistral'
 import { createOpenAI } from '@ai-sdk/openai'
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
+import { createPerplexity } from '@ai-sdk/perplexity'
+import { createReplicate } from '@ai-sdk/replicate'
 import { createTogetherAI } from '@ai-sdk/togetherai'
 import { createXai } from '@ai-sdk/xai'
 import { getLLMTranslateProvidersConfig, getProviderConfigById } from '../config/helpers'
@@ -26,12 +28,14 @@ interface ProviderFactoryMap {
   openaiCompatible: typeof createOpenAICompatible
   amazonBedrock: typeof createAmazonBedrock
   groq: typeof createGroq
-  fal: typeof createFal
   deepinfra: typeof createDeepInfra
   mistral: typeof createMistral
   togetherai: typeof createTogetherAI
   cohere: typeof createCohere
   fireworks: typeof createFireworks
+  cerebras: typeof createCerebras
+  replicate: typeof createReplicate
+  perplexity: typeof createPerplexity
 }
 
 const CREATE_AI_MAPPER: ProviderFactoryMap = {
@@ -43,12 +47,14 @@ const CREATE_AI_MAPPER: ProviderFactoryMap = {
   openaiCompatible: createOpenAICompatible,
   amazonBedrock: createAmazonBedrock,
   groq: createGroq,
-  fal: createFal,
   deepinfra: createDeepInfra,
   mistral: createMistral,
   togetherai: createTogetherAI,
   cohere: createCohere,
   fireworks: createFireworks,
+  cerebras: createCerebras,
+  replicate: createReplicate,
+  perplexity: createPerplexity,
 }
 
 async function getLanguageModelById(providerId: string, modelType: 'read' | 'translate') {

@@ -49,11 +49,6 @@ export const DEFAULT_READ_MODELS: ReadModels = {
     isCustomModel: false,
     customModel: null,
   },
-  fal: {
-    model: 'fal-ai/llama-3.1-405b-instruct',
-    isCustomModel: false,
-    customModel: null,
-  },
   deepinfra: {
     model: 'meta-llama/Llama-3.3-70B-Instruct',
     isCustomModel: false,
@@ -76,6 +71,21 @@ export const DEFAULT_READ_MODELS: ReadModels = {
   },
   fireworks: {
     model: 'accounts/fireworks/models/llama-v3p1-405b-instruct',
+    isCustomModel: false,
+    customModel: null,
+  },
+  cerebras: {
+    model: 'llama-3.3-70b',
+    isCustomModel: false,
+    customModel: null,
+  },
+  replicate: {
+    model: 'meta/meta-llama-3.1-405b-instruct',
+    isCustomModel: false,
+    customModel: null,
+  },
+  perplexity: {
+    model: 'sonar-pro',
     isCustomModel: false,
     customModel: null,
   },
@@ -122,11 +132,6 @@ export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
     isCustomModel: false,
     customModel: null,
   },
-  fal: {
-    model: 'fal-ai/llama-3.1-70b-instruct',
-    isCustomModel: false,
-    customModel: null,
-  },
   deepinfra: {
     model: 'meta-llama/Llama-3.1-70B-Instruct',
     isCustomModel: false,
@@ -149,6 +154,21 @@ export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
   },
   fireworks: {
     model: 'accounts/fireworks/models/llama-v3p1-70b-instruct',
+    isCustomModel: false,
+    customModel: null,
+  },
+  cerebras: {
+    model: 'llama3.1-8b',
+    isCustomModel: false,
+    customModel: null,
+  },
+  replicate: {
+    model: 'meta/meta-llama-3.1-70b-instruct',
+    isCustomModel: false,
+    customModel: null,
+  },
+  perplexity: {
+    model: 'sonar-pro',
     isCustomModel: false,
     customModel: null,
   },
@@ -264,17 +284,6 @@ export const DEFAULT_PROVIDER_CONFIG = {
       translate: DEFAULT_TRANSLATE_MODELS.groq,
     },
   },
-  fal: {
-    id: 'fal-default',
-    name: 'Fal',
-    description: i18n.t('options.apiProviders.providers.description.fal'),
-    enabled: true,
-    provider: 'fal',
-    models: {
-      read: DEFAULT_READ_MODELS.fal,
-      translate: DEFAULT_TRANSLATE_MODELS.fal,
-    },
-  },
   deepinfra: {
     id: 'deepinfra-default',
     name: 'DeepInfra',
@@ -330,6 +339,39 @@ export const DEFAULT_PROVIDER_CONFIG = {
       translate: DEFAULT_TRANSLATE_MODELS.fireworks,
     },
   },
+  cerebras: {
+    id: 'cerebras-default',
+    name: 'Cerebras',
+    description: 'High-performance AI models powered by Cerebras hardware',
+    enabled: true,
+    provider: 'cerebras',
+    models: {
+      read: DEFAULT_READ_MODELS.cerebras,
+      translate: DEFAULT_TRANSLATE_MODELS.cerebras,
+    },
+  },
+  replicate: {
+    id: 'replicate-default',
+    name: 'Replicate',
+    description: 'Run open-source models with a cloud API',
+    enabled: true,
+    provider: 'replicate',
+    models: {
+      read: DEFAULT_READ_MODELS.replicate,
+      translate: DEFAULT_TRANSLATE_MODELS.replicate,
+    },
+  },
+  perplexity: {
+    id: 'perplexity-default',
+    name: 'Perplexity',
+    description: 'AI-powered search and answer engine',
+    enabled: true,
+    provider: 'perplexity',
+    models: {
+      read: DEFAULT_READ_MODELS.perplexity,
+      translate: DEFAULT_TRANSLATE_MODELS.perplexity,
+    },
+  },
 } as const satisfies Record<AllProviderNames, ProviderConfig>
 
 export const DEFAULT_PROVIDER_CONFIG_LIST: ProvidersConfig = [
@@ -344,12 +386,14 @@ export const DEFAULT_PROVIDER_CONFIG_LIST: ProvidersConfig = [
   DEFAULT_PROVIDER_CONFIG.deeplx,
   DEFAULT_PROVIDER_CONFIG.amazonBedrock,
   DEFAULT_PROVIDER_CONFIG.groq,
-  DEFAULT_PROVIDER_CONFIG.fal,
   DEFAULT_PROVIDER_CONFIG.deepinfra,
   DEFAULT_PROVIDER_CONFIG.mistral,
   DEFAULT_PROVIDER_CONFIG.togetherai,
   DEFAULT_PROVIDER_CONFIG.cohere,
   DEFAULT_PROVIDER_CONFIG.fireworks,
+  DEFAULT_PROVIDER_CONFIG.cerebras,
+  DEFAULT_PROVIDER_CONFIG.replicate,
+  DEFAULT_PROVIDER_CONFIG.perplexity,
 ]
 
 export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: (isDark: boolean) => string, name: string }>
@@ -398,10 +442,6 @@ export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: (isDark: boolean) 
       logo: getLobeIconsCDNUrlFn('groq-color'),
       name: 'Groq',
     },
-    fal: {
-      logo: getLobeIconsCDNUrlFn('fal'),
-      name: 'Fal',
-    },
     deepinfra: {
       logo: getLobeIconsCDNUrlFn('deepinfra'),
       name: 'DeepInfra',
@@ -421,6 +461,18 @@ export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: (isDark: boolean) 
     fireworks: {
       logo: getLobeIconsCDNUrlFn('fireworks-color'),
       name: 'Fireworks AI',
+    },
+    cerebras: {
+      logo: getLobeIconsCDNUrlFn('cerebras'),
+      name: 'Cerebras',
+    },
+    replicate: {
+      logo: getLobeIconsCDNUrlFn('replicate'),
+      name: 'Replicate',
+    },
+    perplexity: {
+      logo: getLobeIconsCDNUrlFn('perplexity'),
+      name: 'Perplexity',
     },
   }
 
