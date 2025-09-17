@@ -22,7 +22,7 @@ export default function AddProviderDialog({ onClose }: { onClose: () => void }) 
     }
 
     const newProvider: APIProviderConfig = {
-      ...DEFAULT_PROVIDER_CONFIG[providerType],
+      ...structuredClone(DEFAULT_PROVIDER_CONFIG[providerType]),
       id: crypto.randomUUID(),
       name: providerName,
     }
