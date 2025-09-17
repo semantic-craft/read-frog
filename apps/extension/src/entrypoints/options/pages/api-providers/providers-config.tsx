@@ -1,6 +1,7 @@
 import type { APIProviderConfig } from '@/types/config/provider'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
+import { Badge } from '@repo/ui/components/badge'
 import { Button } from '@repo/ui/components/button'
 import { Dialog, DialogTrigger } from '@repo/ui/components/dialog'
 import { Switch } from '@repo/ui/components/switch'
@@ -90,7 +91,7 @@ function ProviderCardList() {
       </Dialog>
       <div
         ref={scrollContainerRef}
-        className="flex flex-col gap-2 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        className="flex flex-col gap-4 pt-4 overflow-y-auto overflow-x-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
       >
         {apiProvidersConfig.map(providerConfig => (
           <ProviderCard key={providerConfig.name} providerConfig={providerConfig} />
@@ -113,9 +114,12 @@ function ProviderCard({ providerConfig }: { providerConfig: APIProviderConfig })
 
   return (
     <div
-      className={cn('rounded-xl p-3 border bg-card cursor-pointer', selectedProviderId === id && 'border-primary')}
+      className={cn('rounded-xl p-3 border bg-card cursor-pointer relative', selectedProviderId === id && 'border-primary')}
       onClick={() => setSelectedProviderId(id)}
     >
+      <Badge className="absolute -top-3 right-2 bg-blue-500">
+        Translate
+      </Badge>
       <div className="flex items-center justify-between gap-2">
         <ProviderIcon logo={API_PROVIDER_ITEMS[provider].logo(isDarkMode())} name={name} size="base" textClassName="text-sm" />
         <Switch checked={enabled} onCheckedChange={checked => setProviderConfig({ ...providerConfig, enabled: checked })} />
