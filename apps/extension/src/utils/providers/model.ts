@@ -8,7 +8,6 @@ import { createDeepSeek } from '@ai-sdk/deepseek'
 import { createFal } from '@ai-sdk/fal'
 import { createFireworks } from '@ai-sdk/fireworks'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { createVertex } from '@ai-sdk/google-vertex'
 import { createGroq } from '@ai-sdk/groq'
 import { createMistral } from '@ai-sdk/mistral'
 import { createOpenAI } from '@ai-sdk/openai'
@@ -29,7 +28,6 @@ interface ProviderFactoryMap {
   groq: typeof createGroq
   fal: typeof createFal
   deepinfra: typeof createDeepInfra
-  vertex: typeof createVertex
   mistral: typeof createMistral
   togetherai: typeof createTogetherAI
   cohere: typeof createCohere
@@ -47,7 +45,6 @@ const CREATE_AI_MAPPER: ProviderFactoryMap = {
   groq: createGroq,
   fal: createFal,
   deepinfra: createDeepInfra,
-  vertex: createVertex,
   mistral: createMistral,
   togetherai: createTogetherAI,
   cohere: createCohere,

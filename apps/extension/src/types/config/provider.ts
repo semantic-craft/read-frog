@@ -13,7 +13,6 @@ export const READ_PROVIDER_MODELS = {
   groq: ['llama-3.3-70b-versatile', 'llama-3.1-70b-versatile', 'mixtral-8x7b-32768'],
   fal: ['fal-ai/llama-3.1-405b-instruct', 'fal-ai/llama-3.1-70b-instruct'],
   deepinfra: ['meta-llama/Llama-3.3-70B-Instruct', 'meta-llama/Llama-3.1-405B-Instruct'],
-  vertex: ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-2.0-flash-exp'],
   mistral: ['mistral-large-latest', 'mistral-medium-latest', 'mistral-small-latest'],
   togetherai: ['meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo', 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo'],
   cohere: ['command-r-plus', 'command-r', 'command'],
@@ -30,7 +29,6 @@ export const TRANSLATE_PROVIDER_MODELS = {
   groq: ['llama-3.1-70b-versatile', 'mixtral-8x7b-32768', 'gemma2-9b-it'],
   fal: ['fal-ai/llama-3.1-70b-instruct', 'fal-ai/llama-3.1-8b-instruct'],
   deepinfra: ['meta-llama/Llama-3.1-70B-Instruct', 'meta-llama/Llama-3.1-8B-Instruct'],
-  vertex: ['gemini-1.5-flash', 'gemini-2.0-flash-exp', 'gemini-1.5-pro'],
   mistral: ['mistral-small-latest', 'mistral-medium-latest', 'mistral-large-latest'],
   togetherai: ['meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo', 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo'],
   cohere: ['command-r', 'command-r-plus', 'command'],
@@ -50,7 +48,7 @@ export const THINKING_MODELS = ['gemini-2.5-pro', 'gemini-1.5-pro'] as const
   ────────────────────────────── */
 
 // read provider names
-export const READ_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible', 'amazonBedrock', 'groq', 'fal', 'deepinfra', 'vertex', 'mistral', 'togetherai', 'cohere', 'fireworks'] as const satisfies Readonly<
+export const READ_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible', 'amazonBedrock', 'groq', 'fal', 'deepinfra', 'mistral', 'togetherai', 'cohere', 'fireworks'] as const satisfies Readonly<
   (keyof typeof READ_PROVIDER_MODELS)[]
 >
 export type ReadProviderNames = typeof READ_PROVIDER_NAMES[number]
@@ -62,7 +60,7 @@ export function isReadProviderConfig(config: ProviderConfig): config is ReadProv
 }
 
 // translate provider names
-export const TRANSLATE_PROVIDER_NAMES = ['google', 'microsoft', 'deeplx', 'openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible', 'amazonBedrock', 'groq', 'fal', 'deepinfra', 'vertex', 'mistral', 'togetherai', 'cohere', 'fireworks'] as const satisfies Readonly<
+export const TRANSLATE_PROVIDER_NAMES = ['google', 'microsoft', 'deeplx', 'openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible', 'amazonBedrock', 'groq', 'fal', 'deepinfra', 'mistral', 'togetherai', 'cohere', 'fireworks'] as const satisfies Readonly<
   (keyof typeof TRANSLATE_PROVIDER_MODELS | typeof PURE_TRANSLATE_PROVIDERS[number])[]
 >
 export type TranslateProviderNames = typeof TRANSLATE_PROVIDER_NAMES[number]
@@ -74,7 +72,7 @@ export function isTranslateProviderConfig(config: ProviderConfig): config is Tra
 }
 
 // translate provider names that support LLM
-export const LLM_TRANSLATE_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible', 'amazonBedrock', 'groq', 'fal', 'deepinfra', 'vertex', 'mistral', 'togetherai', 'cohere', 'fireworks'] as const satisfies Readonly<
+export const LLM_TRANSLATE_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible', 'amazonBedrock', 'groq', 'fal', 'deepinfra', 'mistral', 'togetherai', 'cohere', 'fireworks'] as const satisfies Readonly<
   (keyof typeof TRANSLATE_PROVIDER_MODELS)[]
 >
 export type LLMTranslateProviderNames = typeof LLM_TRANSLATE_PROVIDER_NAMES[number]
@@ -85,7 +83,7 @@ export function isLLMTranslateProviderConfig(config: ProviderConfig): config is 
   return isLLMTranslateProvider(config.provider)
 }
 
-export const API_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible', 'deeplx', 'amazonBedrock', 'groq', 'fal', 'deepinfra', 'vertex', 'mistral', 'togetherai', 'cohere', 'fireworks'] as const satisfies Readonly<
+export const API_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible', 'deeplx', 'amazonBedrock', 'groq', 'fal', 'deepinfra', 'mistral', 'togetherai', 'cohere', 'fireworks'] as const satisfies Readonly<
   (keyof typeof READ_PROVIDER_MODELS | keyof typeof TRANSLATE_PROVIDER_MODELS | 'deeplx')[]
 >
 export type APIProviderNames = typeof API_PROVIDER_NAMES[number]
@@ -116,7 +114,7 @@ export function isNonAPIProviderConfig(config: ProviderConfig): config is NonAPI
 }
 
 // all provider names
-export const ALL_PROVIDER_NAMES = ['google', 'microsoft', 'deeplx', 'openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible', 'amazonBedrock', 'groq', 'fal', 'deepinfra', 'vertex', 'mistral', 'togetherai', 'cohere', 'fireworks'] as const satisfies Readonly<
+export const ALL_PROVIDER_NAMES = ['google', 'microsoft', 'deeplx', 'openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible', 'amazonBedrock', 'groq', 'fal', 'deepinfra', 'mistral', 'togetherai', 'cohere', 'fireworks'] as const satisfies Readonly<
   (typeof READ_PROVIDER_NAMES[number] | typeof TRANSLATE_PROVIDER_NAMES[number])[]
 >
 export type AllProviderNames = typeof ALL_PROVIDER_NAMES[number]
@@ -213,10 +211,6 @@ const llmProviderConfigSchemaList = [
   baseAPIProviderConfigSchema.extend({
     provider: z.literal('deepinfra'),
     models: createProviderModelsSchema<'deepinfra'>('deepinfra'),
-  }),
-  baseAPIProviderConfigSchema.extend({
-    provider: z.literal('vertex'),
-    models: createProviderModelsSchema<'vertex'>('vertex'),
   }),
   baseAPIProviderConfigSchema.extend({
     provider: z.literal('mistral'),

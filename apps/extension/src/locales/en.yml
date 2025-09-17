@@ -57,7 +57,6 @@ options:
         groq: Ultra-fast inference for open-source language models
         fal: Fast serverless inference for AI models
         deepinfra: Scalable inference for open-source AI models
-        vertex: Google Cloud's enterprise AI platform with advanced Gemini models
         mistral: Advanced open and closed source models from Mistral AI
         togetherai: Open-source model inference with optimized performance
         cohere: Enterprise-grade language models with powerful Command series

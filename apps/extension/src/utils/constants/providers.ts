@@ -59,11 +59,6 @@ export const DEFAULT_READ_MODELS: ReadModels = {
     isCustomModel: false,
     customModel: null,
   },
-  vertex: {
-    model: 'gemini-1.5-pro',
-    isCustomModel: false,
-    customModel: null,
-  },
   mistral: {
     model: 'mistral-large-latest',
     isCustomModel: false,
@@ -134,11 +129,6 @@ export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
   },
   deepinfra: {
     model: 'meta-llama/Llama-3.1-70B-Instruct',
-    isCustomModel: false,
-    customModel: null,
-  },
-  vertex: {
-    model: 'gemini-1.5-flash',
     isCustomModel: false,
     customModel: null,
   },
@@ -296,17 +286,6 @@ export const DEFAULT_PROVIDER_CONFIG = {
       translate: DEFAULT_TRANSLATE_MODELS.deepinfra,
     },
   },
-  vertex: {
-    id: 'vertex-default',
-    name: 'Google Vertex AI',
-    description: i18n.t('options.apiProviders.providers.description.vertex'),
-    enabled: true,
-    provider: 'vertex',
-    models: {
-      read: DEFAULT_READ_MODELS.vertex,
-      translate: DEFAULT_TRANSLATE_MODELS.vertex,
-    },
-  },
   mistral: {
     id: 'mistral-default',
     name: 'Mistral AI',
@@ -367,7 +346,6 @@ export const DEFAULT_PROVIDER_CONFIG_LIST: ProvidersConfig = [
   DEFAULT_PROVIDER_CONFIG.groq,
   DEFAULT_PROVIDER_CONFIG.fal,
   DEFAULT_PROVIDER_CONFIG.deepinfra,
-  DEFAULT_PROVIDER_CONFIG.vertex,
   DEFAULT_PROVIDER_CONFIG.mistral,
   DEFAULT_PROVIDER_CONFIG.togetherai,
   DEFAULT_PROVIDER_CONFIG.cohere,
@@ -427,10 +405,6 @@ export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: (isDark: boolean) 
     deepinfra: {
       logo: getLobeIconsCDNUrlFn('deepinfra'),
       name: 'DeepInfra',
-    },
-    vertex: {
-      logo: getLobeIconsCDNUrlFn('google-color'),
-      name: 'Google Vertex AI',
     },
     mistral: {
       logo: getLobeIconsCDNUrlFn('mistral-color'),
