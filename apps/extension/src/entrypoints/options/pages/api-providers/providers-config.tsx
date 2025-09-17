@@ -103,7 +103,7 @@ function ProviderCardList() {
         <DialogTrigger asChild>
           <Button
             variant="outline"
-            className="h-auto p-3 border-dashed rounded-lg"
+            className="h-auto p-3 border-dashed rounded-xl"
             onClick={() => setIsAddDialogOpen(true)}
           >
             <div className="flex items-center justify-center gap-2 w-full">
