@@ -160,7 +160,7 @@ function ProviderCard({ providerConfig }: { providerConfig: APIProviderConfig })
           </Badge>
         )}
         {isDefaultReadProvider && (
-          <Badge className="bg-pink-500" size="small">
+          <Badge className="bg-indigo-500" size="small">
             Read
           </Badge>
         )}

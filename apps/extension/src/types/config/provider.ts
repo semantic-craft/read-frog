@@ -70,7 +70,7 @@ export const TRANSLATE_PROVIDER_NAMES = ['google', 'microsoft', 'deeplx', 'opena
   (keyof typeof TRANSLATE_PROVIDER_MODELS | typeof PURE_TRANSLATE_PROVIDERS[number])[]
 >
 export type TranslateProviderNames = typeof TRANSLATE_PROVIDER_NAMES[number]
-export function isTranslateProvider(provider: TranslateProviderNames): provider is TranslateProviderNames {
+export function isTranslateProvider(provider: string): provider is TranslateProviderNames {
   return TRANSLATE_PROVIDER_NAMES.includes(provider as TranslateProviderNames)
 }
 export function isTranslateProviderConfig(config: ProviderConfig): config is TranslateProviderConfig {
@@ -82,18 +82,40 @@ export const LLM_TRANSLATE_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'an
   (keyof typeof TRANSLATE_PROVIDER_MODELS)[]
 >
 export type LLMTranslateProviderNames = typeof LLM_TRANSLATE_PROVIDER_NAMES[number]
-export function isLLMTranslateProvider(provider: TranslateProviderNames): provider is LLMTranslateProviderNames {
+export function isLLMTranslateProvider(provider: string): provider is LLMTranslateProviderNames {
   return LLM_TRANSLATE_PROVIDER_NAMES.includes(provider as LLMTranslateProviderNames)
 }
 export function isLLMTranslateProviderConfig(config: ProviderConfig): config is LLMTranslateProviderConfig {
   return isLLMTranslateProvider(config.provider)
 }
 
+export const LLM_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible', 'amazonBedrock', 'groq', 'deepinfra', 'mistral', 'togetherai', 'cohere', 'fireworks', 'cerebras', 'replicate', 'perplexity', 'vercel'] as const satisfies Readonly<
+  (keyof typeof READ_PROVIDER_MODELS | keyof typeof TRANSLATE_PROVIDER_MODELS)[]
+>
+export type LLMProviderNames = typeof LLM_PROVIDER_NAMES[number]
+export function isLLMProvider(provider: string): provider is LLMProviderNames {
+  return LLM_PROVIDER_NAMES.includes(provider as LLMProviderNames)
+}
+export function isLLMProviderConfig(config: ProviderConfig): config is LLMProviderConfig {
+  return isLLMProvider(config.provider)
+}
+
+export const NON_CUSTOM_LLM_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'amazonBedrock', 'groq', 'deepinfra', 'mistral', 'togetherai', 'cohere', 'fireworks', 'cerebras', 'replicate', 'perplexity', 'vercel'] as const satisfies Readonly<
+  Exclude<keyof typeof READ_PROVIDER_MODELS | keyof typeof TRANSLATE_PROVIDER_MODELS, 'openaiCompatible'>[]
+>
+export type NonCustomLLMProviderNames = typeof NON_CUSTOM_LLM_PROVIDER_NAMES[number]
+export function isNonCustomLLMProvider(provider: string): provider is NonCustomLLMProviderNames {
+  return NON_CUSTOM_LLM_PROVIDER_NAMES.includes(provider as NonCustomLLMProviderNames)
+}
+export function isNonCustomLLMProviderConfig(config: ProviderConfig): config is NonCustomLLMProviderConfig {
+  return isNonCustomLLMProvider(config.provider)
+}
+
 export const API_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible', 'deeplx', 'amazonBedrock', 'groq', 'deepinfra', 'mistral', 'togetherai', 'cohere', 'fireworks', 'cerebras', 'replicate', 'perplexity', 'vercel'] as const satisfies Readonly<
   (keyof typeof READ_PROVIDER_MODELS | keyof typeof TRANSLATE_PROVIDER_MODELS | 'deeplx')[]
 >
 export type APIProviderNames = typeof API_PROVIDER_NAMES[number]
-export function isAPIProvider(provider: TranslateProviderNames): provider is APIProviderNames {
+export function isAPIProvider(provider: string): provider is APIProviderNames {
   return API_PROVIDER_NAMES.includes(provider as APIProviderNames)
 }
 export function isAPIProviderConfig(config: ProviderConfig): config is APIProviderConfig {
@@ -104,7 +126,7 @@ export const PURE_API_PROVIDER_NAMES = ['deeplx'] as const satisfies Readonly<
   Exclude<APIProviderNames, LLMTranslateProviderNames>[]
 >
 export type PureAPIProviderNames = typeof PURE_API_PROVIDER_NAMES[number]
-export function isPureAPIProvider(provider: TranslateProviderNames): provider is PureAPIProviderNames {
+export function isPureAPIProvider(provider: string): provider is PureAPIProviderNames {
   return PURE_API_PROVIDER_NAMES.includes(provider as PureAPIProviderNames)
 }
 export function isPureAPIProviderConfig(config: ProviderConfig): config is PureAPIProviderConfig {
@@ -112,7 +134,7 @@ export function isPureAPIProviderConfig(config: ProviderConfig): config is PureA
 }
 
 export type NonAPIProviderNames = typeof NON_API_TRANSLATE_PROVIDERS[number]
-export function isNonAPIProvider(provider: TranslateProviderNames): provider is NonAPIProviderNames {
+export function isNonAPIProvider(provider: string): provider is NonAPIProviderNames {
   return NON_API_TRANSLATE_PROVIDERS.includes(provider as NonAPIProviderNames)
 }
 export function isNonAPIProviderConfig(config: ProviderConfig): config is NonAPIProviderConfig {
@@ -303,8 +325,10 @@ export type PureProviderConfig = Extract<ProviderConfig, { provider: PureAPIProv
 export type APIProviderConfig = Extract<ProviderConfig, { provider: APIProviderNames }>
 export type PureAPIProviderConfig = Extract<ProviderConfig, { provider: PureAPIProviderNames }>
 export type LLMTranslateProviderConfig = Extract<ProviderConfig, { provider: LLMTranslateProviderNames }>
+export type LLMProviderConfig = Extract<ProviderConfig, { provider: LLMProviderNames }>
 export type TranslateProviderConfig = Extract<ProviderConfig, { provider: TranslateProviderNames }>
 export type ReadProviderConfig = Extract<ProviderConfig, { provider: ReadProviderNames }>
+export type NonCustomLLMProviderConfig = Extract<ProviderConfig, { provider: NonCustomLLMProviderNames }>
 
 /* ──────────────────────────────
   read or translate config helpers
