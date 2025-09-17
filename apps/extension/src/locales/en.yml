@@ -49,6 +49,7 @@ options:
         openrouter: The unified interface for multiple LLM providers
         ollama: Local LLM
         gemini: Provide models such as Gemini-2.5-Pro
+        anthropic: Provide models such as Claude-3.5-Sonnet
         xai: Provide models such as Grok-4
         openaiCompatible: Third-party and OpenAI API compatible
         deeplx: Unofficial DeepL API

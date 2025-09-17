@@ -6,6 +6,7 @@ export const READ_PROVIDER_MODELS = {
   openai: ['gpt-5-mini', 'gpt-4.1-mini', 'gpt-4o-mini', 'gpt-5', 'gpt-4.1', 'gpt-4o'],
   deepseek: ['deepseek-chat'],
   gemini: ['gemini-2.5-pro', 'gemini-2.5-flash'],
+  anthropic: ['claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022', 'claude-3-opus-20240229'],
   openaiCompatible: ['use-custom-model'],
   grok: ['grok-4', 'grok-3'],
 } as const
@@ -13,6 +14,7 @@ export const TRANSLATE_PROVIDER_MODELS = {
   openai: ['gpt-5-mini', 'gpt-4.1-mini', 'gpt-4o-mini', 'gpt-5-nano', 'gpt-4.1-nano', 'gpt-5', 'gpt-4.1', 'gpt-4o'],
   deepseek: ['deepseek-chat'],
   gemini: ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-2.0-flash-exp'],
+  anthropic: ['claude-3-5-haiku-20241022', 'claude-3-haiku-20240307'],
   openaiCompatible: ['use-custom-model'],
   grok: ['grok-3-mini', 'grok-3-mini-fast'],
 } as const
@@ -30,7 +32,7 @@ export const THINKING_MODELS = ['gemini-2.5-pro', 'gemini-1.5-pro'] as const
   ────────────────────────────── */
 
 // read provider names
-export const READ_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'grok', 'openaiCompatible'] as const satisfies Readonly<
+export const READ_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible'] as const satisfies Readonly<
   (keyof typeof READ_PROVIDER_MODELS)[]
 >
 export type ReadProviderNames = typeof READ_PROVIDER_NAMES[number]
@@ -42,7 +44,7 @@ export function isReadProviderConfig(config: ProviderConfig): config is ReadProv
 }
 
 // translate provider names
-export const TRANSLATE_PROVIDER_NAMES = ['google', 'microsoft', 'deeplx', 'openai', 'deepseek', 'gemini', 'grok', 'openaiCompatible'] as const satisfies Readonly<
+export const TRANSLATE_PROVIDER_NAMES = ['google', 'microsoft', 'deeplx', 'openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible'] as const satisfies Readonly<
   (keyof typeof TRANSLATE_PROVIDER_MODELS | typeof PURE_TRANSLATE_PROVIDERS[number])[]
 >
 export type TranslateProviderNames = typeof TRANSLATE_PROVIDER_NAMES[number]
@@ -54,7 +56,7 @@ export function isTranslateProviderConfig(config: ProviderConfig): config is Tra
 }
 
 // translate provider names that support LLM
-export const LLM_TRANSLATE_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'grok', 'openaiCompatible'] as const satisfies Readonly<
+export const LLM_TRANSLATE_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible'] as const satisfies Readonly<
   (keyof typeof TRANSLATE_PROVIDER_MODELS)[]
 >
 export type LLMTranslateProviderNames = typeof LLM_TRANSLATE_PROVIDER_NAMES[number]
@@ -65,7 +67,7 @@ export function isLLMTranslateProviderConfig(config: ProviderConfig): config is 
   return isLLMTranslateProvider(config.provider)
 }
 
-export const API_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'grok', 'openaiCompatible', 'deeplx'] as const satisfies Readonly<
+export const API_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible', 'deeplx'] as const satisfies Readonly<
   (keyof typeof READ_PROVIDER_MODELS | keyof typeof TRANSLATE_PROVIDER_MODELS | 'deeplx')[]
 >
 export type APIProviderNames = typeof API_PROVIDER_NAMES[number]
@@ -96,7 +98,7 @@ export function isNonAPIProviderConfig(config: ProviderConfig): config is NonAPI
 }
 
 // all provider names
-export const ALL_PROVIDER_NAMES = ['google', 'microsoft', 'deeplx', 'openai', 'deepseek', 'gemini', 'grok', 'openaiCompatible'] as const satisfies Readonly<
+export const ALL_PROVIDER_NAMES = ['google', 'microsoft', 'deeplx', 'openai', 'deepseek', 'gemini', 'anthropic', 'grok', 'openaiCompatible'] as const satisfies Readonly<
   (typeof READ_PROVIDER_NAMES[number] | typeof TRANSLATE_PROVIDER_NAMES[number])[]
 >
 export type AllProviderNames = typeof ALL_PROVIDER_NAMES[number]
@@ -153,6 +155,10 @@ const llmProviderConfigSchemaList = [
   baseAPIProviderConfigSchema.extend({
     provider: z.literal('gemini'),
     models: createProviderModelsSchema<'gemini'>('gemini'),
+  }),
+  baseAPIProviderConfigSchema.extend({
+    provider: z.literal('anthropic'),
+    models: createProviderModelsSchema<'anthropic'>('anthropic'),
   }),
   baseAPIProviderConfigSchema.extend({
     provider: z.literal('grok'),

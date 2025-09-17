@@ -1,5 +1,6 @@
 import type { Config } from '@/types/config/config'
 import { storage } from '#imports'
+import { createAnthropic } from '@ai-sdk/anthropic'
 import { createDeepSeek } from '@ai-sdk/deepseek'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createOpenAI } from '@ai-sdk/openai'
@@ -12,6 +13,7 @@ interface ProviderFactoryMap {
   openai: typeof createOpenAI
   deepseek: typeof createDeepSeek
   gemini: typeof createGoogleGenerativeAI
+  anthropic: typeof createAnthropic
   grok: typeof createXai
   openaiCompatible: typeof createOpenAICompatible
 }
@@ -20,6 +22,7 @@ const CREATE_AI_MAPPER: ProviderFactoryMap = {
   openai: createOpenAI,
   deepseek: createDeepSeek,
   gemini: createGoogleGenerativeAI,
+  anthropic: createAnthropic,
   grok: createXai,
   openaiCompatible: createOpenAICompatible,
 }

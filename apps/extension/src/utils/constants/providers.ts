@@ -24,6 +24,11 @@ export const DEFAULT_READ_MODELS: ReadModels = {
     isCustomModel: false,
     customModel: null,
   },
+  anthropic: {
+    model: 'claude-3-5-sonnet-20241022',
+    isCustomModel: false,
+    customModel: null,
+  },
   openaiCompatible: {
     model: 'use-custom-model',
     isCustomModel: true,
@@ -49,6 +54,11 @@ export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
   },
   gemini: {
     model: 'gemini-1.5-flash',
+    isCustomModel: false,
+    customModel: null,
+  },
+  anthropic: {
+    model: 'claude-3-5-haiku-20241022',
     isCustomModel: false,
     customModel: null,
   },
@@ -110,6 +120,17 @@ export const DEFAULT_PROVIDER_CONFIG = {
       translate: DEFAULT_TRANSLATE_MODELS.gemini,
     },
   },
+  anthropic: {
+    id: 'anthropic-default',
+    name: 'Anthropic',
+    description: i18n.t('options.apiProviders.providers.description.anthropic'),
+    enabled: true,
+    provider: 'anthropic',
+    models: {
+      read: DEFAULT_READ_MODELS.anthropic,
+      translate: DEFAULT_TRANSLATE_MODELS.anthropic,
+    },
+  },
   grok: {
     id: 'xai-default',
     name: 'XAI',
@@ -149,6 +170,8 @@ export const DEFAULT_PROVIDER_CONFIG_LIST: ProvidersConfig = [
   DEFAULT_PROVIDER_CONFIG.openai,
   DEFAULT_PROVIDER_CONFIG.deepseek,
   DEFAULT_PROVIDER_CONFIG.gemini,
+  DEFAULT_PROVIDER_CONFIG.anthropic,
+  DEFAULT_PROVIDER_CONFIG.grok,
   DEFAULT_PROVIDER_CONFIG.openaiCompatible,
   DEFAULT_PROVIDER_CONFIG.deeplx,
 ]
@@ -178,6 +201,10 @@ export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: (isDark: boolean) 
     gemini: {
       logo: getLobeIconsCDNUrlFn('gemini-color'),
       name: 'Gemini',
+    },
+    anthropic: {
+      logo: getLobeIconsCDNUrlFn('anthropic'),
+      name: 'Anthropic',
     },
     grok: {
       logo: getLobeIconsCDNUrlFn('grok'),
