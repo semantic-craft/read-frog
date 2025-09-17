@@ -47,6 +47,9 @@ export type TranslateProviderNames = typeof TRANSLATE_PROVIDER_NAMES[number]
 export function isTranslateProvider(provider: TranslateProviderNames): provider is TranslateProviderNames {
   return TRANSLATE_PROVIDER_NAMES.includes(provider as TranslateProviderNames)
 }
+export function isTranslateProviderConfig(config: ProviderConfig): config is TranslateProviderConfig {
+  return isTranslateProvider(config.provider)
+}
 
 // translate provider names that support LLM
 export const LLM_TRANSLATE_PROVIDER_NAMES = ['openai', 'deepseek', 'gemini', 'openaiCompatible'] as const satisfies Readonly<

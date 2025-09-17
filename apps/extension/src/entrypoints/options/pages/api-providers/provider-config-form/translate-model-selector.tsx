@@ -5,38 +5,40 @@ import { SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } fr
 import { useStore } from '@tanstack/react-form'
 import { useSetAtom } from 'jotai'
 import { toast } from 'sonner'
-import { isReadProviderConfig, READ_PROVIDER_MODELS } from '@/types/config/provider'
+import { isLLMTranslateProviderConfig, TRANSLATE_PROVIDER_MODELS } from '@/types/config/provider'
 import { providerConfigAtom, updateLLMProviderConfig } from '@/utils/atoms/provider'
 import { withForm } from './form'
 
-export const ReadModelSelector = withForm({
+export const TranslateModelSelector = withForm({
   ...{ defaultValues: {} as APIProviderConfig },
   render: function Render({ form }) {
     const providerConfig = useStore(form.store, state => state.values)
     const setProviderConfig = useSetAtom(providerConfigAtom(providerConfig.id))
-    if (!isReadProviderConfig(providerConfig))
+
+    if (!isLLMTranslateProviderConfig(providerConfig))
       return <></>
-    const { isCustomModel, customModel } = providerConfig.models.read
+
+    const { isCustomModel, customModel } = providerConfig.models.translate
 
     return (
       <div>
         {
           isCustomModel
             ? (
-                <form.AppField name="models.read.customModel">
-                  {field => <field.InputField formForSubmit={form} label="Read Custom Model" value={customModel ?? ''} />}
+                <form.AppField name="models.translate.customModel">
+                  {field => <field.InputField formForSubmit={form} label="Translate Custom Model" value={customModel ?? ''} />}
                 </form.AppField>
               )
             : (
-                <form.AppField name="models.read.model">
+                <form.AppField name="models.translate.model">
                   {field => (
-                    <field.SelectField formForSubmit={form} label="Read Model">
+                    <field.SelectField formForSubmit={form} label="Translate Model">
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select a model" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          {READ_PROVIDER_MODELS[providerConfig.provider].map(model => (
+                          {TRANSLATE_PROVIDER_MODELS[providerConfig.provider].map(model => (
                             <SelectItem key={model} value={model}>
                               {model}
                             </SelectItem>
@@ -49,11 +51,11 @@ export const ReadModelSelector = withForm({
               )
         }
         <div className="mt-2.5 flex items-center space-x-2">
-          <form.Field name="models.read">
+          <form.Field name="models.translate">
             { field => (
               <>
                 <Checkbox
-                  id="isCustomModel-read"
+                  id="isCustomModel-translate"
                   checked={field.state.value.isCustomModel}
                   onCheckedChange={(checked) => {
                     try {
@@ -61,7 +63,7 @@ export const ReadModelSelector = withForm({
                         void setProviderConfig(
                           updateLLMProviderConfig(providerConfig, {
                             models: {
-                              read: {
+                              translate: {
                                 customModel: null,
                                 isCustomModel: false,
                               },
@@ -73,7 +75,7 @@ export const ReadModelSelector = withForm({
                         void setProviderConfig(
                           updateLLMProviderConfig(providerConfig, {
                             models: {
-                              read: {
+                              translate: {
                                 customModel: field.state.value.model,
                                 isCustomModel: true,
                               },
@@ -88,7 +90,7 @@ export const ReadModelSelector = withForm({
                   }}
                 />
                 <label
-                  htmlFor="isCustomModel-read"
+                  htmlFor="isCustomModel-translate"
                   className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                 >
                   {i18n.t('options.general.readConfig.model.enterCustomModel')}

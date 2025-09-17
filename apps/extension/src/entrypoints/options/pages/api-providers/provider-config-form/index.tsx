@@ -12,6 +12,7 @@ import { selectedProviderIdAtom } from '../atoms'
 import { APIKeyField } from './api-key-field'
 import { formOpts, useAppForm } from './form'
 import { ReadModelSelector } from './read-model-selector'
+import { TranslateModelSelector } from './translate-model-selector'
 
 export function ProviderConfigForm() {
   const [selectedProviderId, setSelectedProviderId] = useAtom(selectedProviderIdAtom)
@@ -95,6 +96,7 @@ export function ProviderConfigForm() {
           <form.AppField name="baseURL">
             {field => <field.InputField formForSubmit={form} label={i18n.t('options.apiProviders.form.fields.baseURL')} value={providerConfig.baseURL ?? ''} />}
           </form.AppField>
+          <TranslateModelSelector form={form} />
           <ReadModelSelector form={form} />
         </div>
         <div className="flex justify-end mt-8">
