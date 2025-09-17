@@ -89,6 +89,11 @@ export const DEFAULT_READ_MODELS: ReadModels = {
     isCustomModel: false,
     customModel: null,
   },
+  vercel: {
+    model: 'v0-1.5-md',
+    isCustomModel: false,
+    customModel: null,
+  },
 }
 
 export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
@@ -169,6 +174,11 @@ export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
   },
   perplexity: {
     model: 'sonar-pro',
+    isCustomModel: false,
+    customModel: null,
+  },
+  vercel: {
+    model: 'v0-1.5-md',
     isCustomModel: false,
     customModel: null,
   },
@@ -372,6 +382,17 @@ export const DEFAULT_PROVIDER_CONFIG = {
       translate: DEFAULT_TRANSLATE_MODELS.perplexity,
     },
   },
+  vercel: {
+    id: 'vercel-default',
+    name: 'Vercel',
+    description: 'Framework-aware AI models optimized for web development',
+    enabled: true,
+    provider: 'vercel',
+    models: {
+      read: DEFAULT_READ_MODELS.vercel,
+      translate: DEFAULT_TRANSLATE_MODELS.vercel,
+    },
+  },
 } as const satisfies Record<AllProviderNames, ProviderConfig>
 
 export const DEFAULT_PROVIDER_CONFIG_LIST: ProvidersConfig = [
@@ -394,6 +415,7 @@ export const DEFAULT_PROVIDER_CONFIG_LIST: ProvidersConfig = [
   DEFAULT_PROVIDER_CONFIG.cerebras,
   DEFAULT_PROVIDER_CONFIG.replicate,
   DEFAULT_PROVIDER_CONFIG.perplexity,
+  DEFAULT_PROVIDER_CONFIG.vercel,
 ]
 
 export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: (isDark: boolean) => string, name: string }>
@@ -435,15 +457,15 @@ export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: (isDark: boolean) 
       name: 'OpenAI Compatible',
     },
     amazonBedrock: {
-      logo: getLobeIconsCDNUrlFn('amazon-color'),
+      logo: getLobeIconsCDNUrlFn('bedrock-color'),
       name: 'Amazon Bedrock',
     },
     groq: {
-      logo: getLobeIconsCDNUrlFn('groq-color'),
+      logo: getLobeIconsCDNUrlFn('groq'),
       name: 'Groq',
     },
     deepinfra: {
-      logo: getLobeIconsCDNUrlFn('deepinfra'),
+      logo: getLobeIconsCDNUrlFn('deepinfra-color'),
       name: 'DeepInfra',
     },
     mistral: {
@@ -451,7 +473,7 @@ export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: (isDark: boolean) 
       name: 'Mistral AI',
     },
     togetherai: {
-      logo: getLobeIconsCDNUrlFn('togetherai'),
+      logo: getLobeIconsCDNUrlFn('together-color'),
       name: 'Together.ai',
     },
     cohere: {
@@ -463,7 +485,7 @@ export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: (isDark: boolean) 
       name: 'Fireworks AI',
     },
     cerebras: {
-      logo: getLobeIconsCDNUrlFn('cerebras'),
+      logo: getLobeIconsCDNUrlFn('cerebras-color'),
       name: 'Cerebras',
     },
     replicate: {
@@ -471,8 +493,12 @@ export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: (isDark: boolean) 
       name: 'Replicate',
     },
     perplexity: {
-      logo: getLobeIconsCDNUrlFn('perplexity'),
+      logo: getLobeIconsCDNUrlFn('perplexity-color'),
       name: 'Perplexity',
+    },
+    vercel: {
+      logo: getLobeIconsCDNUrlFn('vercel'),
+      name: 'Vercel',
     },
   }
 

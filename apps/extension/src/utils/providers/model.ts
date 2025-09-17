@@ -15,6 +15,7 @@ import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 import { createPerplexity } from '@ai-sdk/perplexity'
 import { createReplicate } from '@ai-sdk/replicate'
 import { createTogetherAI } from '@ai-sdk/togetherai'
+import { createVercel } from '@ai-sdk/vercel'
 import { createXai } from '@ai-sdk/xai'
 import { getLLMTranslateProvidersConfig, getProviderConfigById } from '../config/helpers'
 import { CONFIG_STORAGE_KEY } from '../constants/config'
@@ -36,6 +37,7 @@ interface ProviderFactoryMap {
   cerebras: typeof createCerebras
   replicate: typeof createReplicate
   perplexity: typeof createPerplexity
+  vercel: typeof createVercel
 }
 
 const CREATE_AI_MAPPER: ProviderFactoryMap = {
@@ -55,6 +57,7 @@ const CREATE_AI_MAPPER: ProviderFactoryMap = {
   cerebras: createCerebras,
   replicate: createReplicate,
   perplexity: createPerplexity,
+  vercel: createVercel,
 }
 
 async function getLanguageModelById(providerId: string, modelType: 'read' | 'translate') {
