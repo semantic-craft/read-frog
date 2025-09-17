@@ -2,10 +2,11 @@ import { i18n } from '#imports'
 import { Button } from '@repo/ui/components/button'
 import { Separator } from '@repo/ui/components/separator'
 import { cn } from '@repo/ui/lib/utils'
+import { useStore } from '@tanstack/react-form'
 import { useAtom } from 'jotai'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
-import { isAPIProviderConfig } from '@/types/config/provider'
+import { isAPIProviderConfig, isReadProvider, isTranslateProvider } from '@/types/config/provider'
 import { configFields } from '@/utils/atoms/config'
 import { providerConfigAtom } from '@/utils/atoms/provider'
 import { getAPIProvidersConfig } from '@/utils/config/helpers'
@@ -34,6 +35,10 @@ export function ProviderConfigForm() {
       void setProviderConfig(value)
     },
   })
+
+  const providerType = useStore(form.store, state => state.values.provider)
+  const isReadProviderName = isReadProvider(providerType)
+  const isTranslateProviderName = isTranslateProvider(providerType)
 
   // Reset form when selectedProviderId changes
   useEffect(() => {
@@ -98,12 +103,20 @@ export function ProviderConfigForm() {
           <form.AppField name="baseURL">
             {field => <field.InputField formForSubmit={form} label={i18n.t('options.apiProviders.form.fields.baseURL')} value={providerConfig.baseURL ?? ''} />}
           </form.AppField>
-          <Separator className="my-2" />
-          <DefaultTranslateProviderSelector form={form} />
-          <TranslateModelSelector form={form} />
-          <Separator className="my-2" />
-          <DefaultReadProviderSelector form={form} />
-          <ReadModelSelector form={form} />
+          {isTranslateProviderName && (
+            <>
+              <Separator className="my-2" />
+              <DefaultTranslateProviderSelector form={form} />
+              <TranslateModelSelector form={form} />
+            </>
+          )}
+          {isReadProviderName && (
+            <>
+              <Separator className="my-2" />
+              <DefaultReadProviderSelector form={form} />
+              <ReadModelSelector form={form} />
+            </>
+          )}
         </div>
         <div className="flex justify-end mt-8">
           <Button type="button" variant="destructive" onClick={handleDelete}>

@@ -10,7 +10,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import ProviderIcon from '@/components/provider-icon'
 import { configFields } from '@/utils/atoms/config'
-import { providerConfigAtom } from '@/utils/atoms/provider'
+import { providerConfigAtom, readProviderConfigAtom, translateProviderConfigAtom } from '@/utils/atoms/provider'
 import { getAPIProvidersConfig } from '@/utils/config/helpers'
 import { API_PROVIDER_ITEMS } from '@/utils/constants/providers'
 import { isDarkMode } from '@/utils/tailwind'
@@ -114,7 +114,7 @@ function ProviderCardList() {
         </DialogTrigger>
         <AddProviderDialog onClose={() => setIsAddDialogOpen(false)} />
       </Dialog>
-      <div className="relative max-h-[450px]">
+      <div className="relative">
         {canScroll && !isScrolledToTop && (
           <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-background to-transparent flex items-center justify-center z-10 pointer-events-none">
             <Icon icon="tabler:chevron-up" className="size-4 text-muted-foreground animate-bounce" />
@@ -122,7 +122,7 @@ function ProviderCardList() {
         )}
         <div
           ref={scrollContainerRef}
-          className="flex flex-col gap-4 pt-3 overflow-y-auto overflow-x-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] max-h-[450px]"
+          className="flex flex-col gap-4 pt-2 overflow-y-auto overflow-x-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] max-h-[720px]"
         >
           {apiProvidersConfig.map(providerConfig => (
             <ProviderCard key={providerConfig.name} providerConfig={providerConfig} />
@@ -143,15 +143,28 @@ function ProviderCard({ providerConfig }: { providerConfig: APIProviderConfig })
 
   const [selectedProviderId, setSelectedProviderId] = useAtom(selectedProviderIdAtom)
   const setProviderConfig = useSetAtom(providerConfigAtom(id))
+  const translateProviderConfig = useAtomValue(translateProviderConfigAtom)
+  const readProviderConfig = useAtomValue(readProviderConfigAtom)
+  const isDefaultTranslateProvider = translateProviderConfig?.id === id
+  const isDefaultReadProvider = readProviderConfig?.id === id
 
   return (
     <div
       className={cn('rounded-xl p-3 border bg-card cursor-pointer relative', selectedProviderId === id && 'border-primary')}
       onClick={() => setSelectedProviderId(id)}
     >
-      <Badge className="absolute -top-3 right-2 bg-blue-500">
-        Translate
-      </Badge>
+      <div className="absolute -top-2 right-2 flex items-center justify-center gap-1">
+        {isDefaultTranslateProvider && (
+          <Badge className="bg-blue-500" size="small">
+            Translate
+          </Badge>
+        )}
+        {isDefaultReadProvider && (
+          <Badge className="bg-pink-500" size="small">
+            Read
+          </Badge>
+        )}
+      </div>
       <div className="flex items-center justify-between gap-2">
         <ProviderIcon logo={API_PROVIDER_ITEMS[provider].logo(isDarkMode())} name={name} size="base" textClassName="text-sm" />
         <Switch checked={enabled} onCheckedChange={checked => setProviderConfig({ ...providerConfig, enabled: checked })} />

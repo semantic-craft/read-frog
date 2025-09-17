@@ -225,6 +225,7 @@ export type PureProviderConfig = Extract<ProviderConfig, { provider: PureAPIProv
 export type APIProviderConfig = Extract<ProviderConfig, { provider: APIProviderNames }>
 export type PureAPIProviderConfig = Extract<ProviderConfig, { provider: PureAPIProviderNames }>
 export type LLMTranslateProviderConfig = Extract<ProviderConfig, { provider: LLMTranslateProviderNames }>
+export type TranslateProviderConfig = Extract<ProviderConfig, { provider: TranslateProviderNames }>
 export type ReadProviderConfig = Extract<ProviderConfig, { provider: ReadProviderNames }>
 
 /* ──────────────────────────────
