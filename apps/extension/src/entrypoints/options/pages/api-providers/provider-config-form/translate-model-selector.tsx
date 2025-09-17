@@ -14,7 +14,6 @@ export const TranslateModelSelector = withForm({
   render: function Render({ form }) {
     const providerConfig = useStore(form.store, state => state.values)
     const setProviderConfig = useSetAtom(providerConfigAtom(providerConfig.id))
-
     if (!isLLMTranslateProviderConfig(providerConfig))
       return <></>
 
