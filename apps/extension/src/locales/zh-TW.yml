@@ -86,6 +86,10 @@ options:
         togetherai: 用於運行和微調開源模型的協作平台
         cohere: 具有強大多語言和 RAG 能力的企業級 AI
         fireworks: 面向開源模型的生產就緒推理平台
+        cerebras: 超快速 AI 推理，適合快速翻譯和文本分析
+        replicate: 存取多樣化開源模型，適合專業翻譯任務
+        perplexity: 即時知識增強 AI，提供語境化翻譯和閱讀輔助
+        vercel: 針對網頁內容翻譯和分析優化的 AI 模型
     apiKey:
       showAPIKey: 顯示 API Key
     testConnection:

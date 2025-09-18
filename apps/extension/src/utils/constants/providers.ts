@@ -396,7 +396,7 @@ export const DEFAULT_PROVIDER_CONFIG = {
   cerebras: {
     id: 'cerebras-default',
     name: 'Cerebras',
-    description: 'High-performance AI models powered by Cerebras hardware',
+    description: i18n.t('options.apiProviders.providers.description.cerebras'),
     enabled: true,
     provider: 'cerebras',
     models: {
@@ -407,7 +407,7 @@ export const DEFAULT_PROVIDER_CONFIG = {
   replicate: {
     id: 'replicate-default',
     name: 'Replicate',
-    description: 'Run open-source models with a cloud API',
+    description: i18n.t('options.apiProviders.providers.description.replicate'),
     enabled: true,
     provider: 'replicate',
     models: {
@@ -418,7 +418,7 @@ export const DEFAULT_PROVIDER_CONFIG = {
   perplexity: {
     id: 'perplexity-default',
     name: 'Perplexity',
-    description: 'AI-powered search and answer engine',
+    description: i18n.t('options.apiProviders.providers.description.perplexity'),
     enabled: true,
     provider: 'perplexity',
     models: {
@@ -429,7 +429,7 @@ export const DEFAULT_PROVIDER_CONFIG = {
   vercel: {
     id: 'vercel-default',
     name: 'Vercel',
-    description: 'Framework-aware AI models optimized for web development',
+    description: i18n.t('options.apiProviders.providers.description.vercel'),
     enabled: true,
     provider: 'vercel',
     models: {

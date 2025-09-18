@@ -9,6 +9,12 @@ import { API_PROVIDER_ITEMS, DEFAULT_PROVIDER_CONFIG } from '@/utils/constants/p
 import { isDarkMode } from '@/utils/tailwind'
 import { selectedProviderIdAtom } from './atoms'
 
+export const PROVIDER_GROUPS = {
+  llmProviders: NON_CUSTOM_LLM_PROVIDER_NAMES,
+  customProviders: CUSTOM_LLM_PROVIDER_NAMES,
+  pureTranslationProviders: PURE_API_PROVIDER_NAMES,
+} as const
+
 export default function AddProviderDialog({ onClose }: { onClose: () => void }) {
   const [providersConfig, setProvidersConfig] = useAtom(configFields.providersConfig)
   const setSelectedProviderId = useSetAtom(selectedProviderIdAtom)
@@ -44,9 +50,9 @@ export default function AddProviderDialog({ onClose }: { onClose: () => void }) 
           {i18n.t('options.apiProviders.dialog.description')}
         </DialogDescription>
       </DialogHeader>
-      <ProviderButtonGroup groupTitle={i18n.t('options.apiProviders.dialog.groups.llmProviders')} providerTypes={NON_CUSTOM_LLM_PROVIDER_NAMES} handleAddProvider={handleAddProvider} />
-      <ProviderButtonGroup groupTitle={i18n.t('options.apiProviders.dialog.groups.customProviders')} providerTypes={CUSTOM_LLM_PROVIDER_NAMES} handleAddProvider={handleAddProvider} />
-      <ProviderButtonGroup groupTitle={i18n.t('options.apiProviders.dialog.groups.pureTranslationProviders')} providerTypes={PURE_API_PROVIDER_NAMES} handleAddProvider={handleAddProvider} />
+      {Object.entries(PROVIDER_GROUPS).map(([groupTitle, providerTypes]) => (
+        <ProviderButtonGroup key={groupTitle} groupTitle={groupTitle} providerTypes={providerTypes} handleAddProvider={handleAddProvider} />
+      ))}
     </DialogContent>
   )
 }

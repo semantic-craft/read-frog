@@ -86,6 +86,10 @@ options:
         togetherai: オープンソースモデルの実行とファインチューニングのための協働プラットフォーム
         cohere: 強力な多言語およびRAG機能を持つエンタープライズ向けAI
         fireworks: オープンソースモデル向けプロダクション対応推論プラットフォーム
+        cerebras: 高速翻訳とテキスト分析に最適な超高速AI推論
+        replicate: 専門的な翻訳タスクのための多様なオープンソースモデルへのアクセス
+        perplexity: 文脈的翻訳と読解支援のためのリアルタイム知識強化AI
+        vercel: ウェブコンテンツの翻訳と分析に最適化されたAIモデル
     apiKey:
       showAPIKey: APIキーを表示
     testConnection:

@@ -86,6 +86,10 @@ options:
         togetherai: Collaborative platform for running and fine-tuning open-source models
         cohere: Enterprise-focused AI with strong multilingual and RAG capabilities
         fireworks: Production-ready inference platform for open-source models
+        cerebras: Ultra-fast AI inference for rapid translation and text analysis
+        replicate: Access to diverse open-source models for specialized translation tasks
+        perplexity: Real-time knowledge-enhanced AI for contextual translations and reading assistance
+        vercel: Optimized AI models for web content translation and analysis
     apiKey:
       showAPIKey: Show API Key
     testConnection:
