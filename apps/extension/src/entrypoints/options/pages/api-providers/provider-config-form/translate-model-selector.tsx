@@ -70,7 +70,7 @@ export const TranslateModelSelector = withForm({
                           }),
                         )
                       }
-                      else {
+                      else if (checked === true) {
                         void setProviderConfig(
                           updateLLMProviderConfig(providerConfig, {
                             models: {

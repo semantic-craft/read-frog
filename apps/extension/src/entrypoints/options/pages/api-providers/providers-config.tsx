@@ -162,12 +162,12 @@ function ProviderCard({ providerConfig }: { providerConfig: APIProviderConfig })
     >
       <div className="absolute -top-2 right-2 flex items-center justify-center gap-1">
         {isDefaultTranslateProvider && (
-          <Badge className="bg-blue-500" size="small">
+          <Badge className="bg-blue-500" size="sm">
             {i18n.t('options.apiProviders.badges.translate')}
           </Badge>
         )}
         {isDefaultReadProvider && (
-          <Badge className="bg-indigo-500" size="small">
+          <Badge className="bg-indigo-500" size="sm">
             {i18n.t('options.apiProviders.badges.read')}
           </Badge>
         )}
