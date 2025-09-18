@@ -51,7 +51,7 @@ export default function AddProviderDialog({ onClose }: { onClose: () => void }) 
         </DialogDescription>
       </DialogHeader>
       {Object.entries(PROVIDER_GROUPS).map(([groupTitle, providerTypes]) => (
-        <ProviderButtonGroup key={groupTitle} groupTitle={groupTitle} providerTypes={providerTypes} handleAddProvider={handleAddProvider} />
+        <ProviderButtonGroup key={groupTitle} groupTitle={i18n.t(`options.apiProviders.dialog.groups.${groupTitle as keyof typeof PROVIDER_GROUPS}`)} providerTypes={providerTypes} handleAddProvider={handleAddProvider} />
       ))}
     </DialogContent>
   )
