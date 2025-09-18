@@ -24,15 +24,15 @@ export const ReadModelSelector = withForm({
           isCustomModel
             ? (
                 <form.AppField name="models.read.customModel">
-                  {field => <field.InputField formForSubmit={form} label="Read Custom Model" value={customModel ?? ''} />}
+                  {field => <field.InputField formForSubmit={form} label={i18n.t('options.apiProviders.form.models.read.customTitle')} value={customModel ?? ''} />}
                 </form.AppField>
               )
             : (
                 <form.AppField name="models.read.model">
                   {field => (
-                    <field.SelectField formForSubmit={form} label="Read Model">
+                    <field.SelectField formForSubmit={form} label={i18n.t('options.apiProviders.form.models.read.title')}>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a model" />
+                        <SelectValue placeholder={i18n.t('options.apiProviders.form.models.read.placeholder')} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>

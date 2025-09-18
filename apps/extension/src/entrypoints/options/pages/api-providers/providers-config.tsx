@@ -26,7 +26,7 @@ export function ProvidersConfig() {
         <div className="flex items-center gap-2">
           {i18n.t('options.apiProviders.title')}
           <Badge variant="secondary" className="bg-input">
-            Public Beta
+            {i18n.t('options.apiProviders.badges.publicBeta')}
           </Badge>
         </div>
       )}
@@ -163,12 +163,12 @@ function ProviderCard({ providerConfig }: { providerConfig: APIProviderConfig })
       <div className="absolute -top-2 right-2 flex items-center justify-center gap-1">
         {isDefaultTranslateProvider && (
           <Badge className="bg-blue-500" size="small">
-            Translate
+            {i18n.t('options.apiProviders.badges.translate')}
           </Badge>
         )}
         {isDefaultReadProvider && (
           <Badge className="bg-indigo-500" size="small">
-            Read
+            {i18n.t('options.apiProviders.badges.read')}
           </Badge>
         )}
       </div>

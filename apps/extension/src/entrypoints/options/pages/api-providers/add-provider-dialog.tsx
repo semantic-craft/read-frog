@@ -1,4 +1,5 @@
 import type { APIProviderConfig, APIProviderNames } from '@/types/config/provider'
+import { i18n } from '#imports'
 import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@repo/ui/components/dialog'
 import { useAtom, useSetAtom } from 'jotai'
 import ProviderIcon from '@/components/provider-icon'
@@ -38,14 +39,14 @@ export default function AddProviderDialog({ onClose }: { onClose: () => void }) 
   return (
     <DialogContent className="md:max-w-2xl lg:max-w-4xl xl:max-w-5xl max-h-[90vh] overflow-y-auto">
       <DialogHeader>
-        <DialogTitle>Add New Provider</DialogTitle>
+        <DialogTitle>{i18n.t('options.apiProviders.dialog.title')}</DialogTitle>
         <DialogDescription>
-          Choose an API provider to add to your configuration.
+          {i18n.t('options.apiProviders.dialog.description')}
         </DialogDescription>
       </DialogHeader>
-      <ProviderButtonGroup groupTitle="LLM Providers" providerTypes={NON_CUSTOM_LLM_PROVIDER_NAMES} handleAddProvider={handleAddProvider} />
-      <ProviderButtonGroup groupTitle="OpenAI Compatible Custom Providers" providerTypes={CUSTOM_LLM_PROVIDER_NAMES} handleAddProvider={handleAddProvider} />
-      <ProviderButtonGroup groupTitle="Pure Translation Providers" providerTypes={PURE_API_PROVIDER_NAMES} handleAddProvider={handleAddProvider} />
+      <ProviderButtonGroup groupTitle={i18n.t('options.apiProviders.dialog.groups.llmProviders')} providerTypes={NON_CUSTOM_LLM_PROVIDER_NAMES} handleAddProvider={handleAddProvider} />
+      <ProviderButtonGroup groupTitle={i18n.t('options.apiProviders.dialog.groups.customProviders')} providerTypes={CUSTOM_LLM_PROVIDER_NAMES} handleAddProvider={handleAddProvider} />
+      <ProviderButtonGroup groupTitle={i18n.t('options.apiProviders.dialog.groups.pureTranslationProviders')} providerTypes={PURE_API_PROVIDER_NAMES} handleAddProvider={handleAddProvider} />
     </DialogContent>
   )
 }

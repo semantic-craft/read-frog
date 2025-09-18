@@ -34,6 +34,17 @@ options:
     title: API Providers
     description: Configure the API providers for translation and reading functions here
     addProvider: Add Provider
+    badges:
+      publicBeta: Public Beta
+      translate: Translate
+      read: Read
+    dialog:
+      title: Add New Provider
+      description: Choose an API provider to add to your configuration.
+      groups:
+        llmProviders: LLM Providers
+        customProviders: OpenAI Compatible Custom Providers
+        pureTranslationProviders: Pure Translation Providers
     form:
       fields:
         name: Name
@@ -42,6 +53,19 @@ options:
         baseURL: Base URL
       delete: Delete
       atLeastOneProvider: You must have at least one API provider
+      duplicateProviderName: 'Duplicate provider name "$1"'
+      defaultProvider:
+        translate: Set as default translate provider
+        read: Set as default read provider
+      models:
+        read:
+          title: Read Model
+          customTitle: Read Custom Model
+          placeholder: Select a model
+        translate:
+          title: Translate Model
+          customTitle: Translate Custom Model
+          placeholder: Select a model
     providers:
       description:
         openai: Provides models like GPT-4o

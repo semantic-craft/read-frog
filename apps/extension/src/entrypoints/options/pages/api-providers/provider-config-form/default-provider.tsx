@@ -1,4 +1,5 @@
 import type { APIProviderConfig } from '@/types/config/provider'
+import { i18n } from '#imports'
 import { Switch } from '@repo/ui/components/switch'
 import { useStore } from '@tanstack/react-form'
 import { useAtom } from 'jotai'
@@ -23,7 +24,7 @@ export const DefaultTranslateProviderSelector = withForm({
             })
           }}
         />
-        <span className="text-sm">Set as default translate provider</span>
+        <span className="text-sm">{i18n.t('options.apiProviders.form.defaultProvider.translate')}</span>
       </div>
     )
   },
@@ -47,7 +48,7 @@ export const DefaultReadProviderSelector = withForm({
             })
           }}
         />
-        <span className="text-sm">Set as default read provider</span>
+        <span className="text-sm">{i18n.t('options.apiProviders.form.defaultProvider.read')}</span>
       </div>
     )
   },

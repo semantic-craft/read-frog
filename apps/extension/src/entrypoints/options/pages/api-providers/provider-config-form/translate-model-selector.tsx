@@ -25,15 +25,15 @@ export const TranslateModelSelector = withForm({
           isCustomModel
             ? (
                 <form.AppField name="models.translate.customModel">
-                  {field => <field.InputField formForSubmit={form} label="Translate Custom Model" value={customModel ?? ''} />}
+                  {field => <field.InputField formForSubmit={form} label={i18n.t('options.apiProviders.form.models.translate.customTitle')} value={customModel ?? ''} />}
                 </form.AppField>
               )
             : (
                 <form.AppField name="models.translate.model">
                   {field => (
-                    <field.SelectField formForSubmit={form} label="Translate Model">
+                    <field.SelectField formForSubmit={form} label={i18n.t('options.apiProviders.form.models.translate.title')}>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a model" />
+                        <SelectValue placeholder={i18n.t('options.apiProviders.form.models.translate.placeholder')} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>

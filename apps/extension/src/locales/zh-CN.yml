@@ -34,6 +34,17 @@ options:
     title: API 提供商
     description: 配置用于翻译和阅读功能的 API 提供商
     addProvider: 添加提供商
+    badges:
+      publicBeta: 公测版
+      translate: 翻译
+      read: 阅读
+    dialog:
+      title: 添加新提供商
+      description: 选择要添加到配置中的 API 提供商
+      groups:
+        llmProviders: LLM 提供商
+        customProviders: OpenAI 兼容自定义提供商
+        pureTranslationProviders: 纯翻译提供商
     form:
       fields:
         name: 名称
@@ -42,6 +53,19 @@ options:
         baseURL: Base URL
       delete: 删除
       atLeastOneProvider: 您必须至少有一个 API 提供商
+      duplicateProviderName: '重复的提供商名称 "$1"'
+      defaultProvider:
+        translate: 设为默认翻译提供商
+        read: 设为默认阅读提供商
+      models:
+        read:
+          title: 阅读模型
+          customTitle: 自定义阅读模型
+          placeholder: 选择一个模型
+        translate:
+          title: 翻译模型
+          customTitle: 自定义翻译模型
+          placeholder: 选择一个模型
     providers:
       description:
         openai: 提供 GPT-4o 等模型

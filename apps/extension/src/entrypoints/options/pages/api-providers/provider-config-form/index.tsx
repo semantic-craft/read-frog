@@ -87,7 +87,7 @@ export function ProviderConfigForm() {
                   provider.name === value && provider.id !== providerConfig.id,
                 )
                 if (duplicateProvider) {
-                  return `Custom: Duplicate provider name "${value}"`
+                  return i18n.t('options.apiProviders.form.duplicateProviderName', [value])
                 }
                 return undefined
               },
