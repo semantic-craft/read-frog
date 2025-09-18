@@ -22,7 +22,14 @@ import { ProviderConfigForm } from './provider-config-form'
 export function ProvidersConfig() {
   return (
     <ConfigCard
-      title={i18n.t('options.apiProviders.title')}
+      title={(
+        <div className="flex items-center gap-2">
+          {i18n.t('options.apiProviders.title')}
+          <Badge variant="secondary" className="bg-input">
+            Public Beta
+          </Badge>
+        </div>
+      )}
       description={i18n.t('options.apiProviders.description')}
       className="lg:flex-col"
     >
