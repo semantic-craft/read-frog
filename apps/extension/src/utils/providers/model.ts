@@ -23,6 +23,7 @@ import { CONFIG_STORAGE_KEY } from '../constants/config'
 
 interface ProviderFactoryMap {
   siliconflow: typeof createOpenAICompatible
+  ai302: typeof createOpenAICompatible
   openaiCompatible: typeof createOpenAICompatible
   openai: typeof createOpenAI
   deepseek: typeof createDeepSeek
@@ -44,6 +45,7 @@ interface ProviderFactoryMap {
 
 const CREATE_AI_MAPPER: ProviderFactoryMap = {
   siliconflow: createOpenAICompatible,
+  ai302: createOpenAICompatible,
   openaiCompatible: createOpenAICompatible,
   openai: createOpenAI,
   deepseek: createDeepSeek,

@@ -14,6 +14,11 @@ export const DEFAULT_READ_MODELS: ReadModels = {
     isCustomModel: false,
     customModel: null,
   },
+  ai302: {
+    model: 'gpt-4.1-mini',
+    isCustomModel: false,
+    customModel: null,
+  },
   openaiCompatible: {
     model: 'use-custom-model',
     isCustomModel: true,
@@ -104,6 +109,11 @@ export const DEFAULT_READ_MODELS: ReadModels = {
 export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
   siliconflow: {
     model: 'Qwen/Qwen3-Next-80B-A3B-Instruct',
+    isCustomModel: false,
+    customModel: null,
+  },
+  ai302: {
+    model: 'gpt-4.1-mini',
     isCustomModel: false,
     customModel: null,
   },
@@ -217,6 +227,18 @@ export const DEFAULT_PROVIDER_CONFIG = {
     models: {
       read: DEFAULT_READ_MODELS.siliconflow,
       translate: DEFAULT_TRANSLATE_MODELS.siliconflow,
+    },
+  },
+  ai302: {
+    id: 'ai302-default',
+    name: '302.AI',
+    description: i18n.t('options.apiProviders.providers.description.ai302'),
+    enabled: true,
+    provider: 'ai302',
+    baseURL: 'https://api.302.ai/v1',
+    models: {
+      read: DEFAULT_READ_MODELS.ai302,
+      translate: DEFAULT_TRANSLATE_MODELS.ai302,
     },
   },
   openaiCompatible: {
@@ -457,6 +479,10 @@ export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: (isDark: boolean) 
     siliconflow: {
       logo: getLobeIconsCDNUrlFn('siliconcloud-color'),
       name: 'SiliconFlow',
+    },
+    ai302: {
+      logo: getLobeIconsCDNUrlFn('ai302-color'),
+      name: '302.AI',
     },
     openaiCompatible: {
       logo: (isDark: boolean) => isDark ? openaiCompatibleLogoDark : openaiCompatibleLogoLight,
