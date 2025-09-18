@@ -48,9 +48,20 @@ options:
         deepseek: 中国国内での使用を推奨
         openrouter: 複数のLLMプロバイダを統合するインターフェース
         ollama: ローカル大規模言語モデルサービス
-        gemini: Gemini-2.5-Pro などのモデルを提供する
+        gemini: 高度な推論能力を持つGoogleの主力AIモデル
+        anthropic: 安全性と推論能力に優れたClaudeモデル
+        xai: リアルタイムデータアクセス可能なGrokモデルを提供するイーロン・マスクのAI企業
+        siliconflow: 中国および国際モデル向けの高性能推論プラットフォーム
+        ai302: 複数のプレミアムモデルを一箇所で提供する包括的AIプラットフォーム
         openaiCompatible: OpenAI API互換のサードパーティー
         deeplx: 非公式 DeepL API
+        amazonBedrock: エンタープライズグレードの基盤モデル向けAWSマネージドサービス
+        groq: 超高速LLM推論速度に特化したハードウェア
+        deepinfra: 人気のオープンソースモデル向けコスト効率的なクラウド推論
+        mistral: 効率的な多言語モデルに特化したヨーロッパのAI企業
+        togetherai: オープンソースモデルの実行とファインチューニングのための協働プラットフォーム
+        cohere: 強力な多言語およびRAG機能を持つエンタープライズ向けAI
+        fireworks: オープンソースモデル向けプロダクション対応推論プラットフォーム
     apiKey:
       showAPIKey: APIキーを表示
     testConnection:

@@ -48,21 +48,20 @@ options:
         deepseek: Recommend to use in China
         openrouter: The unified interface for multiple LLM providers
         ollama: Local LLM
-        gemini: Provide models such as Gemini-2.5-Pro
-        anthropic: Provide models such as Claude-3.5-Sonnet
-        xai: Provide models such as Grok-4
-        siliconflow: Provide models such as Qwen3-Next-80B-A3B-Instruct
-        ai302: Advanced AI models powered by 302.AI platform
+        gemini: Google's flagship AI models with advanced reasoning capabilities
+        anthropic: Claude models known for safety and reasoning excellence
+        xai: Elon Musk's AI company offering Grok models with real-time data access
+        siliconflow: High-performance inference platform for Chinese and international models
+        ai302: Comprehensive AI platform offering multiple premium models in one place
         openaiCompatible: Third-party and OpenAI API compatible
         deeplx: Unofficial DeepL API
-        amazonBedrock: AWS Bedrock provides access to Claude, Llama, and other foundation models
-        groq: Ultra-fast inference for open-source language models
-        fal: Fast serverless inference for AI models
-        deepinfra: Scalable inference for open-source AI models
-        mistral: Advanced open and closed source models from Mistral AI
-        togetherai: Open-source model inference with optimized performance
-        cohere: Enterprise-grade language models with powerful Command series
-        fireworks: Lightning-fast inference for open-source models
+        amazonBedrock: AWS managed service for enterprise-grade foundation models
+        groq: Specialized hardware for ultra-fast LLM inference speeds
+        deepinfra: Cost-effective cloud inference for popular open-source models
+        mistral: European AI company specializing in efficient multilingual models
+        togetherai: Collaborative platform for running and fine-tuning open-source models
+        cohere: Enterprise-focused AI with strong multilingual and RAG capabilities
+        fireworks: Production-ready inference platform for open-source models
     apiKey:
       showAPIKey: Show API Key
     testConnection:
