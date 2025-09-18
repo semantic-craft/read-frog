@@ -2,7 +2,7 @@ import type { APIProviderConfig, APIProviderNames } from '@/types/config/provide
 import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@repo/ui/components/dialog'
 import { useAtom, useSetAtom } from 'jotai'
 import ProviderIcon from '@/components/provider-icon'
-import { LLM_PROVIDER_NAMES, PURE_API_PROVIDER_NAMES } from '@/types/config/provider'
+import { CUSTOM_LLM_PROVIDER_NAMES, NON_CUSTOM_LLM_PROVIDER_NAMES, PURE_API_PROVIDER_NAMES } from '@/types/config/provider'
 import { configFields } from '@/utils/atoms/config'
 import { API_PROVIDER_ITEMS, DEFAULT_PROVIDER_CONFIG } from '@/utils/constants/providers'
 import { isDarkMode } from '@/utils/tailwind'
@@ -43,8 +43,8 @@ export default function AddProviderDialog({ onClose }: { onClose: () => void }) 
           Choose an API provider to add to your configuration.
         </DialogDescription>
       </DialogHeader>
-      <ProviderButtonGroup groupTitle="LLM Providers" providerTypes={LLM_PROVIDER_NAMES} handleAddProvider={handleAddProvider} />
-      <ProviderButtonGroup groupTitle="OpenAI Compatible Custom Providers" providerTypes={['openaiCompatible']} handleAddProvider={handleAddProvider} />
+      <ProviderButtonGroup groupTitle="LLM Providers" providerTypes={NON_CUSTOM_LLM_PROVIDER_NAMES} handleAddProvider={handleAddProvider} />
+      <ProviderButtonGroup groupTitle="OpenAI Compatible Custom Providers" providerTypes={CUSTOM_LLM_PROVIDER_NAMES} handleAddProvider={handleAddProvider} />
       <ProviderButtonGroup groupTitle="Pure Translation Providers" providerTypes={PURE_API_PROVIDER_NAMES} handleAddProvider={handleAddProvider} />
     </DialogContent>
   )

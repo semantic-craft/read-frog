@@ -9,6 +9,16 @@ import { omit, pick } from '@/types/utils'
 import { getLobeIconsCDNUrlFn } from '../logo'
 
 export const DEFAULT_READ_MODELS: ReadModels = {
+  siliconflow: {
+    model: 'Qwen/Qwen3-Next-80B-A3B-Instruct',
+    isCustomModel: false,
+    customModel: null,
+  },
+  openaiCompatible: {
+    model: 'use-custom-model',
+    isCustomModel: true,
+    customModel: null,
+  },
   openai: {
     model: 'gpt-4.1-mini',
     isCustomModel: false,
@@ -27,11 +37,6 @@ export const DEFAULT_READ_MODELS: ReadModels = {
   anthropic: {
     model: 'claude-3-5-sonnet-20241022',
     isCustomModel: false,
-    customModel: null,
-  },
-  openaiCompatible: {
-    model: 'use-custom-model',
-    isCustomModel: true,
     customModel: null,
   },
   grok: {
@@ -97,6 +102,16 @@ export const DEFAULT_READ_MODELS: ReadModels = {
 }
 
 export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
+  siliconflow: {
+    model: 'Qwen/Qwen3-Next-80B-A3B-Instruct',
+    isCustomModel: false,
+    customModel: null,
+  },
+  openaiCompatible: {
+    model: 'use-custom-model',
+    isCustomModel: true,
+    customModel: null,
+  },
   openai: {
     model: 'gpt-4.1-mini',
     isCustomModel: false,
@@ -115,11 +130,6 @@ export const DEFAULT_TRANSLATE_MODELS: TranslateLLMModels = {
   anthropic: {
     model: 'claude-3-5-haiku-20241022',
     isCustomModel: false,
-    customModel: null,
-  },
-  openaiCompatible: {
-    model: 'use-custom-model',
-    isCustomModel: true,
     customModel: null,
   },
   grok: {
@@ -197,6 +207,30 @@ export const DEFAULT_PROVIDER_CONFIG = {
     enabled: true,
     provider: 'microsoft',
   },
+  siliconflow: {
+    id: 'siliconflow-default',
+    name: 'SiliconFlow',
+    description: i18n.t('options.apiProviders.providers.description.siliconflow'),
+    enabled: true,
+    provider: 'siliconflow',
+    baseURL: 'https://api.siliconflow.cn/v1',
+    models: {
+      read: DEFAULT_READ_MODELS.siliconflow,
+      translate: DEFAULT_TRANSLATE_MODELS.siliconflow,
+    },
+  },
+  openaiCompatible: {
+    id: 'openai-compatible-default',
+    name: 'OpenAI Compatible',
+    description: i18n.t('options.apiProviders.providers.description.openaiCompatible'),
+    enabled: true,
+    provider: 'openaiCompatible',
+    baseURL: 'https://api.example.com/v1',
+    models: {
+      read: DEFAULT_READ_MODELS.openaiCompatible,
+      translate: DEFAULT_TRANSLATE_MODELS.openaiCompatible,
+    },
+  },
   openai: {
     id: 'openai-default',
     name: 'OpenAI',
@@ -250,18 +284,6 @@ export const DEFAULT_PROVIDER_CONFIG = {
     models: {
       read: DEFAULT_READ_MODELS.grok,
       translate: DEFAULT_TRANSLATE_MODELS.grok,
-    },
-  },
-  openaiCompatible: {
-    id: 'openai-compatible-default',
-    name: 'OpenAI Compatible',
-    description: i18n.t('options.apiProviders.providers.description.openaiCompatible'),
-    enabled: true,
-    provider: 'openaiCompatible',
-    baseURL: 'https://api.example.com/v1',
-    models: {
-      read: DEFAULT_READ_MODELS.openaiCompatible,
-      translate: DEFAULT_TRANSLATE_MODELS.openaiCompatible,
     },
   },
   deeplx: {
@@ -432,6 +454,14 @@ export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: (isDark: boolean) 
       logo: (isDark: boolean) => isDark ? deeplxLogoDark : deeplxLogoLight,
       name: 'DeepLX',
     },
+    siliconflow: {
+      logo: getLobeIconsCDNUrlFn('siliconcloud-color'),
+      name: 'SiliconFlow',
+    },
+    openaiCompatible: {
+      logo: (isDark: boolean) => isDark ? openaiCompatibleLogoDark : openaiCompatibleLogoLight,
+      name: 'OpenAI Compatible',
+    },
     openai: {
       logo: getLobeIconsCDNUrlFn('openai'),
       name: 'OpenAI',
@@ -451,10 +481,6 @@ export const PROVIDER_ITEMS: Record<AllProviderNames, { logo: (isDark: boolean) 
     grok: {
       logo: getLobeIconsCDNUrlFn('grok'),
       name: 'Grok',
-    },
-    openaiCompatible: {
-      logo: (isDark: boolean) => isDark ? openaiCompatibleLogoDark : openaiCompatibleLogoLight,
-      name: 'OpenAI Compatible',
     },
     amazonBedrock: {
       logo: getLobeIconsCDNUrlFn('bedrock-color'),

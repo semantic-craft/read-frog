@@ -17,16 +17,18 @@ import { createReplicate } from '@ai-sdk/replicate'
 import { createTogetherAI } from '@ai-sdk/togetherai'
 import { createVercel } from '@ai-sdk/vercel'
 import { createXai } from '@ai-sdk/xai'
+import { isCustomLLMProvider } from '@/types/config/provider'
 import { getLLMTranslateProvidersConfig, getProviderConfigById } from '../config/helpers'
 import { CONFIG_STORAGE_KEY } from '../constants/config'
 
 interface ProviderFactoryMap {
+  siliconflow: typeof createOpenAICompatible
+  openaiCompatible: typeof createOpenAICompatible
   openai: typeof createOpenAI
   deepseek: typeof createDeepSeek
   gemini: typeof createGoogleGenerativeAI
   anthropic: typeof createAnthropic
   grok: typeof createXai
-  openaiCompatible: typeof createOpenAICompatible
   amazonBedrock: typeof createAmazonBedrock
   groq: typeof createGroq
   deepinfra: typeof createDeepInfra
@@ -41,12 +43,13 @@ interface ProviderFactoryMap {
 }
 
 const CREATE_AI_MAPPER: ProviderFactoryMap = {
+  siliconflow: createOpenAICompatible,
+  openaiCompatible: createOpenAICompatible,
   openai: createOpenAI,
   deepseek: createDeepSeek,
   gemini: createGoogleGenerativeAI,
   anthropic: createAnthropic,
   grok: createXai,
-  openaiCompatible: createOpenAICompatible,
   amazonBedrock: createAmazonBedrock,
   groq: createGroq,
   deepinfra: createDeepInfra,
@@ -72,10 +75,10 @@ async function getLanguageModelById(providerId: string, modelType: 'read' | 'tra
     throw new Error(`Provider ${providerId} not found`)
   }
 
-  const provider = providerConfig.provider === 'openaiCompatible'
+  const provider = isCustomLLMProvider(providerConfig.provider)
     ? CREATE_AI_MAPPER[providerConfig.provider]({
         name: providerConfig.name,
-        baseURL: providerConfig.baseURL,
+        baseURL: providerConfig.baseURL ?? '',
         ...(providerConfig.apiKey && { apiKey: providerConfig.apiKey }),
       })
     : CREATE_AI_MAPPER[providerConfig.provider]({
