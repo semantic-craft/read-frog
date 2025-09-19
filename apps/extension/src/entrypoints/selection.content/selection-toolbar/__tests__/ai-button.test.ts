@@ -167,29 +167,6 @@ describe('getContext', () => {
       expect(result.after).toBe('This is a text.')
     })
 
-    it('should handle case when selected text is not found', () => {
-      testElement.innerHTML = 'This is a text.'
-
-      // Create a non-existent selected content
-      const range = document.createRange()
-      const textNode = testElement.firstChild!
-      range.setStart(textNode, 0)
-      range.setEnd(textNode, 5)
-
-      // Manually modify toString method to simulate not found case
-      const originalToString = range.toString
-      range.toString = () => 'Non-existent text'
-
-      const result = getContext(range)
-
-      expect(result.selection).toBe('Non-existent text')
-      expect(result.before).toBe('')
-      expect(result.after).toBe('')
-
-      // Restore original method
-      range.toString = originalToString
-    })
-
     it('should handle case when text node has no parent element', () => {
       // Create a text node without parent element
       const textNode = document.createTextNode('Test text')

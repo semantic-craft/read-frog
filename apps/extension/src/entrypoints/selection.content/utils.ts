@@ -2,6 +2,29 @@
 const sentenceBoundary = /[.!?。？！]/g
 
 /**
+ * 计算指定节点在根节点中的文本偏移量
+ */
+function getTextOffset(root: Element, node: Node, offset: number): number {
+  let textOffset = 0
+  const walker = document.createTreeWalker(
+    root,
+    NodeFilter.SHOW_TEXT,
+    null,
+  )
+
+  let currentNode: Node | null = walker.nextNode()
+  while (currentNode) {
+    if (currentNode === node) {
+      return textOffset + offset
+    }
+    textOffset += currentNode.textContent?.length ?? 0
+    currentNode = walker.nextNode()
+  }
+
+  return -1
+}
+
+/**
  * 查找给定索引前最近的句子边界
  */
 function findBeforeBoundary(text: string, index: number): number {
@@ -48,13 +71,14 @@ export function getContext(selectionRange: Range) {
 
   const fullText = root.textContent ?? ''
   const selection = selectionRange.toString()
-  const startIndex = fullText.indexOf(selection)
 
-  if (startIndex === -1) {
+  // Use Range's position information instead of indexOf to avoid wrong occurrence
+  const startIndex = getTextOffset(root, selectionRange.startContainer, selectionRange.startOffset)
+  const endIndex = getTextOffset(root, selectionRange.endContainer, selectionRange.endOffset)
+
+  if (startIndex === -1 || endIndex === -1) {
     return { before: '', selection, after: '' }
   }
-
-  const endIndex = startIndex + selection.length
 
   const beforeBoundary = findBeforeBoundary(fullText, startIndex)
   const afterBoundary = findAfterBoundary(fullText, endIndex)
