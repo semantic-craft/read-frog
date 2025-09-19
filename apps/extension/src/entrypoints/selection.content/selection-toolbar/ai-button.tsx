@@ -50,9 +50,10 @@ export function AiPopover() {
   const popoverRef = useRef<PopoverWrapperRef>(null)
 
   const [aiResponse, setAiResponse] = useState<string>('')
-  logger.info('aiResponse', '\n', aiResponse)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string>('')
+
+  logger.info('aiResponse', '\n', aiResponse)
 
   const analyzeSelection = useCallback(async (highlightData: any) => {
     if (!readProviderConfig || !config) {
@@ -79,10 +80,8 @@ export function AiPopover() {
         prompt,
       })
 
-      // 流式读取响应
       for await (const delta of result.textStream) {
         setAiResponse(prev => prev + delta)
-        // 每次更新内容后自动滚动到底部
         popoverRef.current?.scrollToBottom()
       }
     }
@@ -100,8 +99,7 @@ export function AiPopover() {
     }
 
     const highlightData = createHighlightData(selectionRange)
-    // eslint-disable-next-line no-console
-    console.log('%c seda [ highlightData.context ]-46', 'font-size:13px; background:pink; color:#bf2c9f;', highlightData.context)
+    logger.info('highlightData.context', '\n', highlightData.context)
     // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
     setHighlightData(highlightData)
 

@@ -30,7 +30,6 @@ export function PopoverWrapper({ title, icon, children, onClose, isVisible, setI
     isVisible,
   })
 
-  // 暴露滚动方法给父组件
   useImperativeHandle(ref, () => ({
     scrollToBottom: () => {
       requestAnimationFrame(() => {
