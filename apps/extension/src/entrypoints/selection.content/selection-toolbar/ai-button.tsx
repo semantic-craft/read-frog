@@ -7,6 +7,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { MarkdownRenderer } from '@/components/markdown-renderer'
 import { configAtom } from '@/utils/atoms/config'
 import { readProviderConfigAtom } from '@/utils/atoms/provider'
+import { logger } from '@/utils/logger'
 import { getWordExplainPrompt } from '@/utils/prompts/word-explain'
 import { getReadModel } from '@/utils/providers/model'
 import { createHighlightData } from '../utils'
@@ -49,6 +50,7 @@ export function AiPopover() {
   const popoverRef = useRef<PopoverWrapperRef>(null)
 
   const [aiResponse, setAiResponse] = useState<string>('')
+  logger.info('aiResponse', '\n', aiResponse)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string>('')
 
