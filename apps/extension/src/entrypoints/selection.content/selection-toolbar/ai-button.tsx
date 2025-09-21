@@ -1,7 +1,7 @@
-import type { HighlightData } from '../utils'
 import type { PopoverWrapperRef } from './components/popover-wrapper'
-import { useCallback, useEffect, useRef, useState } from '#imports'
+import { useMemo, useRef } from '#imports'
 import { Icon } from '@iconify/react'
+import { useQuery } from '@tanstack/react-query'
 import { streamText } from 'ai'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { MarkdownRenderer } from '@/components/markdown-renderer'
@@ -46,28 +46,37 @@ export function AiPopover() {
   const selectionRange = useAtomValue(selectionRangeAtom)
   const config = useAtomValue(configAtom)
   const readProviderConfig = useAtomValue(readProviderConfigAtom)
-  const [highlightData, setHighlightData] = useState<HighlightData | null>(null)
   const popoverRef = useRef<PopoverWrapperRef>(null)
 
-  const [aiResponse, setAiResponse] = useState<string>('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string>('')
-
-  logger.info('aiResponse', '\n', aiResponse)
-
-  const analyzeSelection = useCallback(async (highlightData: any) => {
-    if (!readProviderConfig || !config) {
-      setError('AI配置未找到')
-      return
+  // 使用 useMemo 来计算 highlightData，避免在 useEffect 中设置状态
+  const highlightData = useMemo(() => {
+    if (!selectionRange || !isVisible) {
+      return null
     }
+    const data = createHighlightData(selectionRange)
+    logger.info('highlightData.context', '\n', data.context)
+    return data
+  }, [selectionRange, isVisible])
 
-    setIsLoading(true)
-    setError('')
-    setAiResponse('')
+  // 使用 TanStack Query 的 useQuery 来管理 AI 分析状态
+  // 这样我们可以自动处理 loading、error 和 data 状态
+  const {
+    data: aiResponse,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: [
+      'analyzeSelection',
+      highlightData,
+      readProviderConfig,
+      config,
+    ],
+    queryFn: async () => {
+      if (!highlightData || !readProviderConfig || !config) {
+        throw new Error('AI配置未找到或没有选中内容')
+      }
 
-    try {
       const model = await getReadModelById(readProviderConfig.id)
-
       const prompt = getWordExplainPrompt(
         config.language.sourceCode,
         config.language.targetCode,
@@ -80,32 +89,16 @@ export function AiPopover() {
         prompt,
       })
 
+      // 收集完整的响应文本
+      let fullResponse = ''
       for await (const delta of result.textStream) {
-        setAiResponse(prev => prev + delta)
-        popoverRef.current?.scrollToBottom()
+        fullResponse += delta
       }
-    }
-    catch (err) {
-      setError(err instanceof Error ? err.message : 'AI分析失败')
-    }
-    finally {
-      setIsLoading(false)
-    }
-  }, [readProviderConfig, config])
 
-  useEffect(() => {
-    if (!selectionRange || !isVisible) {
-      return
-    }
-
-    const highlightData = createHighlightData(selectionRange)
-    logger.info('highlightData.context', '\n', highlightData.context)
-    // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
-    setHighlightData(highlightData)
-
-    // 自动触发AI分析
-    void analyzeSelection(highlightData)
-  }, [selectionRange, isVisible, analyzeSelection, setHighlightData])
+      return fullResponse
+    },
+    enabled: !!highlightData, // 只有在有数据时才执行查询
+  })
 
   return (
     <PopoverWrapper
@@ -143,7 +136,7 @@ export function AiPopover() {
           </div>
         </div>
         <div className="pt-4">
-          {isLoading && !aiResponse && (
+          {isLoading && (
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center space-x-3 text-slate-500">
                 <div className="flex space-x-1">
@@ -163,7 +156,7 @@ export function AiPopover() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-red-800 dark:text-red-200">分析失败</p>
-                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">{error}</p>
+                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">{error.message}</p>
                 </div>
               </div>
             </div>

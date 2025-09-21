@@ -93,7 +93,6 @@ export function getContext(selectionRange: Range) {
 }
 
 export interface HighlightData {
-  type: 'highlight'
   context: {
     before: string
     selection: string
@@ -106,7 +105,6 @@ export interface HighlightData {
  */
 export function createHighlightData(selectionRange: Range): HighlightData {
   return {
-    type: 'highlight',
     context: getContext(selectionRange),
   }
 }
