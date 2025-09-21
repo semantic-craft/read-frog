@@ -104,7 +104,7 @@ export function AiPopover() {
     setHighlightData(highlightData)
 
     // 自动触发AI分析
-    analyzeSelection(highlightData)
+    void analyzeSelection(highlightData)
   }, [selectionRange, isVisible, analyzeSelection, setHighlightData])
 
   return (
