@@ -5,28 +5,14 @@ import { configSchema } from '@/types/config/config'
 import { isReadProviderConfig } from '@/types/config/provider'
 import {
   CONFIG_STORAGE_KEY,
-  DEFAULT_CONFIG,
 } from '../constants/config'
 import { logger } from '../logger'
-import { sendMessage } from '../message'
-
-// eslint-disable-next-line import/no-mutable-exports
-export let globalConfig: Config | null = null
-
-export async function loadGlobalConfig() {
-  const config = await sendMessage('getInitialConfig', undefined)
-  globalConfig = configSchema.parse(config)
-}
-
-storage.watch<Config>(`local:${CONFIG_STORAGE_KEY}`, (newConfig) => {
-  globalConfig = configSchema.parse(newConfig)
-})
 
 export async function getConfigFromStorage() {
   const config = await storage.getItem<Config>(`local:${CONFIG_STORAGE_KEY}`)
   if (!config) {
     logger.warn('No config found in storage, using default config')
-    return DEFAULT_CONFIG
+    return null
   }
   return configSchema.parse(config)
 }

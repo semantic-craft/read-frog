@@ -54,7 +54,7 @@ export function useAnalyzeContent() {
       const maxAttempts = 3
       let lastError
 
-      const model = await getReadModelById(readProviderConfig.name)
+      const model = await getReadModelById(readProviderConfig.id)
       const targetLang = LANG_CODE_TO_EN_NAME[language.targetCode]
 
       while (attempts < maxAttempts) {
@@ -117,7 +117,7 @@ async function explainBatch(batch: string[], articleAnalysis: ArticleAnalysis, c
         : language.sourceCode
     ]
 
-  const model = await getReadModelById(readProviderConfig.name)
+  const model = await getReadModelById(readProviderConfig.id)
   while (attempts < MAX_ATTEMPTS) {
     try {
       const { object: articleExplanation } = await generateObject({

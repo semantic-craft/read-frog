@@ -73,7 +73,7 @@ function CustomTranslationStyleExample() {
 
   useEffect(() => {
     if (translatedNode.current) {
-      decorateTranslationNode(translatedNode.current, translationNodeStyle)
+      void decorateTranslationNode(translatedNode.current, translationNodeStyle)
     }
   }, [translationNodeStyle])
 
