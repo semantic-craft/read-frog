@@ -2,8 +2,8 @@ import { Icon } from '@iconify/react'
 import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useImperativeHandle, useRef } from 'react'
 import { MARGIN } from '@/utils/constants/selection'
-import { mouseClickPositionAtom, selectionContentAtom } from './atom'
-import { useDraggable } from './use-draggable'
+import { mouseClickPositionAtom, selectionContentAtom } from '../atom'
+import { useDraggable } from '../use-draggable'
 
 interface PopoverWrapperProps {
   title: string
@@ -64,7 +64,7 @@ export function PopoverWrapper({ title, icon, children, onClose, isVisible, setI
     }
   }, [handleClose, popoverRef])
 
-  // 处理滚动穿透问题
+  // Handle scroll-through issues
   useEffect(() => {
     const contentElement = contentRef.current
     if (!contentElement)
@@ -73,28 +73,19 @@ export function PopoverWrapper({ title, icon, children, onClose, isVisible, setI
     const handleWheel = (e: WheelEvent) => {
       const { scrollTop, scrollHeight, clientHeight } = contentElement
 
-      // 检查是否在滚动边界
-      const isAtTop = scrollTop === 0
-      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1
-
-      // 如果向上滚动且已经在顶部，或者向下滚动且已经在底部，阻止事件传播
-      if ((e.deltaY < 0 && isAtTop) || (e.deltaY > 0 && isAtBottom)) {
+      // Prevent scroll-through when at boundaries
+      if ((e.deltaY < 0 && scrollTop === 0)
+        || (e.deltaY > 0 && scrollTop + clientHeight >= scrollHeight - 1)) {
         e.preventDefault()
         e.stopPropagation()
       }
     }
 
-    const handleTouchMove = (e: TouchEvent) => {
-      e.stopPropagation()
-    }
-
-    // 添加非 passive 的事件监听器
+    // Add non-passive event listeners
     contentElement.addEventListener('wheel', handleWheel, { passive: false })
-    contentElement.addEventListener('touchmove', handleTouchMove, { passive: false })
 
     return () => {
       contentElement.removeEventListener('wheel', handleWheel)
-      contentElement.removeEventListener('touchmove', handleTouchMove)
     }
   }, [isVisible])
 
@@ -108,11 +99,7 @@ export function PopoverWrapper({ title, icon, children, onClose, isVisible, setI
       ref={popoverRef as React.RefObject<HTMLDivElement>}
       style={popoverStyle}
       onWheel={(e) => {
-        // 防止滚动穿透到背景页面
-        e.stopPropagation()
-      }}
-      onTouchMove={(e) => {
-        // 防止触摸滚动穿透到背景页面
+        // Prevent scroll-through to background page
         e.stopPropagation()
       }}
     >

@@ -1,4 +1,3 @@
-import { memo } from 'react'
 import ReactMarkdown from 'react-markdown'
 
 interface MarkdownRendererProps {
@@ -6,7 +5,7 @@ interface MarkdownRendererProps {
   className?: string
 }
 
-export const MarkdownRenderer = memo(({ content, className = '' }: MarkdownRendererProps) => {
+export function MarkdownRenderer({ content, className = '' }: MarkdownRendererProps) {
   return (
     <div className={`markdown-content ${className}`}>
       <ReactMarkdown
@@ -78,4 +77,4 @@ export const MarkdownRenderer = memo(({ content, className = '' }: MarkdownRende
       </ReactMarkdown>
     </div>
   )
-})
+}

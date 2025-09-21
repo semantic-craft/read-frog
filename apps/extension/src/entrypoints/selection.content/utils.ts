@@ -1,8 +1,8 @@
-// 句子边界匹配符号
+// Sentence boundary matching symbols
 const sentenceBoundary = /[.!?。？！]/g
 
 /**
- * 计算指定节点在根节点中的文本偏移量
+ * Calculate the text offset of the specified node within the root node
  */
 function getTextOffset(root: Element, node: Node, offset: number): number {
   let textOffset = 0
@@ -25,13 +25,13 @@ function getTextOffset(root: Element, node: Node, offset: number): number {
 }
 
 /**
- * 查找给定索引前最近的句子边界
+ * Find the nearest sentence boundary before the given index
  */
 function findBeforeBoundary(text: string, index: number): number {
   let boundary = 0
   let match: RegExpExecArray | null
 
-  // 重置正则表达式的状态
+  // Reset the regex state
   sentenceBoundary.lastIndex = 0
 
   // eslint-disable-next-line no-cond-assign
@@ -48,7 +48,7 @@ function findBeforeBoundary(text: string, index: number): number {
 }
 
 /**
- * 查找给定索引后最近的句子边界
+ * Find the nearest sentence boundary after the given index
  */
 function findAfterBoundary(text: string, index: number): number {
   sentenceBoundary.lastIndex = index
@@ -57,7 +57,7 @@ function findAfterBoundary(text: string, index: number): number {
 }
 
 /**
- * 获取选中文本的上下文句子
+ * Get the context sentences for the selected text
  */
 export function getContext(selectionRange: Range) {
   const container = selectionRange.commonAncestorContainer
@@ -102,7 +102,7 @@ export interface HighlightData {
 }
 
 /**
- * 创建高亮数据
+ * Create highlight data
  */
 export function createHighlightData(selectionRange: Range): HighlightData {
   return {

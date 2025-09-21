@@ -1,5 +1,5 @@
 import type { HighlightData } from '../utils'
-import type { PopoverWrapperRef } from './popover-wrapper'
+import type { PopoverWrapperRef } from './components/popover-wrapper'
 import { useCallback, useEffect, useRef, useState } from '#imports'
 import { Icon } from '@iconify/react'
 import { streamText } from 'ai'
@@ -9,10 +9,10 @@ import { configAtom } from '@/utils/atoms/config'
 import { readProviderConfigAtom } from '@/utils/atoms/provider'
 import { logger } from '@/utils/logger'
 import { getWordExplainPrompt } from '@/utils/prompts/word-explain'
-import { getReadModel } from '@/utils/providers/model'
+import { getReadModelById } from '@/utils/providers/model'
 import { createHighlightData } from '../utils'
 import { isAiPopoverVisibleAtom, isTooltipVisibleAtom, mouseClickPositionAtom, selectionRangeAtom } from './atom'
-import { PopoverWrapper } from './popover-wrapper'
+import { PopoverWrapper } from './components/popover-wrapper'
 
 export function AiButton() {
   const setIsTooltipVisible = useSetAtom(isTooltipVisibleAtom)
@@ -66,7 +66,7 @@ export function AiPopover() {
     setAiResponse('')
 
     try {
-      const model = await getReadModel(readProviderConfig.name)
+      const model = await getReadModelById(readProviderConfig.id)
 
       const prompt = getWordExplainPrompt(
         config.language.sourceCode,
