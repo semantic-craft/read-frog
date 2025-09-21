@@ -246,7 +246,7 @@ export const DEFAULT_PROVIDER_CONFIG = {
     description: i18n.t('options.apiProviders.providers.description.tensdaq'),
     enabled: true,
     provider: 'tensdaq',
-    baseURL: 'https://api.x-aio.com/v1',
+    baseURL: 'https://tensdaq-api.x-aio.com/v1',
     models: {
       read: DEFAULT_READ_MODELS.tensdaq,
       translate: DEFAULT_TRANSLATE_MODELS.tensdaq,
