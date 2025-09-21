@@ -69,10 +69,10 @@ export function removeAllTranslatedWrapperNodes(
 export async function translateNodes(nodes: ChildNode[], walkId: string, toggle: boolean = false, config: Config) {
   const translationMode = config.translate.mode
   if (translationMode === 'translationOnly') {
-    await translateNodeTranslationOnlyMode(nodes, walkId, toggle, config)
+    await translateNodeTranslationOnlyMode(nodes, walkId, config, toggle)
   }
   else if (translationMode === 'bilingual') {
-    await translateNodesBilingualMode(nodes, walkId, toggle, config)
+    await translateNodesBilingualMode(nodes, walkId, config, toggle)
   }
 }
 
@@ -82,7 +82,7 @@ export async function translateNodes(nodes: ChildNode[], walkId: string, toggle:
  * @param walkId - The walk ID for the translation
  * @param toggle - Whether to toggle the translation, if true, the translation will be removed if it already exists
  */
-export async function translateNodesBilingualMode(nodes: ChildNode[], walkId: string, toggle: boolean = false, config: Config) {
+export async function translateNodesBilingualMode(nodes: ChildNode[], walkId: string, config: Config, toggle: boolean = false) {
   const transNodes = nodes.filter(node => isTransNode(node))
   if (transNodes.length === 0) {
     return
@@ -107,7 +107,7 @@ export async function translateNodesBilingualMode(nodes: ChildNode[], walkId: st
       }
       else {
         nodes.forEach(node => translatingNodes.delete(node))
-        void translateNodesBilingualMode(nodes, walkId, toggle, config)
+        void translateNodesBilingualMode(nodes, walkId, config, toggle)
         return
       }
     }
@@ -158,7 +158,7 @@ export async function translateNodesBilingualMode(nodes: ChildNode[], walkId: st
   }
 }
 
-export async function translateNodeTranslationOnlyMode(nodes: ChildNode[], walkId: string, toggle: boolean = false, config: Config) {
+export async function translateNodeTranslationOnlyMode(nodes: ChildNode[], walkId: string, config: Config, toggle: boolean = false) {
   const isTransNodeAndNotTranslatedWrapper = (node: Node): node is TransNode => {
     if (isHTMLElement(node) && node.classList.contains(CONTENT_WRAPPER_CLASS))
       return false
@@ -231,7 +231,7 @@ export async function translateNodeTranslationOnlyMode(nodes: ChildNode[], walkI
         // same nodes array, we ensure the translation uses the newly created DOM elements since the
         // function will re-query and find the correct parent and child nodes from the restored DOM.
         nodes.forEach(node => translatingNodes.delete(node))
-        void translateNodeTranslationOnlyMode(nodes, walkId, toggle, config)
+        void translateNodeTranslationOnlyMode(nodes, walkId, config, toggle)
         return
       }
     }
