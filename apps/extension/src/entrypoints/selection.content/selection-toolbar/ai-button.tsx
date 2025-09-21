@@ -1,5 +1,5 @@
 import type { PopoverWrapperRef } from './components/popover-wrapper'
-import { useMemo, useRef } from '#imports'
+import { useMemo, useRef, useState } from '#imports'
 import { Icon } from '@iconify/react'
 import { useQuery } from '@tanstack/react-query'
 import { streamText } from 'ai'
@@ -47,6 +47,7 @@ export function AiPopover() {
   const config = useAtomValue(configAtom)
   const readProviderConfig = useAtomValue(readProviderConfigAtom)
   const popoverRef = useRef<PopoverWrapperRef>(null)
+  const [aiResponse, setAiResponse] = useState('')
 
   const highlightData = useMemo(() => {
     if (!selectionRange || !isVisible) {
@@ -58,7 +59,6 @@ export function AiPopover() {
   }, [selectionRange, isVisible])
 
   const {
-    data: aiResponse,
     isLoading,
     error,
   } = useQuery({
@@ -89,9 +89,11 @@ export function AiPopover() {
       let fullResponse = ''
       for await (const delta of result.textStream) {
         fullResponse += delta
+        setAiResponse(fullResponse)
+        popoverRef.current?.scrollToBottom()
       }
 
-      return fullResponse
+      return true
     },
     enabled: !!highlightData,
   })
@@ -132,7 +134,7 @@ export function AiPopover() {
           </div>
         </div>
         <div className="pt-4">
-          {isLoading && (
+          {isLoading && !aiResponse && (
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center space-x-3 text-slate-500">
                 <div className="flex space-x-1">
