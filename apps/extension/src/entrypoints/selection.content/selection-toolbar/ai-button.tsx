@@ -48,7 +48,6 @@ export function AiPopover() {
   const readProviderConfig = useAtomValue(readProviderConfigAtom)
   const popoverRef = useRef<PopoverWrapperRef>(null)
 
-  // 使用 useMemo 来计算 highlightData，避免在 useEffect 中设置状态
   const highlightData = useMemo(() => {
     if (!selectionRange || !isVisible) {
       return null
@@ -58,8 +57,6 @@ export function AiPopover() {
     return data
   }, [selectionRange, isVisible])
 
-  // 使用 TanStack Query 的 useQuery 来管理 AI 分析状态
-  // 这样我们可以自动处理 loading、error 和 data 状态
   const {
     data: aiResponse,
     isLoading,
@@ -89,7 +86,6 @@ export function AiPopover() {
         prompt,
       })
 
-      // 收集完整的响应文本
       let fullResponse = ''
       for await (const delta of result.textStream) {
         fullResponse += delta
@@ -97,7 +93,7 @@ export function AiPopover() {
 
       return fullResponse
     },
-    enabled: !!highlightData, // 只有在有数据时才执行查询
+    enabled: !!highlightData,
   })
 
   return (
