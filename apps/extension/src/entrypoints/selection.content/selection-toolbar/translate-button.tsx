@@ -7,7 +7,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { isLLMTranslateProviderConfig, isNonAPIProvider, isPureAPIProvider, THINKING_MODELS } from '@/types/config/provider'
-import { configFields } from '@/utils/atoms/config'
+import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { translateProviderConfigAtom } from '@/utils/atoms/provider'
 import { authClient } from '@/utils/auth/auth-client'
 import { globalConfig } from '@/utils/config/config'
@@ -47,7 +47,7 @@ export function TranslatePopover() {
   const [isTranslating, setIsTranslating] = useState(false)
   const [translatedText, setTranslatedText] = useState<string | undefined>(undefined)
   const translateProviderConfig = useAtomValue(translateProviderConfigAtom)
-  const languageConfig = useAtomValue(configFields.language)
+  const languageConfig = useAtomValue(configFieldsAtomMap.language)
   const selectionContent = useAtomValue(selectionContentAtom)
   const [isVisible, setIsVisible] = useAtom(isTranslatePopoverVisibleAtom)
   const { data: session } = authClient.useSession()
