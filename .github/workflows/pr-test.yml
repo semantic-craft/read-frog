@@ -57,3 +57,5 @@ jobs:
 
       - name: Run tests
         run: pnpm test
+        env:
+          SKIP_FREE_API: true
