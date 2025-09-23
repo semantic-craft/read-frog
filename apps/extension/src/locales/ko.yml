@@ -32,7 +32,12 @@ options:
     page: 페이지에서
   apiProviders:
     title: API 제공업체
-    description: 번역 및 읽기 기능을 위한 API 제공업체 구성
+    description: 번역 및 읽기 기능을 위한 API 제공업체 구성. 20개 이상의 API 제공업체와 모든 OpenAI 호환 API 제공업체를 지원합니다.
+    promotion:
+      ai302:
+        description: 오른쪽 링크를 클릭하여 302.AI에 등록하면 1달러 API 크레딧을 받을 수 있습니다
+        action: 등록하여 무료 API 키 받기
+        addProvider: 302.AI 구성 추가
     addProvider: 제공업체 추가
     badges:
       publicBeta: 퍼블릭 베타
@@ -77,6 +82,7 @@ options:
         anthropic: 안전성과 추론 능력이 뛰어난 Claude 모델
         xai: 실시간 데이터 접근이 가능한 Grok 모델을 제공하는 일론 머스크의 AI 회사
         siliconflow: 중국 및 국제 모델을 위한 고성능 추론 플랫폼
+        tensdaq: 혁신적인 경매 AI MaaS 플랫폼으로 시장 수요와 공급에 따라 가격이 결정되어 고비용 고정 요금제를 없앰
         ai302: 여러 프리미엄 모델을 한 곳에서 제공하는 종합 AI 플랫폼
         openaiCompatible: OpenAI API 호환 서드파티
         deeplx: 비공식 DeepL API

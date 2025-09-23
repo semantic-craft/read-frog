@@ -3,11 +3,12 @@ import { WEBSITE_URL } from '@/utils/constants/url'
 import { logger } from '@/utils/logger'
 import { onMessage, sendMessage } from '@/utils/message'
 import { cleanupAllCache, setUpCacheCleanup } from './cache-cleanup'
-import { ensureInitializedConfig, getConfigFromBackground } from './config'
+import { ensureInitializedConfig } from './config'
 import { newUserGuide } from './new-user-guide'
 import { proxyFetch } from './proxy-fetch'
 import { setUpRequestQueue } from './request-queue'
 import { translationMessage } from './translation'
+import { setupUninstallSurvey } from './uninstall-survey'
 
 export default defineBackground({
   type: 'module',
@@ -43,13 +44,12 @@ export default defineBackground({
       await cleanupAllCache()
     })
 
-    getConfigFromBackground()
-
     newUserGuide()
     translationMessage()
 
     void setUpRequestQueue()
     setUpCacheCleanup()
+    void setupUninstallSurvey()
 
     proxyFetch()
   },

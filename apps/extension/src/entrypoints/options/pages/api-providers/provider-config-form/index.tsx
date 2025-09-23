@@ -8,7 +8,7 @@ import { useAtom } from 'jotai'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { isAPIProviderConfig, isNonAPIProvider, isNonCustomLLMProvider, isReadProvider, isTranslateProvider } from '@/types/config/provider'
-import { configFields } from '@/utils/atoms/config'
+import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { providerConfigAtom } from '@/utils/atoms/provider'
 import { getReadProvidersConfig, getTranslateProvidersConfig } from '@/utils/config/helpers'
 import { selectedProviderIdAtom } from '../atoms'
@@ -21,9 +21,9 @@ import { TranslateModelSelector } from './translate-model-selector'
 export function ProviderConfigForm() {
   const [selectedProviderId, setSelectedProviderId] = useAtom(selectedProviderIdAtom)
   const [providerConfig, setProviderConfig] = useAtom(providerConfigAtom(selectedProviderId ?? ''))
-  const [allProvidersConfig, setAllProvidersConfig] = useAtom(configFields.providersConfig)
-  const [readConfig, setReadConfig] = useAtom(configFields.read)
-  const [translateConfig, setTranslateConfig] = useAtom(configFields.translate)
+  const [allProvidersConfig, setAllProvidersConfig] = useAtom(configFieldsAtomMap.providersConfig)
+  const [readConfig, setReadConfig] = useAtom(configFieldsAtomMap.read)
+  const [translateConfig, setTranslateConfig] = useAtom(configFieldsAtomMap.translate)
 
   const specificFormOpts = {
     ...formOpts,
@@ -69,10 +69,10 @@ export function ProviderConfigForm() {
     }
 
     if (readConfig.providerId === providerConfig.id) {
-      void setReadConfig({ providerId: updatedAllReadProviders[0].id })
+      await setReadConfig({ providerId: updatedAllReadProviders[0].id })
     }
     if (translateConfig.providerId === providerConfig.id) {
-      void setTranslateConfig({ providerId: chooseNextProviderConfig(updatedAllTranslateProviders).id })
+      await setTranslateConfig({ providerId: chooseNextProviderConfig(updatedAllTranslateProviders).id })
     }
     await setAllProvidersConfig(updatedAllProviders)
     setSelectedProviderId(chooseNextProviderConfig(updatedAllProviders).id)

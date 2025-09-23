@@ -1,6 +1,6 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
-import { configFields } from '@/utils/atoms/config'
+import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { MARGIN } from '@/utils/constants/selection'
 import { AiButton, AiPopover } from './ai-button'
 import { isTooltipVisibleAtom, selectionContentAtom, selectionRangeAtom } from './atom'
@@ -14,7 +14,7 @@ export function SelectionToolbar() {
   const [isTooltipVisible, setIsTooltipVisible] = useAtom(isTooltipVisibleAtom)
   const setSelectionContent = useSetAtom(selectionContentAtom)
   const setSelectionRange = useSetAtom(selectionRangeAtom)
-  const selectionToolbar = useAtomValue(configFields.selectionToolbar)
+  const selectionToolbar = useAtomValue(configFieldsAtomMap.selectionToolbar)
 
   const updatePosition = useCallback(() => {
     if (!isTooltipVisible || !tooltipRef.current || !selectionPositionRef.current)

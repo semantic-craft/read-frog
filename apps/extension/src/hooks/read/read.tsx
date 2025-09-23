@@ -20,10 +20,11 @@ import {
   articleExplanationSchema,
 } from '@/types/content'
 import { sendInBatchesWithFixedDelay } from '@/utils/ai-request'
-import { configAtom, configFields } from '@/utils/atoms/config'
+import { configAtom, configFieldsAtomMap } from '@/utils/atoms/config'
 import { readProviderConfigAtom } from '@/utils/atoms/provider'
 import { isAnyAPIKeyForReadProviders } from '@/utils/config/config'
 import { getProviderConfigById } from '@/utils/config/helpers'
+import { getFinalSourceCode } from '@/utils/config/languages'
 import { logger } from '@/utils/logger'
 import { getAnalyzePrompt } from '@/utils/prompts/analyze'
 import { getExplainPrompt } from '@/utils/prompts/explain'
@@ -41,7 +42,7 @@ export function useAnalyzeContent() {
   const setReadState = useSetAtom(readStateAtom)
   const { language } = useAtomValue(configAtom)
   const readProviderConfig = useAtomValue(readProviderConfigAtom)
-  const setLanguage = useSetAtom(configFields.language)
+  const setLanguage = useSetAtom(configFieldsAtomMap.language)
   return useMutation<ArticleAnalysis, Error, ExtractedContent>({
     mutationKey: ['analyzeContent'],
     mutationFn: async (extractedContent: ExtractedContent) => {
@@ -54,7 +55,7 @@ export function useAnalyzeContent() {
       const maxAttempts = 3
       let lastError
 
-      const model = await getReadModelById(readProviderConfig.name)
+      const model = await getReadModelById(readProviderConfig.id)
       const targetLang = LANG_CODE_TO_EN_NAME[language.targetCode]
 
       while (attempts < maxAttempts) {
@@ -111,13 +112,9 @@ async function explainBatch(batch: string[], articleAnalysis: ArticleAnalysis, c
 
   const targetLang = LANG_CODE_TO_EN_NAME[language.targetCode]
   const sourceLang
-    = LANG_CODE_TO_EN_NAME[
-      language.sourceCode === 'auto'
-        ? language.detectedCode
-        : language.sourceCode
-    ]
+    = LANG_CODE_TO_EN_NAME[getFinalSourceCode(language.sourceCode, language.detectedCode)]
 
-  const model = await getReadModelById(readProviderConfig.name)
+  const model = await getReadModelById(readProviderConfig.id)
   while (attempts < MAX_ATTEMPTS) {
     try {
       const { object: articleExplanation } = await generateObject({
@@ -235,7 +232,7 @@ export function useReadArticle() {
   const explainArticle = useExplainArticle()
   const setReadState = useSetAtom(readStateAtom)
   const queryClient = useQueryClient()
-  const providersConfig = useAtomValue(configFields.providersConfig)
+  const providersConfig = useAtomValue(configFieldsAtomMap.providersConfig)
 
   const mutate = async () => {
     if (!isAnyAPIKeyForReadProviders(providersConfig)) {

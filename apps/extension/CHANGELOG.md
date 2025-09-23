@@ -1,5 +1,69 @@
 # @read-frog/extension
 
+## 1.10.5
+
+### Patch Changes
+
+- [#516](https://github.com/mengxi-ream/read-frog/pull/516) [`1884fb0`](https://github.com/mengxi-ream/read-frog/commit/1884fb0e3f057006464e8ae88754229c309da40b) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - fix: complete the hash key for translation
+
+- [#515](https://github.com/mengxi-ream/read-frog/pull/515) [`81b0183`](https://github.com/mengxi-ream/read-frog/commit/81b018330134e3c552302fc1bdf9e9e2f6d91e4a) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - fix: crash when delete the first provider
+
+- [#516](https://github.com/mengxi-ream/read-frog/pull/516) [`1884fb0`](https://github.com/mengxi-ream/read-frog/commit/1884fb0e3f057006464e8ae88754229c309da40b) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - fix: translate code inside a paragraph
+
+## 1.10.4
+
+### Patch Changes
+
+- [#512](https://github.com/mengxi-ream/read-frog/pull/512) [`ea6e1a7`](https://github.com/mengxi-ream/read-frog/commit/ea6e1a7b97f6f92737f12d0e37c7aab6799009bf) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - feat: add churn feedback survey
+
+## 1.10.3
+
+### Patch Changes
+
+- [#509](https://github.com/mengxi-ream/read-frog/pull/509) [`6928f28`](https://github.com/mengxi-ream/read-frog/commit/6928f28060107cdb4f9fe91718b30e818f535e5f) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - fix: provider selector in side content
+
+## 1.10.2
+
+### Patch Changes
+
+- [#506](https://github.com/mengxi-ream/read-frog/pull/506) [`5eff186`](https://github.com/mengxi-ream/read-frog/commit/5eff186707bad1aaf681cd871deb965a01e1368d) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - fix: static import migrations in service worker
+
+- [#508](https://github.com/mengxi-ream/read-frog/pull/508) [`bf0b7cd`](https://github.com/mengxi-ream/read-frog/commit/bf0b7cd0178758706c2e98f7f25e23e6de59e310) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - feat: add tensdaq provider
+
+## 1.10.1
+
+### Patch Changes
+
+- [#504](https://github.com/mengxi-ream/read-frog/pull/504) [`d48a78d`](https://github.com/mengxi-ream/read-frog/commit/d48a78d966d3f72a19f765035ee1b9f4e706c1d9) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - chore: add 302 ai to default
+
+## 1.10.0
+
+### Minor Changes
+
+- [#481](https://github.com/mengxi-ream/read-frog/pull/481) [`2d9c9a8`](https://github.com/mengxi-ream/read-frog/commit/2d9c9a82cd47a46bf1d6b4664c360e400070c05e) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - feat: provider option add name, description and enabled settings
+
+- [#492](https://github.com/mengxi-ream/read-frog/pull/492) [`b18e189`](https://github.com/mengxi-ream/read-frog/commit/b18e1891d1ce5e4236922bd9a55b42adbf620593) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - feat: add over 20 more llm providers
+
+### Patch Changes
+
+- [#491](https://github.com/mengxi-ream/read-frog/pull/491) [`e3639c2`](https://github.com/mengxi-ream/read-frog/commit/e3639c2562e674ca269a311446a70d4299d89610) Thanks [@Yukiniro](https://github.com/Yukiniro)! - fix: automatic translation not working correctly
+
+- [#478](https://github.com/mengxi-ream/read-frog/pull/478) [`cf71fa2`](https://github.com/mengxi-ream/read-frog/commit/cf71fa2b070def91518c3df88cbc825485f3d6ea) Thanks [@Yukiniro](https://github.com/Yukiniro)! - refactor: change export type to `esm` and use `js-sha256` replace `crypto-js`
+
+- [#488](https://github.com/mengxi-ream/read-frog/pull/488) [`4686166`](https://github.com/mengxi-ream/read-frog/commit/468616630ee607c707c3a6e06ab77b5bdfbce97f) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - test: have to test every migration script
+
+- [#501](https://github.com/mengxi-ream/read-frog/pull/501) [`1d0ca69`](https://github.com/mengxi-ream/read-frog/commit/1d0ca690ebdc20fc0bf9a84467b083e6ca2b1cfb) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - fix: config being reset to the previous version on edge browser
+
+- [#497](https://github.com/mengxi-ream/read-frog/pull/497) [`f2b74ac`](https://github.com/mengxi-ream/read-frog/commit/f2b74acc035c7bd39af9c97e63dbb3c4ccc2cc89) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - fix: increase disable menu z-index to prevent overlay issue
+
+- [#487](https://github.com/mengxi-ream/read-frog/pull/487) [`2ac5771`](https://github.com/mengxi-ream/read-frog/commit/2ac5771bc9886b3e97de56e3c63fc61ceda61e03) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - fix: no error component after bilingual translation error
+
+- [#482](https://github.com/mengxi-ream/read-frog/pull/482) [`afbd4be`](https://github.com/mengxi-ream/read-frog/commit/afbd4bed8311453297b01d2dbb6f4ad59e019e73) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - style: update select language cells hover color
+
+- [#493](https://github.com/mengxi-ream/read-frog/pull/493) [`dd72ab4`](https://github.com/mengxi-ream/read-frog/commit/dd72ab475f0fa26581a0cac39e8e77934d57be58) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - fix: choose right read or translate provider when delete the previous one
+
+- [#486](https://github.com/mengxi-ream/read-frog/pull/486) [`f20fb67`](https://github.com/mengxi-ream/read-frog/commit/f20fb6769a9e02e6f1dfb145300e4107261398d7) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - fix: translate dom with translate attribute no"
+
 ## 1.9.1
 
 ### Patch Changes

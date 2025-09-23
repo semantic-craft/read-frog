@@ -1,6 +1,7 @@
 name: Read Frog
 extName: Read Frog - Open Source Immersive Translate
 extDescription: Read Frog is an open source browser extension designed to help you learn languages deeply from any website.
+uninstallSurveyUrl: https://tally.so/r/nPK6Ob
 popup:
   autoLang: Auto
   sourceLang: Source
@@ -32,7 +33,12 @@ options:
     page: page
   apiProviders:
     title: API Providers
-    description: Configure the API providers for translation and reading functions here
+    description: Configure the API providers for translation and reading functions here. We have 20+ API providers built-in and support any OpenAI compatible API providers.
+    promotion:
+      ai302:
+        description: Click the link on the right to register 302.AI and get 1 USD API credit
+        action: Register to Get Free API Key
+        addProvider: Add 302.AI Configuration
     addProvider: Add Provider
     badges:
       publicBeta: Public Beta
@@ -77,6 +83,7 @@ options:
         anthropic: Claude models known for safety and reasoning excellence
         xai: Elon Musk's AI company offering Grok models with real-time data access
         siliconflow: High-performance inference platform for Chinese and international models
+        tensdaq: Revolutionary bidding AI MaaS platform with market-driven pricing, eliminating high-cost fixed pricing
         ai302: Comprehensive AI platform offering multiple premium models in one place
         openaiCompatible: Third-party and OpenAI API compatible
         deeplx: Unofficial DeepL API

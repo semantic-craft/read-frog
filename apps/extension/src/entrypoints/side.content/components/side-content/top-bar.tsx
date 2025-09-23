@@ -29,8 +29,9 @@ import { cn } from '@repo/ui/lib/utils'
 import { useMutationState } from '@tanstack/react-query'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import ReadProviderSelector from '@/components/provider/read-provider-selector'
-import { configFields } from '@/utils/atoms/config'
+import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { readProviderConfigAtom } from '@/utils/atoms/provider'
+import { getFinalSourceCode } from '@/utils/config/languages'
 import { READ_PROVIDER_ITEMS } from '@/utils/constants/providers'
 import { DOWNLOAD_FILE_ITEMS } from '@/utils/constants/side'
 import { isDarkMode } from '@/utils/tailwind'
@@ -41,7 +42,7 @@ import downloader from '../../utils/downloader'
 export function TopBar({ className }: { className?: string }) {
   const setIsSideOpen = useSetAtom(isSideOpenAtom)
   const readProviderConfig = useAtomValue(readProviderConfigAtom)
-  const readConfig = useAtomValue(configFields.read)
+  const readConfig = useAtomValue(configFieldsAtomMap.read)
 
   return (
     <div className={cn('flex items-start justify-between', className)}>
@@ -57,9 +58,10 @@ export function TopBar({ className }: { className?: string }) {
             <img
               src={READ_PROVIDER_ITEMS[readProviderConfig.provider].logo(isDarkMode())}
               alt={readConfig.providerId}
-              className="size-4 p-0.5 bg-white rounded-full"
+              className="size-4 p-0.5 rounded-full"
             />
           )}
+          container={shadowWrapper}
         />
         <FileExport />
       </div>
@@ -82,7 +84,7 @@ export function TopBar({ className }: { className?: string }) {
 }
 
 function LangLevelSelect() {
-  const [language, setLanguage] = useAtom(configFields.language)
+  const [language, setLanguage] = useAtom(configFieldsAtomMap.language)
 
   return (
     <Select
@@ -112,7 +114,7 @@ function LangLevelSelect() {
 }
 
 function TargetLangSelect() {
-  const [language, setLanguage] = useAtom(configFields.language)
+  const [language, setLanguage] = useAtom(configFieldsAtomMap.language)
 
   return (
     <Select
@@ -143,7 +145,7 @@ function TargetLangSelect() {
 }
 
 function SourceLangSelect() {
-  const [language, setLanguage] = useAtom(configFields.language)
+  const [language, setLanguage] = useAtom(configFieldsAtomMap.language)
 
   return (
     <Select
@@ -156,9 +158,7 @@ function SourceLangSelect() {
         className="border-border flex !h-7 w-auto items-center gap-2 rounded-md border px-2"
       >
         <div className="max-w-15 min-w-0 truncate">
-          {language.sourceCode === 'auto'
-            ? LANG_CODE_TO_EN_NAME[language.detectedCode]
-            : LANG_CODE_TO_EN_NAME[language.sourceCode]}
+          {LANG_CODE_TO_EN_NAME[getFinalSourceCode(language.sourceCode, language.detectedCode)]}
         </div>
       </SelectTrigger>
       <SelectContent container={shadowWrapper}>

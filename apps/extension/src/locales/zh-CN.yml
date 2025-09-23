@@ -1,6 +1,7 @@
 name: 陪读蛙
 extName: 陪读蛙 - 开源沉浸式翻译
 extDescription: 陪读蛙是一款开放源代码的浏览器插件，旨在帮助您从任何网站深入学习语言。
+uninstallSurveyUrl: https://tally.so/r/3E9XDL
 popup:
   autoLang: 自动检测
   sourceLang: 来源语言
@@ -32,7 +33,12 @@ options:
     page: 页设置 API Key
   apiProviders:
     title: API 提供商
-    description: 配置用于翻译和阅读功能的 API 提供商
+    description: 配置用于翻译和阅读功能的 API 提供商。我们内置了 20 多个 API 提供商，并且支持任何 OpenAI 兼容的 API 提供商。
+    promotion:
+      ai302:
+        description: 点击右方链接注册 302.AI 可以获得 1 美元 API 额度
+        action: 注册获取免费 API Key
+        addProvider: 添加 302.AI 配置
     addProvider: 添加提供商
     badges:
       publicBeta: 公测版
@@ -77,6 +83,7 @@ options:
         anthropic: 以安全性和推理能力著称的 Claude 模型
         xai: 马斯克的 AI 公司，提供具有实时数据访问能力的 Grok 模型
         siliconflow: 面向中国和国际模型的高性能推理平台
+        tensdaq: 革命性竞价 AI MaaS 平台，价格由市场供需决定，告别高成本固定定价
         ai302: 在一个平台提供多种高端模型的综合 AI 平台
         openaiCompatible: OpenAI API 兼容的第三方
         deeplx: 非官方 DeepL API
