@@ -111,25 +111,22 @@ export function AiPopover() {
           <p className="text-xs text-zinc-500 dark:text-zinc-500 mb-2">上下文:</p>
           <div className="text-sm text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 p-3 rounded leading-relaxed">
             {highlightData?.context.before && (
-              <span className="text-zinc-500 dark:text-zinc-400">
+              <span>
                 {highlightData.context.before}
               </span>
             )}
             {highlightData?.context.selection && (
               <span
-                className="mx-1.5 rounded font-medium px-0.5"
-                style={{ backgroundColor: 'var(--read-frog-primary)' }}
+                className="font-medium"
+                style={{ color: 'var(--read-frog-primary)' }}
               >
                 {` ${highlightData.context.selection} `}
               </span>
             )}
             {highlightData?.context.after && (
-              <span className="text-zinc-500 dark:text-zinc-400">
+              <span>
                 {highlightData.context.after}
               </span>
-            )}
-            {!highlightData?.context.selection && (
-              <span className="text-zinc-400 dark:text-zinc-500">无选中内容</span>
             )}
           </div>
         </div>

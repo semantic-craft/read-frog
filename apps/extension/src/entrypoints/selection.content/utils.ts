@@ -1,63 +1,6 @@
-// Sentence boundary matching symbols
-const sentenceBoundary = /[.!?。？！]/g
-
-/**
- * Calculate the text offset of the specified node within the root node
- */
-function getTextOffset(root: Element, node: Node, offset: number): number {
-  let textOffset = 0
-  const walker = document.createTreeWalker(
-    root,
-    NodeFilter.SHOW_TEXT,
-    null,
-  )
-
-  let currentNode: Node | null = walker.nextNode()
-  while (currentNode) {
-    if (currentNode === node) {
-      return textOffset + offset
-    }
-    textOffset += currentNode.textContent?.length ?? 0
-    currentNode = walker.nextNode()
-  }
-
-  return -1
-}
-
-/**
- * Find the nearest sentence boundary before the given index
- */
-function findBeforeBoundary(text: string, index: number): number {
-  let boundary = 0
-  let match: RegExpExecArray | null
-
-  // Reset the regex state
-  sentenceBoundary.lastIndex = 0
-
-  // eslint-disable-next-line no-cond-assign
-  while ((match = sentenceBoundary.exec(text)) !== null) {
-    if (match.index < index) {
-      boundary = match.index + 1
-    }
-    else {
-      break
-    }
-  }
-
-  return boundary
-}
-
-/**
- * Find the nearest sentence boundary after the given index
- */
-function findAfterBoundary(text: string, index: number): number {
-  sentenceBoundary.lastIndex = index
-  const match = sentenceBoundary.exec(text)
-  return match ? match.index + 1 : text.length
-}
-
 /**
  * Get the context sentences for the selected text
+ * TODO: this is a simple version, need to improve
  */
 export function getContext(selectionRange: Range) {
   const container = selectionRange.commonAncestorContainer
@@ -71,33 +14,50 @@ export function getContext(selectionRange: Range) {
 
   const fullText = root.textContent ?? ''
   const selection = selectionRange.toString()
+  const index = fullText.indexOf(selection)
 
-  // Use Range's position information instead of indexOf to avoid wrong occurrence
-  const startIndex = getTextOffset(root, selectionRange.startContainer, selectionRange.startOffset)
-  const endIndex = getTextOffset(root, selectionRange.endContainer, selectionRange.endOffset)
-
-  if (startIndex === -1 || endIndex === -1) {
+  if (index === -1) {
     return { before: '', selection, after: '' }
   }
 
-  const beforeBoundary = findBeforeBoundary(fullText, startIndex)
-  const afterBoundary = findAfterBoundary(fullText, endIndex)
+  // 定义句子边界
+  const boundaries = /[.!?。！？]/g
 
-  const beforeStart = beforeBoundary === startIndex ? 0 : beforeBoundary
-  const before = fullText.slice(beforeStart, startIndex).trim()
+  // 找到前一个边界
+  let start = 0
+  for (let i = index; i >= 0; i--) {
+    if (boundaries.test(fullText[i])) {
+      start = i + 1
+      break
+    }
+  }
 
-  const afterEnd = afterBoundary === endIndex + 1 ? fullText.length : afterBoundary
-  const after = fullText.slice(endIndex, afterEnd).trim()
+  // 找到后一个边界
+  let end = fullText.length
+  for (let i = index + selection.length; i < fullText.length; i++) {
+    if (boundaries.test(fullText[i])) {
+      end = i + 1
+      break
+    }
+  }
+
+  const sentence = fullText.slice(start, end).trim()
+  const relIndex = sentence.indexOf(selection)
+
+  const before = sentence.slice(0, relIndex)
+  const after = sentence.slice(relIndex + selection.length)
 
   return { before, selection, after }
 }
 
+interface Context {
+  before: string
+  selection: string
+  after: string
+}
+
 export interface HighlightData {
-  context: {
-    before: string
-    selection: string
-    after: string
-  }
+  context: Context
 }
 
 /**
