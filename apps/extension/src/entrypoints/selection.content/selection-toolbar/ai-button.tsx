@@ -73,6 +73,8 @@ export function AiPopover() {
         throw new Error('AI配置未找到或没有选中内容')
       }
 
+      setAiResponse('')
+
       const model = await getReadModelById(readProviderConfig.id)
       const prompt = getWordExplainPrompt(
         config.language.sourceCode,
@@ -92,6 +94,8 @@ export function AiPopover() {
         setAiResponse(fullResponse)
         popoverRef.current?.scrollToBottom()
       }
+
+      logger.log('aiResponse', '\n', fullResponse)
 
       return true
     },

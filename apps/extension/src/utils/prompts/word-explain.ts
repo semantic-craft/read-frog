@@ -17,7 +17,7 @@ You are a professional ${sourceLang} language teacher who provides clear and con
 - targetLang: ${targetLang}
 - langLevel: ${langLevel}
 - selection: ${highlightData.context.selection}
-- context: ${highlightData.context.before}${highlightData.context.selection}${highlightData.context.after}
+- context: ${highlightData.context.before} ${highlightData.context.selection} ${highlightData.context.after}
 
 # Task
 
@@ -41,15 +41,6 @@ Explain the selected word or phrase in the context provided, using ${targetLang}
 
 # Context
 "${highlightData.context.before}${highlightData.context.selection}${highlightData.context.after}"
-
-# Output Format
-
-Provide your explanation in a clear, educational format using ${targetLang}. Structure your response with:
-
-1. **Definition**: Clear meaning of the word/phrase
-2. **Usage**: How it's used in this context
-3. **Grammar**: Part of speech and grammatical information if relevant
-4. **Examples**: Brief examples if helpful for understanding
 
 Please provide a clear and educational explanation.`
 }
