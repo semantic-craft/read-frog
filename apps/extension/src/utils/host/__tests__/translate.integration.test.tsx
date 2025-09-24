@@ -766,6 +766,25 @@ describe('translate', () => {
         expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
         expect(node.textContent).toBe(`${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}`)
       })
+      it('should treat inline element with only one block child as inline (not block)', async () => {
+        render(
+          <div data-testid="test-node">
+            <span style={{ display: 'inline' }}>
+              {/* whitespace nodes should not count as meaningful children */}
+              {'\n  '}
+              <div style={{ display: 'block' }}>{MOCK_ORIGINAL_TEXT}</div>
+              {'\n  '}
+            </span>
+          </div>,
+        )
+        const node = screen.getByTestId('test-node')
+        const inlineSpan = node.children[0] as HTMLElement
+        await removeOrShowPageTranslation('bilingual', true)
+
+        // The span should be labeled as INLINE, not BLOCK, because it has only one meaningful child
+        expectNodeLabels(inlineSpan, [INLINE_ATTRIBUTE])
+        expectNodeLabels(inlineSpan.children[0], [BLOCK_ATTRIBUTE])
+      })
     })
   })
   describe('empty text nodes with no need to translate node in middle', () => {
