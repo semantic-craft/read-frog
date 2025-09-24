@@ -729,7 +729,7 @@ describe('translate', () => {
       it('bilingual mode: should insert wrapper after the block node', async () => {
         render(
           <div data-testid="test-node">
-            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+            {MOCK_ORIGINAL_TEXT}
             <span style={{ display: 'inline' }}><div style={{ display: 'block' }}>{MOCK_ORIGINAL_TEXT}</div></span>
             <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
           </div>,
@@ -750,7 +750,7 @@ describe('translate', () => {
       it('translation only mode: should replace inline nodes with single wrapper', async () => {
         render(
           <div data-testid="test-node">
-            <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
+            {MOCK_ORIGINAL_TEXT}
             <span style={{ display: 'inline' }}><div style={{ display: 'block' }}>{MOCK_ORIGINAL_TEXT}</div></span>
             <span style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</span>
           </div>,
