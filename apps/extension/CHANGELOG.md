@@ -1,5 +1,19 @@
 # @read-frog/extension
 
+## 1.10.7
+
+### Patch Changes
+
+- [#528](https://github.com/mengxi-ream/read-frog/pull/528) [`39dd45b`](https://github.com/mengxi-ream/read-frog/commit/39dd45b08ac45570d0b9929fd3a1dc6e27bd30ce) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - feat: add openrouter provider
+
+## 1.10.6
+
+### Patch Changes
+
+- [#521](https://github.com/mengxi-ream/read-frog/pull/521) [`1234914`](https://github.com/mengxi-ream/read-frog/commit/1234914daa19e3758648fd818d31590de01351d3) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - fix(extension): replace guest avatar PNG with SVG and add padding
+
+- [#523](https://github.com/mengxi-ream/read-frog/pull/523) [`9e36470`](https://github.com/mengxi-ream/read-frog/commit/9e3647087e5aa680fa55d2f0f6cc197747f41c59) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - style: add hover background to hotkey selector in popup
+
 ## 1.10.5
 
 ### Patch Changes
