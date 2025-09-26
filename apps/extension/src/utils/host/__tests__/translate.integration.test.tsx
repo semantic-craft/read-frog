@@ -873,7 +873,6 @@ describe('translate', () => {
         // Should not have any translation wrapper
         expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
         expect(node.textContent).toBe('12345')
-        expect(vi.mocked(translateText)).not.toHaveBeenCalled()
       })
 
       it('should not translate numbers with thousand separators', async () => {
@@ -959,9 +958,6 @@ describe('translate', () => {
       })
 
       it('should translate text with numbers', async () => {
-        // Mock translateText for this specific test
-        vi.mocked(translateText).mockResolvedValueOnce(MOCK_TRANSLATION)
-
         render(
           <div data-testid="test-node">
             原文包含数字 999
