@@ -15,7 +15,7 @@ export const DEFAULT_READ_MODELS: ReadModels = {
     customModel: null,
   },
   tensdaq: {
-    model: 'Qwen3-235B-A22B-Instruct-2507',
+    model: 'deepseek-v3.1',
     isCustomModel: false,
     customModel: null,
   },
