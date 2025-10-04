@@ -11,7 +11,7 @@ export default async function BlogPostPage(props: {
   params: Promise<{ slug: string, locale: string }>
 }) {
   const params = await props.params
-  const page = blog.getPage([params.slug])
+  const page = blog.getPage([params.slug], params.locale)
 
   if (!page)
     notFound()
@@ -68,10 +68,10 @@ export default async function BlogPostPage(props: {
 }
 
 export async function generateMetadata(props: {
-  params: Promise<{ slug: string }>
+  params: Promise<{ slug: string, locale: string }>
 }): Promise<Metadata> {
   const params = await props.params
-  const page = blog.getPage([params.slug])
+  const page = blog.getPage([params.slug], params.locale)
 
   if (!page)
     notFound()
@@ -83,8 +83,9 @@ export async function generateMetadata(props: {
   }
 }
 
-export function generateStaticParams(): { slug: string }[] {
-  return blog.getPages().map(page => ({
-    slug: page.slugs[0] ?? '',
+export function generateStaticParams(): { slug: string, locale: string }[] {
+  return blog.generateParams().map(({ slug, lang }) => ({
+    slug: slug[0] ?? '',
+    locale: lang,
   }))
 }

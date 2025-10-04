@@ -33,6 +33,10 @@
     "appTitleTemplate": "%s | Read Frog",
     "appDescription": "Master languages effortlessly and deeply with AI, right in your browser."
   },
+  "blog": {
+    "title": "Read Frog Blog",
+    "description": "Latest updates, guides, and insights about Read Frog"
+  },
   "guide": {
     "continue": "Continue",
     "finish": "Finish",

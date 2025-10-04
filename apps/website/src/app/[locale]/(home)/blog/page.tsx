@@ -1,8 +1,13 @@
+import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import { blog } from '@/lib/source'
 
-export default function BlogPage() {
-  const posts = [...blog.getPages()].sort(
+export default async function BlogPage(props: {
+  params: Promise<{ locale: string }>
+}) {
+  const params = await props.params
+  const t = await getTranslations('blog')
+  const posts = [...blog.getPages(params.locale)].sort(
     (a, b) =>
       new Date((b.data as any).date ?? b.file.name).getTime()
         - new Date((a.data as any).date ?? a.file.name).getTime(),
@@ -34,10 +39,10 @@ export default function BlogPage() {
         }}
       >
         <h1 className="mb-4 border-b-4 border-fd-foreground pb-2 text-4xl font-bold md:text-5xl">
-          Read Frog Blog
+          {t('title')}
         </h1>
         <p className="text-sm md:text-base">
-          Latest updates, guides, and insights about Read Frog
+          {t('description')}
         </p>
       </div>
       <div className="grid grid-cols-1 border md:grid-cols-3 lg:grid-cols-4">
