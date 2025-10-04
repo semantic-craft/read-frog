@@ -14,7 +14,7 @@ import {
 import { Link, useLocation } from 'react-router'
 import readFrogLogo from '@/assets/icons/read-frog.png'
 import { version } from '../../../../package.json'
-import { NAV_ITEMS } from './nav-items'
+import { SETTING_NAV_ITEMS } from './nav-items'
 
 export function AppSidebar() {
   const location = useLocation()
@@ -32,10 +32,10 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent className="group-data-[state=expanded]:px-2 transition-all">
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>Settings</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {Object.entries(NAV_ITEMS).map(([key, item]) => (
+              {Object.entries(SETTING_NAV_ITEMS).map(([key, item]) => (
                 <SidebarMenuItem key={key}>
                   <SidebarMenuButton asChild isActive={location.pathname === item.url}>
                     <Link to={item.url}>
@@ -47,6 +47,9 @@ export function AppSidebar() {
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Product</SidebarGroupLabel>
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
