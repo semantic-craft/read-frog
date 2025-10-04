@@ -1,7 +1,8 @@
 import { loader } from 'fumadocs-core/source'
+import { createMDXSource } from 'fumadocs-mdx'
 import { icons } from 'lucide-react'
 import { createElement } from 'react'
-import { docs } from '@/.source'
+import { blog as blogPosts, docs } from '@/.source'
 import { i18n } from './i18n'
 
 // See https://fumadocs.vercel.app/docs/headless/source-api for more info
@@ -15,4 +16,10 @@ export const source = loader({
     if (icon && icon in icons)
       return createElement(icons[icon as keyof typeof icons])
   },
+})
+
+export const blog = loader({
+  baseUrl: '/blog',
+  source: createMDXSource(blogPosts),
+  i18n,
 })

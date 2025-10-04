@@ -15,6 +15,10 @@ export const NAV_ITEMS_LOCALE = {
     en: 'Tutorial',
     zh: '教程',
   },
+  blog: {
+    en: 'Blog',
+    zh: '博客',
+  },
 }
 
 export const CHROME_EXTENSION_ORIGIN = 'chrome-extension://modkelfkcfjpgbfmnbnllalkiogfofhb'
