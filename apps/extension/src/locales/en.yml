@@ -45,7 +45,6 @@ options:
         addProvider: Add 302.AI Configuration
     addProvider: Add Provider
     badges:
-      publicBeta: Public Beta
       translate: Translate
       read: Read
     dialog:

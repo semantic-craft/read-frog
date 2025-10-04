@@ -44,7 +44,6 @@ options:
         addProvider: 302.AI設定を追加
     addProvider: プロバイダーを追加
     badges:
-      publicBeta: パブリックベータ
       translate: 翻訳
       read: 読解
     dialog:

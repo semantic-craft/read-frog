@@ -45,7 +45,6 @@ options:
         addProvider: 添加 302.AI 配置
     addProvider: 添加提供商
     badges:
-      publicBeta: 公测版
       translate: 翻译
       read: 阅读
     dialog:
