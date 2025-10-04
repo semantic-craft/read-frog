@@ -250,6 +250,8 @@ options:
         confirm: Confirm
         cancel: Cancel
         description: This operation will clear all your custom configurations and reset them to default values. Please confirm.
+  whatsNew:
+    title: What's New
 side:
   sourceLang: Source Language
   targetLang: Target Language

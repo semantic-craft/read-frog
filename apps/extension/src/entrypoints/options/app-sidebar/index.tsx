@@ -1,3 +1,4 @@
+import type { NavItem } from './nav-items'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
 import {
@@ -14,10 +15,36 @@ import {
 import { Link, useLocation } from 'react-router'
 import readFrogLogo from '@/assets/icons/read-frog.png'
 import { version } from '../../../../package.json'
-import { SETTING_NAV_ITEMS } from './nav-items'
+import { PRODUCT_NAV_ITEMS, SETTING_NAV_ITEMS } from './nav-items'
 
 export function AppSidebar() {
   const location = useLocation()
+
+  const renderNavItem = (key: string, item: NavItem) => {
+    if (item.type === 'external') {
+      return (
+        <SidebarMenuItem key={key}>
+          <SidebarMenuButton asChild>
+            <a href={item.externalUrl} target="_blank" rel="noopener noreferrer">
+              <Icon icon={item.icon} />
+              <span>{i18n.t(`options.${item.title}.title`)}</span>
+            </a>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      )
+    }
+
+    return (
+      <SidebarMenuItem key={key}>
+        <SidebarMenuButton asChild isActive={location.pathname === item.url}>
+          <Link to={item.url}>
+            <Icon icon={item.icon} />
+            <span>{i18n.t(`options.${item.title}.title`)}</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    )
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -35,21 +62,17 @@ export function AppSidebar() {
           <SidebarGroupLabel>Settings</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {Object.entries(SETTING_NAV_ITEMS).map(([key, item]) => (
-                <SidebarMenuItem key={key}>
-                  <SidebarMenuButton asChild isActive={location.pathname === item.url}>
-                    <Link to={item.url}>
-                      <Icon icon={item.icon} />
-                      <span>{i18n.t(`options.${item.title}.title`)}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {Object.entries(SETTING_NAV_ITEMS).map(([key, item]) => renderNavItem(key, item))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel>Product</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {Object.entries(PRODUCT_NAV_ITEMS).map(([key, item]) => renderNavItem(key, item))}
+            </SidebarMenu>
+          </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>

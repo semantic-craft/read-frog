@@ -251,6 +251,8 @@ options:
         confirm: 确认
         cancel: 取消
         description: 该操作将清空您的所有自定义配置，并将其重置为默认值，请确认是否清除。
+  whatsNew:
+    title: 最近更新
 side:
   sourceLang: 来源语言
   targetLang: 目标语言
