@@ -37,6 +37,11 @@ export function homeLinks(locale: Locale): LinkItemType[] {
       active: 'nested-url',
     },
     {
+      text: NAV_ITEMS_LOCALE.blog[locale],
+      url: `/${locale}/blog`,
+      active: 'nested-url',
+    },
+    {
       type: 'custom',
       children: <UserAccount />,
       secondary: true,
