@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { InlineTOC } from 'fumadocs-ui/components/inline-toc'
 import { buttonVariants } from 'fumadocs-ui/components/ui/button'
+import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { blog } from '@/lib/source'
@@ -11,6 +12,7 @@ export default async function BlogPostPage(props: {
   params: Promise<{ slug: string, locale: string }>
 }) {
   const params = await props.params
+  const t = await getTranslations('blog')
   const page = blog.getPage([params.slug], params.locale)
 
   if (!page)
@@ -41,7 +43,7 @@ export default async function BlogPostPage(props: {
           href={`/${params.locale}/blog`}
           className={buttonVariants({ size: 'sm', color: 'secondary' })}
         >
-          Back
+          {t('back')}
         </Link>
       </div>
       <article className="mx-auto flex w-full max-w-fd-container flex-col py-8 lg:flex-row">
@@ -51,13 +53,13 @@ export default async function BlogPostPage(props: {
         </div>
         <div className="flex flex-col gap-4 border-l p-4 text-sm lg:w-[250px]">
           <div>
-            <p className="mb-1 text-fd-muted-foreground">Written by</p>
-            <p className="font-medium">{(page.data as any).author}</p>
+            <p className="mb-1 text-fd-muted-foreground">{t('writtenBy')}</p>
+            <p className="font-medium">{page.data.author}</p>
           </div>
           <div>
-            <p className="mb-1 text-sm text-fd-muted-foreground">At</p>
+            <p className="mb-1 text-sm text-fd-muted-foreground">{t('at')}</p>
             <p className="font-medium">
-              {new Date((page.data as any).date ?? page.path).toDateString()}
+              {new Date(page.data.date ?? page.path).toDateString()}
             </p>
           </div>
           <ShareButton url={page.url} />

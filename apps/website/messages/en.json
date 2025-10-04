@@ -35,7 +35,12 @@
   },
   "blog": {
     "title": "Read Frog Blog",
-    "description": "Latest updates, guides, and insights about Read Frog"
+    "description": "Latest updates, guides, and insights about Read Frog",
+    "back": "Back",
+    "sharePost": "Share Post",
+    "copiedUrl": "Copied URL",
+    "writtenBy": "Written by",
+    "at": "At"
   },
   "guide": {
     "continue": "Continue",

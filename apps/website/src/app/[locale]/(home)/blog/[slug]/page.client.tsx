@@ -4,8 +4,10 @@ import { cn } from '@repo/ui/lib/utils'
 import { buttonVariants } from 'fumadocs-ui/components/ui/button'
 import { useCopyButton } from 'fumadocs-ui/utils/use-copy-button'
 import { Check, Share } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 export function ShareButton({ url }: { url: string }) {
+  const t = useTranslations('blog')
   const [isChecked, onCopy] = useCopyButton(() => {
     void navigator.clipboard.writeText(`${window.location.origin}${url}`)
   })
@@ -19,7 +21,7 @@ export function ShareButton({ url }: { url: string }) {
       onClick={onCopy}
     >
       {isChecked ? <Check className="size-4" /> : <Share className="size-4" />}
-      {isChecked ? 'Copied URL' : 'Share Post'}
+      {isChecked ? t('copiedUrl') : t('sharePost')}
     </button>
   )
 }
