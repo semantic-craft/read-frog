@@ -27,19 +27,36 @@ Follow these steps:
      - date: Use today's date in YYYY-MM-DD format
 
    - **Content structure** (user-focused):
-     - Opening: Engaging introduction explaining the update
-     - What's New: Describe the feature/improvement in simple terms
-     - Why This Matters: Explain the benefits and value to users
-     - How to Use: Step-by-step guide if applicable
-     - Use Cases: Real-world scenarios where this helps
-     - What's Next: Tease future improvements if relevant
+     - **Opening**: Start with a compelling hook - a problem statement or exciting announcement
+     - **Visual Hero**: Add image placeholder for feature screenshot/hero image: `{/* TODO: Add hero image for [feature name] */}`
+     - **What's New**: Describe the feature using comparison tables, callouts, or cards
+     - **Key Benefits**: Use Fumadocs components:
+       - `<Callout type="info">` for important highlights
+       - Comparison tables (Before/After) to show improvements
+       - Feature cards or tabs for multiple aspects
+     - **How It Works**: Step-by-step with visual aids
+       - Add image placeholders: `{/* TODO: Add screenshot of step [X]: [description] */}`
+       - Use numbered lists with clear instructions
+       - Include tips using `<Callout type="tip">`
+     - **Use Cases**: Real scenarios with concrete examples
+     - **Performance/Stats**: Use tables or comparison blocks to show metrics
+     - **What's Next**: Tease future improvements
 
    - **Tone and style**:
-     - User-friendly, not technical jargon
-     - Focus on benefits and outcomes, not implementation
-     - Use emojis moderately for visual appeal
-     - Include relevant examples and use cases
-     - Keep it conversational and engaging
+     - **Rhythm**: Mix short punchy sentences with longer explanatory ones
+     - **Visual breaks**: Use horizontal rules `---`, callouts, and tables to break up text
+     - **Emphasis**: Use **bold** for key benefits, *italic* for emphasis
+     - **User-friendly**: No technical jargon, focus on benefits
+     - **Engaging**: Use emojis moderately, rhetorical questions, relatable scenarios
+     - **Scannable**: Headers, bullet points, tables for easy scanning
+
+   - **Fumadocs Components to Use**:
+     - `<Callout type="info">Important information</Callout>`
+     - `<Callout type="warn">Warnings or caveats</Callout>`
+     - `<Callout type="tip">Pro tips</Callout>`
+     - Tables for comparisons (Before/After, Feature comparison)
+     - `<Steps>` for sequential instructions (if available)
+     - Image placeholders with descriptive TODO comments
 
 5. **Bilingual content**:
    - Write both `.mdx` (English) and `.zh.mdx` (Chinese) versions
@@ -47,16 +64,29 @@ Follow these steps:
    - Use "陪读蛙" for the Chinese name
    - Adapt cultural context if needed for Chinese audience
 
-6. **Quality check**:
+6. **Visual Elements**:
+   - Add image placeholders with clear descriptions for:
+     - Hero/banner image at the top
+     - Feature screenshots for key steps
+     - Before/after comparisons
+     - UI examples
+   - Format: `{/* TODO: Add image - [clear description of what image should show] */}`
+   - **Important**: Use MDX comments `{/* */}` not HTML comments `<!-- -->`
+   - Place placeholders strategically to break up long text sections
+
+7. **Quality check**:
    - Verify all frontmatter fields are present
    - Check that content is user-oriented (not developer-oriented)
-   - Ensure proper markdown formatting
-   - Confirm emojis render correctly
+   - Ensure proper markdown formatting with visual variety
+   - Confirm Fumadocs components are used correctly
+   - Include at least 2-3 image placeholders in strategic locations
+   - Mix content types: text, tables, callouts, lists
    - Test that links work (if any)
 
-7. **Output**:
+8. **Output**:
    - Create both language versions
    - Provide a summary of the blog post
+   - List all image placeholders for the user to fill
    - Suggest social media snippets if relevant
 
 **Examples of user-oriented vs developer-oriented**:
@@ -66,8 +96,44 @@ Follow these steps:
 - ❌ Developer: "Added tRPC endpoint for user preferences"
 - ✅ User: "Your settings now sync across devices automatically"
 
+**Examples of good visual structure**:
+```markdown
+## Feature Name 🚀
+
+Quick hook paragraph.
+
+{/* TODO: Add hero image - Dashboard showing the new feature */}
+
+### The Problem
+
+Short description of pain point.
+
+<Callout type="info">
+**Key Insight**: Important statistic or fact
+</Callout>
+
+### The Solution
+
+| Before | After |
+|--------|-------|
+| Manual process | Automated |
+| 10 minutes | 30 seconds |
+
+{/* TODO: Add screenshot - Before/after comparison */}
+
+### How to Use
+
+1. Step one with clear action
+2. Step two...
+
+<Callout type="tip">
+Pro tip: Helpful advice here
+</Callout>
+```
+
 **Remember**:
 - The blog is for users, not developers
 - Focus on the "why" and "what", not the "how"
-- Explain value and benefits clearly
-- Use simple language and real-world examples
+- **Create visual rhythm**: Don't let text run more than 2-3 paragraphs without a visual break
+- Use tables, callouts, and image placeholders strategically
+- Make it scannable and delightful to read
