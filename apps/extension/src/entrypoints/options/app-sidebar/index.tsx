@@ -14,8 +14,12 @@ import {
   useSidebar,
 } from '@repo/ui/components/sidebar'
 import { cn } from '@repo/ui/lib/utils'
+import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router'
 import readFrogLogo from '@/assets/icons/read-frog.png'
+import { getLastViewedBlogDate, getLatestBlogDate, hasNewBlogPost, saveLastViewedBlogDate } from '@/utils/blog'
+import { WEBSITE_URL } from '@/utils/constants/url'
 import { version } from '../../../../package.json'
 import { AnimatedIndicator } from './animated-indicator'
 import { PRODUCT_NAV_ITEMS, SETTING_NAV_ITEMS } from './nav-items'
@@ -26,20 +30,23 @@ function renderNavItem(
   currentPath: string,
   open: boolean,
   action: boolean = false,
+  onClick?: () => void,
 ) {
   const title = i18n.t(`options.${item.title}.title`)
 
   switch (item.type) {
     case 'external':
       return (
-        <SidebarMenuItem key={key} className={cn('relative', action && 'text-primary font-semibold hover:text-primary')}>
+        <SidebarMenuItem key={key} className="relative">
           <SidebarMenuButton
             asChild
+            className={cn(action && 'text-primary font-semibold hover:text-primary active:text-primary')}
           >
             <a
               href={item.externalUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={onClick}
             >
               <Icon icon={item.icon} />
               <span>{title}</span>
@@ -51,9 +58,13 @@ function renderNavItem(
 
     case 'component':
       return (
-        <SidebarMenuItem key={key} className={cn('relative', action && 'text-primary font-semibold hover:text-primary')}>
-          <SidebarMenuButton asChild isActive={currentPath === item.url}>
-            <Link to={item.url}>
+        <SidebarMenuItem key={key} className="relative">
+          <SidebarMenuButton
+            asChild
+            className={cn(action && 'text-primary font-semibold hover:text-primary')}
+            isActive={currentPath === item.url}
+          >
+            <Link to={item.url} onClick={onClick}>
               <Icon icon={item.icon} />
               <span>{title}</span>
             </Link>
@@ -67,6 +78,31 @@ function renderNavItem(
 export function AppSidebar() {
   const location = useLocation()
   const { open } = useSidebar()
+  const [dismissed, setDismissed] = useState(false)
+
+  const { data: blogData } = useQuery({
+    queryKey: ['blog-new-post-check'],
+    queryFn: async () => {
+      const [lastViewedDate, latestDate] = await Promise.all([
+        getLastViewedBlogDate(),
+        getLatestBlogDate(`${WEBSITE_URL}/en/blog`),
+      ])
+
+      return {
+        hasNew: hasNewBlogPost(lastViewedDate, latestDate),
+        latestDate,
+      }
+    },
+  })
+
+  const handleWhatsNewClick = async () => {
+    if (blogData?.latestDate) {
+      await saveLastViewedBlogDate(blogData.latestDate)
+      setDismissed(true)
+    }
+  }
+
+  const showIndicator = blogData?.hasNew && !dismissed
 
   return (
     <Sidebar collapsible="icon">
@@ -95,7 +131,14 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {Object.entries(PRODUCT_NAV_ITEMS).map(([key, item]) =>
-                renderNavItem(key, item, location.pathname, open),
+                renderNavItem(
+                  key,
+                  item,
+                  location.pathname,
+                  open,
+                  key === 'whats-new' && showIndicator,
+                  key === 'whats-new' ? handleWhatsNewClick : undefined,
+                ),
               )}
             </SidebarMenu>
           </SidebarGroupContent>

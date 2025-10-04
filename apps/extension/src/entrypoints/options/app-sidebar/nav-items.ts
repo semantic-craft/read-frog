@@ -1,3 +1,4 @@
+import { WEBSITE_URL } from '@/utils/constants/url'
 import { ApiProvidersPage } from '../pages/api-providers'
 import { ConfigPage } from '../pages/config'
 import { FloatingButtonPage } from '../pages/floating-button'
@@ -65,7 +66,7 @@ export const PRODUCT_NAV_ITEMS = {
   'whats-new': {
     type: 'external',
     title: 'whatsNew',
-    externalUrl: 'https://readfrog.app/blog',
+    externalUrl: `${WEBSITE_URL}/blog?latest-indicator=true`,
     icon: 'tabler:news',
   },
 } as const satisfies Record<string, NavItem>
