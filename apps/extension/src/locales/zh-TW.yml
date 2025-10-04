@@ -27,6 +27,8 @@ popup:
     description: 加入 Discord 服務器，與開發者和其他用戶交流
   github:
     description: ⭐️ 為我們加星，獲取及時 GitHub 發布通知！
+  blog:
+    notification: 陪讀蛙更新動態
 options:
   setAPIKeyWarning:
     please: 請在

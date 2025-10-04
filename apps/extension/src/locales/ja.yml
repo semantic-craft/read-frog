@@ -26,6 +26,8 @@ popup:
     description: 開発者や他のユーザーとつながる
   github:
     description: ⭐️ スターを付けると、新しいリリース通知をすぐに受け取れます！
+  blog:
+    notification: 読書カエルの最新情報
 options:
   setAPIKeyWarning:
     please: 設定ページで
