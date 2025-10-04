@@ -14,8 +14,7 @@ import {
   useSidebar,
 } from '@repo/ui/components/sidebar'
 import { cn } from '@repo/ui/lib/utils'
-import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useLocation } from 'react-router'
 import readFrogLogo from '@/assets/icons/read-frog.png'
 import { getLastViewedBlogDate, getLatestBlogDate, hasNewBlogPost, saveLastViewedBlogDate } from '@/utils/blog'
@@ -78,31 +77,28 @@ function renderNavItem(
 export function AppSidebar() {
   const location = useLocation()
   const { open } = useSidebar()
-  const [dismissed, setDismissed] = useState(false)
+  const queryClient = useQueryClient()
 
-  const { data: blogData } = useQuery({
-    queryKey: ['blog-new-post-check'],
-    queryFn: async () => {
-      const [lastViewedDate, latestDate] = await Promise.all([
-        getLastViewedBlogDate(),
-        getLatestBlogDate(`${WEBSITE_URL}/en/blog`),
-      ])
+  const { data: lastViewedDate } = useQuery({
+    queryKey: ['last-viewed-blog-date'],
+    queryFn: getLastViewedBlogDate,
+    staleTime: Number.POSITIVE_INFINITY,
+  })
 
-      return {
-        hasNew: hasNewBlogPost(lastViewedDate, latestDate),
-        latestDate,
-      }
-    },
+  const { data: latestBlogDate } = useQuery({
+    queryKey: ['latest-blog-date'],
+    queryFn: () => getLatestBlogDate(`${WEBSITE_URL}/en/blog`),
+    staleTime: Number.POSITIVE_INFINITY,
   })
 
   const handleWhatsNewClick = async () => {
-    if (blogData?.latestDate) {
-      await saveLastViewedBlogDate(blogData.latestDate)
-      setDismissed(true)
+    if (latestBlogDate) {
+      await saveLastViewedBlogDate(latestBlogDate)
+      await queryClient.invalidateQueries({ queryKey: ['last-viewed-blog-date'] })
     }
   }
 
-  const showIndicator = blogData?.hasNew && !dismissed
+  const showIndicator = hasNewBlogPost(lastViewedDate ?? null, latestBlogDate ?? null)
 
   return (
     <Sidebar collapsible="icon">
