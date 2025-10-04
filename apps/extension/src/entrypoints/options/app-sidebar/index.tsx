@@ -11,40 +11,62 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@repo/ui/components/sidebar'
+import { cn } from '@repo/ui/lib/utils'
 import { Link, useLocation } from 'react-router'
 import readFrogLogo from '@/assets/icons/read-frog.png'
 import { version } from '../../../../package.json'
+import { AnimatedIndicator } from './animated-indicator'
 import { PRODUCT_NAV_ITEMS, SETTING_NAV_ITEMS } from './nav-items'
+
+function renderNavItem(
+  key: string,
+  item: NavItem,
+  currentPath: string,
+  open: boolean,
+  action: boolean = false,
+) {
+  const title = i18n.t(`options.${item.title}.title`)
+
+  switch (item.type) {
+    case 'external':
+      return (
+        <SidebarMenuItem key={key} className={cn('relative', action && 'text-primary font-semibold hover:text-primary')}>
+          <SidebarMenuButton
+            asChild
+          >
+            <a
+              href={item.externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Icon icon={item.icon} />
+              <span>{title}</span>
+            </a>
+          </SidebarMenuButton>
+          <AnimatedIndicator show={action && open} />
+        </SidebarMenuItem>
+      )
+
+    case 'component':
+      return (
+        <SidebarMenuItem key={key} className={cn('relative', action && 'text-primary font-semibold hover:text-primary')}>
+          <SidebarMenuButton asChild isActive={currentPath === item.url}>
+            <Link to={item.url}>
+              <Icon icon={item.icon} />
+              <span>{title}</span>
+            </Link>
+          </SidebarMenuButton>
+          <AnimatedIndicator show={action && open} />
+        </SidebarMenuItem>
+      )
+  }
+}
 
 export function AppSidebar() {
   const location = useLocation()
-
-  const renderNavItem = (key: string, item: NavItem) => {
-    if (item.type === 'external') {
-      return (
-        <SidebarMenuItem key={key}>
-          <SidebarMenuButton asChild>
-            <a href={item.externalUrl} target="_blank" rel="noopener noreferrer">
-              <Icon icon={item.icon} />
-              <span>{i18n.t(`options.${item.title}.title`)}</span>
-            </a>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      )
-    }
-
-    return (
-      <SidebarMenuItem key={key}>
-        <SidebarMenuButton asChild isActive={location.pathname === item.url}>
-          <Link to={item.url}>
-            <Icon icon={item.icon} />
-            <span>{i18n.t(`options.${item.title}.title`)}</span>
-          </Link>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-    )
-  }
+  const { open } = useSidebar()
 
   return (
     <Sidebar collapsible="icon">
@@ -62,7 +84,9 @@ export function AppSidebar() {
           <SidebarGroupLabel>Settings</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {Object.entries(SETTING_NAV_ITEMS).map(([key, item]) => renderNavItem(key, item))}
+              {Object.entries(SETTING_NAV_ITEMS).map(([key, item]) =>
+                renderNavItem(key, item, location.pathname, open),
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -70,7 +94,9 @@ export function AppSidebar() {
           <SidebarGroupLabel>Product</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {Object.entries(PRODUCT_NAV_ITEMS).map(([key, item]) => renderNavItem(key, item))}
+              {Object.entries(PRODUCT_NAV_ITEMS).map(([key, item]) =>
+                renderNavItem(key, item, location.pathname, open),
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
