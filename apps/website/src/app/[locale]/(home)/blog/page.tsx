@@ -9,8 +9,8 @@ export default async function BlogPage(props: {
   const t = await getTranslations('blog')
   const posts = [...blog.getPages(params.locale)].sort(
     (a, b) =>
-      new Date((b.data as any).date ?? b.file.name).getTime()
-        - new Date((a.data as any).date ?? a.file.name).getTime(),
+      new Date(b.data.date ?? b.path).getTime()
+        - new Date(a.data.date ?? a.path).getTime(),
   )
 
   const svg = `<svg viewBox='0 0 500 500' xmlns='http://www.w3.org/2000/svg'>
@@ -58,7 +58,7 @@ export default async function BlogPage(props: {
             </p>
 
             <p className="mt-auto pt-4 text-xs text-fd-muted-foreground">
-              {new Date((post.data as any).date ?? post.file.name).toDateString()}
+              {new Date(post.data.date ?? post.path).toDateString()}
             </p>
           </Link>
         ))}

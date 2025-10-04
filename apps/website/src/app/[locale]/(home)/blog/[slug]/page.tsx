@@ -16,8 +16,8 @@ export default async function BlogPostPage(props: {
   if (!page)
     notFound()
 
-  const Mdx = (page.data as any).body
-  const toc = (page.data as any).toc
+  const Mdx = page.data.body
+  const toc = page.data.toc
 
   return (
     <>
@@ -57,7 +57,7 @@ export default async function BlogPostPage(props: {
           <div>
             <p className="mb-1 text-sm text-fd-muted-foreground">At</p>
             <p className="font-medium">
-              {new Date((page.data as any).date ?? page.file.name).toDateString()}
+              {new Date((page.data as any).date ?? page.path).toDateString()}
             </p>
           </div>
           <ShareButton url={page.url} />
