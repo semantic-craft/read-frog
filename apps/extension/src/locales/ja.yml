@@ -255,6 +255,8 @@ options:
         description: この操作は、すべての設定をデフォルト値にリセットします。ご確認ください。
   whatsNew:
     title: 新機能
+  survey:
+    title: アンケート
 side:
   sourceLang: ソース言語
   targetLang: 翻訳言語
