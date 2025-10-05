@@ -1,5 +1,7 @@
 import type { NextRequest } from 'next/server'
+import type { Locale } from '@/i18n/routing'
 import { NextResponse } from 'next/server'
+import { locales } from '@/i18n/routing'
 import { blog } from '@/lib/source'
 
 /**
@@ -18,7 +20,7 @@ export function GET(request: NextRequest) {
   const locale = searchParams.get('locale') || 'en'
 
   // Validate locale (basic validation)
-  if (typeof locale !== 'string' || locale.length > 10 || !/^[a-z-]+$/i.test(locale)) {
+  if (!locales.includes(locale as Locale)) {
     return NextResponse.json(
       { error: 'Invalid locale parameter' },
       { status: 400 },
