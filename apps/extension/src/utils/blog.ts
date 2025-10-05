@@ -21,13 +21,53 @@ export async function getLastViewedBlogDate(): Promise<Date | null> {
 
 /**
  * Checks if there's a new blog post by comparing last viewed date with latest blog date
+ * and extension version compatibility
+ * @param lastViewedDate - The last date the user viewed the blog
+ * @param latestDate - The date of the latest blog post
+ * @param currentExtensionVersion - Current extension version (e.g., "1.10.0")
+ * @param blogExtensionVersion - Minimum extension version required for the blog post (e.g., "1.11.0")
  */
-export function hasNewBlogPost(lastViewedDate: Date | null, latestDate: Date | null): boolean {
+export function hasNewBlogPost(
+  lastViewedDate: Date | null,
+  latestDate: Date | null,
+  currentExtensionVersion?: string,
+  blogExtensionVersion?: string | null,
+): boolean {
   if (!latestDate)
     return false
+
+  // If blog post requires a specific extension version, check version compatibility
+  if (blogExtensionVersion && currentExtensionVersion) {
+    if (compareVersions(currentExtensionVersion, blogExtensionVersion) < 0) {
+      // Current extension version is older than required version
+      return false
+    }
+  }
+
   if (!lastViewedDate)
     return true
   return latestDate > lastViewedDate
+}
+
+/**
+ * Compares two semantic version strings
+ * @returns -1 if v1 < v2, 0 if v1 === v2, 1 if v1 > v2
+ */
+function compareVersions(v1: string, v2: string): number {
+  const parts1 = v1.split('.').map(Number)
+  const parts2 = v2.split('.').map(Number)
+
+  for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+    const part1 = parts1[i] || 0
+    const part2 = parts2[i] || 0
+
+    if (part1 < part2)
+      return -1
+    if (part1 > part2)
+      return 1
+  }
+
+  return 0
 }
 
 /**
@@ -37,22 +77,22 @@ export function hasNewBlogPost(lastViewedDate: Date | null, latestDate: Date | n
  * @param apiUrl - The URL of the blog API endpoint (default: production URL)
  * @param locale - The locale to fetch the latest post for (default: 'en')
  * @param useCache - Whether to use cache (default: true)
- * @returns Promise resolving to the latest blog post date, or null if no posts found
+ * @returns Promise resolving to the latest blog post data (date and extensionVersion), or null if no posts found
  *
  * @example
  * ```ts
- * const latestDate = await getLatestBlogDate('http://localhost:8888/api/blog/latest', 'en')
- * console.log(latestDate) // Date object of the most recent post
+ * const latestPost = await getLatestBlogDate('http://localhost:8888/api/blog/latest', 'en')
+ * console.log(latestPost) // { date: Date, extensionVersion: '1.11.0' }
  *
  * // Without cache
- * const freshDate = await getLatestBlogDate('http://localhost:8888/api/blog/latest', 'en', false)
+ * const freshPost = await getLatestBlogDate('http://localhost:8888/api/blog/latest', 'en', false)
  * ```
  */
 export async function getLatestBlogDate(
   apiUrl: string = 'https://readfrog.app/api/blog/latest',
   locale: string = 'en',
   useCache: boolean = true,
-): Promise<Date | null> {
+): Promise<{ date: Date, extensionVersion?: string | null } | null> {
   try {
     const url = new URL(apiUrl)
     url.searchParams.set('locale', locale)
@@ -78,13 +118,17 @@ export async function getLatestBlogDate(
       title: string
       description: string
       url: string
+      extensionVersion?: string | null
     } | null
 
     if (!data) {
       return null
     }
 
-    return new Date(data.date)
+    return {
+      date: new Date(data.date),
+      extensionVersion: data.extensionVersion ?? null,
+    }
   }
   catch (error) {
     console.error('Error fetching latest blog post:', error)

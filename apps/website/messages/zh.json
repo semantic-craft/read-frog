@@ -40,7 +40,8 @@
     "sharePost": "分享文章",
     "copiedUrl": "已复制链接",
     "writtenBy": "作者",
-    "at": "发布于"
+    "at": "发布于",
+    "extensionVersion": "扩展版本"
   },
   "guide": {
     "continue": "继续",
