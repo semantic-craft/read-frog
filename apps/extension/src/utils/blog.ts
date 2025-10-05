@@ -31,29 +31,34 @@ export function hasNewBlogPost(lastViewedDate: Date | null, latestDate: Date | n
 }
 
 /**
- * Fetches blog posts from the Read Frog blog and returns the latest post date.
+ * Fetches the latest blog post from the Read Frog blog API.
  * Uses background fetch with optional 1-day cache.
  *
- * @param blogUrl - The URL of the blog page (default: production URL)
+ * @param apiUrl - The URL of the blog API endpoint (default: production URL)
+ * @param locale - The locale to fetch the latest post for (default: 'en')
  * @param useCache - Whether to use cache (default: true)
  * @returns Promise resolving to the latest blog post date, or null if no posts found
  *
  * @example
  * ```ts
- * const latestDate = await getLatestBlogDate('http://localhost:8888/en/blog')
+ * const latestDate = await getLatestBlogDate('http://localhost:8888/api/blog/latest', 'en')
  * console.log(latestDate) // Date object of the most recent post
  *
  * // Without cache
- * const freshDate = await getLatestBlogDate('http://localhost:8888/en/blog', false)
+ * const freshDate = await getLatestBlogDate('http://localhost:8888/api/blog/latest', 'en', false)
  * ```
  */
 export async function getLatestBlogDate(
-  blogUrl: string = 'https://readfrog.app/en/blog',
+  apiUrl: string = 'https://readfrog.app/api/blog/latest',
+  locale: string = 'en',
   useCache: boolean = true,
 ): Promise<Date | null> {
   try {
+    const url = new URL(apiUrl)
+    url.searchParams.set('locale', locale)
+
     const response = await sendMessage('backgroundFetch', {
-      url: blogUrl,
+      url: url.toString(),
       method: 'GET',
       cacheConfig: useCache
         ? {
@@ -68,33 +73,21 @@ export async function getLatestBlogDate(
       throw new Error(`Failed to fetch blog: ${response.status}`)
     }
 
-    const html = response.body
+    const data = JSON.parse(response.body) as {
+      date: string
+      title: string
+      description: string
+      url: string
+    } | null
 
-    // Extract all date strings from the HTML
-    // Pattern: <p class="...">Day Mon DD YYYY</p>
-    const datePattern = /<p[^>]*class="[^"]*text-xs[^"]*"[^>]*>([^<]+\d{4})<\/p>/g
-    const matches = html.matchAll(datePattern)
-    const dates: Date[] = []
-
-    for (const match of matches) {
-      const dateStr = match[1].trim()
-      const parsed = new Date(dateStr)
-
-      if (!Number.isNaN(parsed.getTime())) {
-        dates.push(parsed)
-      }
-    }
-
-    if (dates.length === 0) {
+    if (!data) {
       return null
     }
 
-    // Return the latest date
-    return dates.reduce((latest, current) => current > latest ? current : latest,
-    )
+    return new Date(data.date)
   }
   catch (error) {
-    console.error('Error fetching blog dates:', error)
+    console.error('Error fetching latest blog post:', error)
     return null
   }
 }

@@ -82,13 +82,11 @@ export function AppSidebar() {
   const { data: lastViewedDate } = useQuery({
     queryKey: ['last-viewed-blog-date'],
     queryFn: getLastViewedBlogDate,
-    staleTime: Number.POSITIVE_INFINITY,
   })
 
   const { data: latestBlogDate } = useQuery({
     queryKey: ['latest-blog-date'],
-    queryFn: () => getLatestBlogDate(`${WEBSITE_URL}/en/blog`),
-    staleTime: Number.POSITIVE_INFINITY,
+    queryFn: () => getLatestBlogDate(`${WEBSITE_URL}/api/blog/latest`, 'en'),
   })
 
   const handleWhatsNewClick = async () => {

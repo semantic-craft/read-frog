@@ -56,7 +56,7 @@ export default async function BlogPage(props: {
             className="relative flex flex-col bg-fd-card p-4 transition-colors hover:bg-fd-accent hover:text-fd-accent-foreground"
           >
             <p className="font-medium">{post.data.title}</p>
-            <p className="text-sm text-fd-muted-foreground">
+            <p className="text-sm text-fd-muted-foreground mt-1">
               {post.data.description}
             </p>
 
