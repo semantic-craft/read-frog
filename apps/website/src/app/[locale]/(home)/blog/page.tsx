@@ -4,8 +4,11 @@ import { blog } from '@/lib/source'
 
 export default async function BlogPage(props: {
   params: Promise<{ locale: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const params = await props.params
+  const searchParams = await props.searchParams
+  const showLatestIndicator = searchParams['latest-indicator'] === 'true'
   const t = await getTranslations('blog')
   const posts = [...blog.getPages(params.locale)].sort(
     (a, b) =>
@@ -46,20 +49,27 @@ export default async function BlogPage(props: {
         </p>
       </div>
       <div className="grid grid-cols-1 border md:grid-cols-3 lg:grid-cols-4">
-        {posts.map(post => (
+        {posts.map((post, index) => (
           <Link
             key={post.url}
             href={post.url}
-            className="flex flex-col bg-fd-card p-4 transition-colors hover:bg-fd-accent hover:text-fd-accent-foreground"
+            className="relative flex flex-col bg-fd-card p-4 transition-colors hover:bg-fd-accent hover:text-fd-accent-foreground"
           >
             <p className="font-medium">{post.data.title}</p>
-            <p className="text-sm text-fd-muted-foreground">
+            <p className="text-sm text-fd-muted-foreground mt-1">
               {post.data.description}
             </p>
 
             <p className="mt-auto pt-4 text-xs text-fd-muted-foreground">
               {new Date(post.data.date ?? post.path).toDateString()}
             </p>
+
+            {index === 0 && showLatestIndicator && (
+              <span className="absolute top-2.5 right-2.5 flex items-center justify-center size-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex size-2 rounded-full bg-primary"></span>
+              </span>
+            )}
           </Link>
         ))}
       </div>
