@@ -30,6 +30,9 @@ popup:
   blog:
     notification: 陪读蛙更新动态
 options:
+  sidebar:
+    settings: 设置
+    product: 产品
   setAPIKeyWarning:
     please: 请在
     page: 页设置 API Key

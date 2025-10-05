@@ -29,6 +29,9 @@ popup:
   blog:
     notification: Read Frog의 새로운 소식
 options:
+  sidebar:
+    settings: 설정
+    product: 제품
   setAPIKeyWarning:
     please: API Key를 설정해 주세요
     page: 페이지에서

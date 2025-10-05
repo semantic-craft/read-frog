@@ -116,7 +116,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent className="group-data-[state=expanded]:px-2 transition-all">
         <SidebarGroup>
-          <SidebarGroupLabel>Settings</SidebarGroupLabel>
+          <SidebarGroupLabel>{i18n.t('options.sidebar.settings')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {Object.entries(SETTING_NAV_ITEMS).map(([key, item]) =>
@@ -126,7 +126,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Product</SidebarGroupLabel>
+          <SidebarGroupLabel>{i18n.t('options.sidebar.product')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {Object.entries(PRODUCT_NAV_ITEMS).map(([key, item]) =>

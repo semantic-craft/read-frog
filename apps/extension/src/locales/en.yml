@@ -30,6 +30,9 @@ popup:
   blog:
     notification: What's new in Read Frog
 options:
+  sidebar:
+    settings: Settings
+    product: Product
   setAPIKeyWarning:
     please: Please set API Key on
     page: page
