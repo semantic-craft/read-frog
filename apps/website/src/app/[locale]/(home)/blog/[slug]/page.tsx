@@ -24,7 +24,7 @@ export default async function BlogPostPage(props: {
   return (
     <>
       <div
-        className="mx-auto mt-12 w-full max-w-fd-container rounded-xl px-4 py-12 md:px-8"
+        className="mx-auto md:mt-12 w-full max-w-fd-container px-4 py-12 md:px-8"
         style={{
           backgroundColor: 'black',
           backgroundImage: [
