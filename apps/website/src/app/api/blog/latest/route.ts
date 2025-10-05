@@ -12,7 +12,7 @@ import { blog } from '@/lib/source'
  * - locale: string (default: 'en') - The locale to fetch the latest post for
  *
  * Response:
- * - 200: { date: string (ISO), title: string, description: string, url: string } | null
+ * - 200: { date: string (ISO), title: string, description: string, url: string, extensionVersion: string | null } | null
  * - 400: { error: string } - Invalid locale parameter
  */
 export function GET(request: NextRequest) {
@@ -50,6 +50,7 @@ export function GET(request: NextRequest) {
       title: latestPost.data.title,
       description: latestPost.data.description,
       url: latestPost.url,
+      extensionVersion: latestPost.data.extensionVersion ?? null,
     })
   }
   catch (error) {

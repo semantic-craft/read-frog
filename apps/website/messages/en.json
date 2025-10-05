@@ -40,7 +40,8 @@
     "sharePost": "Share Post",
     "copiedUrl": "Copied URL",
     "writtenBy": "Written by",
-    "at": "At"
+    "at": "At",
+    "extensionVersion": "Extension Version"
   },
   "guide": {
     "continue": "Continue",
