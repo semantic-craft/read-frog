@@ -62,6 +62,12 @@ export default async function BlogPostPage(props: {
               {new Date(page.data.date ?? page.path).toDateString()}
             </p>
           </div>
+          {page.data.extensionVersion && (
+            <div>
+              <p className="mb-1 text-sm text-fd-muted-foreground">{t('extensionVersion')}</p>
+              <p className="font-medium">{page.data.extensionVersion}</p>
+            </div>
+          )}
           <ShareButton url={page.url} />
         </div>
       </article>
