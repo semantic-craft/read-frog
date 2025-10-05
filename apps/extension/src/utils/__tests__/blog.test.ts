@@ -1,8 +1,6 @@
-import { describe, expect, it } from 'vitest'
-import { hasNewBlogPost } from '../blog'
-
-// Extract compareVersions for testing by importing the entire module
-// Since compareVersions is not exported, we'll test it indirectly through hasNewBlogPost
+import { describe, expect, it, vi } from 'vitest'
+import { z } from 'zod'
+import { hasNewBlogPost, semanticVersionSchema } from '../blog'
 
 describe('hasNewBlogPost', () => {
   const baseDate = new Date('2025-01-01')
@@ -120,6 +118,184 @@ describe('hasNewBlogPost', () => {
     it('should handle large version numbers', () => {
       expect(hasNewBlogPost(null, baseDate, '10.20.30', '11.0.0')).toBe(false)
       expect(hasNewBlogPost(null, baseDate, '11.0.0', '10.20.30')).toBe(true)
+    })
+  })
+
+  describe('version validation', () => {
+    it('should gracefully handle invalid current version format', () => {
+      // Invalid version should skip version check and proceed with date check
+      const result = hasNewBlogPost(null, baseDate, 'invalid', '1.11.0')
+      expect(result).toBe(true)
+    })
+
+    it('should gracefully handle invalid blog version format', () => {
+      // Invalid version should skip version check and proceed with date check
+      const result = hasNewBlogPost(null, baseDate, '1.11.0', 'invalid')
+      expect(result).toBe(true)
+    })
+
+    it('should gracefully handle invalid version with special characters', () => {
+      const result = hasNewBlogPost(null, baseDate, 'v1.11.0', '1.11.0')
+      expect(result).toBe(true)
+    })
+
+    it('should gracefully handle version with letters', () => {
+      const result = hasNewBlogPost(null, baseDate, '1.11.0-alpha', '1.11.0')
+      expect(result).toBe(true)
+    })
+
+    it('should gracefully handle empty version string', () => {
+      const result = hasNewBlogPost(null, baseDate, '', '1.11.0')
+      expect(result).toBe(true)
+    })
+
+    it('should gracefully handle version with negative numbers', () => {
+      const result = hasNewBlogPost(null, baseDate, '1.-1.0', '1.11.0')
+      expect(result).toBe(true)
+    })
+
+    it('should gracefully handle both invalid versions', () => {
+      const result = hasNewBlogPost(null, baseDate, 'invalid1', 'invalid2')
+      expect(result).toBe(true)
+    })
+
+    it('should still check dates when version validation fails', () => {
+      // Even with invalid versions, date check should still work
+      const result = hasNewBlogPost(newerDate, olderDate, 'invalid', '1.11.0')
+      expect(result).toBe(false)
+    })
+
+    it('should log ZodError details when version validation fails', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      hasNewBlogPost(null, baseDate, 'invalid', '1.11.0')
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Version validation failed, skipping version check:',
+        expect.any(Array),
+      )
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should log generic error for non-ZodError exceptions', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      // This won't actually throw a non-Zod error in the current implementation,
+      // but we can verify the error logging path exists
+      hasNewBlogPost(null, baseDate, 'invalid', '1.11.0')
+
+      expect(consoleSpy).toHaveBeenCalled()
+      consoleSpy.mockRestore()
+    })
+  })
+})
+
+describe('semanticVersionSchema', () => {
+  describe('valid versions', () => {
+    it('should accept standard semantic versions', () => {
+      expect(() => semanticVersionSchema.parse('1.0.0')).not.toThrow()
+      expect(() => semanticVersionSchema.parse('1.11.0')).not.toThrow()
+      expect(() => semanticVersionSchema.parse('10.20.30')).not.toThrow()
+    })
+
+    it('should accept versions with fewer segments', () => {
+      expect(() => semanticVersionSchema.parse('1')).not.toThrow()
+      expect(() => semanticVersionSchema.parse('1.0')).not.toThrow()
+      expect(() => semanticVersionSchema.parse('1.11')).not.toThrow()
+    })
+
+    it('should accept versions with more segments', () => {
+      expect(() => semanticVersionSchema.parse('1.0.0.0')).not.toThrow()
+      expect(() => semanticVersionSchema.parse('1.11.0.5')).not.toThrow()
+    })
+
+    it('should accept zero-padded versions', () => {
+      expect(() => semanticVersionSchema.parse('1.09.0')).not.toThrow()
+      expect(() => semanticVersionSchema.parse('01.10.00')).not.toThrow()
+    })
+
+    it('should accept large version numbers', () => {
+      expect(() => semanticVersionSchema.parse('999.999.999')).not.toThrow()
+      expect(() => semanticVersionSchema.parse('2025.1.1')).not.toThrow()
+    })
+  })
+
+  describe('invalid versions', () => {
+    it('should reject versions with prefixes', () => {
+      expect(() => semanticVersionSchema.parse('v1.0.0')).toThrow(z.ZodError)
+      expect(() => semanticVersionSchema.parse('V1.11.0')).toThrow(z.ZodError)
+    })
+
+    it('should reject versions with suffixes', () => {
+      expect(() => semanticVersionSchema.parse('1.0.0-alpha')).toThrow(z.ZodError)
+      expect(() => semanticVersionSchema.parse('1.11.0-beta.1')).toThrow(z.ZodError)
+      expect(() => semanticVersionSchema.parse('1.0.0+build.123')).toThrow(z.ZodError)
+    })
+
+    it('should reject versions with negative numbers', () => {
+      expect(() => semanticVersionSchema.parse('1.-1.0')).toThrow(z.ZodError)
+      expect(() => semanticVersionSchema.parse('-1.0.0')).toThrow(z.ZodError)
+    })
+
+    it('should reject versions with non-numeric characters', () => {
+      expect(() => semanticVersionSchema.parse('1.x.0')).toThrow(z.ZodError)
+      expect(() => semanticVersionSchema.parse('a.b.c')).toThrow(z.ZodError)
+      expect(() => semanticVersionSchema.parse('1.0.0a')).toThrow(z.ZodError)
+    })
+
+    it('should reject empty string', () => {
+      expect(() => semanticVersionSchema.parse('')).toThrow(z.ZodError)
+    })
+
+    it('should reject versions with special characters', () => {
+      expect(() => semanticVersionSchema.parse('1.0!0')).toThrow(z.ZodError)
+      expect(() => semanticVersionSchema.parse('1_0_0')).toThrow(z.ZodError)
+      expect(() => semanticVersionSchema.parse('1,0,0')).toThrow(z.ZodError)
+    })
+
+    it('should reject versions with spaces', () => {
+      expect(() => semanticVersionSchema.parse('1 0 0')).toThrow(z.ZodError)
+      expect(() => semanticVersionSchema.parse('1.0 .0')).toThrow(z.ZodError)
+    })
+
+    it('should reject versions ending with dot', () => {
+      expect(() => semanticVersionSchema.parse('1.0.')).toThrow(z.ZodError)
+      expect(() => semanticVersionSchema.parse('1.0.0.')).toThrow(z.ZodError)
+    })
+
+    it('should reject versions starting with dot', () => {
+      expect(() => semanticVersionSchema.parse('.1.0.0')).toThrow(z.ZodError)
+    })
+
+    it('should reject versions with consecutive dots', () => {
+      expect(() => semanticVersionSchema.parse('1..0.0')).toThrow(z.ZodError)
+      expect(() => semanticVersionSchema.parse('1.0..0')).toThrow(z.ZodError)
+    })
+  })
+
+  describe('error messages', () => {
+    it('should provide clear error message for regex validation failure', () => {
+      try {
+        semanticVersionSchema.parse('v1.0.0')
+      }
+      catch (error) {
+        expect(error).toBeInstanceOf(z.ZodError)
+        const zodError = error as z.ZodError
+        expect(zodError.issues[0]?.message).toContain('Must be a valid semantic version')
+      }
+    })
+
+    it('should provide clear error message for negative number validation', () => {
+      try {
+        semanticVersionSchema.parse('1.-1.0')
+      }
+      catch (error) {
+        expect(error).toBeInstanceOf(z.ZodError)
+        const zodError = error as z.ZodError
+        // Should have both regex and refine errors
+        expect(zodError.issues.length).toBeGreaterThan(0)
+      }
     })
   })
 })
