@@ -257,7 +257,7 @@ options:
   whatsNew:
     title: 새로운 기능
   survey:
-    title: 설문조사
+    title: 의견을 들려주세요
 side:
   sourceLang: 원본 언어
   targetLang: 대상 언어
