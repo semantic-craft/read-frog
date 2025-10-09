@@ -132,38 +132,4 @@ export function walkAndLabelElement(
     forceBlock,
     isInlineNode,
   }
-
-  // if (hasOneBlockNodeWithOtherNodesChild || isShallowBlockHTMLElement(element)) {
-  //   element.setAttribute(BLOCK_ATTRIBUTE, '')
-  //   // if (hasOneBlockNodeWithOtherNodesChild) {
-  //   //   return 'hasOneBlockNodeWithOtherNodes'
-  //   // }
-  //   // else {
-  //   //   const needToTranslateChildCount = Array.from(element.childNodes).filter(child =>
-  //   //     isShallowBlockTransNode(child) || isShallowInlineTransNode(child),
-  //   //   ).length
-  //   //   if (needToTranslateChildCount > 1) {
-  //   //     return 'hasOneBlockNodeWithOtherNodes'
-  //   //   }
-  //   // }
-  // }
-  // else if (isShallowInlineHTMLElement(element)) {
-  //   element.setAttribute(INLINE_ATTRIBUTE, '')
-  //   // return 'isShallowInlineNode'
-  // }
-
-  // if (hasOneBlockNodeWithOtherNodesChild) {
-  //   return 'hasOneBlockNodeWithOtherNodes'
-  // }
-  // const needToTranslateChildCount = Array.from(element.childNodes).filter(child =>
-  //   isShallowBlockTransNode(child) || isShallowInlineTransNode(child),
-  // ).length
-  // if (isShallowBlockHTMLElement(element) && needToTranslateChildCount > 1) {
-  //   return 'hasOneBlockNodeWithOtherNodes'
-  // }
-  // if (isShallowInlineHTMLElement(element)) {
-  //   return 'isShallowInlineNode'
-  // }
-
-  // return false
 }
