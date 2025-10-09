@@ -12,7 +12,9 @@ import {
   isHTMLElement,
   isIFrameElement,
   isShallowBlockHTMLElement,
+  isShallowBlockTransNode,
   isShallowInlineHTMLElement,
+  isShallowInlineTransNode,
   isTextNode,
 } from './filter'
 
@@ -53,13 +55,12 @@ export function walkAndLabelElement(
   element: HTMLElement,
   walkId: string,
   config: Config,
-): 'isOrHasBlockNode' | 'isShallowInlineNode' | false {
-  if (isDontWalkIntoButTranslateAsChildElement(element)) {
-    return false
-  }
-
-  if (isDontWalkIntoAndDontTranslateAsChildElement(element, config)) {
-    return false
+): { forceBlock: boolean, isInlineNode: boolean } {
+  if (isDontWalkIntoButTranslateAsChildElement(element) || isDontWalkIntoAndDontTranslateAsChildElement(element, config)) {
+    return {
+      forceBlock: false,
+      isInlineNode: false,
+    }
   }
 
   element.setAttribute(WALKED_ATTRIBUTE, walkId)
@@ -80,7 +81,7 @@ export function walkAndLabelElement(
   }
 
   let hasInlineNodeChild = false
-  let hasBlockNodeChild = false
+  let forceBlock = false
 
   for (const child of element.childNodes) {
     if (child.nodeType === Node.TEXT_NODE) {
@@ -93,10 +94,9 @@ export function walkAndLabelElement(
     if (isHTMLElement(child)) {
       const result = walkAndLabelElement(child, walkId, config)
 
-      if (result === 'isOrHasBlockNode') {
-        hasBlockNodeChild = true
-      }
-      else if (result === 'isShallowInlineNode') {
+      forceBlock = forceBlock || result.forceBlock
+
+      if (result.isInlineNode) {
         hasInlineNodeChild = true
       }
     }
@@ -106,19 +106,64 @@ export function walkAndLabelElement(
     element.setAttribute(PARAGRAPH_ATTRIBUTE, '')
   }
 
-  const meaningfulChildCount = Array.from(element.childNodes).filter(child =>
-    child.nodeType === Node.ELEMENT_NODE
-    || (child.nodeType === Node.TEXT_NODE && child.textContent?.trim()),
+  const TranslateChildCount = Array.from(element.childNodes).filter(child =>
+    isShallowBlockTransNode(child) || isShallowInlineTransNode(child),
+  ).length
+  const blockChildCount = Array.from(element.childNodes).filter(child =>
+    isShallowBlockTransNode(child),
   ).length
 
-  if ((hasBlockNodeChild && meaningfulChildCount > 1) || isShallowBlockHTMLElement(element)) {
-    element.setAttribute(BLOCK_ATTRIBUTE, '')
-    return 'isOrHasBlockNode'
+  forceBlock = forceBlock || (blockChildCount >= 1 && TranslateChildCount > 1)
+  const isInlineNode = isShallowInlineHTMLElement(element)
+
+  if (isInlineNode) {
+    if (forceBlock) {
+      element.setAttribute(BLOCK_ATTRIBUTE, '')
+    }
+    else {
+      element.setAttribute(INLINE_ATTRIBUTE, '')
+    }
   }
-  else if (isShallowInlineHTMLElement(element)) {
-    element.setAttribute(INLINE_ATTRIBUTE, '')
-    return 'isShallowInlineNode'
+  else if (isShallowBlockHTMLElement(element)) {
+    element.setAttribute(BLOCK_ATTRIBUTE, '')
   }
 
-  return false
+  return {
+    forceBlock,
+    isInlineNode,
+  }
+
+  // if (hasOneBlockNodeWithOtherNodesChild || isShallowBlockHTMLElement(element)) {
+  //   element.setAttribute(BLOCK_ATTRIBUTE, '')
+  //   // if (hasOneBlockNodeWithOtherNodesChild) {
+  //   //   return 'hasOneBlockNodeWithOtherNodes'
+  //   // }
+  //   // else {
+  //   //   const needToTranslateChildCount = Array.from(element.childNodes).filter(child =>
+  //   //     isShallowBlockTransNode(child) || isShallowInlineTransNode(child),
+  //   //   ).length
+  //   //   if (needToTranslateChildCount > 1) {
+  //   //     return 'hasOneBlockNodeWithOtherNodes'
+  //   //   }
+  //   // }
+  // }
+  // else if (isShallowInlineHTMLElement(element)) {
+  //   element.setAttribute(INLINE_ATTRIBUTE, '')
+  //   // return 'isShallowInlineNode'
+  // }
+
+  // if (hasOneBlockNodeWithOtherNodesChild) {
+  //   return 'hasOneBlockNodeWithOtherNodes'
+  // }
+  // const needToTranslateChildCount = Array.from(element.childNodes).filter(child =>
+  //   isShallowBlockTransNode(child) || isShallowInlineTransNode(child),
+  // ).length
+  // if (isShallowBlockHTMLElement(element) && needToTranslateChildCount > 1) {
+  //   return 'hasOneBlockNodeWithOtherNodes'
+  // }
+  // if (isShallowInlineHTMLElement(element)) {
+  //   return 'isShallowInlineNode'
+  // }
+
+  // return false
 }
