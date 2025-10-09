@@ -45,12 +45,6 @@ export function extractTextContent(node: TransNode, config: Config): string {
   }, '')
 }
 
-/**
- * Walk and label the element
- * @param element - The element to walk and label
- * @param walkId - The walk id
- * @returns "hasBlock" if the element has a block node child or is block node, false otherwise (has inline node child or is inline node or other nodes should be ignored)
- */
 export function walkAndLabelElement(
   element: HTMLElement,
   walkId: string,
@@ -106,14 +100,14 @@ export function walkAndLabelElement(
     element.setAttribute(PARAGRAPH_ATTRIBUTE, '')
   }
 
-  const TranslateChildCount = Array.from(element.childNodes).filter(child =>
+  const translateChildCount = Array.from(element.childNodes).filter(child =>
     isShallowBlockTransNode(child) || isShallowInlineTransNode(child),
   ).length
   const blockChildCount = Array.from(element.childNodes).filter(child =>
     isShallowBlockTransNode(child),
   ).length
 
-  forceBlock = forceBlock || (blockChildCount >= 1 && TranslateChildCount > 1)
+  forceBlock = forceBlock || (blockChildCount >= 1 && translateChildCount > 1)
   const isInlineNode = isShallowInlineHTMLElement(element)
 
   if (isInlineNode) {
