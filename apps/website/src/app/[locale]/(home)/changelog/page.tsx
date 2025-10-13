@@ -7,7 +7,12 @@ async function getChangelogContent(type: 'extension' | 'website') {
   const url = `${GITHUB_RAW_BASE}/${type}/CHANGELOG.md`
 
   try {
-    const response = await fetch(url, { next: { revalidate: 300 } })
+    const response = await fetch(url, {
+      next: { revalidate: 3600 }, // Cache for 1 hour
+      headers: {
+        'User-Agent': 'read-frog-website',
+      },
+    })
     if (!response.ok)
       return ''
     return await response.text()
