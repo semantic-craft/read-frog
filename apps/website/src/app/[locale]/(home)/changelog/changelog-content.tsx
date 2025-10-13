@@ -78,7 +78,7 @@ export function ChangelogContent({
         { tab: 'website' as const, entries: websiteEntries },
       ].map(({ tab, entries }) => (
         <Activity key={tab} mode={activeTab === tab ? 'visible' : 'hidden'}>
-          <div className="relative">
+          <div className="relative mx-6">
             {entries.map((entry: ChangelogEntry, index: number) => (
               <ChangelogEntryItem
                 key={`${entry.version}-${index}`}
