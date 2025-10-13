@@ -7,8 +7,8 @@ import { ChangelogContent } from './changelog-content'
 async function getChangelogContent(type: 'extension' | 'website') {
   const cwd = process.cwd()
   const filePath = type === 'extension'
-    ? join(cwd, '../../apps/extension/CHANGELOG.md')
-    : join(cwd, '../../apps/website/CHANGELOG.md')
+    ? join(cwd, '../extension/CHANGELOG.md')
+    : join(cwd, 'CHANGELOG.md')
 
   try {
     const content = await readFile(filePath, 'utf-8')
