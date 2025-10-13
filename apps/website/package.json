@@ -3,9 +3,9 @@
   "version": "1.1.1",
   "private": true,
   "scripts": {
-    "build": "next build",
-    "dev": "next dev -p 8888",
-    "dev:edge": "next dev -p 8888",
+    "build": "node scripts/copy-changelogs.mjs && next build",
+    "dev": "node scripts/copy-changelogs.mjs && next dev -p 8888",
+    "dev:edge": "node scripts/copy-changelogs.mjs && next dev -p 8888",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "type-check": "tsc --noEmit",
