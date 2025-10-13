@@ -726,7 +726,7 @@ describe('translate', () => {
     })
     describe('inline node has only one block node child', () => {
       // Github issue: https://github.com/mengxi-ream/read-frog/issues/530
-      it('bilingual mode: should insert wrapper after the block node', async () => {
+      it('bilingual mode: should treat inline node with only one block node child as inline', async () => {
         render(
           <div data-testid="test-node">
             {MOCK_ORIGINAL_TEXT}
@@ -747,7 +747,7 @@ describe('translate', () => {
         expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
         expect(node.textContent).toBe(`${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}`)
       })
-      it('translation only mode: should replace inline nodes with single wrapper', async () => {
+      it('translation only mode: should replace inline node with only one block node child with single wrapper', async () => {
         render(
           <div data-testid="test-node">
             {MOCK_ORIGINAL_TEXT}
@@ -766,7 +766,7 @@ describe('translate', () => {
         expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
         expect(node.textContent).toBe(`${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}`)
       })
-      it('should treat inline element with only one block child as inline (not block)', async () => {
+      it('should treat inline element with only one meaningful block child as inline (not block)', async () => {
         // https://github.com/mengxi-ream/read-frog/issues/530
         render(
           <div data-testid="test-node">

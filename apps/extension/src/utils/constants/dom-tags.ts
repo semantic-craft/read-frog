@@ -55,12 +55,6 @@ export const FORCE_INLINE_TRANSLATION_TAGS = new Set([
   'SELECT',
   'OPTION',
   'SPAN',
-  'H1',
-  'H2',
-  'H3',
-  'H4',
-  'H5',
-  'H6',
 ])
 
 export const MAIN_CONTENT_IGNORE_TAGS = new Set(['HEADER', 'FOOTER', 'NAV', 'NOSCRIPT'])

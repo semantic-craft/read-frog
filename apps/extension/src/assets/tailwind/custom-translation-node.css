@@ -13,8 +13,7 @@
   opacity: 1;
 }
 
-[data-read-frog-custom-translation-style='blockquote'] {
-  display: inline-block !important;
+.read-frog-translated-block-content[data-read-frog-custom-translation-style='blockquote'] {
   border-left: 4px solid var(--read-frog-primary);
   padding: 4px 0 4px 12px;
 }
