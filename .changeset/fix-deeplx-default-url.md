@@ -2,4 +2,4 @@
 "@read-frog/extension": patch
 ---
 
-fix: don't translate code in pre tags
+fix: update DeepLX default API URL
