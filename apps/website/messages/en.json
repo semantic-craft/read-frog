@@ -1,7 +1,9 @@
 {
   "home": {
-    "title": "Learn Languages in Depth",
-    "subtitle": "Translate and understand any webpage instantly with AI assistance",
+    "titleBefore": "AI Language",
+    "study": "Study",
+    "titleAfter": "Teacher",
+    "subtitle": "Read Frog seamlessly integrates multiple AI providers, allowing you to customize your own AI teacher. Whether you’re reading news, articles, or any web content, Read Frog helps you deeply understand and learn languages.",
     "install": {
       "on": "Install on",
       "chrome": "Chrome",
@@ -10,6 +12,32 @@
     "experience": "Experience the power of",
     "aiTranslation": "AI Translation & Understanding",
     "poweredBy": "Powered by leading AI models"
+  },
+  "features": {
+    "supportProviders": {
+      "title": "Support Multiple Providers",
+      "explanation": "Read Frog can be seamlessly integrated with a wide range of major model services, allowing you to choose the most suitable provider depending on your specific use case.",
+      "nonCustomProvider": "LLM Provider",
+      "customProvider": "OpenAI-Compatible Custom Provider",
+      "pureProvider": "Pure Translation Provider"
+    },
+    "littleFeatures": {
+      "multiLanguageSupport": "Multi-language",
+      "multiLanguageSupportExplanation": "Translation supports multiple languages, including English, French, German, Spanish, and more.",
+      "selectionTranslate": "Selection Translation",
+      "selectionTranslateExplanation": "Allows users to translate selected text, providing immediate translation results.",
+      "context": "Contextual",
+      "contextExplanation": "Translations are contextually aware, ensuring more accurate and contextually appropriate translations.",
+      "multiFormatSupport": "Multi-format",
+      "multiFormatSupportExplanation": "Supports translation of various formats, such as PDFs, videos, and comics."
+    }
+  },
+  "comment": {
+    "from": "From"
+  },
+  "recall": {
+    "title": "Get Your AI Learning Assistant",
+    "description": "Read Frog is committed to providing language learners of all levels with an easy-to-use, intelligent, and personalized language learning experience. Let the world no longer depend on human language teachers."
   },
   "footer": {
     "description": "Learn languages deeply and effortlessly with AI.",
@@ -23,9 +51,7 @@
     "businessPartnership": "Business Partnership",
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy",
-    "github": "Github",
-    "creatorIntro": "Hey Curious 👋 I'm {name}, the creator of {appName}. Follow my work on",
-    "or": "or"
+    "github": "Github"
   },
   "metadata": {
     "appName": "Read Frog",
