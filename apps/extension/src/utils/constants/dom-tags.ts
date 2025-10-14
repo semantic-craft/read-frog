@@ -43,6 +43,7 @@ export const DONT_WALK_AND_TRANSLATE_TAGS = new Set([
   'STYLE',
   'LINK',
   'PRE',
+  'svg',
 ])
 
 export const DONT_WALK_BUT_TRANSLATE_TAGS = new Set([
