@@ -690,6 +690,32 @@ describe('translate', () => {
         expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
         expect(node.textContent).toBe(`${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}`)
       })
+      it('bilingual mode: should let br node to make its ancestor node to be forced block node', async () => {
+        // Github issue: https://github.com/mengxi-ream/read-frog/issues/587
+        render(
+          <div data-testid="test-node">
+            {MOCK_ORIGINAL_TEXT}
+            <span><br /></span>
+            {MOCK_ORIGINAL_TEXT}
+            <span><br /></span>
+            {MOCK_ORIGINAL_TEXT}
+          </div>,
+        )
+        const node = screen.getByTestId('test-node')
+        await removeOrShowPageTranslation('bilingual', true)
+
+        expectNodeLabels(node, [BLOCK_ATTRIBUTE])
+        const wrapper1 = node.children[0]
+        expectTranslatedContent(wrapper1 as Element, BLOCK_CONTENT_CLASS)
+        const wrapper2 = node.children[2]
+        expectTranslatedContent(wrapper2 as Element, BLOCK_CONTENT_CLASS)
+        const wrapper3 = node.children[4]
+        expectTranslatedContent(wrapper3 as Element, BLOCK_CONTENT_CLASS)
+
+        await removeOrShowPageTranslation('bilingual', true)
+        expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+        expect(node.textContent).toBe(`${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}`)
+      })
       it('bilingual mode: should insert separate wrappers for inline groups separated by br', async () => {
         render(
           <div data-testid="test-node">
