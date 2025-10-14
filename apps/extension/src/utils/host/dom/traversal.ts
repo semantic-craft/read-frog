@@ -110,16 +110,16 @@ export function walkAndLabelElement(
   forceBlock = forceBlock || (blockChildCount >= 1 && translateChildCount > 1)
   const isInlineNode = isShallowInlineHTMLElement(element)
 
-  if (isInlineNode) {
+  if (isShallowBlockHTMLElement(element)) {
+    element.setAttribute(BLOCK_ATTRIBUTE, '')
+  }
+  else if (isInlineNode) {
     if (forceBlock) {
       element.setAttribute(BLOCK_ATTRIBUTE, '')
     }
     else {
       element.setAttribute(INLINE_ATTRIBUTE, '')
     }
-  }
-  else if (isShallowBlockHTMLElement(element)) {
-    element.setAttribute(BLOCK_ATTRIBUTE, '')
   }
 
   return {

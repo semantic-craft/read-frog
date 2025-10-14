@@ -1186,4 +1186,23 @@ describe('translate', () => {
       })
     })
   })
+  describe('force block node', () => {
+    describe('force <li> as block node', () => {
+      it('should treat <li> as block node', async () => {
+        render(
+          <div data-testid="test-node">
+            <li style={{ float: 'left' }}>{MOCK_ORIGINAL_TEXT}</li>
+            <li style={{ display: 'inline' }}>{MOCK_ORIGINAL_TEXT}</li>
+          </div>,
+        )
+
+        const node = screen.getByTestId('test-node')
+        await removeOrShowPageTranslation('bilingual', true)
+
+        expectNodeLabels(node, [BLOCK_ATTRIBUTE])
+        expectNodeLabels(node.children[0], [BLOCK_ATTRIBUTE])
+        expectNodeLabels(node.children[1], [BLOCK_ATTRIBUTE])
+      })
+    })
+  })
 })
