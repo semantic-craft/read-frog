@@ -1257,4 +1257,31 @@ describe('translate', () => {
       })
     })
   })
+  describe('flex parent', () => {
+    it('bilingual mode: should force the translation style to be inline', async () => {
+      render(
+        <div data-testid="test-node">
+          <div style={{ display: 'flex' }}>{MOCK_ORIGINAL_TEXT}</div>
+        </div>,
+      )
+    })
+    it('bilingual mode: should force the translation style to be inline for inline flex', async () => {
+      render(
+        <div data-testid="test-node">
+          <div style={{ display: 'inline-flex' }}>{MOCK_ORIGINAL_TEXT}</div>
+        </div>,
+      )
+    })
+    it('bilingual mode: should translate the inline children to be inline style even have block children', async () => {
+      render(
+        <div data-testid="test-node">
+          <div style={{ display: 'flex' }}>
+            {MOCK_ORIGINAL_TEXT}
+            <div>{MOCK_ORIGINAL_TEXT}</div>
+            {MOCK_ORIGINAL_TEXT}
+          </div>
+        </div>,
+      )
+    })
+  })
 })
