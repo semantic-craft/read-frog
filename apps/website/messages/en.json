@@ -15,16 +15,16 @@
   },
   "features": {
     "supportProviders": {
-      "title": "Support Multiple Providers",
+      "title": "Support multiple providers",
       "explanation": "Read Frog can be seamlessly integrated with a wide range of major model services, allowing you to choose the most suitable provider depending on your specific use case.",
-      "nonCustomProvider": "LLM Provider",
-      "customProvider": "OpenAI-Compatible Custom Provider",
-      "pureProvider": "Pure Translation Provider"
+      "nonCustomProvider": "LLM provider",
+      "customProvider": "OpenAI-Compatible custom provider",
+      "pureProvider": "Pure translation provider"
     },
     "littleFeatures": {
       "multiLanguageSupport": "Multi-language",
       "multiLanguageSupportExplanation": "Translation supports multiple languages, including English, French, German, Spanish, and more.",
-      "selectionTranslate": "Selection Translation",
+      "selectionTranslate": "Selection translation",
       "selectionTranslateExplanation": "Allows users to translate selected text, providing immediate translation results.",
       "context": "Contextual",
       "contextExplanation": "Translations are contextually aware, ensuring more accurate and contextually appropriate translations.",
@@ -42,7 +42,7 @@
     "from": "From"
   },
   "recall": {
-    "title": "Get Your AI Learning Assistant",
+    "title": "Get your AI learning assistant",
     "description": "Read Frog is committed to providing language learners of all levels with an easy-to-use, intelligent, and personalized language learning experience. Let the world no longer depend on human language teachers."
   },
   "footer": {
