@@ -23,20 +23,23 @@ export function Wallet({
 }: CoinAnimationProps) {
   const coinCount = coins.length
 
+  // coins keyframe time list
   const coinTimes = [0, 0.10, 0.20, 0.45, 0.68, 0.85, 0.9, 1]
 
+  // wallet keyframes
   const walletKeyframes = {
     x: [0, 0, 0, 0, 0, 0, -6, 0],
     y: [0, 0, 0, 0, 0, 0, -4, 0],
     opacity: [1, 0, 0, 0, 0, 1, 1, 1],
   }
 
+  // wallet keyframe time list
   const walletTimes = [0, 0.10, 0.20, 0.45, 0.68, 0.85, 0.9, 1]
 
   const generateCoinAnimations = () => {
     const animations = []
 
-    for (let i = 0; i < Math.min(coinCount, coins.length); i++) {
+    for (let i = 0; i < coinCount; i++) {
       const angle = (i / coinCount) * Math.PI * 2
       const x = Math.cos(angle) * radius
       const y = Math.sin(angle) * radius

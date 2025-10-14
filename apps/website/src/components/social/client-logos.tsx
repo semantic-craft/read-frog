@@ -18,7 +18,7 @@ export function ClientLogos() {
             key={alt}
             className={cn(
               'hover:scale-110 ease-in-out transition-transform duration-100',
-              invertColor && 'dark:brightness-0 dark:invert-100',
+              invertColor && 'dark:brightness-0 dark:invert',
             )}
             src={src}
             alt={alt}

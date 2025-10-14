@@ -33,7 +33,7 @@ const config = {
         protocol: 'https',
         hostname: 'registry.npmmirror.com',
         port: '',
-        pathname: '/**',
+        pathname: '/@lobehub/icons-static-webp/**',
       },
     ],
 
