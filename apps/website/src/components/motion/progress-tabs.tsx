@@ -2,7 +2,7 @@
 
 import { cn } from '@repo/ui/lib/utils'
 import { motion } from 'motion/react'
-import { useEffect, useRef } from 'react'
+import { Activity, useEffect, useRef } from 'react'
 
 interface ProgressTabItem {
   id: string
@@ -94,7 +94,9 @@ export function ProgressTabs({
           <div key={item.id}>
             <div className="flex items-center gap-3">
               <div className="w-5 h-5 flex-shrink-0">
-                {isActive && <CircleIndicator interval={interval} />}
+                <Activity mode={isActive ? 'visible' : 'hidden'}>
+                  <CircleIndicator interval={interval} />
+                </Activity>
               </div>
               <button
                 type="button"

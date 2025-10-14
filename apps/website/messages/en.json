@@ -32,6 +32,12 @@
       "multiFormatSupportExplanation": "Supports translation of various formats, such as PDFs, videos, and comics."
     }
   },
+  "testimonial": {
+    "songkeys": "AI provides word-by-word companion learning explanations. Foreign language learning becomes effortlessly advanced. 🤯👍 Open source, free, powered by passion. Come give us a 🌟star to show your support!",
+    "핌르르": "The experience is really smooth. I really like the reading mode. I look forward to supporting more models in the future.",
+    "Holden “Holden for Work”": "Open source & experience is good, hope to continue to optimize, add AI auxiliary related capabilities",
+    "MS R": "Recently noticed this open-source translation software on the forum. The overall design is quite good, though it seems to still be in its early stages with more features being added. Hope it keeps getting better in the future!"
+  },
   "comment": {
     "from": "From"
   },

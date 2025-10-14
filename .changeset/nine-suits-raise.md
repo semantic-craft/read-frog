@@ -2,4 +2,4 @@
 "@read-frog/website": minor
 ---
 
-refactor: refactor landing page
+refactor(website): refactor landing page

@@ -3,6 +3,7 @@
 import type { TestimonialItem } from '@/utils/constants/testimonial-list'
 import { cn } from '@repo/ui/lib/utils'
 import { motion } from 'motion/react'
+import { useTranslations } from 'next-intl'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import { useHydration } from '@/hooks/useHydration'
@@ -19,6 +20,8 @@ export function Testimonial() {
 }
 
 function TestimonialCard({ testimonial }: { testimonial: TestimonialItem }) {
+  const t = useTranslations('testimonial')
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
@@ -50,7 +53,7 @@ function TestimonialCard({ testimonial }: { testimonial: TestimonialItem }) {
         <BrandLogo brand={testimonial.from} />
       </header>
       <p className="text-base text-fd-foreground/90 leading-relaxed">
-        {testimonial.comment}
+        {t(testimonial.id)}
       </p>
     </motion.div>
   )

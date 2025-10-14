@@ -4,7 +4,7 @@ import type { Provider } from '@/utils/constants/providers'
 import { motion } from 'motion/react'
 import { useTranslations } from 'next-intl'
 import { useTheme } from 'next-themes'
-import { useState } from 'react'
+import { Activity, useState } from 'react'
 import { Container } from '@/components/container'
 import { InfiniteScroller } from '@/components/motion/infinite-scroller'
 import { ProgressTabs } from '@/components/motion/progress-tabs'
@@ -54,9 +54,15 @@ export function SupportProviders() {
           <ProgressTabs items={providerTabs} activeIndex={activeProviderIndex} setActiveIndex={setActiveProviderIndex} />
         </div>
         <div className="flex justify-center items-center py-0 h-60 md:h-100">
-          {activeProviderType === PROVIDER_TYPES_ENUM.NON_CUSTOM_LLM_PROVIDER ? <NonCustomLLMProviders /> : <></>}
-          {activeProviderType === PROVIDER_TYPES_ENUM.CUSTOM_PROVIDER ? <CustomProviders /> : <></>}
-          {activeProviderType === PROVIDER_TYPES_ENUM.PURE_PROVIDER ? <PureProviders /> : <></>}
+          <Activity mode={activeProviderType === PROVIDER_TYPES_ENUM.NON_CUSTOM_LLM_PROVIDER ? 'visible' : 'hidden'}>
+            <NonCustomLLMProviders />
+          </Activity>
+          <Activity mode={activeProviderType === PROVIDER_TYPES_ENUM.CUSTOM_PROVIDER ? 'visible' : 'hidden'}>
+            <CustomProviders />
+          </Activity>
+          <Activity mode={activeProviderType === PROVIDER_TYPES_ENUM.PURE_PROVIDER ? 'visible' : 'hidden'}>
+            <PureProviders />
+          </Activity>
         </div>
       </Container>
     </section>
