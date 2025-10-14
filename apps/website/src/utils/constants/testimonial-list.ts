@@ -3,7 +3,7 @@ export interface TestimonialItem {
   name: string
   from: FromPlatforms
   date: string
-  avatar?: string
+  avatar: string
   link?: string
 }
 

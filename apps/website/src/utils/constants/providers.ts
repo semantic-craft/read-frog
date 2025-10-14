@@ -1,9 +1,3 @@
-import customProviderLogo from 'public/providers/custom-provider.svg'
-import deeplxLogoDark from 'public/providers/deeplx-dark.svg'
-import deeplxLogoLight from 'public/providers/deeplx-light.svg'
-import openaiCompatibleLogoDark from 'public/providers/openai-compatible-dark.svg'
-import openaiCompatibleLogoLight from 'public/providers/openai-compatible-light.svg'
-import tensdaqLogoColor from 'public/providers/tensdaq-color.svg'
 import { getLobeIconsCDNUrlFn } from '../logo'
 
 export interface Provider { id: string, logo: (isDark: boolean) => string }
@@ -15,15 +9,15 @@ export type CustomLLMProviderNames = typeof CUSTOM_LLM_PROVIDER_NAMES[number]
 export const CUSTOM_PROVIDER_ITEMS: Record<CustomLLMProviderNames, Provider> = {
   customProvider: {
     id: 'Custom Provider',
-    logo: () => customProviderLogo.src,
+    logo: () => '/providers/custom-provider.svg',
   },
   openaiCompatible: {
     id: 'OpenAI Compatible',
-    logo: (isDark: boolean) => isDark ? openaiCompatibleLogoDark.src : openaiCompatibleLogoLight.src,
+    logo: (isDark: boolean) => isDark ? '/providers/openai-compatible-dark.svg' : '/providers/openai-compatible-light.svg',
   },
   tensdaq: {
     id: 'TensDAQ',
-    logo: () => tensdaqLogoColor.src,
+    logo: () => '/providers/tensdaq-color.svg',
   },
   siliconflow: {
     id: 'SiliconFlow',
@@ -125,6 +119,6 @@ export const PURE_PROVIDERS_ITEMS: Record<PureProviderNames, Provider> = {
   },
   deeplx: {
     id: 'DeepLX',
-    logo: (isDark: boolean) => isDark ? deeplxLogoDark.src : deeplxLogoLight.src,
+    logo: (isDark: boolean) => isDark ? '/providers/deeplx-dark.svg' : '/providers/deeplx-light.svg',
   },
 }

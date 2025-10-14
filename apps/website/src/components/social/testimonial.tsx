@@ -74,12 +74,13 @@ function BrandLogo({ brand }: { brand: FromPlatforms }) {
   return <Image className="self-start" src={logoSrc} alt={brand} width={logoSize} height={logoSize} loading={!isHydrated ? 'eager' : 'lazy'} />
 }
 
-function CommentAvatar({ link, avatar, name }: { avatar?: string, name: string, link?: string }) {
+function CommentAvatar({ link, avatar, name }: { avatar: string, name: string, link?: string }) {
   const Wrapper = link ? 'a' : 'div'
+  const props = link ? { href: link, target: '_blank', rel: 'noopener noreferrer' } : {}
 
   return (
-    <Wrapper href={link} target="_blank" rel="noopener noreferrer">
-      {avatar ? <Image src={avatar} alt={name} width={36} height={36} /> : <span>{name.slice(0, 1).toUpperCase()}</span>}
+    <Wrapper {...props}>
+      <Image src={avatar} alt={name} width={36} height={36} />
     </Wrapper>
   )
 }
