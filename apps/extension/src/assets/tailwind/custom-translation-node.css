@@ -30,6 +30,16 @@
 
 [data-read-frog-custom-translation-style='border'] {
   border: 1px solid var(--read-frog-primary);
-  padding: 4px;
-  border-radius: 2px;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+[data-read-frog-custom-translation-style='primaryColor'] {
+  color: var(--read-frog-primary) !important;
+}
+
+[data-read-frog-custom-translation-style='primaryBackground'] {
+  background-color: color-mix(in srgb, var(--read-frog-primary) 15%, transparent);
+  padding: 2px 4px;
+  border-radius: 4px;
 }
