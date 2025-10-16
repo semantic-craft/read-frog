@@ -34,11 +34,11 @@
   border-radius: 4px;
 }
 
-[data-read-frog-custom-translation-style='primaryColor'] {
+[data-read-frog-custom-translation-style='textColor'] {
   color: var(--read-frog-primary) !important;
 }
 
-[data-read-frog-custom-translation-style='primaryBackground'] {
+[data-read-frog-custom-translation-style='background'] {
   background-color: color-mix(in srgb, var(--read-frog-primary) 15%, transparent);
   padding: 2px 4px;
   border-radius: 4px;
