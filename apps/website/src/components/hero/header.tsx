@@ -21,13 +21,13 @@ export function Header() {
         viewport={{ once: true }}
         className="w-full md:max-w-6xl flex flex-col gap-4 items-center justify-center px-8 md:px-4 pt-20"
       >
-        <span className="w-full break-all whitespace-pre-wrap text-4xl md:text-7xl font-bold dark:text-white text-center tracking-normal">
+        <h2 className="w-full text-balance whitespace-pre-wrap text-4xl md:text-7xl font-bold dark:text-white text-center tracking-normal">
           {t('titleBefore')}
-          <span className="text-primary-strong mx-2">
+          <span className="text-primary-strong mx-2 break-words">
             {t('study')}
           </span>
           {t('titleAfter')}
-        </span>
+        </h2>
         <div className="max-w-4xl text-base text-neutral-600 dark:text-neutral-200 py-4 text-center">
           {t('subtitle')}
         </div>
