@@ -1,9 +1,9 @@
 {
   "home": {
-    "titleBefore": "AI 语言",
-    "study": "学习",
-    "titleAfter": "教师",
-    "subtitle": "陪读蛙无缝集成多家人工智能提供商，允许您自定义专属 AI 教师。无论您在阅读新闻、文章还是任何网络内容，陪读蛙都能帮助您深入理解和学习语言！",
+    "yourLanguage": "你的语言",
+    "translator": "翻译器",
+    "teacher": "教师",
+    "subtitle": "翻译和解读你浏览器上的任何内容。",
     "install": {
       "on": "安装在",
       "chrome": "Chrome",
