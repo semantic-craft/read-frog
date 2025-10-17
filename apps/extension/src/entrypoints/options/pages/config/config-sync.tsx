@@ -14,22 +14,22 @@ import {
 import { Button } from '@repo/ui/components/button'
 import { Input } from '@repo/ui/components/input'
 import { Label } from '@repo/ui/components/label'
-import { ScrollArea } from '@repo/ui/components/scroll-area'
 import { kebabCase } from 'case-anything'
 import { saveAs } from 'file-saver'
 import { useAtomValue, useSetAtom } from 'jotai'
-import { useState } from 'react'
 import { toast } from 'sonner'
 import { configSchema } from '@/types/config/config'
 import { configAtom, writeConfigAtom } from '@/utils/atoms/config'
 import { getObjectWithoutAPIKeys } from '@/utils/config/config'
 import { runMigration } from '@/utils/config/migration'
 import { APP_NAME } from '@/utils/constants/app'
-import { CONFIG_SCHEMA_VERSION } from '@/utils/constants/config'
+import { CONFIG_SCHEMA_VERSION, CONFIG_SCHEMA_VERSION_STORAGE_KEY, CONFIG_STORAGE_KEY } from '@/utils/constants/config'
 import { logger } from '@/utils/logger'
 import { ConfigCard } from '../../components/config-card'
+import { ViewConfig } from './components/view-config'
 
 export default function ConfigSync() {
+  const config = useAtomValue(configAtom)
   return (
     <ConfigCard
       title={i18n.t('options.config.sync.title')}
@@ -40,8 +40,7 @@ export default function ConfigSync() {
           <ImportConfig />
           <ExportConfig />
         </div>
-
-        <ViewCurrentConfig />
+        <ViewConfig config={config} />
       </div>
     </ConfigCard>
   )
@@ -63,13 +62,13 @@ function ImportConfig() {
           if (typeof fileResult !== 'string') {
             return
           }
-          const _config = JSON.parse(fileResult)
-          const { storedConfigSchemaVersion: importStoredConfigSchemaVersion } = _config
+          const versionAndConfig = JSON.parse(fileResult)
+          const { [CONFIG_SCHEMA_VERSION_STORAGE_KEY]: importStoredConfigSchemaVersion } = versionAndConfig
           if (importStoredConfigSchemaVersion > CONFIG_SCHEMA_VERSION) {
             toast.error(i18n.t('options.config.sync.versionTooNew'))
             return
           }
-          let { config } = _config
+          let { [CONFIG_STORAGE_KEY]: config } = versionAndConfig
           if (importStoredConfigSchemaVersion < CONFIG_SCHEMA_VERSION) {
             // migrate
             let currentVersion = importStoredConfigSchemaVersion
@@ -122,15 +121,15 @@ function ExportConfig() {
   const config = useAtomValue(configAtom)
 
   const exportConfig = (includeApiKeys: boolean) => {
-    let exportData = config
+    let exportConfig = config
 
     if (!includeApiKeys) {
-      exportData = getObjectWithoutAPIKeys(config)
+      exportConfig = getObjectWithoutAPIKeys(config)
     }
 
     const json = JSON.stringify({
-      config: exportData,
-      storedConfigSchemaVersion: CONFIG_SCHEMA_VERSION,
+      [CONFIG_STORAGE_KEY]: exportConfig,
+      [CONFIG_SCHEMA_VERSION_STORAGE_KEY]: CONFIG_SCHEMA_VERSION,
     }, null, 2)
     const blob = new Blob([json], { type: 'text/json' })
     saveAs(blob, `${kebabCase(APP_NAME)}-config-v${CONFIG_SCHEMA_VERSION}.json`)
@@ -168,37 +167,5 @@ function ExportConfig() {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
-}
-
-function ViewCurrentConfig() {
-  const config = useAtomValue(configAtom)
-  const [isExpanded, setIsExpanded] = useState(false)
-
-  return (
-    <div className="w-full flex flex-col justify-end">
-      <Button
-        variant="outline"
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="mb-3"
-      >
-        <Icon
-          icon={isExpanded ? 'tabler:chevron-up' : 'tabler:chevron-down'}
-          className="size-4 mr-2"
-        />
-        {isExpanded ? i18n.t('options.config.sync.viewConfig.collapse') : i18n.t('options.config.sync.viewConfig.expand')}
-      </Button>
-
-      {isExpanded && (
-        <ScrollArea className="h-96 w-full rounded-lg border bg-muted">
-          <pre className="text-xs p-4 whitespace-pre-wrap break-all overflow-wrap-anywhere">
-            {JSON.stringify({
-              storedConfigSchemaVersion: CONFIG_SCHEMA_VERSION,
-              config,
-            }, null, 2)}
-          </pre>
-        </ScrollArea>
-      )}
-    </div>
   )
 }
