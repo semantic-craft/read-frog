@@ -11,7 +11,7 @@ export function BackupConfigItem() {
       <ItemContent>
         <ItemTitle>Backup at 2025-01-15 14:30:25</ItemTitle>
         <ItemDescription>
-          A simple item with title and description.
+          Extension version: 1.12.0
         </ItemDescription>
       </ItemContent>
       <ItemActions>
