@@ -20,10 +20,12 @@ import { saveAs } from 'file-saver'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { toast } from 'sonner'
 import { configAtom, writeConfigAtom } from '@/utils/atoms/config'
+import { addBackup } from '@/utils/backup/storage'
 import { getObjectWithoutAPIKeys } from '@/utils/config/config'
 import { migrateConfig } from '@/utils/config/migration'
-import { APP_NAME } from '@/utils/constants/app'
+import { APP_NAME, EXTENSION_VERSION } from '@/utils/constants/app'
 import { CONFIG_SCHEMA_VERSION, CONFIG_SCHEMA_VERSION_STORAGE_KEY, CONFIG_STORAGE_KEY } from '@/utils/constants/config'
+import { queryClient } from '@/utils/trpc/client'
 import { ConfigCard } from '../../components/config-card'
 import { ViewConfig } from './components/view-config'
 
@@ -46,6 +48,7 @@ export default function ConfigSync() {
 }
 
 function ImportConfig() {
+  const currentConfig = useAtomValue(configAtom)
   const setConfig = useSetAtom(writeConfigAtom)
 
   const { mutate: importConfig, isPending: isImporting } = useMutation({
@@ -70,11 +73,12 @@ function ImportConfig() {
         [CONFIG_STORAGE_KEY]: importConfig,
       } = JSON.parse(fileContent)
 
-      const config = await migrateConfig(importConfig, importConfigSchemaVersion)
-      // TODO: backup current config before importing
-      await setConfig(config)
+      const newConfig = await migrateConfig(importConfig, importConfigSchemaVersion)
+      await addBackup(currentConfig, EXTENSION_VERSION)
+      await setConfig(newConfig)
     },
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['config-backups'] })
       toast.success(i18n.t('options.config.sync.importSuccess'))
     },
   })
