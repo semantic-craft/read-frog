@@ -19,6 +19,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { useExportConfig } from '@/hooks/use-export-config'
 import { configAtom, writeConfigAtom } from '@/utils/atoms/config'
 import { addBackup, isSameAsLatestBackup, removeBackup } from '@/utils/backup/storage'
 import { migrateConfig } from '@/utils/config/migration'
@@ -74,7 +75,7 @@ export function BackupConfigItem({ backupId, backupMetadata, backup }: BackupCon
       <ItemActions>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="outline" disabled={isRestoring}>
+            <Button variant="outline" size="sm" disabled={isRestoring}>
               {isRestoring ? <Spinner /> : <Icon icon="tabler:restore" />}
               Restore
             </Button>
@@ -83,7 +84,7 @@ export function BackupConfigItem({ backupId, backupMetadata, backup }: BackupCon
             <AlertDialogHeader>
               <AlertDialogTitle>Restore config backup?</AlertDialogTitle>
               <AlertDialogDescription>
-                Your current config will be automatically backed up before restoring this backup. The oldest backup may be removed after restoration if the number of backups exceeds the limit.
+                Your current config will be automatically backed up if it is different from the latest backup. The oldest backup may be removed if the number of backups exceeds the limit.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -94,15 +95,16 @@ export function BackupConfigItem({ backupId, backupMetadata, backup }: BackupCon
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        <MoreOptions backupId={backupId} />
+        <MoreOptions backupId={backupId} backup={backup} />
       </ItemActions>
-      <ItemFooter><ViewConfig config={backup.config} /></ItemFooter>
+      <ItemFooter><ViewConfig config={backup.config} size="sm" /></ItemFooter>
     </Item>
   )
 }
 
-function MoreOptions({ backupId }: { backupId: string }) {
+function MoreOptions({ backupId, backup }: { backupId: string, backup: ConfigBackup }) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+
   const { mutate: deleteBackup, isPending: isDeleting } = useMutation({
     mutationFn: async (backupId: string) => {
       await removeBackup(backupId)
@@ -111,16 +113,22 @@ function MoreOptions({ backupId }: { backupId: string }) {
       void queryClient.invalidateQueries({ queryKey: ['config-backups'] })
     },
   })
+
+  const { mutate: exportConfig, isPending: isExporting } = useExportConfig({
+    config: backup[CONFIG_STORAGE_KEY],
+    schemaVersion: backup[CONFIG_SCHEMA_VERSION_STORAGE_KEY],
+  })
+
   return (
     <>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="icon-sm" disabled={isExporting || isDeleting}>
             <Icon icon="tabler:dots" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-40" align="end">
-          <DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => exportConfig(false)} disabled={isExporting}>
             <Icon icon="tabler:file-export" />
             Export
           </DropdownMenuItem>
@@ -130,6 +138,7 @@ function MoreOptions({ backupId }: { backupId: string }) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>

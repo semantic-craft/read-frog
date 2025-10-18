@@ -15,15 +15,13 @@ import { Button } from '@repo/ui/components/button'
 import { Input } from '@repo/ui/components/input'
 import { Label } from '@repo/ui/components/label'
 import { useMutation } from '@tanstack/react-query'
-import { kebabCase } from 'case-anything'
-import { saveAs } from 'file-saver'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { toast } from 'sonner'
+import { useExportConfig } from '@/hooks/use-export-config'
 import { configAtom, writeConfigAtom } from '@/utils/atoms/config'
 import { addBackup } from '@/utils/backup/storage'
-import { getObjectWithoutAPIKeys } from '@/utils/config/config'
 import { migrateConfig } from '@/utils/config/migration'
-import { APP_NAME, EXTENSION_VERSION } from '@/utils/constants/app'
+import { EXTENSION_VERSION } from '@/utils/constants/app'
 import { CONFIG_SCHEMA_VERSION, CONFIG_SCHEMA_VERSION_STORAGE_KEY, CONFIG_STORAGE_KEY } from '@/utils/constants/config'
 import { queryClient } from '@/utils/trpc/client'
 import { ConfigCard } from '../../components/config-card'
@@ -112,21 +110,9 @@ function ImportConfig() {
 function ExportConfig() {
   const config = useAtomValue(configAtom)
 
-  const { mutate: exportConfig, isPending: isExporting } = useMutation({
-    mutationFn: async (includeApiKeys: boolean) => {
-      let exportConfig = config
-
-      if (!includeApiKeys) {
-        exportConfig = getObjectWithoutAPIKeys(config)
-      }
-
-      const json = JSON.stringify({
-        [CONFIG_STORAGE_KEY]: exportConfig,
-        [CONFIG_SCHEMA_VERSION_STORAGE_KEY]: CONFIG_SCHEMA_VERSION,
-      }, null, 2)
-      const blob = new Blob([json], { type: 'text/json' })
-      saveAs(blob, `${kebabCase(APP_NAME)}-config-v${CONFIG_SCHEMA_VERSION}.json`)
-    },
+  const { mutate: exportConfig, isPending: isExporting } = useExportConfig({
+    config,
+    schemaVersion: CONFIG_SCHEMA_VERSION,
     onSuccess: () => {
       toast.success(i18n.t('options.config.sync.exportSuccess'))
     },

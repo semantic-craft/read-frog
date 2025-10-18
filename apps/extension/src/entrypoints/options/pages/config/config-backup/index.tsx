@@ -1,7 +1,14 @@
-import { useQuery } from '@tanstack/react-query'
+import { Icon } from '@iconify/react/dist/iconify.js'
+import { Button } from '@repo/ui/components/button'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { useAtomValue } from 'jotai'
+import { toast } from 'sonner'
 import { ConfigCard } from '@/entrypoints/options/components/config-card'
-import { getAllBackupsWithMetadata } from '@/utils/backup/storage'
+import { configAtom } from '@/utils/atoms/config'
+import { addBackup, getAllBackupsWithMetadata } from '@/utils/backup/storage'
+import { EXTENSION_VERSION } from '@/utils/constants/app'
 import { CONFIG_SCHEMA_VERSION_STORAGE_KEY, CONFIG_STORAGE_KEY } from '@/utils/constants/config'
+import { queryClient } from '@/utils/trpc/client'
 import { BackupConfigItem } from './components/backup-config-item'
 
 export function ConfigBackup() {
@@ -27,7 +34,7 @@ export function ConfigBackup() {
             No backups available yet. Backups are created automatically every hour.
           </div>
         )}
-
+        <Toolbar />
         {backupsWithMetadata && backupsWithMetadata?.length > 0 && (
           <>
             {backupsWithMetadata.map(backupWithMetadata => (
@@ -45,5 +52,26 @@ export function ConfigBackup() {
         )}
       </div>
     </ConfigCard>
+  )
+}
+
+function Toolbar() {
+  const currentConfig = useAtomValue(configAtom)
+  const { mutate: backupConfig, isPending: isBackingUp } = useMutation({
+    mutationFn: async () => {
+      await addBackup(currentConfig, EXTENSION_VERSION)
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['config-backups'] })
+      toast.success('Backup created successfully')
+    },
+  })
+  return (
+    <div className="flex justify-end">
+      <Button disabled={isBackingUp} onClick={() => backupConfig()}>
+        <Icon icon="tabler:plus" />
+        Backup now
+      </Button>
+    </div>
   )
 }

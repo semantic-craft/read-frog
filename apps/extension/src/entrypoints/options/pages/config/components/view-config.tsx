@@ -1,3 +1,4 @@
+import type { ButtonProps } from '@repo/ui/components/button'
 import type { Config } from '@/types/config/config'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
@@ -6,18 +7,18 @@ import { ScrollArea } from '@repo/ui/components/scroll-area'
 import { useState } from 'react'
 import { CONFIG_SCHEMA_VERSION, CONFIG_SCHEMA_VERSION_STORAGE_KEY, CONFIG_STORAGE_KEY } from '@/utils/constants/config'
 
-export function ViewConfig({ config, configSchemaVersion }: { config: Config, configSchemaVersion?: number }) {
+export function ViewConfig({ config, configSchemaVersion, size = 'default' }: { config: Config, configSchemaVersion?: number, size?: ButtonProps['size'] }) {
   const [isExpanded, setIsExpanded] = useState(false)
 
   return (
     <div className="w-full flex flex-col justify-end">
       <Button
         variant="outline"
+        size={size}
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <Icon
           icon={isExpanded ? 'tabler:chevron-up' : 'tabler:chevron-down'}
-          className="size-4 mr-2"
         />
         {isExpanded ? i18n.t('options.config.sync.viewConfig.collapse') : i18n.t('options.config.sync.viewConfig.expand')}
       </Button>
