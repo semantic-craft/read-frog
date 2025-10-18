@@ -109,13 +109,9 @@ export async function removeBackup(backupId: string): Promise<void> {
   try {
     const backupIds = await storage.getItem<string[]>('local:backup_ids') ?? []
 
-    // Remove from backup IDs list
     const updatedIds = backupIds.filter((id: string) => id !== backupId)
     await storage.setItem('local:backup_ids', updatedIds)
-
-    // Remove the backup item
-    await storage.removeItem(`local:${backupId}`)
-    await storage.removeMeta(`local:${backupId}`)
+    await storage.removeItem(`local:${backupId}`, { removeMeta: true })
 
     logger.info('Backup removed:', backupId)
   }
@@ -133,10 +129,9 @@ export async function clearAllBackups(): Promise<void> {
     const backupIds = await storage.getItem<string[]>('local:backup_ids') ?? []
 
     // Remove all backup items
-    for (const id of backupIds) {
-      await storage.removeItem(`local:${id}`)
-      await storage.removeMeta(`local:${id}`)
-    }
+    await storage.removeItems(
+      backupIds.map(id => ({ key: `local:${id}` as const, options: { removeMeta: true } })),
+    )
 
     // Clear backup IDs list
     await storage.removeItem('local:backup_ids')
