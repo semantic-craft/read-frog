@@ -14,17 +14,16 @@ import {
 import { Button } from '@repo/ui/components/button'
 import { Input } from '@repo/ui/components/input'
 import { Label } from '@repo/ui/components/label'
+import { useMutation } from '@tanstack/react-query'
 import { kebabCase } from 'case-anything'
 import { saveAs } from 'file-saver'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { toast } from 'sonner'
-import { configSchema } from '@/types/config/config'
 import { configAtom, writeConfigAtom } from '@/utils/atoms/config'
 import { getObjectWithoutAPIKeys } from '@/utils/config/config'
-import { runMigration } from '@/utils/config/migration'
+import { migrateConfig } from '@/utils/config/migration'
 import { APP_NAME } from '@/utils/constants/app'
 import { CONFIG_SCHEMA_VERSION, CONFIG_SCHEMA_VERSION_STORAGE_KEY, CONFIG_STORAGE_KEY } from '@/utils/constants/config'
-import { logger } from '@/utils/logger'
 import { ConfigCard } from '../../components/config-card'
 import { ViewConfig } from './components/view-config'
 
@@ -48,62 +47,51 @@ export default function ConfigSync() {
 
 function ImportConfig() {
   const setConfig = useSetAtom(writeConfigAtom)
-  const importConfig = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      const file = e.target.files?.[0]
-      if (!file) {
-        return
-      }
 
-      const reader = new FileReader()
-      reader.onload = async (event) => {
-        try {
-          const fileResult = event.target?.result
-          if (typeof fileResult !== 'string') {
-            return
+  const { mutate: importConfig, isPending: isImporting } = useMutation({
+    mutationFn: async (file: File) => {
+      const fileContent = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = (event) => {
+          const result = event.target?.result
+          if (typeof result === 'string') {
+            resolve(result)
           }
-          const versionAndConfig = JSON.parse(fileResult)
-          const { [CONFIG_SCHEMA_VERSION_STORAGE_KEY]: importStoredConfigSchemaVersion } = versionAndConfig
-          if (importStoredConfigSchemaVersion > CONFIG_SCHEMA_VERSION) {
-            toast.error(i18n.t('options.config.sync.versionTooNew'))
-            return
+          else {
+            reject(new Error('Invalid file content'))
           }
-          let { [CONFIG_STORAGE_KEY]: config } = versionAndConfig
-          if (importStoredConfigSchemaVersion < CONFIG_SCHEMA_VERSION) {
-            // migrate
-            let currentVersion = importStoredConfigSchemaVersion
-            while (currentVersion < CONFIG_SCHEMA_VERSION) {
-              const nextVersion = currentVersion + 1
-              config = await runMigration(nextVersion, config)
-              currentVersion = nextVersion
-            }
-          }
-          if (!configSchema.safeParse(config).success) {
-            toast.error(i18n.t('options.config.sync.validationError'))
-            logger.error(config, configSchema.safeParse(config).error)
-            return
-          }
-          void setConfig(config)
-          toast.success(`${i18n.t('options.config.sync.importSuccess')} !`)
         }
-        catch (error) {
-          logger.error(error)
-          toast.error(i18n.t('options.config.sync.importError'))
-        }
-      }
-      reader.readAsText(file)
-      reader.onerror = () => toast.error(i18n.t('options.config.sync.importError'))
+        reader.onerror = () => reject(new Error(i18n.t('options.config.sync.importError')))
+        reader.readAsText(file)
+      })
+
+      const {
+        [CONFIG_SCHEMA_VERSION_STORAGE_KEY]: importConfigSchemaVersion,
+        [CONFIG_STORAGE_KEY]: importConfig,
+      } = JSON.parse(fileContent)
+
+      const config = await migrateConfig(importConfig, importConfigSchemaVersion)
+      // TODO: backup current config before importing
+      await setConfig(config)
+    },
+    onSuccess: () => {
+      toast.success(i18n.t('options.config.sync.importSuccess'))
+    },
+  })
+
+  const handleImportConfig = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      importConfig(file)
     }
-    finally {
-      e.target.value = ''
-      e.target.files = null
-    }
+    e.target.value = ''
+    e.target.files = null
   }
 
   return (
-    <Button variant="outline" className="p-0">
+    <Button variant="outline" className="p-0" disabled={isImporting}>
       <Label htmlFor="import-config-file" className="w-full px-3">
-        <Icon icon="tabler:file-download" className="size-4" />
+        <Icon icon="tabler:file-import" className="size-4" />
         {i18n.t('options.config.sync.import')}
       </Label>
       <Input
@@ -111,7 +99,7 @@ function ImportConfig() {
         id="import-config-file"
         className="hidden"
         accept=".json"
-        onChange={importConfig}
+        onChange={handleImportConfig}
       />
     </Button>
   )
@@ -120,28 +108,31 @@ function ImportConfig() {
 function ExportConfig() {
   const config = useAtomValue(configAtom)
 
-  const exportConfig = (includeApiKeys: boolean) => {
-    let exportConfig = config
+  const { mutate: exportConfig, isPending: isExporting } = useMutation({
+    mutationFn: async (includeApiKeys: boolean) => {
+      let exportConfig = config
 
-    if (!includeApiKeys) {
-      exportConfig = getObjectWithoutAPIKeys(config)
-    }
+      if (!includeApiKeys) {
+        exportConfig = getObjectWithoutAPIKeys(config)
+      }
 
-    const json = JSON.stringify({
-      [CONFIG_STORAGE_KEY]: exportConfig,
-      [CONFIG_SCHEMA_VERSION_STORAGE_KEY]: CONFIG_SCHEMA_VERSION,
-    }, null, 2)
-    const blob = new Blob([json], { type: 'text/json' })
-    saveAs(blob, `${kebabCase(APP_NAME)}-config-v${CONFIG_SCHEMA_VERSION}.json`)
-
-    toast.success(i18n.t('options.config.sync.exportSuccess'))
-  }
+      const json = JSON.stringify({
+        [CONFIG_STORAGE_KEY]: exportConfig,
+        [CONFIG_SCHEMA_VERSION_STORAGE_KEY]: CONFIG_SCHEMA_VERSION,
+      }, null, 2)
+      const blob = new Blob([json], { type: 'text/json' })
+      saveAs(blob, `${kebabCase(APP_NAME)}-config-v${CONFIG_SCHEMA_VERSION}.json`)
+    },
+    onSuccess: () => {
+      toast.success(i18n.t('options.config.sync.exportSuccess'))
+    },
+  })
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button>
-          <Icon icon="tabler:file-upload" className="size-4" />
+        <Button disabled={isExporting}>
+          <Icon icon="tabler:file-export" className="size-4" />
           {i18n.t('options.config.sync.export')}
         </Button>
       </AlertDialogTrigger>
@@ -157,10 +148,10 @@ function ExportConfig() {
         <AlertDialogFooter className="flex !justify-between">
           <AlertDialogCancel>{i18n.t('options.config.sync.exportOptions.cancel')}</AlertDialogCancel>
           <div className="flex gap-2">
-            <AlertDialogAction variant="secondary" onClick={() => exportConfig(true)}>
+            <AlertDialogAction variant="secondary" onClick={() => exportConfig(true)} disabled={isExporting}>
               {i18n.t('options.config.sync.exportOptions.includeAPIKeys')}
             </AlertDialogAction>
-            <AlertDialogAction onClick={() => exportConfig(false)}>
+            <AlertDialogAction onClick={() => exportConfig(false)} disabled={isExporting}>
               {i18n.t('options.config.sync.exportOptions.excludeAPIKeys')}
             </AlertDialogAction>
           </div>
