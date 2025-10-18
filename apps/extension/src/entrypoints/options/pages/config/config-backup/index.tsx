@@ -1,3 +1,4 @@
+import { i18n } from '#imports'
 import { Icon } from '@iconify/react/dist/iconify.js'
 import { Button } from '@repo/ui/components/button'
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@repo/ui/components/empty'
@@ -21,13 +22,13 @@ export function ConfigBackup() {
 
   return (
     <ConfigCard
-      title="Config Backup"
-      description={`Automatic backups are created every hour if the config is changed. You can restore previous configurations here. (Maximum ${MAX_BACKUPS_COUNT} backups)`}
+      title={i18n.t('options.config.backup.title')}
+      description={i18n.t('options.config.backup.description', [MAX_BACKUPS_COUNT])}
     >
       <div className="space-y-4">
         {isPending && (
           <div className="text-center text-muted-foreground py-8">
-            Loading backups...
+            {i18n.t('options.config.backup.loading')}
           </div>
         )}
 
@@ -63,14 +64,14 @@ function Toolbar() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['config-backups'] })
-      toast.success('Backup created successfully')
+      toast.success(i18n.t('options.config.backup.backupSuccess'))
     },
   })
   return (
     <div className="flex justify-end">
       <Button disabled={isBackingUp} onClick={() => backupConfig()}>
         <Icon icon="tabler:plus" />
-        Backup now
+        {i18n.t('options.config.backup.backupNow')}
       </Button>
     </div>
   )
@@ -84,7 +85,7 @@ function EmptyState() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['config-backups'] })
-      toast.success('Backup created successfully')
+      toast.success(i18n.t('options.config.backup.backupSuccess'))
     },
   })
   return (
@@ -93,14 +94,14 @@ function EmptyState() {
         <EmptyMedia variant="icon">
           <Icon icon="tabler:file-off" />
         </EmptyMedia>
-        <EmptyTitle>No backups available yet</EmptyTitle>
+        <EmptyTitle>{i18n.t('options.config.backup.empty.title')}</EmptyTitle>
         <EmptyDescription>
-          Backups are created automatically every hour if the config is changed.
+          {i18n.t('options.config.backup.empty.description')}
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
         <Button variant="outline" size="sm" disabled={isBackingUp} onClick={() => backupConfig()}>
-          Backup now
+          {i18n.t('options.config.backup.backupNow')}
         </Button>
       </EmptyContent>
     </Empty>

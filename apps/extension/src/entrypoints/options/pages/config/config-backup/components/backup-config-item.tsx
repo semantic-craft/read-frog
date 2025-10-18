@@ -1,4 +1,5 @@
 import type { ConfigBackup, ConfigBackupMetadata } from '@/types/backup'
+import { i18n } from '#imports'
 import { Icon } from '@iconify/react/dist/iconify.js'
 import {
   AlertDialog,
@@ -49,7 +50,7 @@ export function BackupConfigItem({ backupId, backupMetadata, backup }: BackupCon
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['config-backups'] })
-      toast.success('Config restored successfully')
+      toast.success(i18n.t('options.config.backup.restoreSuccess'))
     },
   })
 
@@ -63,11 +64,11 @@ export function BackupConfigItem({ backupId, backupMetadata, backup }: BackupCon
         <ItemTitle>{formatDate(backupMetadata.createdAt)}</ItemTitle>
         <ItemDescription className="text-xs flex flex-wrap items-center gap-x-4">
           <span>
-            Extension version:
+            {i18n.t('options.config.backup.item.extensionVersion')}
             {backupMetadata.extensionVersion}
           </span>
           <span>
-            Schema version:
+            {i18n.t('options.config.backup.item.schemaVersion')}
             {backup[CONFIG_SCHEMA_VERSION_STORAGE_KEY]}
           </span>
         </ItemDescription>
@@ -77,20 +78,20 @@ export function BackupConfigItem({ backupId, backupMetadata, backup }: BackupCon
           <AlertDialogTrigger asChild>
             <Button variant="outline" size="sm" disabled={isRestoring}>
               {isRestoring ? <Spinner /> : <Icon icon="tabler:restore" />}
-              Restore
+              {i18n.t('options.config.backup.item.restore')}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Restore config backup?</AlertDialogTitle>
+              <AlertDialogTitle>{i18n.t('options.config.backup.restore.title')}</AlertDialogTitle>
               <AlertDialogDescription>
-                Your current config will be automatically backed up if it is different from the latest backup. The oldest backup may be removed if the number of backups exceeds the limit.
+                {i18n.t('options.config.backup.restore.description')}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{i18n.t('options.config.backup.restore.cancel')}</AlertDialogCancel>
               <AlertDialogAction onClick={() => restoreBackup(backup)} disabled={isRestoring}>
-                Restore
+                {i18n.t('options.config.backup.restore.confirm')}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -130,11 +131,11 @@ function MoreOptions({ backupId, backup }: { backupId: string, backup: ConfigBac
         <DropdownMenuContent className="w-40" align="end">
           <DropdownMenuItem onSelect={() => exportConfig(false)} disabled={isExporting}>
             <Icon icon="tabler:file-export" />
-            Export
+            {i18n.t('options.config.backup.item.export')}
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setShowDeleteDialog(true)}>
             <Icon icon="tabler:trash" />
-            Delete
+            {i18n.t('options.config.backup.item.delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -142,13 +143,13 @@ function MoreOptions({ backupId, backup }: { backupId: string, backup: ConfigBac
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete backup?</AlertDialogTitle>
-            <AlertDialogDescription>Are you sure you want to delete this backup? This action cannot be undone.</AlertDialogDescription>
+            <AlertDialogTitle>{i18n.t('options.config.backup.delete.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{i18n.t('options.config.backup.delete.description')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{i18n.t('options.config.backup.delete.cancel')}</AlertDialogCancel>
             <AlertDialogAction variant="destructive" onClick={() => deleteBackup(backupId)} disabled={isDeleting}>
-              Delete
+              {i18n.t('options.config.backup.delete.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
