@@ -43,7 +43,9 @@ export function BackupConfigItem({ backupId, backupMetadata, backup }: BackupCon
     mutationFn: async (backup: ConfigBackup) => {
       const migratedBackup = await migrateConfig(backup[CONFIG_STORAGE_KEY], backup[CONFIG_SCHEMA_VERSION_STORAGE_KEY])
 
-      if (await isSameAsLatestBackup(currentConfig, CONFIG_SCHEMA_VERSION)) {
+      const isSame = await isSameAsLatestBackup(currentConfig, CONFIG_SCHEMA_VERSION)
+
+      if (!isSame) {
         await addBackup(currentConfig, EXTENSION_VERSION)
       }
       await setConfig(migratedBackup)

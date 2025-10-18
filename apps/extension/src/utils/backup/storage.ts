@@ -1,6 +1,7 @@
 import type { ConfigBackup, ConfigBackupMetadata, ConfigBackupWithMetadata } from '@/types/backup'
 import type { Config } from '@/types/config/config'
 import { storage } from '#imports'
+import { dequal } from 'dequal'
 import { BACKUP_ID_PREFIX, MAX_BACKUPS_COUNT } from '@/utils/constants/backup'
 import { CONFIG_SCHEMA_VERSION, CONFIG_SCHEMA_VERSION_STORAGE_KEY, CONFIG_STORAGE_KEY } from '@/utils/constants/config'
 import { logger } from '@/utils/logger'
@@ -50,8 +51,7 @@ export async function isSameAsLatestBackup(config: Config, configSchemaVersion: 
     return false
   }
 
-  // Deep comparison of config
-  return JSON.stringify(latestBackupWithMetadata[CONFIG_STORAGE_KEY]) === JSON.stringify(config)
+  return dequal(latestBackupWithMetadata[CONFIG_STORAGE_KEY], config)
 }
 
 /**

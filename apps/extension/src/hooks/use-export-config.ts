@@ -1,4 +1,5 @@
 import type { Config } from '@/types/config/config'
+import { i18n } from '#imports'
 import { useMutation } from '@tanstack/react-query'
 import { kebabCase } from 'case-anything'
 import { saveAs } from 'file-saver'
@@ -30,7 +31,7 @@ export function useExportConfig({ config, schemaVersion, onSuccess }: UseExportC
       saveAs(blob, `${kebabCase(APP_NAME)}-config-v${schemaVersion}.json`)
     },
     onSuccess: () => {
-      toast.success('Config exported successfully')
+      toast.success(i18n.t('options.config.sync.exportSuccess'))
       onSuccess?.()
     },
   })
