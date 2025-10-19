@@ -1,5 +1,6 @@
 export * from './constants/app'
 export * from './constants/auth'
+export * from './constants/dictionary'
 export * from './constants/url'
 export * from './schemas/version'
 export * from './types/languages'
