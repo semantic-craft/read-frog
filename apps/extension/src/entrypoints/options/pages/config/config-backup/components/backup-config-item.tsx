@@ -13,6 +13,7 @@ import {
   AlertDialogTrigger,
 } from '@repo/ui/components/alert-dialog'
 import { Button } from '@repo/ui/components/button'
+import { ButtonGroup } from '@repo/ui/components/button-group'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/components/dropdown-menu'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemTitle } from '@repo/ui/components/item'
 import { Spinner } from '@repo/ui/components/spinner'
@@ -36,26 +37,6 @@ interface BackupConfigItemProps {
 }
 
 export function BackupConfigItem({ backupId, backupMetadata, backup }: BackupConfigItemProps) {
-  const currentConfig = useAtomValue(configAtom)
-  const setConfig = useSetAtom(writeConfigAtom)
-
-  const { mutate: restoreBackup, isPending: isRestoring } = useMutation({
-    mutationFn: async (backup: ConfigBackup) => {
-      const migratedBackup = await migrateConfig(backup[CONFIG_STORAGE_KEY], backup[CONFIG_SCHEMA_VERSION_STORAGE_KEY])
-
-      const isSame = await isSameAsLatestBackup(currentConfig, CONFIG_SCHEMA_VERSION)
-
-      if (!isSame) {
-        await addBackup(currentConfig, EXTENSION_VERSION)
-      }
-      await setConfig(migratedBackup)
-    },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['config-backups'] })
-      toast.success(i18n.t('options.config.backup.restoreSuccess'))
-    },
-  })
-
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleString()
   }
@@ -76,32 +57,60 @@ export function BackupConfigItem({ backupId, backupMetadata, backup }: BackupCon
         </ItemDescription>
       </ItemContent>
       <ItemActions>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="outline" size="sm" disabled={isRestoring}>
-              {isRestoring ? <Spinner /> : <Icon icon="tabler:restore" />}
-              {i18n.t('options.config.backup.item.restore')}
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{i18n.t('options.config.backup.restore.title')}</AlertDialogTitle>
-              <AlertDialogDescription>
-                {i18n.t('options.config.backup.restore.description')}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>{i18n.t('options.config.backup.restore.cancel')}</AlertDialogCancel>
-              <AlertDialogAction onClick={() => restoreBackup(backup)} disabled={isRestoring}>
-                {i18n.t('options.config.backup.restore.confirm')}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-        <MoreOptions backupId={backupId} backup={backup} />
+        <ButtonGroup>
+          <RestoreButton backup={backup} />
+          <MoreOptions backupId={backupId} backup={backup} />
+        </ButtonGroup>
       </ItemActions>
       <ItemFooter><ViewConfig config={backup.config} size="sm" /></ItemFooter>
     </Item>
+  )
+}
+
+function RestoreButton({ backup }: { backup: ConfigBackup }) {
+  const currentConfig = useAtomValue(configAtom)
+  const setConfig = useSetAtom(writeConfigAtom)
+
+  const { mutate: restoreBackup, isPending: isRestoring } = useMutation({
+    mutationFn: async (backup: ConfigBackup) => {
+      const migratedBackup = await migrateConfig(backup[CONFIG_STORAGE_KEY], backup[CONFIG_SCHEMA_VERSION_STORAGE_KEY])
+
+      const isSame = await isSameAsLatestBackup(currentConfig, CONFIG_SCHEMA_VERSION)
+
+      if (!isSame) {
+        await addBackup(currentConfig, EXTENSION_VERSION)
+      }
+      await setConfig(migratedBackup)
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['config-backups'] })
+      toast.success(i18n.t('options.config.backup.restoreSuccess'))
+    },
+  })
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="outline" size="sm" disabled={isRestoring}>
+          {isRestoring ? <Spinner /> : <Icon icon="tabler:restore" />}
+          {i18n.t('options.config.backup.item.restore')}
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{i18n.t('options.config.backup.restore.title')}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {i18n.t('options.config.backup.restore.description')}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{i18n.t('options.config.backup.restore.cancel')}</AlertDialogCancel>
+          <AlertDialogAction onClick={() => restoreBackup(backup)} disabled={isRestoring}>
+            {i18n.t('options.config.backup.restore.confirm')}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
 
