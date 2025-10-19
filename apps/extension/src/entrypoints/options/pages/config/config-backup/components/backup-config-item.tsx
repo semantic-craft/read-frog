@@ -48,10 +48,12 @@ export function BackupConfigItem({ backupId, backupMetadata, backup }: BackupCon
         <ItemDescription className="text-xs flex flex-wrap items-center gap-x-4">
           <span>
             {i18n.t('options.config.backup.item.extensionVersion')}
+            {' '}
             {backupMetadata.extensionVersion}
           </span>
           <span>
             {i18n.t('options.config.backup.item.schemaVersion')}
+            {' '}
             {backup[CONFIG_SCHEMA_VERSION_STORAGE_KEY]}
           </span>
         </ItemDescription>
