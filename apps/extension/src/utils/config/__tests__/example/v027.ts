@@ -202,7 +202,7 @@ Translate to {{targetLang}}:
               model: 'gemini-2.5-pro',
             },
             translate: {
-              customModel: 'gemini-2.5-pro',
+              customModel: 'gemini-1.5-pro',
               isCustomModel: true,
               model: 'gemini-2.5-pro',
             },
