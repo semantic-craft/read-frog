@@ -153,6 +153,13 @@ options:
       description: 플로팅 버튼을 비활성화할 웹사이트를 설정합니다
       enterUrlPattern: URL 패턴 입력
       urlPattern: URL 패턴
+  selectionToolbar:
+    title: 선택 도구 모음
+    disabledSites:
+      title: 선택 도구 모음 비활성화 사이트
+      description: 선택 도구 모음을 비활성화할 웹사이트를 설정합니다
+      enterUrlPattern: URL 패턴 입력
+      urlPattern: URL 패턴
   translation:
     title: 번역
     requestQueueConfig:

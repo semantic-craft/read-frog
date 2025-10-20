@@ -154,6 +154,13 @@ options:
       description: Configure websites where the floating button should be disabled
       enterUrlPattern: Enter URL pattern
       urlPattern: URL Pattern
+  selectionToolbar:
+    title: Selection Toolbar
+    disabledSites:
+      title: Selection Toolbar Disabled Sites
+      description: Configure websites where the selection toolbar should be disabled
+      enterUrlPattern: Enter URL pattern
+      urlPattern: URL Pattern
   translation:
     title: Translation
     requestQueueConfig:

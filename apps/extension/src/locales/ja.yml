@@ -152,6 +152,13 @@ options:
       description: フローティングボタンを無効化するウェブサイトを設定します
       enterUrlPattern: URL パターンを入力
       urlPattern: URL パターン
+  selectionToolbar:
+    title: 選択ツールバー
+    disabledSites:
+      title: 選択ツールバー無効化サイト
+      description: 選択ツールバーを無効化するウェブサイトを設定します
+      enterUrlPattern: URL パターンを入力
+      urlPattern: URL パターン
   translation:
     title: 翻訳
     requestQueueConfig:

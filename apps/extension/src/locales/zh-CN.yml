@@ -154,6 +154,13 @@ options:
       description: 配置需要禁用悬浮按钮的网站
       enterUrlPattern: 输入网址模式
       urlPattern: 网址模式
+  selectionToolbar:
+    title: 选择工具栏
+    disabledSites:
+      title: 选择工具栏禁用网站
+      description: 配置需要禁用选择工具栏的网站
+      enterUrlPattern: 输入网址模式
+      urlPattern: 网址模式
   translation:
     title: 翻译
     requestQueueConfig:

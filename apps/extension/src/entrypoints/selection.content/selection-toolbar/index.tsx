@@ -144,7 +144,7 @@ export function SelectionToolbar() {
 
   return (
     <div ref={tooltipContainerRef} className={NOTRANSLATE_CLASS}>
-      {isSelectionToolbarVisible && selectionToolbar.enabled && (
+      {isSelectionToolbarVisible && selectionToolbar.enabled && !selectionToolbar.disabledSelectionToolbarPatterns?.some(pattern => window.location.href.includes(pattern)) && (
         <div
           ref={tooltipRef}
           className="absolute z-[2147483647] bg-zinc-200 dark:bg-zinc-800 rounded-sm shadow-lg overflow-hidden flex items-center"
