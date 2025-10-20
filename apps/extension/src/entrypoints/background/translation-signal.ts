@@ -14,6 +14,15 @@ export function translationMessage() {
     return await getTranslationState(tabId)
   })
 
+  onMessage('getEnablePageTranslationFromContentScript', async (msg) => {
+    const tabId = msg.sender?.tab?.id
+    if (typeof tabId === 'number') {
+      return await getTranslationState(tabId)
+    }
+    logger.error('Invalid tabId in getEnablePageTranslationFromContentScript', msg)
+    return false
+  })
+
   onMessage('setEnablePageTranslation', async (msg) => {
     const { tabId, enabled } = msg.data
     await setTranslationState(tabId, enabled)
@@ -30,7 +39,7 @@ export function translationMessage() {
     }
   })
 
-  onMessage('resetPageTranslationOnNavigation', async (msg) => {
+  onMessage('checkAndSetAutoTranslation', async (msg) => {
     const tabId = msg.sender?.tab?.id
     const { url } = msg.data
     if (typeof tabId === 'number') {

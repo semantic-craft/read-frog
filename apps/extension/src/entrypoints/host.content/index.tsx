@@ -7,7 +7,6 @@ import { getConfigFromStorage } from '@/utils/config/config'
 import { APP_NAME } from '@/utils/constants/app'
 import { CONFIG_STORAGE_KEY } from '@/utils/constants/config'
 import { getDocumentInfo } from '@/utils/content'
-import { shouldEnableAutoTranslation } from '@/utils/host/translate/auto-translation'
 import { logger } from '@/utils/logger'
 import { onMessage, sendMessage } from '@/utils/message'
 import { protectSelectAllShadowRoot } from '@/utils/select-all'
@@ -71,7 +70,7 @@ export default defineContentScript({
           manager.stop()
         }
         // Notify background script that URL has changed, let it decide whether to automatically enable translation
-        void sendMessage('resetPageTranslationOnNavigation', { url: to })
+        void sendMessage('checkAndSetAutoTranslation', { url: to })
       }
     }
 
@@ -104,10 +103,8 @@ export default defineContentScript({
         language: { ...config.language, detectedCode },
       })
 
-      // ! Temporary code for browser has no port.onMessage.addListener api like Orion
-      const autoEnable = await shouldEnableAutoTranslation(window.location.href, config)
-      if (autoEnable && !manager.isActive)
-        void manager.start()
+      // Check if auto-translation should be enabled for initial page load
+      void sendMessage('checkAndSetAutoTranslation', { url: window.location.href })
     }
   },
 })
