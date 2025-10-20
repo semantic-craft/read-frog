@@ -25,7 +25,7 @@ export default function TranslateButton({ className }: { className: string }) {
             translate: translateConfig,
             language: languageConfig,
           })) {
-            logger.error('validateTranslationConfig: returning false (no API key)')
+            logger.error('validateTranslationConfig returned false; aborting enablePageTranslation')
             return
           }
           void sendMessage('setEnablePageTranslationOnContentScript', {
