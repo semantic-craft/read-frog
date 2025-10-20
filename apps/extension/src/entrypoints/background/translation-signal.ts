@@ -1,6 +1,8 @@
 import type { Config } from '@/types/config/config'
+import type { TranslationState } from '@/types/translation-state'
 import { browser, storage } from '#imports'
 import { CONFIG_STORAGE_KEY } from '@/utils/constants/config'
+import { getTranslationStateKey } from '@/utils/constants/storage-keys'
 import { shouldEnableAutoTranslation } from '@/utils/host/translate/auto-translation'
 import { logger } from '@/utils/logger'
 import { onMessage, sendMessage } from '@/utils/message'
@@ -42,21 +44,23 @@ export function translationMessage() {
 
   // === Helper Functions ===
   async function getTranslationState(tabId: number): Promise<boolean> {
-    // TODO: extract this type and use it every where needed
-    const state = await storage.getItem<{ enabled: boolean }>(
-      `session:translationState.${tabId}`,
+    const state = await storage.getItem<TranslationState>(
+      getTranslationStateKey(tabId),
     )
     return state?.enabled ?? false
   }
 
   async function setTranslationState(tabId: number, enabled: boolean) {
-    await storage.setItem(`session:translationState.${tabId}`, { enabled })
+    await storage.setItem<TranslationState>(
+      getTranslationStateKey(tabId),
+      { enabled },
+    )
     // Notify content script in that specific tab
     void sendMessage('translationStateChanged', { enabled }, tabId)
   }
 
   // === Cleanup ===
   browser.tabs.onRemoved.addListener(async (tabId) => {
-    await storage.removeItem(`session:translationState.${tabId}`)
+    await storage.removeItem(getTranslationStateKey(tabId))
   })
 }
