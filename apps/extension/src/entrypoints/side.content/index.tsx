@@ -1,5 +1,5 @@
 import type { Config } from '@/types/config/config'
-import { browser, createShadowRootUi, defineContentScript } from '#imports'
+import { createShadowRootUi, defineContentScript } from '#imports'
 import { TooltipProvider } from '@repo/ui/components/tooltip'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
@@ -11,12 +11,13 @@ import { configAtom } from '@/utils/atoms/config'
 import { getConfigFromStorage } from '@/utils/config/config'
 import { APP_NAME } from '@/utils/constants/app'
 import { DEFAULT_CONFIG } from '@/utils/constants/config'
+import { onMessage } from '@/utils/message'
 import { protectSelectAllShadowRoot } from '@/utils/select-all'
 import { insertShadowRootUIWrapperInto } from '@/utils/shadow-root'
 import { queryClient } from '@/utils/trpc/client'
 import { addStyleToShadow, mirrorDynamicStyles, protectInternalStyles } from '../../utils/styles'
 import App from './app'
-import { enablePageTranslationAtom, store, translationPortAtom } from './atoms'
+import { enablePageTranslationAtom, store } from './atoms'
 import '@/assets/tailwind/theme.css'
 import '@/assets/tailwind/text-small.css'
 
@@ -62,7 +63,11 @@ export default defineContentScript({
           return children
         }
 
-        buildTranslationPort()
+        // Listen for translation state changes from background
+        onMessage('translationStateChanged', (msg) => {
+          const { enabled } = msg.data
+          store.set(enablePageTranslationAtom, enabled)
+        })
 
         const root = ReactDOM.createRoot(wrapper)
         root.render(
@@ -94,17 +99,3 @@ export default defineContentScript({
     ui.mount()
   },
 })
-
-function buildTranslationPort() {
-  const port = browser.runtime.connect({ name: 'translation-side.content' })
-  store.set(translationPortAtom, port)
-  port.onMessage.addListener((msg: any) => {
-    if (msg.type === 'STATUS_PUSH') {
-      const currentAtom = store.get(enablePageTranslationAtom)
-      const enabled = msg.enabled ?? false
-      if (currentAtom !== enabled) {
-        store.set(enablePageTranslationAtom, enabled)
-      }
-    }
-  })
-}
