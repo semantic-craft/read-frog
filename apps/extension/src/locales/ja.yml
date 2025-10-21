@@ -154,6 +154,9 @@ options:
       urlPattern: URL パターン
   selectionToolbar:
     title: 選択ツールバー
+    closeMenu:
+      disableForSite: このサイトで無効にする
+      disableGlobally: グローバルに無効にする
     disabledSites:
       title: 選択ツールバー無効化サイト
       description: 選択ツールバーを無効化するウェブサイトを設定します

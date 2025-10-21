@@ -156,6 +156,9 @@ options:
       urlPattern: 网址模式
   selectionToolbar:
     title: 选择工具栏
+    closeMenu:
+      disableForSite: 禁用此网站
+      disableGlobally: 全局禁用
     disabledSites:
       title: 选择工具栏禁用网站
       description: 配置需要禁用选择工具栏的网站

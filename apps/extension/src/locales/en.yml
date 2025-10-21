@@ -156,6 +156,9 @@ options:
       urlPattern: URL Pattern
   selectionToolbar:
     title: Selection Toolbar
+    closeMenu:
+      disableForSite: Disable for this site
+      disableGlobally: Disable globally
     disabledSites:
       title: Selection Toolbar Disabled Sites
       description: Configure websites where the selection toolbar should be disabled
