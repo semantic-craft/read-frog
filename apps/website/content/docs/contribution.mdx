@@ -307,3 +307,22 @@ git push
 ```
 
 Why is this necessary? Because code tests are performed during the push process, but Google's free API is inaccessible in mainland China. This would cause the tests to fail and the push to be rejected. By setting the `SKIP_FREE_API` environment variable, we skip the Google tests.
+
+## What kind of PRs will be reviewed and merged?
+
+### Getting Started with Contributions
+
+If this is one of your first PRs, and you are serious about contributing, it generally won't be rejected due to quality issues. Maintainers will help you identify problems and adapt to our development process and code style. However, we strongly recommend following these guidelines:
+
+1. Start with small issues, such as "Good First Issue" in the repository. Small, simple PRs provide a smooth learning process.
+2. Ensure your PR passes all GitHub Actions and local tests.
+
+### Why isn't my PR getting reviewed by maintainers?
+
+1. You contributed an overly complex PR before familiarizing yourself with the codebase, resulting in too many required changes.
+2. Your code contains many basic errors, making maintainers question your seriousness:
+    * Unused code snippets that weren't removed
+    * Excessive repetitive code
+    * Variable and function names are too arbitrary
+    * We encourage AI-assisted development, but you didn't carefully review the AI-generated code, leading to low-quality, unmaintainable, or over-engineered code
+3. Maintainers provided modification suggestions multiple times, but you either didn't follow them or your changes didn't address the root issues.
