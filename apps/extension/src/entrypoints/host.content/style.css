@@ -20,7 +20,7 @@
   display: inline-block;
   vertical-align: middle;
   box-sizing: content-box;
-  will-change: transform;
+  will-change: transform; /* Use GPU to optimize animation performance */
 }
 
 @media (prefers-reduced-motion: reduce) {
