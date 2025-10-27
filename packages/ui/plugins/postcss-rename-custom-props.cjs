@@ -3,13 +3,10 @@ const valueParser = require('postcss-value-parser')
 const DEFAULTS = {
   fromPrefix: '--tw-',
   toPrefix: '--rf-tw-',
-  shouldRename: () => true,
 }
 
-function renameVarName(varName, fromPrefix, toPrefix, shouldRename) {
+function renameVarName(varName, fromPrefix, toPrefix) {
   if (!varName.startsWith(fromPrefix))
-    return varName
-  if (!shouldRename(varName))
     return varName
   return toPrefix + varName.slice(fromPrefix.length)
 }
@@ -17,7 +14,7 @@ function renameVarName(varName, fromPrefix, toPrefix, shouldRename) {
 /**
  * Walk a declaration value and rewrite var(--from-...) references.
  */
-function rewriteValueVars(rawValue, fromPrefix, toPrefix, shouldRename) {
+function rewriteValueVars(rawValue, fromPrefix, toPrefix) {
   const ast = valueParser(rawValue)
 
   const visit = (nodes) => {
@@ -28,7 +25,7 @@ function rewriteValueVars(rawValue, fromPrefix, toPrefix, shouldRename) {
           // The first "word" inside var() is the custom property name
           const first = node.nodes.find(n => n.type === 'word')
           if (first) {
-            const newName = renameVarName(first.value, fromPrefix, toPrefix, shouldRename)
+            const newName = renameVarName(first.value, fromPrefix, toPrefix)
             first.value = newName
           }
         }
@@ -46,7 +43,7 @@ function rewriteValueVars(rawValue, fromPrefix, toPrefix, shouldRename) {
  * PostCSS plugin to rename custom properties and references.
  */
 module.exports = (opts = {}) => {
-  const { fromPrefix, toPrefix, shouldRename } = { ...DEFAULTS, ...opts }
+  const { fromPrefix, toPrefix } = { ...DEFAULTS, ...opts }
 
   return {
     postcssPlugin: 'postcss-rename-custom-props',
@@ -55,8 +52,8 @@ module.exports = (opts = {}) => {
       root.walkAtRules((at) => {
         if (at.name === 'property') {
           const param = at.params.trim()
-          if (param.startsWith(fromPrefix) && shouldRename(param)) {
-            at.params = renameVarName(param, fromPrefix, toPrefix, shouldRename)
+          if (param.startsWith(fromPrefix)) {
+            at.params = renameVarName(param, fromPrefix, toPrefix)
           }
         }
       })
@@ -64,13 +61,13 @@ module.exports = (opts = {}) => {
       // 2) Rename declarations: property names and their values
       root.walkDecls((decl) => {
         // 2a) If the declaration is a custom property definition like --tw-foo: ...
-        if (decl.prop.startsWith(fromPrefix) && shouldRename(decl.prop)) {
-          decl.prop = renameVarName(decl.prop, fromPrefix, toPrefix, shouldRename)
+        if (decl.prop.startsWith(fromPrefix)) {
+          decl.prop = renameVarName(decl.prop, fromPrefix, toPrefix)
         }
 
         // 2b) Rewrite any var(--tw-...) references appearing in values
         if (decl.value && decl.value.includes('var(') && decl.value.includes(fromPrefix)) {
-          decl.value = rewriteValueVars(decl.value, fromPrefix, toPrefix, shouldRename)
+          decl.value = rewriteValueVars(decl.value, fromPrefix, toPrefix)
         }
       })
     },
