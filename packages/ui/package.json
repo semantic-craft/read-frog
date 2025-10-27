@@ -7,7 +7,8 @@
     "./components/*": "./src/components/*.tsx",
     "./theme.css": "./src/styles/theme.css",
     "./lib/*": "./src/lib/*.ts",
-    "./hooks/*": "./src/hooks/*.ts"
+    "./hooks/*": "./src/hooks/*.ts",
+    "./plugins/*.cjs": "./plugins/*.cjs"
   },
   "scripts": {
     "lint": "eslint",
@@ -46,6 +47,7 @@
     "@types/node": "^24.9.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
+    "postcss-value-parser": "^4.2.0",
     "tailwindcss": "^4.1.15",
     "typescript": "^5.9.3"
   }
