@@ -1,6 +1,6 @@
 import type { RequestQueueConfig } from '@/types/config/translate'
 import { i18n } from '#imports'
-import { Field, FieldLabel } from '@repo/ui/components/field'
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@repo/ui/components/field'
 import { Input } from '@repo/ui/components/input'
 import { useAtom } from 'jotai'
 import { toast } from 'sonner'
@@ -24,35 +24,23 @@ export function RequestRate() {
         </div>
       )}
     >
-      <div className="flex flex-col gap-4">
+      <FieldGroup>
         <TranslateNumberSelector property="capacity" />
         <TranslateNumberSelector property="rate" />
-      </div>
+      </FieldGroup>
     </ConfigCard>
   )
 }
 
-function CapacityDescription() {
-  return (
-    <div className="flex flex-col gap-2">
-      <h2>{i18n.t('options.translation.requestQueueConfig.capacity.title')}</h2>
-      <p className="text-xs text-muted-foreground">{i18n.t('options.translation.requestQueueConfig.capacity.description')}</p>
-    </div>
-  )
-}
-
-function RateDescription() {
-  return (
-    <div className="flex flex-col gap-2 flex-auto">
-      <h2>{i18n.t('options.translation.requestQueueConfig.rate.title')}</h2>
-      <p className="text-xs text-muted-foreground">{i18n.t('options.translation.requestQueueConfig.rate.description')}</p>
-    </div>
-  )
-}
-
-const propertyDescription = {
-  capacity: CapacityDescription,
-  rate: RateDescription,
+const propertyInfo = {
+  capacity: {
+    label: i18n.t('options.translation.requestQueueConfig.capacity.title'),
+    description: i18n.t('options.translation.requestQueueConfig.capacity.description'),
+  },
+  rate: {
+    label: i18n.t('options.translation.requestQueueConfig.rate.title'),
+    description: i18n.t('options.translation.requestQueueConfig.rate.description'),
+  },
 }
 
 const propertyMinAllowedValue = {
@@ -67,16 +55,21 @@ function TranslateNumberSelector({ property }: { property: KeyOfRequestQueueConf
   const currentConfigValue = requestQueueConfig[property]
   const minAllowedValue = propertyMinAllowedValue[property]
 
-  const Description = propertyDescription[property]
+  const info = propertyInfo[property]
 
   return (
-    <Field orientation="horizontal" className="items-center justify-between">
-      <FieldLabel htmlFor={`translate-${property}`}>
-        <Description />
-      </FieldLabel>
+    <Field orientation="responsive">
+      <FieldContent>
+        <FieldLabel htmlFor={`translate-${property}`}>
+          {info.label}
+        </FieldLabel>
+        <FieldDescription>
+          {info.description}
+        </FieldDescription>
+      </FieldContent>
       <Input
         id={`translate-${property}`}
-        className="mt-1 mb-2 w-40 shrink-0"
+        className="w-40 shrink-0"
         type="number"
         min={minAllowedValue}
         value={currentConfigValue}

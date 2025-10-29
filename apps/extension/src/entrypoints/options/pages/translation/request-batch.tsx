@@ -1,7 +1,7 @@
 import type { BatchQueueConfig } from '@/types/config/translate'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
-import { Field, FieldLabel } from '@repo/ui/components/field'
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from '@repo/ui/components/field'
 import { Input } from '@repo/ui/components/input'
 import { useAtom } from 'jotai'
 import { Link } from 'react-router'
@@ -27,10 +27,10 @@ export function RequestBatch() {
         </div>
       )}
     >
-      <div className="flex flex-col gap-4">
+      <FieldGroup>
         <BatchNumberSelector property="maxCharactersPerBatch" />
         <BatchNumberSelector property="maxItemsPerBatch" />
-      </div>
+      </FieldGroup>
     </ConfigCard>
   )
 }
@@ -53,27 +53,15 @@ function StatisticsLink() {
   )
 }
 
-function BatchCharactersDescription() {
-  return (
-    <div className="flex flex-col gap-2">
-      <h2>{i18n.t('options.translation.batchQueueConfig.maxCharactersPerBatch.title')}</h2>
-      <p className="text-xs text-muted-foreground">{i18n.t('options.translation.batchQueueConfig.maxCharactersPerBatch.description')}</p>
-    </div>
-  )
-}
-
-function BatchSizeDescription() {
-  return (
-    <div className="flex flex-col gap-2 flex-auto">
-      <h2>{i18n.t('options.translation.batchQueueConfig.maxItemsPerBatch.title')}</h2>
-      <p className="text-xs text-muted-foreground">{i18n.t('options.translation.batchQueueConfig.maxItemsPerBatch.description')}</p>
-    </div>
-  )
-}
-
-const propertyDescription = {
-  maxCharactersPerBatch: BatchCharactersDescription,
-  maxItemsPerBatch: BatchSizeDescription,
+const propertyInfo = {
+  maxCharactersPerBatch: {
+    label: i18n.t('options.translation.batchQueueConfig.maxCharactersPerBatch.title'),
+    description: i18n.t('options.translation.batchQueueConfig.maxCharactersPerBatch.description'),
+  },
+  maxItemsPerBatch: {
+    label: i18n.t('options.translation.batchQueueConfig.maxItemsPerBatch.title'),
+    description: i18n.t('options.translation.batchQueueConfig.maxItemsPerBatch.description'),
+  },
 }
 
 const propertyMinValue = {
@@ -88,16 +76,21 @@ function BatchNumberSelector({ property }: { property: KeyOfBatchQueueConfig }) 
   const currentConfigValue = batchQueueConfig[property]
   const minAllowedValue = propertyMinValue[property]
 
-  const Description = propertyDescription[property]
+  const info = propertyInfo[property]
 
   return (
-    <Field orientation="horizontal" className="items-center justify-between">
-      <FieldLabel htmlFor={`batch-${property}`}>
-        <Description />
-      </FieldLabel>
+    <Field orientation="responsive">
+      <FieldContent>
+        <FieldLabel htmlFor={`batch-${property}`}>
+          {info.label}
+        </FieldLabel>
+        <FieldDescription>
+          {info.description}
+        </FieldDescription>
+      </FieldContent>
       <Input
         id={`batch-${property}`}
-        className="mt-1 mb-2 w-40 shrink-0"
+        className="w-40 shrink-0"
         type="number"
         min={minAllowedValue}
         value={currentConfigValue}
