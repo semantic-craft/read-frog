@@ -1,5 +1,6 @@
 import type { RequestQueueConfig } from '@/types/config/translate'
 import { i18n } from '#imports'
+import { Field, FieldLabel } from '@repo/ui/components/field'
 import { Input } from '@repo/ui/components/input'
 import { useAtom } from 'jotai'
 import { toast } from 'sonner'
@@ -8,7 +9,6 @@ import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { MIN_TRANSLATE_CAPACITY, MIN_TRANSLATE_RATE } from '@/utils/constants/translate'
 import { sendMessage } from '@/utils/message'
 import { ConfigCard } from '../../components/config-card'
-import { FieldWithLabel } from '../../components/field-with-label'
 
 type KeyOfRequestQueueConfig = keyof RequestQueueConfig
 
@@ -70,9 +70,13 @@ function TranslateNumberSelector({ property }: { property: KeyOfRequestQueueConf
   const Description = propertyDescription[property]
 
   return (
-    <FieldWithLabel className="flex-row items-center justify-between gap-4" id={`translate-${property}`} label={<Description />}>
+    <Field orientation="horizontal" className="items-center justify-between">
+      <FieldLabel htmlFor={`translate-${property}`}>
+        <Description />
+      </FieldLabel>
       <Input
-        className="mt-1 mb-2 w-40 flex-shrink-0"
+        id={`translate-${property}`}
+        className="mt-1 mb-2 w-40 shrink-0"
         type="number"
         min={minAllowedValue}
         value={currentConfigValue}
@@ -96,6 +100,6 @@ function TranslateNumberSelector({ property }: { property: KeyOfRequestQueueConf
           }
         }}
       />
-    </FieldWithLabel>
+    </Field>
   )
 }

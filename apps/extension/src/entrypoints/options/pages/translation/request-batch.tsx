@@ -1,6 +1,7 @@
 import type { BatchQueueConfig } from '@/types/config/translate'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
+import { Field, FieldLabel } from '@repo/ui/components/field'
 import { Input } from '@repo/ui/components/input'
 import { useAtom } from 'jotai'
 import { Link } from 'react-router'
@@ -12,7 +13,6 @@ import { calculateAverageSavePercentage } from '@/utils/batch-request-record'
 import { MIN_BATCH_CHARACTERS, MIN_BATCH_ITEMS } from '@/utils/constants/translate'
 import { sendMessage } from '@/utils/message'
 import { ConfigCard } from '../../components/config-card'
-import { FieldWithLabel } from '../../components/field-with-label'
 
 type KeyOfBatchQueueConfig = keyof BatchQueueConfig
 
@@ -91,9 +91,13 @@ function BatchNumberSelector({ property }: { property: KeyOfBatchQueueConfig }) 
   const Description = propertyDescription[property]
 
   return (
-    <FieldWithLabel className="flex-row items-center justify-between gap-4" id={`batch-${property}`} label={<Description />}>
+    <Field orientation="horizontal" className="items-center justify-between">
+      <FieldLabel htmlFor={`batch-${property}`}>
+        <Description />
+      </FieldLabel>
       <Input
-        className="mt-1 mb-2 w-40 flex-shrink-0"
+        id={`batch-${property}`}
+        className="mt-1 mb-2 w-40 shrink-0"
         type="number"
         min={minAllowedValue}
         value={currentConfigValue}
@@ -117,6 +121,6 @@ function BatchNumberSelector({ property }: { property: KeyOfBatchQueueConfig }) 
           }
         }}
       />
-    </FieldWithLabel>
+    </Field>
   )
 }
