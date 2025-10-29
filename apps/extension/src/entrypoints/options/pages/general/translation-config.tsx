@@ -78,7 +78,7 @@ function TranslateProviderSelectorField() {
   const translateProviderConfig = useAtomValue(translateProviderConfigAtom)
 
   // some deeplx providers don't need api key
-  const needSetAPIKey = translateProviderConfig && isAPIProviderConfig(translateProviderConfig) && translateProviderConfig.provider !== 'deeplx' && translateProviderConfig.apiKey === undefined
+  const needSetAPIKey = translateProviderConfig && isAPIProviderConfig(translateProviderConfig) && translateProviderConfig.provider !== 'deeplx' && !translateProviderConfig.apiKey
 
   return (
     <Field>
