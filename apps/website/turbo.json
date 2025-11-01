@@ -14,7 +14,7 @@
         "PORT",
         "SKIP_ENV_VALIDATION"
       ],
-      "inputs": ["$TURBO_DEFAULT$", ".env*", "!../../.changeset/**"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", ".source/**"]
     },
     "start": {
