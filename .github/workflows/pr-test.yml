@@ -30,10 +30,6 @@ jobs:
         run: pnpm install --frozen-lockfile
         shell: bash
 
-      - name: Rebuild esbuild
-        run: pnpm rebuild esbuild
-        shell: bash
-
       - name: Check for eruda imports
         run: |
           if grep -r "import.*eruda" src/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" | grep -v ":.*[[:space:]]*//.*import.*eruda"; then
