@@ -23,10 +23,15 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
+          node-version: '24'
           cache: pnpm
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
+        shell: bash
+
+      - name: Rebuild esbuild
+        run: pnpm rebuild esbuild
         shell: bash
 
       - name: Check for eruda imports
