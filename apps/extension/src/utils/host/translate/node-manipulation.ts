@@ -159,7 +159,8 @@ export async function translateNodesBilingualMode(nodes: ChildNode[], walkId: st
       // Only remove wrapper if translation returned empty (not needed),
       // but keep it for error display (undefined)
       if (translatedText === '') {
-        translatedWrapperNode.remove()
+        // Batch the remove operation to execute remove operation after insert operation
+        batchDOMOperation(() => translatedWrapperNode.remove())
       }
       return
     }
@@ -310,8 +311,11 @@ export async function translateNodeTranslationOnlyMode(nodes: ChildNode[], walkI
 
     const translatedText = await getTranslatedTextAndRemoveSpinner(nodes, textContent, spinner, translatedWrapperNode)
 
-    if (!translatedText)
+    if (!translatedText) {
+      // Batch the remove operation to execute remove operation after insert operation
+      batchDOMOperation(() => translatedWrapperNode.remove())
       return
+    }
 
     translatedWrapperNode.innerHTML = translatedText
 
@@ -353,8 +357,10 @@ function createLightweightSpinner(ownerDoc: Document): HTMLElement {
 
   // Use Web Animations API instead of CSS keyframes - no DOM manipulation needed
   // Respect user's motion preferences
-  const prefersReducedMotion = ownerDoc.defaultView?.matchMedia('(prefers-reduced-motion: reduce)').matches
-  if (!prefersReducedMotion) {
+  const prefersReducedMotion = ownerDoc.defaultView?.matchMedia
+    ? ownerDoc.defaultView.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false
+  if (!prefersReducedMotion && spinner.animate) {
     spinner.animate(
       [
         { transform: 'rotate(0deg)' },
@@ -368,7 +374,7 @@ function createLightweightSpinner(ownerDoc: Document): HTMLElement {
     )
   }
   else {
-    // For reduced motion, show static spinner with muted color
+    // For reduced motion or when Web Animations API isn't available, show static spinner with muted color
     spinner.style.borderTopColor = 'var(--read-frog-muted)'
   }
 
@@ -457,9 +463,6 @@ async function getTranslatedTextAndRemoveSpinner(nodes: ChildNode[], textContent
     translatedText = await translateText(textContent)
   }
   catch (error) {
-    // Remove lightweight spinner
-    spinner.remove()
-
     const errorComponent = React.createElement(TranslationError, {
       nodes,
       error: error as APICallError,
@@ -481,7 +484,6 @@ async function getTranslatedTextAndRemoveSpinner(nodes: ChildNode[], textContent
     translatedWrapperNode.appendChild(container)
   }
   finally {
-    // Remove lightweight spinner
     spinner.remove()
   }
 
