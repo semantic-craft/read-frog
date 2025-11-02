@@ -6,7 +6,6 @@ import React from 'react'
 import textSmallCSS from '@/assets/tailwind/text-small.css?inline'
 import themeCSS from '@/assets/tailwind/theme.css?inline'
 import { TranslationError } from '@/components/translation/error'
-import { Spinner } from '@/components/translation/spinner'
 import { createReactShadowHost, removeReactShadowHost } from '@/utils/react-shadow-host/create-shadow-host'
 import {
   BLOCK_ATTRIBUTE,
@@ -22,6 +21,7 @@ import {
   WALKED_ATTRIBUTE,
 } from '../../constants/dom-labels'
 import { FORCE_INLINE_TRANSLATION_TAGS } from '../../constants/dom-rules'
+import { batchDOMOperation } from '../dom/batch-dom'
 import { isBlockTransNode, isHTMLElement, isInlineTransNode, isTextNode, isTranslatedWrapperNode, isTransNode } from '../dom/filter'
 import { deepQueryTopLevelSelector, findNearestAncestorBlockNodeAt, unwrapDeepestOnlyHTMLChild } from '../dom/find'
 import { getOwnerDocument } from '../dom/node'
@@ -137,15 +137,19 @@ export async function translateNodesBilingualMode(nodes: ChildNode[], walkId: st
     setTranslationDir(translatedWrapperNode, config)
     const spinner = createSpinnerInside(translatedWrapperNode)
 
-    if (isTextNode(targetNode) || transNodes.length > 1) {
-      targetNode.parentNode?.insertBefore(
-        translatedWrapperNode,
-        targetNode.nextSibling,
-      )
+    // Batch DOM insertion to reduce layout thrashing
+    const insertOperation = () => {
+      if (isTextNode(targetNode) || transNodes.length > 1) {
+        targetNode.parentNode?.insertBefore(
+          translatedWrapperNode,
+          targetNode.nextSibling,
+        )
+      }
+      else {
+        targetNode.appendChild(translatedWrapperNode)
+      }
     }
-    else {
-      targetNode.appendChild(translatedWrapperNode)
-    }
+    batchDOMOperation(insertOperation)
 
     const realTranslatedText = await getTranslatedTextAndRemoveSpinner(nodes, textContent, spinner, translatedWrapperNode)
 
@@ -290,15 +294,19 @@ export async function translateNodeTranslationOnlyMode(nodes: ChildNode[], walkI
     setTranslationDir(translatedWrapperNode, config)
     const spinner = createSpinnerInside(translatedWrapperNode)
 
-    if (isTextNode(targetNode) || transNodes.length > 1) {
-      targetNode.parentNode?.insertBefore(
-        translatedWrapperNode,
-        targetNode.nextSibling,
-      )
+    // Batch DOM insertion to reduce layout thrashing
+    const insertOperation = () => {
+      if (isTextNode(targetNode) || transNodes.length > 1) {
+        targetNode.parentNode?.insertBefore(
+          translatedWrapperNode,
+          targetNode.nextSibling,
+        )
+      }
+      else {
+        targetNode.appendChild(translatedWrapperNode)
+      }
     }
-    else {
-      targetNode.appendChild(translatedWrapperNode)
-    }
+    batchDOMOperation(insertOperation)
 
     const translatedText = await getTranslatedTextAndRemoveSpinner(nodes, textContent, spinner, translatedWrapperNode)
 
@@ -307,36 +315,71 @@ export async function translateNodeTranslationOnlyMode(nodes: ChildNode[], walkI
 
     translatedWrapperNode.innerHTML = translatedText
 
-    // Insert translated content after the last node
-    const lastChildNode = allChildNodes[allChildNodes.length - 1]
-    lastChildNode.parentNode?.insertBefore(translatedWrapperNode, lastChildNode.nextSibling)
+    // Batch final DOM mutations to reduce layout thrashing
+    batchDOMOperation(() => {
+      // Insert translated content after the last node
+      const lastChildNode = allChildNodes[allChildNodes.length - 1]
+      lastChildNode.parentNode?.insertBefore(translatedWrapperNode, lastChildNode.nextSibling)
 
-    // Remove all original nodes
-    allChildNodes.forEach(childNode => childNode.remove())
+      // Remove all original nodes
+      allChildNodes.forEach(childNode => childNode.remove())
+    })
   }
   finally {
     nodes.forEach(node => translatingNodes.delete(node))
   }
 }
 
-function createSpinnerInside(translatedWrapperNode: HTMLElement) {
-  const spinComponent = React.createElement(Spinner)
-  const container = createReactShadowHost(
-    spinComponent,
-    {
-      position: 'inline',
-      inheritStyles: false,
-      cssContent: [themeCSS, textSmallCSS],
-      style: {
-        verticalAlign: 'middle',
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+/**
+ * Create a lightweight spinner element without React/Shadow DOM overhead
+ * Uses Web Animations API instead of CSS keyframes to avoid DOM injection
+ * This is significantly faster than the React-based spinner for bulk operations
+ */
+function createLightweightSpinner(ownerDoc: Document): HTMLElement {
+  const spinner = ownerDoc.createElement('span')
+  spinner.className = 'read-frog-spinner'
+  // Inline styles to match the original spinner design
+  spinner.style.cssText = `
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin: 0 4px;
+    vertical-align: middle;
+    border: 3px solid var(--read-frog-muted);
+    border-top: 3px solid var(--read-frog-primary);
+    border-radius: 50%;
+    box-sizing: content-box;
+  `
+
+  // Use Web Animations API instead of CSS keyframes - no DOM manipulation needed
+  // Respect user's motion preferences
+  const prefersReducedMotion = ownerDoc.defaultView?.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (!prefersReducedMotion) {
+    spinner.animate(
+      [
+        { transform: 'rotate(0deg)' },
+        { transform: 'rotate(360deg)' },
+      ],
+      {
+        duration: 600,
+        iterations: Infinity,
+        easing: 'linear',
       },
-    },
-  )
-  translatedWrapperNode.appendChild(container)
-  return container
+    )
+  }
+  else {
+    // For reduced motion, show static spinner with muted color
+    spinner.style.borderTopColor = 'var(--read-frog-muted)'
+  }
+
+  return spinner
+}
+
+function createSpinnerInside(translatedWrapperNode: HTMLElement) {
+  const ownerDoc = getOwnerDocument(translatedWrapperNode)
+  const spinner = createLightweightSpinner(ownerDoc)
+  translatedWrapperNode.appendChild(spinner)
+  return spinner
 }
 
 function findPreviousTranslatedWrapperInside(node: Element | Text, walkId: string): HTMLElement | null {
@@ -414,7 +457,8 @@ async function getTranslatedTextAndRemoveSpinner(nodes: ChildNode[], textContent
     translatedText = await translateText(textContent)
   }
   catch (error) {
-    removeReactShadowHost(spinner)
+    // Remove lightweight spinner
+    spinner.remove()
 
     const errorComponent = React.createElement(TranslationError, {
       nodes,
@@ -437,16 +481,24 @@ async function getTranslatedTextAndRemoveSpinner(nodes: ChildNode[], textContent
     translatedWrapperNode.appendChild(container)
   }
   finally {
-    removeReactShadowHost(spinner)
+    // Remove lightweight spinner
+    spinner.remove()
   }
 
   return translatedText
 }
 
 function removeShadowHostInTranslatedWrapper(wrapper: HTMLElement) {
+  // Remove React shadow hosts (for error components)
   const translationShadowHost = wrapper.querySelector(`.${REACT_SHADOW_HOST_CLASS}`)
   if (translationShadowHost && isHTMLElement(translationShadowHost)) {
     removeReactShadowHost(translationShadowHost)
+  }
+
+  // Remove lightweight spinners
+  const spinner = wrapper.querySelector('.read-frog-spinner')
+  if (spinner) {
+    spinner.remove()
   }
 }
 
