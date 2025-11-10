@@ -1,5 +1,5 @@
 import { i18n } from '#imports'
-import { Field, FieldContent, FieldLabel } from '@repo/ui/components/field'
+import { Field, FieldContent, FieldLabel } from '@lib/ui/components/field'
 import { useAtomValue } from 'jotai'
 import { useEffect, useRef } from 'react'
 import { configFieldsAtomMap } from '@/utils/atoms/config'

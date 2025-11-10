@@ -1,6 +1,6 @@
 import type * as React from 'react'
-import { Field, FieldError, FieldLabel } from '@repo/ui/components/field'
-import { Select } from '@repo/ui/components/select'
+import { Field, FieldError, FieldLabel } from '@lib/ui/components/field'
+import { Select } from '@lib/ui/components/select'
 import { useStore } from '@tanstack/react-form'
 import { useFieldContext } from '../form-context'
 

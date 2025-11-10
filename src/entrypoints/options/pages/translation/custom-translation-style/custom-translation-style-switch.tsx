@@ -1,6 +1,6 @@
 import { i18n } from '#imports'
-import { Field, FieldContent, FieldDescription, FieldLabel } from '@repo/ui/components/field'
-import { Switch } from '@repo/ui/components/switch'
+import { Field, FieldContent, FieldDescription, FieldLabel } from '@lib/ui/components/field'
+import { Switch } from '@lib/ui/components/switch'
 import { deepmerge } from 'deepmerge-ts'
 import { useAtom } from 'jotai'
 import { configFieldsAtomMap } from '@/utils/atoms/config'

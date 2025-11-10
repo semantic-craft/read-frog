@@ -1,4 +1,4 @@
-import type { LangCodeISO6393 } from '@repo/definitions'
+import type { LangCodeISO6393 } from '@lib/definitions'
 import { Readability } from '@mozilla/readability'
 import { franc } from 'franc-min'
 import { flattenToParagraphs } from '@/entrypoints/side.content/utils/article'

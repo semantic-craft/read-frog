@@ -1,5 +1,5 @@
-import { Input } from '@repo/ui/components/input'
-import { cn } from '@repo/ui/lib/utils'
+import { Input } from '@lib/ui/components/input'
+import { cn } from '@lib/ui/lib/utils'
 import { useCallback, useState } from 'react'
 import { z } from 'zod'
 

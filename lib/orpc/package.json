@@ -1,0 +1,9 @@
+{
+  "name": "@lib/orpc",
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "@orpc/server": "^1.10.3",
+    "zod": "^4.0.17"
+  }
+}

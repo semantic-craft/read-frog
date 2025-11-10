@@ -1,4 +1,4 @@
-import { LANG_CODE_TO_EN_NAME } from '@repo/definitions'
+import { LANG_CODE_TO_EN_NAME } from '@lib/definitions'
 
 export function getAnalyzePrompt(targetLang: string) {
   return `# Identity

@@ -1,4 +1,4 @@
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@lib/ui/lib/utils'
 import { kebabCase } from 'case-anything'
 import { useAtom, useAtomValue } from 'jotai'
 import { useEffect, useState } from 'react'

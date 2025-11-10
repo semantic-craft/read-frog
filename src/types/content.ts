@@ -1,4 +1,4 @@
-import { langCodeISO6393Schema } from '@repo/definitions'
+import { langCodeISO6393Schema } from '@lib/definitions'
 
 import { z } from 'zod'
 

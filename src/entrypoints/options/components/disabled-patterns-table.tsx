@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react'
-import { Button } from '@repo/ui/components/button'
-import { Input } from '@repo/ui/components/input'
+import { Button } from '@lib/ui/components/button'
+import { Input } from '@lib/ui/components/input'
 import {
   Table,
   TableBody,
@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@repo/ui/components/table'
+} from '@lib/ui/components/table'
 import { useState } from 'react'
 
 interface DisabledPatternsTableProps {

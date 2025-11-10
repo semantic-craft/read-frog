@@ -1,5 +1,5 @@
 import { i18n } from '#imports'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@lib/ui/lib/utils'
 import { sendMessage } from '@/utils/message'
 
 export function APIConfigWarning({ className }: { className?: string }) {

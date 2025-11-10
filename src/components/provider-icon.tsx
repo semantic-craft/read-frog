@@ -1,5 +1,5 @@
 import type { VariantProps } from 'class-variance-authority'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@lib/ui/lib/utils'
 import { cva } from 'class-variance-authority'
 
 const providerIconVariants = cva(

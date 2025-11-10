@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@lib/ui/lib/utils'
 import { useId } from 'react'
 
 interface GradientBackgroundProps {

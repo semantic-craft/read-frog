@@ -1,3 +1,4 @@
+import { resolve } from 'node:path'
 import { defineConfig } from 'wxt'
 
 // See https://wxt.dev/api/config.html
@@ -8,6 +9,13 @@ export default defineConfig({
   manifestVersion: 3,
   vite: () => ({
     plugins: [],
+    resolve: {
+      alias: {
+        '@lib/definitions': resolve(__dirname, 'lib/definitions/index.js'),
+        '@lib/orpc': resolve(__dirname, 'lib/orpc/index.mjs'),
+        '@lib/ui': resolve(__dirname, 'lib/ui'),
+      },
+    },
   }),
   manifest: ({ mode, browser }) => ({
     name: '__MSG_extName__',

@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@repo/ui/components/tooltip'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@lib/ui/components/tooltip'
 import { useAtomValue } from 'jotai'
 import { use } from 'react'
 import { configAtom } from '@/utils/atoms/config'

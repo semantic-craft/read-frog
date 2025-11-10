@@ -8,9 +8,9 @@
  */
 
 import { i18n } from '#imports'
-import { Button } from '@repo/ui/components/button'
-import { Field, FieldLabel } from '@repo/ui/components/field'
-import { cn } from '@repo/ui/lib/utils'
+import { Button } from '@lib/ui/components/button'
+import { Field, FieldLabel } from '@lib/ui/components/field'
+import { cn } from '@lib/ui/lib/utils'
 import { useAtom } from 'jotai'
 import { Activity, useMemo, useState } from 'react'
 import { CSSCodeEditor } from '@/components/ui/css-code-editor'

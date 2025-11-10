@@ -1,8 +1,8 @@
 import type { TranslatePromptObj } from '@/types/config/translate'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
-import { Badge } from '@repo/ui/components/badge'
-import { Button } from '@repo/ui/components/button'
+import { Badge } from '@lib/ui/components/badge'
+import { Button } from '@lib/ui/components/button'
 import {
   Card,
   CardAction,
@@ -10,11 +10,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@repo/ui/components/card'
-import { Checkbox } from '@repo/ui/components/checkbox'
-import { Input } from '@repo/ui/components/input'
-import { Label } from '@repo/ui/components/label'
-import { Separator } from '@repo/ui/components/separator'
+} from '@lib/ui/components/card'
+import { Checkbox } from '@lib/ui/components/checkbox'
+import { Input } from '@lib/ui/components/input'
+import { Label } from '@lib/ui/components/label'
+import { Separator } from '@lib/ui/components/separator'
 import {
   Sheet,
   SheetClose,
@@ -23,8 +23,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@repo/ui/components/sheet'
-import { cn } from '@repo/ui/lib/utils'
+} from '@lib/ui/components/sheet'
+import { cn } from '@lib/ui/lib/utils'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { Activity, useState } from 'react'
 import { QuickInsertableTextarea } from '@/components/ui/insertable-textarea'

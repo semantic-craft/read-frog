@@ -8,8 +8,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@repo/ui/components/select'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@repo/ui/components/tooltip'
+} from '@lib/ui/components/select'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@lib/ui/components/tooltip'
 import { deepmerge } from 'deepmerge-ts'
 import { useAtom, useAtomValue } from 'jotai'
 import { TRANSLATION_MODES } from '@/types/config/translate'
