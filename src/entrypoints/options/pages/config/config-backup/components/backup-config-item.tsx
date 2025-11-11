@@ -11,12 +11,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@lib/ui/components/alert-dialog'
-import { Button } from '@lib/ui/components/button'
-import { ButtonGroup } from '@lib/ui/components/button-group'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@lib/ui/components/dropdown-menu'
-import { Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemTitle } from '@lib/ui/components/item'
-import { Spinner } from '@lib/ui/components/spinner'
+} from '@read-frog/ui/components/alert-dialog'
+import { Button } from '@read-frog/ui/components/button'
+import { ButtonGroup } from '@read-frog/ui/components/button-group'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@read-frog/ui/components/dropdown-menu'
+import { Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemTitle } from '@read-frog/ui/components/item'
+import { Spinner } from '@read-frog/ui/components/spinner'
 import { useMutation } from '@tanstack/react-query'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { useState } from 'react'

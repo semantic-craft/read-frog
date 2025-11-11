@@ -1,4 +1,4 @@
-import { langCodeISO6393Schema } from '@lib/definitions'
+import { langCodeISO6393Schema } from '@read-frog/definitions'
 
 import { z } from 'zod'
 

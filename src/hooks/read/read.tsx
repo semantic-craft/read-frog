@@ -1,7 +1,7 @@
 import type { Config } from '@/types/config/config'
 import type { ArticleAnalysis, ArticleExplanation, ExtractedContent } from '@/types/content'
 import { i18n } from '#imports'
-import { LANG_CODE_TO_EN_NAME } from '@lib/definitions'
+import { LANG_CODE_TO_EN_NAME } from '@read-frog/definitions'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { generateObject } from 'ai'
 import { useAtomValue, useSetAtom } from 'jotai'

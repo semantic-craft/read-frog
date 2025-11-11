@@ -1,18 +1,18 @@
-import type { LangCodeISO6393 } from '@lib/definitions'
+import type { LangCodeISO6393 } from '@read-frog/definitions'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
 import {
   LANG_CODE_TO_EN_NAME,
   LANG_CODE_TO_LOCALE_NAME,
   langCodeISO6393Schema,
-} from '@lib/definitions'
+} from '@read-frog/definitions'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@lib/ui/components/select'
+} from '@read-frog/ui/components/select'
 import { useAtom } from 'jotai'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 

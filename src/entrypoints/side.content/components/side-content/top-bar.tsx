@@ -1,4 +1,4 @@
-import type { LangCodeISO6393, LangLevel } from '@lib/definitions'
+import type { LangCodeISO6393, LangLevel } from '@read-frog/definitions'
 import type { DOWNLOAD_FILE_TYPES } from '../../utils/downloader'
 import type { ArticleExplanation } from '@/types/content'
 import { i18n } from '#imports'
@@ -8,7 +8,7 @@ import {
   LANG_CODE_TO_LOCALE_NAME,
   langCodeISO6393Schema,
   langLevel,
-} from '@lib/definitions'
+} from '@read-frog/definitions'
 import {
   Select,
   SelectContent,
@@ -16,9 +16,9 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-} from '@lib/ui/components/select'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@lib/ui/components/tooltip'
-import { cn } from '@lib/ui/lib/utils'
+} from '@read-frog/ui/components/select'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@read-frog/ui/components/tooltip'
+import { cn } from '@read-frog/ui/lib/utils'
 import { useMutationState } from '@tanstack/react-query'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import ReadProviderSelector from '@/components/llm-providers/read-provider-selector'

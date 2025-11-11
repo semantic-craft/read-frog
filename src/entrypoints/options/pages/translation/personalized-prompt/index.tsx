@@ -1,8 +1,8 @@
 import type { TranslatePromptObj } from '@/types/config/translate'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
-import { Badge } from '@lib/ui/components/badge'
-import { Button } from '@lib/ui/components/button'
+import { Badge } from '@read-frog/ui/components/badge'
+import { Button } from '@read-frog/ui/components/button'
 import {
   Card,
   CardAction,
@@ -10,11 +10,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@lib/ui/components/card'
-import { Checkbox } from '@lib/ui/components/checkbox'
-import { Input } from '@lib/ui/components/input'
-import { Label } from '@lib/ui/components/label'
-import { Separator } from '@lib/ui/components/separator'
+} from '@read-frog/ui/components/card'
+import { Checkbox } from '@read-frog/ui/components/checkbox'
+import { Input } from '@read-frog/ui/components/input'
+import { Label } from '@read-frog/ui/components/label'
+import { Separator } from '@read-frog/ui/components/separator'
 import {
   Sheet,
   SheetClose,
@@ -23,8 +23,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@lib/ui/components/sheet'
-import { cn } from '@lib/ui/lib/utils'
+} from '@read-frog/ui/components/sheet'
+import { cn } from '@read-frog/ui/lib/utils'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { Activity, useState } from 'react'
 import { QuickInsertableTextarea } from '@/components/ui/insertable-textarea'

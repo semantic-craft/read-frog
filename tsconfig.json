@@ -2,21 +2,6 @@
   "extends": "./.wxt/tsconfig.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "paths": {
-      "@": ["./src"],
-      "@/*": ["./src/*"],
-      "~": ["./src"],
-      "~/*": ["./src/*"],
-      "@@": ["."],
-      "@@/*": ["./*"],
-      "~~": ["."],
-      "~~/*": ["./*"],
-      "#i18n": ["./.wxt/i18n/index.ts"],
-      "#i18n/*": ["./.wxt/i18n/index.ts/*"],
-      "@lib/definitions": ["./lib/definitions/index.d.ts"],
-      "@lib/orpc": ["./lib/orpc/index.d.ts"],
-      "@lib/ui/*": ["./lib/ui/*"]
-    },
     "allowImportingTsExtensions": true
   }
 }

@@ -1,18 +1,18 @@
-import type { LangCodeISO6393 } from '@lib/definitions'
+import type { LangCodeISO6393 } from '@read-frog/definitions'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
 import {
   LANG_CODE_TO_EN_NAME,
   LANG_CODE_TO_LOCALE_NAME,
   langCodeISO6393Schema,
-} from '@lib/definitions'
-import { Button } from '@lib/ui/components/button'
+} from '@read-frog/definitions'
+import { Button } from '@read-frog/ui/components/button'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '@lib/ui/components/dropdown-menu'
+} from '@read-frog/ui/components/dropdown-menu'
 import { useAtom } from 'jotai'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { ConfigCard } from '../../components/config-card'

@@ -1,4 +1,4 @@
-import type { ORPCRouterClient } from '@lib/orpc'
+import type { ORPCRouterClient } from '@read-frog/orpc'
 import { createORPCClient } from '@orpc/client'
 import { RPCLink } from '@orpc/client/fetch'
 import { BatchLinkPlugin } from '@orpc/client/plugins'

@@ -1,8 +1,8 @@
 import type { PageTranslateRange } from '@/types/config/translate'
 import { i18n } from '#imports'
-import { Checkbox } from '@lib/ui/components/checkbox'
-import { Field, FieldLabel } from '@lib/ui/components/field'
-import { Input } from '@lib/ui/components/input'
+import { Checkbox } from '@read-frog/ui/components/checkbox'
+import { Field, FieldLabel } from '@read-frog/ui/components/field'
+import { Input } from '@read-frog/ui/components/input'
 import {
   Select,
   SelectContent,
@@ -10,8 +10,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@lib/ui/components/select'
-import { cn } from '@lib/ui/lib/utils'
+} from '@read-frog/ui/components/select'
+import { cn } from '@read-frog/ui/lib/utils'
 import { deepmerge } from 'deepmerge-ts'
 import { useAtom, useAtomValue } from 'jotai'
 import { toast } from 'sonner'

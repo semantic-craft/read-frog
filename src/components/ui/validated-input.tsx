@@ -1,5 +1,5 @@
-import { Input } from '@lib/ui/components/input'
-import { cn } from '@lib/ui/lib/utils'
+import { Input } from '@read-frog/ui/components/input'
+import { cn } from '@read-frog/ui/lib/utils'
 import { useCallback, useState } from 'react'
 import { z } from 'zod'
 

@@ -1,4 +1,4 @@
-import { resolve } from 'node:path'
+import path from 'node:path'
 import { defineConfig } from 'wxt'
 
 // See https://wxt.dev/api/config.html
@@ -11,9 +11,8 @@ export default defineConfig({
     plugins: [],
     resolve: {
       alias: {
-        '@lib/definitions': resolve(__dirname, 'lib/definitions/index.js'),
-        '@lib/orpc': resolve(__dirname, 'lib/orpc/index.mjs'),
-        '@lib/ui': resolve(__dirname, 'lib/ui'),
+        'react': path.resolve(__dirname, './node_modules/react'),
+        'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
       },
     },
   }),

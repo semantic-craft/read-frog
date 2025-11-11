@@ -5,8 +5,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@lib/ui/components/dropdown-menu'
-import { cn } from '@lib/ui/lib/utils'
+} from '@read-frog/ui/components/dropdown-menu'
+import { cn } from '@read-frog/ui/lib/utils'
 import { useAtom, useAtomValue } from 'jotai'
 import { useEffect, useRef, useState } from 'react'
 import readFrogLogo from '@/assets/icons/read-frog.png'

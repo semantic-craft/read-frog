@@ -12,8 +12,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from '@lib/ui/components/sidebar'
-import { cn } from '@lib/ui/lib/utils'
+} from '@read-frog/ui/components/sidebar'
+import { cn } from '@read-frog/ui/lib/utils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useLocation } from 'react-router'
 import readFrogLogo from '@/assets/icons/read-frog.png'

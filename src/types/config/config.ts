@@ -1,4 +1,4 @@
-import { langCodeISO6393Schema, langLevel } from '@lib/definitions'
+import { langCodeISO6393Schema, langLevel } from '@read-frog/definitions'
 
 import { z } from 'zod'
 import { MIN_SIDE_CONTENT_WIDTH } from '@/utils/constants/side'

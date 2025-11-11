@@ -9,8 +9,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@lib/ui/components/alert-dialog'
-import { Button } from '@lib/ui/components/button'
+} from '@read-frog/ui/components/alert-dialog'
+import { Button } from '@read-frog/ui/components/button'
 import { IconTrash } from '@tabler/icons-react'
 import { useState } from 'react'
 import { sendMessage } from '@/utils/message'

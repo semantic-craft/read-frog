@@ -1,4 +1,4 @@
-import type { LangLevel } from '@lib/definitions'
+import type { LangLevel } from '@read-frog/definitions'
 
 import { i18n } from '#imports'
 import {
@@ -7,7 +7,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@lib/ui/components/select'
+} from '@read-frog/ui/components/select'
 import { useAtom } from 'jotai'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 
