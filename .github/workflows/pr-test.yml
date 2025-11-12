@@ -41,9 +41,6 @@ jobs:
           fi
         shell: bash
 
-      - name: Syncpack lint
-        run: pnpm syncpack:lint
-
       - name: ESLint
         run: pnpm lint
 
@@ -51,10 +48,7 @@ jobs:
         run: pnpm type-check
 
       - name: Build
-        run: pnpm --filter=@read-frog/extension build
-        env:
-          SKIP_ENV_VALIDATION: true
-          PUBLIC_REPO_GITHUB_TOKEN: ${{ secrets.PUBLIC_REPO_GITHUB_TOKEN }}
+        run: pnpm build
 
       - name: Run tests
         run: pnpm test -- --exclude="**/free-api.test.ts"
