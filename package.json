@@ -22,7 +22,8 @@
     "type-check": "tsc --noEmit",
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
-    "release": "changeset tag && git push origin --tags"
+    "release": "changeset tag && git push origin --tags",
+    "prepare": "husky"
   },
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "^3.0.22",
