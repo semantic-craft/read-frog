@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  '@read-frog/definitions': link:../../../AppData/Local/pnpm/global/5/node_modules/@read-frog/definitions
-  '@read-frog/orpc': link:../../../AppData/Local/pnpm/global/5/node_modules/@read-frog/orpc
-  '@read-frog/ui': link:../../../AppData/Local/pnpm/global/5/node_modules/@read-frog/ui
-
 importers:
 
   .:
