@@ -8,27 +8,25 @@ export default defineConfig({
   imports: false,
   modules: ['@wxt-dev/module-react', '@wxt-dev/i18n/module'],
   manifestVersion: 3,
+
+  // WXT 顶级 alias - 会自动同步到 tsconfig.json 的 paths 和 Vite 的 alias
+  alias: process.env.USE_LOCAL_PACKAGES === 'true'
+    ? {
+        '@read-frog/definitions': path.resolve(__dirname, '../read-frog-monorepo/packages/definitions/src'),
+        '@read-frog/ui': path.resolve(__dirname, '../read-frog-monorepo/packages/ui/src'),
+        '@read-frog/orpc': path.resolve(__dirname, '../read-frog-monorepo/packages/orpc/src'),
+      }
+    : {},
+
   vite: () => {
-    // 环境变量控制：本地开发时使用 monorepo 源码
-    const useLocalPackages = process.env.USE_LOCAL_PACKAGES === 'true'
-
-    const alias: Record<string, string> = {
-      // 保留 React 单例
-      'react': path.resolve(__dirname, './node_modules/react'),
-      'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
-    }
-
-    if (useLocalPackages) {
-      // 本地开发：直接指向 monorepo 源码，文件变化立即生效
-      alias['@read-frog/definitions'] = path.resolve(__dirname, '../read-frog-monorepo/packages/definitions/src')
-      alias['@read-frog/ui'] = path.resolve(__dirname, '../read-frog-monorepo/packages/ui/src')
-      alias['@read-frog/orpc'] = path.resolve(__dirname, '../read-frog-monorepo/packages/orpc/src')
-    }
-
     return {
       plugins: [],
       resolve: {
-        alias,
+        alias: {
+          // 保留 React 单例（Vite 专用配置）
+          'react': path.resolve(__dirname, './node_modules/react'),
+          'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
+        },
       },
     }
   },
