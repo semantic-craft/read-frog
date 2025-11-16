@@ -16,7 +16,7 @@ fi
 echo "🔍 Checking for pnpm-lock.yaml overrides..."
 if grep -r "overrides:" pnpm-lock.yaml; then
   echo "❌ Found pnpm-lock.yaml overrides!"
-  echo "Please remove pnpm-lock.yaml overrides before pushing."
+  echo "Please remove pnpm-lock.yaml overrides before pushing. Use pnpm unlink:local"
   exit 1
 else
   echo "✅ No pnpm-lock.yaml overrides found."
