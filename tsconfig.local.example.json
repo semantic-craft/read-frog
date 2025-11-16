@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "paths": {
+      "@": ["./src"],
+      "@/*": ["./src/*"],
+      "~": ["./src"],
+      "~/*": ["./src/*"],
+      "@@": ["."],
+      "@@/*": ["./*"],
+      "~~": ["."],
+      "~~/*": ["./*"],
+      "#i18n": ["./i18n/index.ts"],
+      "#i18n/*": ["./i18n/index.ts/*"],
+      "@read-frog/definitions": ["../read-frog-monorepo/packages/definitions/src"],
+      "@read-frog/definitions/*": ["../read-frog-monorepo/packages/definitions/src/*"],
+      "@read-frog/ui": ["../read-frog-monorepo/packages/ui/src"],
+      "@read-frog/ui/*": ["../read-frog-monorepo/packages/ui/src/*"],
+      "@read-frog/orpc": ["../read-frog-monorepo/packages/orpc/src"],
+      "@read-frog/orpc/*": ["../read-frog-monorepo/packages/orpc/src/*"]
+    }
+  }
+}

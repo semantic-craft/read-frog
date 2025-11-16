@@ -29,8 +29,12 @@ web-ext.config.ts
 
 .env
 .env.*
+!.env.local.example
 
 coverage/
 .turbo/
 
 pnpm-workspace.yaml
+
+# Local development config (should not be committed)
+tsconfig.local.json
