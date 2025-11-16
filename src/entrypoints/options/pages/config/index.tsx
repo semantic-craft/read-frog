@@ -3,6 +3,7 @@ import { PageLayout } from '../../components/page-layout'
 import { BetaExperienceConfig } from './beta-experience'
 import { ConfigBackup } from './config-backup'
 import ConfigSync from './config-sync'
+import { GoogleDriveSyncCard } from './google-drive-sync'
 import { ResetConfig } from './reset-config'
 
 export function ConfigPage() {
@@ -10,6 +11,7 @@ export function ConfigPage() {
     <PageLayout title={i18n.t('options.config.title')} innerClassName="[&>*]:border-b [&>*:last-child]:border-b-0">
       <BetaExperienceConfig />
       <ConfigSync />
+      <GoogleDriveSyncCard />
       <ConfigBackup />
       <ResetConfig />
     </PageLayout>

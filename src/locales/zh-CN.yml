@@ -329,6 +329,16 @@ options:
       viewConfig:
         expand: 展开配置
         collapse: 收起配置
+      googleDrive:
+        title: Google Drive 云端同步
+        description: 自动同步配置到 Google Drive，远端配置较新时下载，本地配置较新时上传
+        sync: 同步到 Google Drive
+        syncing: 同步中...
+        syncSuccess: 配置同步成功
+        syncError: 同步失败，请重试
+        uploaded: 已上传本地配置
+        downloaded: 已下载远端配置
+        noChange: 配置已是最新
     backup:
       title: 配置备份
       description: 如果配置发生变化，每小时会自动创建备份。您可以在这里恢复之前的配置。（最多 $1 个备份）

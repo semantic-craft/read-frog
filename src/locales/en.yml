@@ -329,6 +329,16 @@ options:
       viewConfig:
         expand: Expand Config
         collapse: Collapse Config
+      googleDrive:
+        title: Google Drive Cloud Sync
+        description: Automatically sync configuration to Google Drive. Downloads when remote is newer, uploads when local is newer
+        sync: Sync to Google Drive
+        syncing: Syncing...
+        syncSuccess: Config synced successfully
+        syncError: Sync failed, please try again
+        uploaded: Local config uploaded
+        downloaded: Remote config downloaded
+        noChange: Config is up to date
     backup:
       title: Config Backup
       description: Automatic backups are created every hour if the config is changed. You can restore previous configurations here. (Maximum $1 backups)
