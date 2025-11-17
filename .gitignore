@@ -35,3 +35,5 @@ coverage/
 .turbo/
 
 pnpm-workspace.yaml
+
+tsconfig.local.json
