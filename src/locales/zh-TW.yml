@@ -334,11 +334,8 @@ options:
         description: 自動同步設定到 Google Drive，遠端設定較新時下載，本機設定較新時上傳
         sync: 同步到 Google Drive
         syncing: 同步中...
-        syncSuccess: 設定同步成功
+        syncSuccess: 同步成功
         syncError: 同步失敗，請重試
-        uploaded: 已上傳本機設定
-        downloaded: 已下載遠端設定
-        noChange: 設定已是最新
     backup:
       title: 設定備份
       description: 如果設定發生變化，每小時會自動建立備份。您可以在這裡還原之前的設定。（最多 $1 個備份）

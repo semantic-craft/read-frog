@@ -333,11 +333,8 @@ options:
         description: 설정을 Google Drive에 자동 동기화합니다. 원격이 최신일 때는 다운로드, 로컬이 최신일 때는 업로드합니다
         sync: Google Drive 동기화
         syncing: 동기화 중...
-        syncSuccess: 설정 동기화 완료
+        syncSuccess: 동기화 완료
         syncError: 동기화 실패, 다시 시도해 주세요
-        uploaded: 로컬 설정 업로드됨
-        downloaded: 원격 설정 다운로드됨
-        noChange: 설정이 최신입니다
     backup:
       title: 설정 백업
       description: 설정이 변경되면 매시간 자동으로 백업이 생성됩니다. 여기에서 이전 설정을 복원할 수 있습니다. (최대 $1개 백업)

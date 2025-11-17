@@ -19,17 +19,19 @@ export default defineConfig({
     name: '__MSG_extName__',
     description: '__MSG_extDescription__',
     default_locale: 'en',
-    permissions: ['storage', 'tabs', 'alarms', 'cookies'],
+    permissions: ['storage', 'tabs', 'alarms', 'cookies', 'identity'],
     host_permissions:
       mode === 'development'
         ? [
             'http://localhost:*/*', // For local backend (dev:local)
             'https://*.readfrog.app/*', // For prod backend (dev)
             'https://readfrog.app/*', // For prod backend (dev)
+            'https://www.googleapis.com/*',
           ]
         : [
             'https://*.readfrog.app/*',
             'https://readfrog.app/*', // Include both www and non-www versions
+            'https://www.googleapis.com/*', // Google Drive API
           ],
     // Firefox-specific settings for MV3
     ...(browser === 'firefox' && {

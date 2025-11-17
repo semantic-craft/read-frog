@@ -3,6 +3,8 @@ import { Icon } from '@iconify/react'
 import { Button } from '@read-frog/ui/components/button'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { syncConfig } from '@/utils/google-drive/sync'
+import { logger } from '@/utils/logger'
 import { ConfigCard } from '../../components/config-card'
 
 export function GoogleDriveSyncCard() {
@@ -12,15 +14,17 @@ export function GoogleDriveSyncCard() {
     setIsSyncing(true)
 
     try {
-      // Placeholder for actual sync logic
-      // TODO: Implement actual Google Drive sync when ready
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      logger.info('Starting Google Drive sync from UI')
 
-      // Temporary message
-      toast.info('Google Drive sync feature is under development')
+      // 执行同步
+      await syncConfig()
+
+      // 显示同步成功提示
+      toast.success(i18n.t('options.config.sync.googleDrive.syncSuccess'))
     }
     catch (error) {
       console.error('Google Drive sync error:', error)
+      logger.error('Google Drive sync error from UI', error)
       toast.error(i18n.t('options.config.sync.googleDrive.syncError'))
     }
     finally {
