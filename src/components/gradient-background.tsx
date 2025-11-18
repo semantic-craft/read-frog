@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
-import { cn } from '@read-frog/ui/lib/utils'
 import { useId } from 'react'
+import { cn } from '@/ui/lib/utils'
 
 interface GradientBackgroundProps {
   children: ReactNode

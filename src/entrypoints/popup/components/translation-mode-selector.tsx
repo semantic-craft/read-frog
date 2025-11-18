@@ -1,6 +1,9 @@
 import type { TranslationMode as TranslationModeType } from '@/types/config/translate'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
+import { deepmerge } from 'deepmerge-ts'
+import { useAtom, useAtomValue } from 'jotai'
+import { TRANSLATION_MODES } from '@/types/config/translate'
 import {
   Select,
   SelectContent,
@@ -8,11 +11,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@read-frog/ui/components/select'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@read-frog/ui/components/tooltip'
-import { deepmerge } from 'deepmerge-ts'
-import { useAtom, useAtomValue } from 'jotai'
-import { TRANSLATION_MODES } from '@/types/config/translate'
+} from '@/ui/components/select'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/ui/components/tooltip'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { filterEnabledProvidersConfig, getLLMTranslateProvidersConfig, getProviderConfigById } from '@/utils/config/helpers'
 

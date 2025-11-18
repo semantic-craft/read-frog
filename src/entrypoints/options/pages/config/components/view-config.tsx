@@ -1,10 +1,10 @@
-import type { ButtonProps } from '@read-frog/ui/components/button'
 import type { Config } from '@/types/config/config'
+import type { ButtonProps } from '@/ui/components/button'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
-import { Button } from '@read-frog/ui/components/button'
-import { ScrollArea } from '@read-frog/ui/components/scroll-area'
 import { useState } from 'react'
+import { Button } from '@/ui/components/button'
+import { ScrollArea } from '@/ui/components/scroll-area'
 import { CONFIG_SCHEMA_VERSION, CONFIG_SCHEMA_VERSION_STORAGE_KEY, CONFIG_STORAGE_KEY } from '@/utils/constants/config'
 
 export function ViewConfig({ config, configSchemaVersion, size = 'default' }: { config: Config, configSchemaVersion?: number, size?: ButtonProps['size'] }) {

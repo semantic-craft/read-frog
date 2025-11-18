@@ -1,4 +1,4 @@
-import { cn } from '@read-frog/ui/lib/utils'
+import { cn } from '@/ui/lib/utils'
 
 interface LoadingDotsProps {
   className?: string

@@ -1,6 +1,6 @@
-import { Button } from '@read-frog/ui/components/button'
-import { cn } from '@read-frog/ui/lib/utils'
 import guest from '@/assets/icons/avatars/guest.svg'
+import { Button } from '@/ui/components/button'
+import { cn } from '@/ui/lib/utils'
 import { authClient } from '@/utils/auth/auth-client'
 import { WEBSITE_URL } from '@/utils/constants/url'
 

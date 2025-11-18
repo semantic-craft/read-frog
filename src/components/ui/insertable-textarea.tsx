@@ -1,8 +1,8 @@
-import { Button } from '@read-frog/ui/components/button'
-import { Textarea } from '@read-frog/ui/components/textarea'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@read-frog/ui/components/tooltip'
-import { cn } from '@read-frog/ui/lib/utils'
 import * as React from 'react'
+import { Button } from '@/ui/components/button'
+import { Textarea } from '@/ui/components/textarea'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/ui/components/tooltip'
+import { cn } from '@/ui/lib/utils'
 
 interface InsertableTextareaHandle extends HTMLTextAreaElement {
   insertTextAtCursor: (text: string) => void

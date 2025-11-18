@@ -1,8 +1,11 @@
 import type { TranslatePromptObj } from '@/types/config/translate'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
-import { Badge } from '@read-frog/ui/components/badge'
-import { Button } from '@read-frog/ui/components/button'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { Activity, useState } from 'react'
+import { QuickInsertableTextarea } from '@/components/ui/insertable-textarea'
+import { Badge } from '@/ui/components/badge'
+import { Button } from '@/ui/components/button'
 import {
   Card,
   CardAction,
@@ -10,11 +13,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@read-frog/ui/components/card'
-import { Checkbox } from '@read-frog/ui/components/checkbox'
-import { Input } from '@read-frog/ui/components/input'
-import { Label } from '@read-frog/ui/components/label'
-import { Separator } from '@read-frog/ui/components/separator'
+} from '@/ui/components/card'
+import { Checkbox } from '@/ui/components/checkbox'
+import { Input } from '@/ui/components/input'
+import { Label } from '@/ui/components/label'
+import { Separator } from '@/ui/components/separator'
 import {
   Sheet,
   SheetClose,
@@ -23,11 +26,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@read-frog/ui/components/sheet'
-import { cn } from '@read-frog/ui/lib/utils'
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { Activity, useState } from 'react'
-import { QuickInsertableTextarea } from '@/components/ui/insertable-textarea'
+} from '@/ui/components/sheet'
+import { cn } from '@/ui/lib/utils'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { DEFAULT_TRANSLATE_PROMPT_ID, getTokenCellText, TOKENS } from '@/utils/constants/prompt'
 import { ConfigCard } from '../../../components/config-card'

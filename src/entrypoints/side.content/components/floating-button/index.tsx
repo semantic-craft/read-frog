@@ -1,15 +1,15 @@
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
+import { useAtom, useAtomValue } from 'jotai'
+import { useEffect, useRef, useState } from 'react'
+import readFrogLogo from '@/assets/icons/read-frog.png'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@read-frog/ui/components/dropdown-menu'
-import { cn } from '@read-frog/ui/lib/utils'
-import { useAtom, useAtomValue } from 'jotai'
-import { useEffect, useRef, useState } from 'react'
-import readFrogLogo from '@/assets/icons/read-frog.png'
+} from '@/ui/components/dropdown-menu'
+import { cn } from '@/ui/lib/utils'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { APP_NAME } from '@/utils/constants/app'
 import { sendMessage } from '@/utils/message'

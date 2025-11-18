@@ -2,7 +2,6 @@ import type { TextUIPart } from 'ai'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
 import { ISO6393_TO_6391, LANG_CODE_TO_EN_NAME } from '@read-frog/definitions'
-import { getIsFirefoxExtensionEnv } from '@read-frog/ui/utils/firefox-compat'
 import { IconLoader2, IconVolume } from '@tabler/icons-react'
 import { readUIMessageStream, streamText } from 'ai'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
@@ -14,6 +13,7 @@ import {
   isNonAPIProvider,
   isPureAPIProvider,
 } from '@/types/config/provider'
+import { getIsFirefoxExtensionEnv } from '@/ui/utils/firefox-compat'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { translateProviderConfigAtom, ttsProviderConfigAtom } from '@/utils/atoms/provider'
 import { getConfigFromStorage } from '@/utils/config/config'

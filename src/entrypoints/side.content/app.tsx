@@ -1,5 +1,5 @@
-import { cn } from '@read-frog/ui/lib/utils'
 import FrogToast from '@/components/frog-toast'
+import { cn } from '@/ui/lib/utils'
 import { NOTRANSLATE_CLASS } from '@/utils/constants/dom-labels'
 import FloatingButton from './components/floating-button'
 import SideContent from './components/side-content'

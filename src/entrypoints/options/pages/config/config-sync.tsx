@@ -1,5 +1,9 @@
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
+import { useMutation } from '@tanstack/react-query'
+import { useAtomValue, useSetAtom } from 'jotai'
+import { toast } from 'sonner'
+import { useExportConfig } from '@/hooks/use-export-config'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,14 +14,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@read-frog/ui/components/alert-dialog'
-import { Button } from '@read-frog/ui/components/button'
-import { Input } from '@read-frog/ui/components/input'
-import { Label } from '@read-frog/ui/components/label'
-import { useMutation } from '@tanstack/react-query'
-import { useAtomValue, useSetAtom } from 'jotai'
-import { toast } from 'sonner'
-import { useExportConfig } from '@/hooks/use-export-config'
+} from '@/ui/components/alert-dialog'
+import { Button } from '@/ui/components/button'
+import { Input } from '@/ui/components/input'
+import { Label } from '@/ui/components/label'
 import { configAtom, writeConfigAtom } from '@/utils/atoms/config'
 import { addBackup } from '@/utils/backup/storage'
 import { migrateConfig } from '@/utils/config/migration'

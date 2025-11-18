@@ -1,8 +1,8 @@
 import { i18n } from '#imports'
-import { Field, FieldContent, FieldDescription, FieldLabel } from '@read-frog/ui/components/field'
-import { Switch } from '@read-frog/ui/components/switch'
 import { deepmerge } from 'deepmerge-ts'
 import { useAtom } from 'jotai'
+import { Field, FieldContent, FieldDescription, FieldLabel } from '@/ui/components/field'
+import { Switch } from '@/ui/components/switch'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 
 export function CustomTranslationStyleSwitch() {

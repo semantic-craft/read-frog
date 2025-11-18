@@ -9,6 +9,10 @@ import {
   langCodeISO6393Schema,
   langLevel,
 } from '@read-frog/definitions'
+import { useMutationState } from '@tanstack/react-query'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import ReadProviderSelector from '@/components/llm-providers/read-provider-selector'
+import { useTheme } from '@/components/providers/theme-provider'
 import {
   Select,
   SelectContent,
@@ -16,13 +20,9 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-} from '@read-frog/ui/components/select'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@read-frog/ui/components/tooltip'
-import { cn } from '@read-frog/ui/lib/utils'
-import { useMutationState } from '@tanstack/react-query'
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import ReadProviderSelector from '@/components/llm-providers/read-provider-selector'
-import { useTheme } from '@/components/providers/theme-provider'
+} from '@/ui/components/select'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/ui/components/tooltip'
+import { cn } from '@/ui/lib/utils'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { readProviderConfigAtom } from '@/utils/atoms/provider'
 import { getFinalSourceCode } from '@/utils/config/languages'

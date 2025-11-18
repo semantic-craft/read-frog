@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react'
-import { cn } from '@read-frog/ui/lib/utils'
 import { useAtomValue } from 'jotai'
+import { cn } from '@/ui/lib/utils'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { validateTranslationConfig } from '@/utils/host/translate/translate-text'
 import { logger } from '@/utils/logger'

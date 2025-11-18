@@ -1,5 +1,8 @@
 import type { TranslationMode as TranslationModeType } from '@/types/config/translate'
 import { i18n } from '#imports'
+import { deepmerge } from 'deepmerge-ts'
+import { useAtom, useAtomValue } from 'jotai'
+import { TRANSLATION_MODES } from '@/types/config/translate'
 import {
   Select,
   SelectContent,
@@ -7,10 +10,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@read-frog/ui/components/select'
-import { deepmerge } from 'deepmerge-ts'
-import { useAtom, useAtomValue } from 'jotai'
-import { TRANSLATION_MODES } from '@/types/config/translate'
+} from '@/ui/components/select'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { filterEnabledProvidersConfig, getLLMTranslateProvidersConfig, getProviderConfigById } from '@/utils/config/helpers'
 import { ConfigCard } from '../../components/config-card'

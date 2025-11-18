@@ -1,9 +1,9 @@
 import { browser, i18n } from '#imports'
-import { Button } from '@read-frog/ui/components/button'
-
-import { cn } from '@read-frog/ui/lib/utils'
 import { useAtomValue } from 'jotai'
+
 import { toast } from 'sonner'
+import { Button } from '@/ui/components/button'
+import { cn } from '@/ui/lib/utils'
 
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { isAnyAPIKeyForReadProviders } from '@/utils/config/config'

@@ -1,6 +1,6 @@
 import { i18n } from '#imports'
-import { FieldGroup } from '@read-frog/ui/components/field'
 import { ConfigCard } from '@/entrypoints/options/components/config-card'
+import { FieldGroup } from '@/ui/components/field'
 import { CSSEditor } from './css-editor'
 import { CustomTranslationStyleSwitch } from './custom-translation-style-switch'
 import { PresetStyleSelector } from './preset-style-selector'

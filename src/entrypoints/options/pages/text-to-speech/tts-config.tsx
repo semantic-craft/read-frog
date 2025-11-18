@@ -1,8 +1,14 @@
 import type { TTSModel, TTSVoice } from '@/types/config/tts'
 import { i18n } from '#imports'
-import { Badge } from '@read-frog/ui/components/badge'
-import { Button } from '@read-frog/ui/components/button'
-import { Field, FieldLabel } from '@read-frog/ui/components/field'
+import { IconLoader2, IconPlayerPlayFilled } from '@tabler/icons-react'
+import { useAtom, useAtomValue } from 'jotai'
+import { toast } from 'sonner'
+import ValidatedInput from '@/components/ui/validated-input'
+import { useTextToSpeech } from '@/hooks/use-text-to-speech'
+import { getVoicesForModel, isVoiceAvailableForModel, MAX_TTS_SPEED, MIN_TTS_SPEED, TTS_MODELS, ttsSpeedSchema } from '@/types/config/tts'
+import { Badge } from '@/ui/components/badge'
+import { Button } from '@/ui/components/button'
+import { Field, FieldLabel } from '@/ui/components/field'
 import {
   Select,
   SelectContent,
@@ -10,13 +16,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@read-frog/ui/components/select'
-import { IconLoader2, IconPlayerPlayFilled } from '@tabler/icons-react'
-import { useAtom, useAtomValue } from 'jotai'
-import { toast } from 'sonner'
-import ValidatedInput from '@/components/ui/validated-input'
-import { useTextToSpeech } from '@/hooks/use-text-to-speech'
-import { getVoicesForModel, isVoiceAvailableForModel, MAX_TTS_SPEED, MIN_TTS_SPEED, TTS_MODELS, ttsSpeedSchema } from '@/types/config/tts'
+} from '@/ui/components/select'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { ttsProviderConfigAtom } from '@/utils/atoms/provider'
 import { getTTSProvidersConfig } from '@/utils/config/helpers'

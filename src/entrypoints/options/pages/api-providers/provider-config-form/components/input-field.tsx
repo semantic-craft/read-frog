@@ -1,6 +1,6 @@
-import { Field, FieldError, FieldLabel } from '@read-frog/ui/components/field'
-import { Input } from '@read-frog/ui/components/input'
 import { useStore } from '@tanstack/react-form'
+import { Field, FieldError, FieldLabel } from '@/ui/components/field'
+import { Input } from '@/ui/components/input'
 import { useFieldContext } from '../form-context'
 
 export function InputField(

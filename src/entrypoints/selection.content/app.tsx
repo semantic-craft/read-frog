@@ -1,5 +1,5 @@
-import { cn } from '@read-frog/ui/lib/utils'
 import { Toaster } from 'sonner'
+import { cn } from '@/ui/lib/utils'
 import { NOTRANSLATE_CLASS } from '@/utils/constants/dom-labels'
 import { SelectionToolbar } from './selection-toolbar'
 

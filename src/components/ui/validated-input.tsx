@@ -1,7 +1,7 @@
-import { Input } from '@read-frog/ui/components/input'
-import { cn } from '@read-frog/ui/lib/utils'
 import { useCallback, useState } from 'react'
 import { z } from 'zod'
+import { Input } from '@/ui/components/input'
+import { cn } from '@/ui/lib/utils'
 
 interface ValidatedInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   schema: z.ZodSchema

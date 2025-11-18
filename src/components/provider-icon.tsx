@@ -1,6 +1,6 @@
 import type { VariantProps } from 'class-variance-authority'
-import { cn } from '@read-frog/ui/lib/utils'
 import { cva } from 'class-variance-authority'
+import { cn } from '@/ui/lib/utils'
 
 const providerIconVariants = cva(
   'flex items-center min-w-0',

@@ -1,8 +1,14 @@
 import type { PageTranslateRange } from '@/types/config/translate'
 import { i18n } from '#imports'
-import { Checkbox } from '@read-frog/ui/components/checkbox'
-import { Field, FieldLabel } from '@read-frog/ui/components/field'
-import { Input } from '@read-frog/ui/components/input'
+import { deepmerge } from 'deepmerge-ts'
+import { useAtom, useAtomValue } from 'jotai'
+import { toast } from 'sonner'
+import TranslateProviderSelector from '@/components/llm-providers/translate-provider-selector'
+import { isAPIProviderConfig, isLLMTranslateProviderConfig, TRANSLATE_PROVIDER_MODELS } from '@/types/config/provider'
+import { pageTranslateRangeSchema } from '@/types/config/translate'
+import { Checkbox } from '@/ui/components/checkbox'
+import { Field, FieldLabel } from '@/ui/components/field'
+import { Input } from '@/ui/components/input'
 import {
   Select,
   SelectContent,
@@ -10,14 +16,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@read-frog/ui/components/select'
-import { cn } from '@read-frog/ui/lib/utils'
-import { deepmerge } from 'deepmerge-ts'
-import { useAtom, useAtomValue } from 'jotai'
-import { toast } from 'sonner'
-import TranslateProviderSelector from '@/components/llm-providers/translate-provider-selector'
-import { isAPIProviderConfig, isLLMTranslateProviderConfig, TRANSLATE_PROVIDER_MODELS } from '@/types/config/provider'
-import { pageTranslateRangeSchema } from '@/types/config/translate'
+} from '@/ui/components/select'
+import { cn } from '@/ui/lib/utils'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { translateProviderConfigAtom, updateLLMProviderConfig } from '@/utils/atoms/provider'
 import { ConfigCard } from '../../components/config-card'

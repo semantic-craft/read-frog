@@ -8,10 +8,10 @@
 import type { ReactCodeMirrorProps } from '@uiw/react-codemirror'
 import { css } from '@codemirror/lang-css'
 import { lintGutter } from '@codemirror/lint'
-import { cn } from '@read-frog/ui/lib/utils'
 import { color } from '@uiw/codemirror-extensions-color'
 import CodeMirror from '@uiw/react-codemirror'
 import { useTheme } from '@/components/providers/theme-provider'
+import { cn } from '@/ui/lib/utils'
 import { cssLinter } from '@/utils/css/lint-css'
 
 interface CSSCodeEditorProps extends Omit<ReactCodeMirrorProps, 'theme' | 'extensions'> {

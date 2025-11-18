@@ -13,7 +13,6 @@ export default defineConfig({
   alias: process.env.USE_LOCAL_PACKAGES === 'true'
     ? {
         '@read-frog/definitions': path.resolve(__dirname, '../read-frog-monorepo/packages/definitions/src'),
-        '@read-frog/ui': path.resolve(__dirname, '../read-frog-monorepo/packages/ui/src'),
         '@read-frog/api-contract': path.resolve(__dirname, '../read-frog-monorepo/packages/api-contract/src'),
       }
     : {},
@@ -21,13 +20,7 @@ export default defineConfig({
   vite: () => {
     return {
       plugins: [],
-      resolve: {
-        alias: {
-          // 保留 React 单例（Vite 专用配置，不影响 tsconfig.json 的 paths）
-          'react': path.resolve(__dirname, './node_modules/react'),
-          'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
-        },
-      },
+      resolve: {},
     }
   },
   manifest: ({ mode, browser }) => ({
