@@ -13,7 +13,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/ui/components/select'
+} from '@/components/shadcn/select'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 
 function langCodeLabel(langCode: LangCodeISO6393) {

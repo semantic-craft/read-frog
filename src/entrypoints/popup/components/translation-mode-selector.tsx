@@ -3,7 +3,6 @@ import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
 import { deepmerge } from 'deepmerge-ts'
 import { useAtom, useAtomValue } from 'jotai'
-import { TRANSLATION_MODES } from '@/types/config/translate'
 import {
   Select,
   SelectContent,
@@ -11,8 +10,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/ui/components/select'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/ui/components/tooltip'
+} from '@/components/shadcn/select'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/shadcn/tooltip'
+import { TRANSLATION_MODES } from '@/types/config/translate'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { filterEnabledProvidersConfig, getLLMTranslateProvidersConfig, getProviderConfigById } from '@/utils/config/helpers'
 

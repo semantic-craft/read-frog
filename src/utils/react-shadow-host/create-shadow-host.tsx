@@ -2,7 +2,7 @@ import { createContext } from 'react'
 import ReactDOM from 'react-dom/client'
 
 import { ThemeProvider } from '@/components/providers/theme-provider'
-import { TooltipProvider } from '@/ui/components/tooltip'
+import { TooltipProvider } from '@/components/shadcn/tooltip'
 import { REACT_SHADOW_HOST_CLASS } from '../constants/dom-labels'
 import { ShadowHostBuilder } from './shadow-host-builder'
 

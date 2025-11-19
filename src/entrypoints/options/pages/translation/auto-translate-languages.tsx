@@ -7,13 +7,13 @@ import {
   langCodeISO6393Schema,
 } from '@read-frog/definitions'
 import { useAtom } from 'jotai'
-import { Button } from '@/ui/components/button'
+import { Button } from '@/components/shadcn/button'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '@/ui/components/dropdown-menu'
+} from '@/components/shadcn/dropdown-menu'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { ConfigCard } from '../../components/config-card'
 

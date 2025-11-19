@@ -15,10 +15,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from '@/ui/components/sidebar'
-import { cn } from '@/ui/lib/utils'
+} from '@/components/shadcn/sidebar'
 import { getLastViewedBlogDate, getLatestBlogDate, hasNewBlogPost, saveLastViewedBlogDate } from '@/utils/blog'
 import { WEBSITE_URL } from '@/utils/constants/url'
+import { cn } from '@/utils/styles/tailwind'
 import { getLastViewedSurvey, hasNewSurvey, saveLastViewedSurvey } from '@/utils/survey'
 import { version } from '../../../../package.json'
 import { AnimatedIndicator } from './animated-indicator'

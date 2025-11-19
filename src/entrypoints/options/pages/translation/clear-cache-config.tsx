@@ -11,8 +11,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/ui/components/alert-dialog'
-import { Button } from '@/ui/components/button'
+} from '@/components/shadcn/alert-dialog'
+import { Button } from '@/components/shadcn/button'
 import { sendMessage } from '@/utils/message'
 import { ConfigCard } from '../../components/config-card'
 

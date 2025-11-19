@@ -11,8 +11,8 @@ import { lintGutter } from '@codemirror/lint'
 import { color } from '@uiw/codemirror-extensions-color'
 import CodeMirror from '@uiw/react-codemirror'
 import { useTheme } from '@/components/providers/theme-provider'
-import { cn } from '@/ui/lib/utils'
 import { cssLinter } from '@/utils/css/lint-css'
+import { cn } from '@/utils/styles/tailwind'
 
 interface CSSCodeEditorProps extends Omit<ReactCodeMirrorProps, 'theme' | 'extensions'> {
   hasError?: boolean

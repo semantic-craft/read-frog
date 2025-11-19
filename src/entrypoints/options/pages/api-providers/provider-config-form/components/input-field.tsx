@@ -1,6 +1,6 @@
 import { useStore } from '@tanstack/react-form'
-import { Field, FieldError, FieldLabel } from '@/ui/components/field'
-import { Input } from '@/ui/components/input'
+import { Field, FieldError, FieldLabel } from '@/components/shadcn/field'
+import { Input } from '@/components/shadcn/input'
 import { useFieldContext } from '../form-context'
 
 export function InputField(

@@ -1,4 +1,4 @@
-import { cn } from '@/ui/lib/utils'
+import { cn } from '@/utils/styles/tailwind'
 
 interface LoadingDotsProps {
   className?: string

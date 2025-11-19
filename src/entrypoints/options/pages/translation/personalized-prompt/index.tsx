@@ -3,9 +3,8 @@ import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { Activity, useState } from 'react'
-import { QuickInsertableTextarea } from '@/components/ui/insertable-textarea'
-import { Badge } from '@/ui/components/badge'
-import { Button } from '@/ui/components/button'
+import { Badge } from '@/components/shadcn/badge'
+import { Button } from '@/components/shadcn/button'
 import {
   Card,
   CardAction,
@@ -13,11 +12,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/ui/components/card'
-import { Checkbox } from '@/ui/components/checkbox'
-import { Input } from '@/ui/components/input'
-import { Label } from '@/ui/components/label'
-import { Separator } from '@/ui/components/separator'
+} from '@/components/shadcn/card'
+import { Checkbox } from '@/components/shadcn/checkbox'
+import { Input } from '@/components/shadcn/input'
+import { Label } from '@/components/shadcn/label'
+import { Separator } from '@/components/shadcn/separator'
 import {
   Sheet,
   SheetClose,
@@ -26,10 +25,11 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/ui/components/sheet'
-import { cn } from '@/ui/lib/utils'
+} from '@/components/shadcn/sheet'
+import { QuickInsertableTextarea } from '@/components/ui/insertable-textarea'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { DEFAULT_TRANSLATE_PROMPT_ID, getTokenCellText, TOKENS } from '@/utils/constants/prompt'
+import { cn } from '@/utils/styles/tailwind'
 import { ConfigCard } from '../../../components/config-card'
 import { isExportPromptModeAtom, selectedPromptsToExportAtom } from './atoms'
 import { DeletePrompt } from './delete-prompt'

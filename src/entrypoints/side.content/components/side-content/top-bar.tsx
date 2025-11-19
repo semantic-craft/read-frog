@@ -20,14 +20,14 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-} from '@/ui/components/select'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/ui/components/tooltip'
-import { cn } from '@/ui/lib/utils'
+} from '@/components/shadcn/select'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/shadcn/tooltip'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { readProviderConfigAtom } from '@/utils/atoms/provider'
 import { getFinalSourceCode } from '@/utils/config/languages'
 import { READ_PROVIDER_ITEMS } from '@/utils/constants/providers'
 import { DOWNLOAD_FILE_ITEMS } from '@/utils/constants/side'
+import { cn } from '@/utils/styles/tailwind'
 import { shadowWrapper } from '../..'
 import { isSideOpenAtom } from '../../atoms'
 import downloader from '../../utils/downloader'

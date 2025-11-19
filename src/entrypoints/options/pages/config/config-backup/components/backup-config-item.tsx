@@ -5,7 +5,6 @@ import { useMutation } from '@tanstack/react-query'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { useExportConfig } from '@/hooks/use-export-config'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,12 +15,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/ui/components/alert-dialog'
-import { Button } from '@/ui/components/button'
-import { ButtonGroup } from '@/ui/components/button-group'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/ui/components/dropdown-menu'
-import { Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemTitle } from '@/ui/components/item'
-import { Spinner } from '@/ui/components/spinner'
+} from '@/components/shadcn/alert-dialog'
+import { Button } from '@/components/shadcn/button'
+import { ButtonGroup } from '@/components/shadcn/button-group'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/shadcn/dropdown-menu'
+import { Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemTitle } from '@/components/shadcn/item'
+import { Spinner } from '@/components/shadcn/spinner'
+import { useExportConfig } from '@/hooks/use-export-config'
 import { configAtom, writeConfigAtom } from '@/utils/atoms/config'
 import { addBackup, isSameAsLatestBackup, removeBackup } from '@/utils/backup/storage'
 import { migrateConfig } from '@/utils/config/migration'

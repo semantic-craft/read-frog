@@ -1,6 +1,6 @@
 import { i18n } from '#imports'
-import { cn } from '@/ui/lib/utils'
 import { sendMessage } from '@/utils/message'
+import { cn } from '@/utils/styles/tailwind'
 
 export function APIConfigWarning({ className }: { className?: string }) {
   return (

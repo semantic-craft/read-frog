@@ -8,11 +8,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/ui/components/dropdown-menu'
-import { cn } from '@/ui/lib/utils'
+} from '@/components/shadcn/dropdown-menu'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { APP_NAME } from '@/utils/constants/app'
 import { sendMessage } from '@/utils/message'
+import { cn } from '@/utils/styles/tailwind'
 import { shadowWrapper } from '../../'
 import { isDraggingButtonAtom, isSideOpenAtom } from '../../atoms'
 import HiddenButton from './components/hidden-button'

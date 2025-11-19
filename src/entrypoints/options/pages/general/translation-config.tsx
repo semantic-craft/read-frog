@@ -4,11 +4,9 @@ import { deepmerge } from 'deepmerge-ts'
 import { useAtom, useAtomValue } from 'jotai'
 import { toast } from 'sonner'
 import TranslateProviderSelector from '@/components/llm-providers/translate-provider-selector'
-import { isAPIProviderConfig, isLLMTranslateProviderConfig, TRANSLATE_PROVIDER_MODELS } from '@/types/config/provider'
-import { pageTranslateRangeSchema } from '@/types/config/translate'
-import { Checkbox } from '@/ui/components/checkbox'
-import { Field, FieldLabel } from '@/ui/components/field'
-import { Input } from '@/ui/components/input'
+import { Checkbox } from '@/components/shadcn/checkbox'
+import { Field, FieldLabel } from '@/components/shadcn/field'
+import { Input } from '@/components/shadcn/input'
 import {
   Select,
   SelectContent,
@@ -16,10 +14,12 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/ui/components/select'
-import { cn } from '@/ui/lib/utils'
+} from '@/components/shadcn/select'
+import { isAPIProviderConfig, isLLMTranslateProviderConfig, TRANSLATE_PROVIDER_MODELS } from '@/types/config/provider'
+import { pageTranslateRangeSchema } from '@/types/config/translate'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { translateProviderConfigAtom, updateLLMProviderConfig } from '@/utils/atoms/provider'
+import { cn } from '@/utils/styles/tailwind'
 import { ConfigCard } from '../../components/config-card'
 import { SetApiKeyWarning } from '../../components/set-api-key-warning'
 

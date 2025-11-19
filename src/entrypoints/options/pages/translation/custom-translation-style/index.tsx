@@ -1,6 +1,6 @@
 import { i18n } from '#imports'
+import { FieldGroup } from '@/components/shadcn/field'
 import { ConfigCard } from '@/entrypoints/options/components/config-card'
-import { FieldGroup } from '@/ui/components/field'
 import { CSSEditor } from './css-editor'
 import { CustomTranslationStyleSwitch } from './custom-translation-style-switch'
 import { PresetStyleSelector } from './preset-style-selector'

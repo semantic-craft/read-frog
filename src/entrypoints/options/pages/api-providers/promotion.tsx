@@ -1,8 +1,8 @@
 import { i18n } from '#imports'
 import { useAtom, useSetAtom } from 'jotai'
-import { Button } from '@/ui/components/button'
-import { cn } from '@/ui/lib/utils'
+import { Button } from '@/components/shadcn/button'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
+import { cn } from '@/utils/styles/tailwind'
 import { selectedProviderIdAtom } from './atoms'
 import { addProvider } from './utils'
 

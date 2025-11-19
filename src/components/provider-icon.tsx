@@ -1,6 +1,6 @@
 import type { VariantProps } from 'class-variance-authority'
 import { cva } from 'class-variance-authority'
-import { cn } from '@/ui/lib/utils'
+import { cn } from '@/utils/styles/tailwind'
 
 const providerIconVariants = cva(
   'flex items-center min-w-0',

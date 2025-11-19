@@ -2,7 +2,6 @@ import type { TranslationMode as TranslationModeType } from '@/types/config/tran
 import { i18n } from '#imports'
 import { deepmerge } from 'deepmerge-ts'
 import { useAtom, useAtomValue } from 'jotai'
-import { TRANSLATION_MODES } from '@/types/config/translate'
 import {
   Select,
   SelectContent,
@@ -10,7 +9,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/ui/components/select'
+} from '@/components/shadcn/select'
+import { TRANSLATION_MODES } from '@/types/config/translate'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { filterEnabledProvidersConfig, getLLMTranslateProvidersConfig, getProviderConfigById } from '@/utils/config/helpers'
 import { ConfigCard } from '../../components/config-card'

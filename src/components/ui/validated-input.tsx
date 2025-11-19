@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { z } from 'zod'
-import { Input } from '@/ui/components/input'
-import { cn } from '@/ui/lib/utils'
+import { Input } from '@/components/shadcn/input'
+import { cn } from '@/utils/styles/tailwind'
 
 interface ValidatedInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   schema: z.ZodSchema

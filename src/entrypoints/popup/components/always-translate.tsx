@@ -1,6 +1,6 @@
 import { i18n } from '#imports'
 import { useAtom, useAtomValue } from 'jotai'
-import { Switch } from '@/ui/components/switch'
+import { Switch } from '@/components/shadcn/switch'
 import { isCurrentSiteInPatternsAtom, toggleCurrentSiteAtom } from '../atoms/auto-translate'
 import { isIgnoreTabAtom } from '../atoms/ignore'
 

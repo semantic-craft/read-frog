@@ -6,8 +6,8 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-} from '@/ui/components/select'
-import { Switch } from '@/ui/components/switch'
+} from '@/components/shadcn/select'
+import { Switch } from '@/components/shadcn/switch'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { HOTKEY_ITEMS, HOTKEYS } from '@/utils/constants/hotkeys'
 

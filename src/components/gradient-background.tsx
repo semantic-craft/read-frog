@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { useId } from 'react'
-import { cn } from '@/ui/lib/utils'
+import { cn } from '@/utils/styles/tailwind'
 
 interface GradientBackgroundProps {
   children: ReactNode

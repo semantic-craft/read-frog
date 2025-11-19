@@ -13,12 +13,12 @@ import {
   isNonAPIProvider,
   isPureAPIProvider,
 } from '@/types/config/provider'
-import { getIsFirefoxExtensionEnv } from '@/ui/utils/firefox-compat'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { translateProviderConfigAtom, ttsProviderConfigAtom } from '@/utils/atoms/provider'
 import { getConfigFromStorage } from '@/utils/config/config'
 import { getProviderOptions } from '@/utils/constants/model'
-import { createPortStreamPromise } from '@/utils/firefox-streaming'
+import { getIsFirefoxExtensionEnv } from '@/utils/firefox/firefox-compat'
+import { createPortStreamPromise } from '@/utils/firefox/firefox-streaming'
 import { deeplxTranslate, googleTranslate, microsoftTranslate } from '@/utils/host/translate/api'
 import { translateText } from '@/utils/host/translate/translate-text'
 import { getTranslatePrompt } from '@/utils/prompts/translate'
