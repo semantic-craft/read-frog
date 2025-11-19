@@ -8,21 +8,13 @@ export default defineConfig({
   imports: false,
   modules: ['@wxt-dev/module-react', '@wxt-dev/i18n/module'],
   manifestVersion: 3,
-
-  // WXT 顶级 alias - 会自动同步到 tsconfig.json 的 paths 和 Vite 的 alias
+  // WXT top level alias - will be automatically synced to tsconfig.json paths and Vite alias
   alias: process.env.USE_LOCAL_PACKAGES === 'true'
     ? {
         '@read-frog/definitions': path.resolve(__dirname, '../read-frog-monorepo/packages/definitions/src'),
         '@read-frog/api-contract': path.resolve(__dirname, '../read-frog-monorepo/packages/api-contract/src'),
       }
     : {},
-
-  vite: () => {
-    return {
-      plugins: [],
-      resolve: {},
-    }
-  },
   manifest: ({ mode, browser }) => ({
     name: '__MSG_extName__',
     description: '__MSG_extDescription__',
