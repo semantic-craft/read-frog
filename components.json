@@ -12,10 +12,10 @@
   },
   "iconLibrary": "lucide",
   "aliases": {
-    "components": "src/components",
-    "utils": "src/utils/styles/tailwind",
-    "hooks": "src/hooks",
-    "lib": "src/utils/styles",
+    "components": "@/components",
+    "utils": "@/utils/styles/tailwind",
+    "hooks": "@/hooks",
+    "lib": "@/utils/styles",
     "ui": "src/components/shadcn"
   }
 }
