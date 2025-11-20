@@ -3,7 +3,7 @@ import type { Config } from '@/types/config/config'
 import { storage } from '#imports'
 import { configSchema } from '@/types/config/config'
 import { migrateConfig } from '../config/migration'
-import { CONFIG_SCHEMA_VERSION, CONFIG_SCHEMA_VERSION_STORAGE_KEY, CONFIG_STORAGE_KEY } from '../constants/config'
+import { CONFIG_SCHEMA_VERSION, CONFIG_SCHEMA_VERSION_STORAGE_KEY, CONFIG_STORAGE_KEY, LAST_SYNC_TIME_STORAGE_KEY } from '../constants/config'
 import { logger } from '../logger'
 import { downloadFile, findFileInAppData, uploadFile } from './api'
 import { getValidAccessToken } from './auth'
@@ -37,6 +37,21 @@ async function getLocalConfig(): Promise<{ config: Config, schemaVersion: number
     logger.error('Failed to get local config', error)
     throw error
   }
+}
+
+/**
+ * 获取上次同步时间
+ */
+async function getLastSyncTime(): Promise<number | null> {
+  const lastSyncTime = await storage.getItem<number>(`local:${LAST_SYNC_TIME_STORAGE_KEY}`)
+  return lastSyncTime ?? null
+}
+
+/**
+ * 设置上次同步时间
+ */
+async function setLastSyncTime(timestamp: number): Promise<void> {
+  await storage.setItem(`local:${LAST_SYNC_TIME_STORAGE_KEY}`, timestamp)
 }
 
 /**
@@ -145,6 +160,7 @@ async function downloadRemoteConfig(remoteData: RemoteConfigData): Promise<void>
 /**
  * 同步配置
  * - 如果远端没有配置，上传本地配置
+ * - 如果本地没有进行过同步且存在远端配置，下载远端配置
  * - 如果远端配置较新，下载远端配置
  * - 如果本地配置较新，上传本地配置
  * - 如果时间相同，不做任何操作
@@ -152,8 +168,6 @@ async function downloadRemoteConfig(remoteData: RemoteConfigData): Promise<void>
  */
 export async function syncConfig(): Promise<void> {
   try {
-    logger.info('Starting config sync')
-
     // 获取本地配置
     const local = await getLocalConfig()
 
@@ -162,36 +176,33 @@ export async function syncConfig(): Promise<void> {
 
     // 如果远端没有配置，上传本地配置
     if (!remote) {
-      logger.info('No remote config, uploading local config')
       await uploadLocalConfig(local.config, local.schemaVersion, local.lastModified)
-      logger.info('Config sync completed: uploaded')
+      await setLastSyncTime(Date.now())
       return
     }
 
-    // 比较修改时间
-    logger.info('Comparing timestamps', {
-      local: local.lastModified,
-      remote: remote.lastModified,
-    })
+    const lastSyncTime = await getLastSyncTime()
+    const isFirstSync = lastSyncTime === null
 
-    // 远端配置较新，下载
-    if (remote.lastModified > local.lastModified) {
-      logger.info('Remote config is newer, downloading')
+    if (isFirstSync) {
       await downloadRemoteConfig(remote)
-      logger.info('Config sync completed: downloaded')
+      await setLastSyncTime(Date.now())
       return
     }
 
-    // 本地配置较新，上传
+    if (remote.lastModified > local.lastModified) {
+      await downloadRemoteConfig(remote)
+      await setLastSyncTime(Date.now())
+      return
+    }
+
     if (local.lastModified > remote.lastModified) {
-      logger.info('Local config is newer, uploading')
       await uploadLocalConfig(local.config, local.schemaVersion, local.lastModified)
-      logger.info('Config sync completed: uploaded')
+      await setLastSyncTime(Date.now())
       return
     }
 
-    // 时间相同，不需要同步
-    logger.info('Config sync completed: no change needed')
+    await setLastSyncTime(Date.now())
   }
   catch (error) {
     logger.error('Config sync failed', error)
