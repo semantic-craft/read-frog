@@ -18,9 +18,7 @@ export interface GoogleDriveFileListResponse {
 }
 
 /**
- * 在 appDataFolder 中搜索文件
- * @param fileName 文件名
- * @returns 文件信息，如果不存在返回 null
+ * Search for file in Google Drive appDataFolder
  */
 export async function findFileInAppData(fileName: string): Promise<GoogleDriveFile | null> {
   try {
@@ -51,11 +49,6 @@ export async function findFileInAppData(fileName: string): Promise<GoogleDriveFi
   }
 }
 
-/**
- * 从 Google Drive 下载文件内容
- * @param fileId 文件 ID
- * @returns 文件内容（JSON 字符串）
- */
 export async function downloadFile(fileId: string): Promise<string> {
   try {
     const accessToken = await getValidAccessToken()
@@ -81,11 +74,7 @@ export async function downloadFile(fileId: string): Promise<string> {
 }
 
 /**
- * 上传文件到 Google Drive appDataFolder
- * @param fileName 文件名
- * @param content 文件内容
- * @param fileId 如果提供则更新现有文件，否则创建新文件
- * @returns 文件信息
+ * Upload or update file in Google Drive appDataFolder
  */
 export async function uploadFile(
   fileName: string,
@@ -131,11 +120,7 @@ export async function uploadFile(
       throw new Error(`Failed to upload file: ${response.statusText}, ${errorText}`)
     }
 
-    const fileInfo = await response.json() as GoogleDriveFile
-
-    logger.info('File uploaded successfully', fileInfo)
-
-    return fileInfo
+    return await response.json() as GoogleDriveFile
   }
   catch (error) {
     logger.error('Failed to upload file', error)
@@ -143,10 +128,6 @@ export async function uploadFile(
   }
 }
 
-/**
- * 删除文件
- * @param fileId 文件 ID
- */
 export async function deleteFile(fileId: string): Promise<void> {
   try {
     const accessToken = await getValidAccessToken()
@@ -163,8 +144,6 @@ export async function deleteFile(fileId: string): Promise<void> {
     if (!response.ok) {
       throw new Error(`Failed to delete file: ${response.statusText}`)
     }
-
-    logger.info('File deleted successfully', fileId)
   }
   catch (error) {
     logger.error('Failed to delete file', error)

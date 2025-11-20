@@ -1,37 +1,30 @@
 import { browser } from '#imports'
 import { logger } from '../logger'
 
-// Google Drive API OAuth 配置
-// 注意：实际使用时需要在 Google Cloud Console 创建 OAuth 客户端 ID
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_CLIENT_ID'
 const GOOGLE_REDIRECT_URI = browser.identity.getRedirectURL()
 const GOOGLE_SCOPES = [
-  'https://www.googleapis.com/auth/drive.file', // 访问 Drive 文件
-  'https://www.googleapis.com/auth/drive.appdata', // 访问应用数据文件夹
+  'https://www.googleapis.com/auth/drive.file',
+  'https://www.googleapis.com/auth/drive.appdata',
 ]
 
 export interface GoogleAuthToken {
   access_token: string
-  expires_at: number // Unix timestamp in milliseconds
+  expires_at: number
   token_type: string
 }
 
 /**
- * 执行 Google OAuth 认证流程
- * @returns 访问令牌
+ * Authenticate with Google Drive using OAuth 2.0
  */
 export async function authenticateGoogleDrive(): Promise<string> {
   try {
-    // 构建 OAuth URL
     const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth')
     authUrl.searchParams.set('client_id', GOOGLE_CLIENT_ID)
     authUrl.searchParams.set('response_type', 'token')
     authUrl.searchParams.set('redirect_uri', GOOGLE_REDIRECT_URI)
     authUrl.searchParams.set('scope', GOOGLE_SCOPES.join(' '))
 
-    logger.info('Starting Google OAuth flow', { authUrl: authUrl.toString() })
-
-    // 使用 browser.identity.launchWebAuthFlow 进行认证
     const responseUrl = await browser.identity.launchWebAuthFlow({
       url: authUrl.toString(),
       interactive: true,
@@ -41,9 +34,8 @@ export async function authenticateGoogleDrive(): Promise<string> {
       throw new Error('No response URL from Google OAuth')
     }
 
-    // 解析 access token
     const url = new URL(responseUrl)
-    const params = new URLSearchParams(url.hash.slice(1)) // hash 中包含 token
+    const params = new URLSearchParams(url.hash.slice(1))
     const accessToken = params.get('access_token')
     const expiresIn = params.get('expires_in')
 
@@ -51,10 +43,8 @@ export async function authenticateGoogleDrive(): Promise<string> {
       throw new Error('No access token in OAuth response')
     }
 
-    // 计算过期时间
     const expiresAt = Date.now() + (expiresIn ? Number.parseInt(expiresIn) * 1000 : 3600 * 1000)
 
-    // 保存 token 到 storage
     const tokenData: GoogleAuthToken = {
       access_token: accessToken,
       expires_at: expiresAt,
@@ -62,8 +52,6 @@ export async function authenticateGoogleDrive(): Promise<string> {
     }
 
     await browser.storage.local.set({ google_drive_token: tokenData })
-
-    logger.info('Google OAuth authentication successful')
 
     return accessToken
   }
@@ -74,9 +62,7 @@ export async function authenticateGoogleDrive(): Promise<string> {
 }
 
 /**
- * 验证访问令牌是否有效（通过 Google Token Info API）
- * @param accessToken 访问令牌
- * @returns 是否有效
+ * Validate access token via Google Token Info API
  */
 export async function validateAccessToken(accessToken: string): Promise<boolean> {
   try {
@@ -85,30 +71,15 @@ export async function validateAccessToken(accessToken: string): Promise<boolean>
     )
 
     if (!response.ok) {
-      logger.info('Token validation failed', { status: response.status })
       return false
     }
 
     const data = await response.json()
 
-    // 检查 token 是否包含所需的 scope
     const hasRequiredScopes = GOOGLE_SCOPES.every(scope =>
       data.scope?.includes(scope),
     )
-
-    // 检查是否过期
     const isExpired = !data.expires_in || data.expires_in <= 0
-
-    if (!hasRequiredScopes) {
-      logger.info('Token missing required scopes', {
-        required: GOOGLE_SCOPES,
-        actual: data.scope,
-      })
-    }
-
-    if (isExpired) {
-      logger.info('Token expired according to tokeninfo API')
-    }
 
     return hasRequiredScopes && !isExpired
   }
@@ -119,26 +90,22 @@ export async function validateAccessToken(accessToken: string): Promise<boolean>
 }
 
 /**
- * 获取当前有效的访问令牌，如果过期则重新认证
- * @returns 访问令牌
+ * Get valid access token, re-authenticate if expired or invalid
  */
 export async function getValidAccessToken(): Promise<string> {
   try {
     const result = await browser.storage.local.get('google_drive_token')
     const tokenData = result.google_drive_token as GoogleAuthToken | undefined
 
-    // 如果没有 token 或 token 已过期，重新认证
-    if (!tokenData || Date.now() >= tokenData.expires_at - 60000) { // 提前 1 分钟刷新
-      logger.info('Token expired or not found, re-authenticating')
+    // Re-authenticate if token not found or expiring soon (within 1 minute)
+    if (!tokenData || Date.now() >= tokenData.expires_at - 60000) {
       return await authenticateGoogleDrive()
     }
 
-    // 每次都验证 token 是否真正有效（检查是否被撤销）
+    // Validate token to check if it's been revoked
     const isValid = await validateAccessToken(tokenData.access_token)
 
     if (!isValid) {
-      logger.info('Token is invalid or revoked, re-authenticating')
-      // 清除无效的 token
       await clearAccessToken()
       return await authenticateGoogleDrive()
     }
@@ -151,13 +118,9 @@ export async function getValidAccessToken(): Promise<string> {
   }
 }
 
-/**
- * 清除已保存的访问令牌
- */
 export async function clearAccessToken(): Promise<void> {
   try {
     await browser.storage.local.remove('google_drive_token')
-    logger.info('Access token cleared')
   }
   catch (error) {
     logger.error('Failed to clear access token', error)
@@ -166,7 +129,7 @@ export async function clearAccessToken(): Promise<void> {
 }
 
 /**
- * 检查是否已认证
+ * Check if user is authenticated with valid token
  */
 export async function isAuthenticated(): Promise<boolean> {
   try {
@@ -177,7 +140,6 @@ export async function isAuthenticated(): Promise<boolean> {
       return false
     }
 
-    // 检查是否过期
     return Date.now() < tokenData.expires_at - 60000
   }
   catch (error) {

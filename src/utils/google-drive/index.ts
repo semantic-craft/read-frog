@@ -1,4 +1,3 @@
-// Google Drive API 操作
 export {
   deleteFile,
   downloadFile,
@@ -8,7 +7,6 @@ export {
   uploadFile,
 } from './api'
 
-// Google Drive OAuth 认证
 export {
   authenticateGoogleDrive,
   clearAccessToken,
@@ -17,7 +15,6 @@ export {
   isAuthenticated,
 } from './auth'
 
-// 配置同步
 export {
   type RemoteConfigData,
   syncConfig,
