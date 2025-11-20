@@ -74,6 +74,51 @@ export async function authenticateGoogleDrive(): Promise<string> {
 }
 
 /**
+ * 验证访问令牌是否有效（通过 Google Token Info API）
+ * @param accessToken 访问令牌
+ * @returns 是否有效
+ */
+export async function validateAccessToken(accessToken: string): Promise<boolean> {
+  try {
+    const response = await fetch(
+      `https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${accessToken}`,
+    )
+
+    if (!response.ok) {
+      logger.info('Token validation failed', { status: response.status })
+      return false
+    }
+
+    const data = await response.json()
+
+    // 检查 token 是否包含所需的 scope
+    const hasRequiredScopes = GOOGLE_SCOPES.every(scope =>
+      data.scope?.includes(scope),
+    )
+
+    // 检查是否过期
+    const isExpired = !data.expires_in || data.expires_in <= 0
+
+    if (!hasRequiredScopes) {
+      logger.info('Token missing required scopes', {
+        required: GOOGLE_SCOPES,
+        actual: data.scope,
+      })
+    }
+
+    if (isExpired) {
+      logger.info('Token expired according to tokeninfo API')
+    }
+
+    return hasRequiredScopes && !isExpired
+  }
+  catch (error) {
+    logger.error('Failed to validate access token', error)
+    return false
+  }
+}
+
+/**
  * 获取当前有效的访问令牌，如果过期则重新认证
  * @returns 访问令牌
  */
@@ -85,6 +130,16 @@ export async function getValidAccessToken(): Promise<string> {
     // 如果没有 token 或 token 已过期，重新认证
     if (!tokenData || Date.now() >= tokenData.expires_at - 60000) { // 提前 1 分钟刷新
       logger.info('Token expired or not found, re-authenticating')
+      return await authenticateGoogleDrive()
+    }
+
+    // 每次都验证 token 是否真正有效（检查是否被撤销）
+    const isValid = await validateAccessToken(tokenData.access_token)
+
+    if (!isValid) {
+      logger.info('Token is invalid or revoked, re-authenticating')
+      // 清除无效的 token
+      await clearAccessToken()
       return await authenticateGoogleDrive()
     }
 
