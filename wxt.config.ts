@@ -23,7 +23,9 @@ export default defineConfig({
     host_permissions:
       mode === 'development'
         ? [
-            'http://localhost:*/*',
+            'http://localhost:*/*', // For local backend (dev:local)
+            'https://*.readfrog.app/*', // For prod backend (dev)
+            'https://readfrog.app/*', // For prod backend (dev)
           ]
         : [
             'https://*.readfrog.app/*',
