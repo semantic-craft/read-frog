@@ -9,7 +9,7 @@
     "build": "wxt build",
     "build:firefox": "wxt build -b firefox",
     "build:analyze": "wxt build --analyze",
-    "dev:local": "USE_LOCAL_PACKAGES=true wxt",
+    "dev:local": "WXT_USE_LOCAL_PACKAGES=true wxt",
     "dev": "wxt",
     "dev:edge": "wxt -b edge",
     "dev:firefox": "wxt -b firefox",
