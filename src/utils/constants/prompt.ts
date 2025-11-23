@@ -1,5 +1,3 @@
-import type { TranslatePromptObj } from '@/types/config/translate'
-
 export const TOKENS = ['targetLang', 'input'] as const
 
 /**
@@ -57,13 +55,7 @@ Direct translation without separators
 
 export const DEFAULT_TRANSLATE_PROMPT_ID = 'default'
 
-export const DEFAULT_TRANSLATE_PROMPT_OBJ: TranslatePromptObj = {
-  id: DEFAULT_TRANSLATE_PROMPT_ID,
-  name: DEFAULT_TRANSLATE_PROMPT_ID,
-  prompt: DEFAULT_TRANSLATE_PROMPT,
-}
-
 export const DEFAULT_TRANSLATE_PROMPTS_CONFIG = {
   prompt: DEFAULT_TRANSLATE_PROMPT_ID,
-  patterns: [DEFAULT_TRANSLATE_PROMPT_OBJ],
+  patterns: [],
 }

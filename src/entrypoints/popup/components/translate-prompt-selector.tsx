@@ -1,4 +1,3 @@
-import type { TranslatePromptObj } from '@/types/config/translate'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
 import { useAtom, useAtomValue } from 'jotai'
@@ -15,10 +14,6 @@ import { isLLMTranslateProvider } from '@/types/config/provider'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
 import { translateProviderConfigAtom } from '@/utils/atoms/provider'
 import { DEFAULT_TRANSLATE_PROMPT_ID } from '@/utils/constants/prompt'
-
-function name(prompt: TranslatePromptObj) {
-  return prompt.id === DEFAULT_TRANSLATE_PROMPT_ID ? i18n.t('options.translation.personalizedPrompts.default') : prompt.name
-}
 
 export default function TranslatePromptSelector() {
   const translateProviderConfig = useAtomValue(translateProviderConfigAtom)
@@ -61,9 +56,14 @@ export default function TranslatePromptSelector() {
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
+            {/* Default option - comes from code constant, not storage */}
+            <SelectItem value={DEFAULT_TRANSLATE_PROMPT_ID}>
+              {i18n.t('options.translation.personalizedPrompts.default')}
+            </SelectItem>
+            {/* Custom prompts from storage */}
             {patterns.map(prompt => (
               <SelectItem key={prompt.id} value={prompt.id}>
-                { name(prompt) }
+                {prompt.name}
               </SelectItem>
             ))}
           </SelectGroup>
