@@ -27,8 +27,7 @@
         "{projectRoot}/src/**/*",
         "{projectRoot}/vitest.*.ts",
         "{projectRoot}/tsconfig.json"
-      ],
-      "outputs": ["{projectRoot}/coverage"]
+      ]
     },
     "test:cov": {
       "cache": true,
