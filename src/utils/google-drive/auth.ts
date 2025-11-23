@@ -4,7 +4,6 @@ import { logger } from '../logger'
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_CLIENT_ID'
 const GOOGLE_REDIRECT_URI = browser.identity.getRedirectURL()
 const GOOGLE_SCOPES = [
-  'https://www.googleapis.com/auth/drive.file',
   'https://www.googleapis.com/auth/drive.appdata',
 ]
 
