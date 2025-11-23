@@ -309,8 +309,8 @@ options:
   config:
     title: 설정
     sync:
-      title: 설정 동기화
-      description: 설정 가져오기 및 내보내기
+      title: 수동 설정 동기화
+      description: 수동으로 설정 가져오기 및 내보내기
       import: 설정 가져오기
       export: 설정 내보내기
       importSuccess: 설정 가져오기 완료

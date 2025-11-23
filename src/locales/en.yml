@@ -310,8 +310,8 @@ options:
   config:
     title: Config
     sync:
-      title: Config Sync
-      description: Import and export your configuration settings
+      title: Manual Config Sync
+      description: Manually import and export your configuration settings
       import: Import Config
       export: Export Config
       importSuccess: Config imported successfully

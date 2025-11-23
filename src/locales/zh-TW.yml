@@ -310,8 +310,8 @@ options:
   config:
     title: 設定
     sync:
-      title: 設定同步
-      description: 匯入和匯出您的設定
+      title: 手動設定同步
+      description: 手動匯入和匯出您的設定
       import: 匯入設定
       export: 匯出設定
       importSuccess: 設定匯入成功

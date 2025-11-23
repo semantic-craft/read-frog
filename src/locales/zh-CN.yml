@@ -309,8 +309,8 @@ options:
   config:
     title: 配置
     sync:
-      title: 配置同步
-      description: 导入和导出您的配置设置
+      title: 手动配置同步
+      description: 手动导入和导出您的配置设置
       import: 导入配置
       export: 导出配置
       importSuccess: 配置导入成功
