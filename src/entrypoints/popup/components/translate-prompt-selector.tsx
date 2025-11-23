@@ -23,7 +23,7 @@ export default function TranslatePromptSelector() {
     return null
 
   const promptsConfig = translateConfig.promptsConfig
-  const { patterns = [], prompt } = promptsConfig
+  const { patterns = [], promptId } = promptsConfig
 
   return (
     <div className="flex items-center justify-between gap-2">
@@ -41,12 +41,12 @@ export default function TranslatePromptSelector() {
         </Tooltip>
       </span>
       <Select
-        value={prompt}
+        value={promptId ?? DEFAULT_TRANSLATE_PROMPT_ID}
         onValueChange={(value) => {
           void setTranslateConfig({
             promptsConfig: {
               ...promptsConfig,
-              prompt: value,
+              promptId: value === DEFAULT_TRANSLATE_PROMPT_ID ? null : value,
             },
           })
         }}

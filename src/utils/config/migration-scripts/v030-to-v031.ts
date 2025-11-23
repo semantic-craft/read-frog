@@ -1,6 +1,8 @@
 /**
  * Migration script from v030 to v031
- * Removes 'default' prompt from patterns array as it should come from code constant
+ * 1. Removes 'default' prompt from patterns array (should come from code constant)
+ * 2. Renames field 'prompt' → 'promptId'
+ * 3. Converts 'default' value → null
  *
  * Before (v030):
  *   promptsConfig: {
@@ -13,17 +15,16 @@
  *
  * After (v031):
  *   promptsConfig: {
- *     prompt: 'default',
+ *     promptId: null,
  *     patterns: [
  *       { id: 'uuid1', name: 'Custom', prompt: '...' }
  *     ]
  *   }
- *
- * The promptId remains unchanged - if it's 'default', getTranslatePrompt() will use the constant
  */
 
 export function migrate(oldConfig: any): any {
   const oldPatterns = oldConfig.translate?.promptsConfig?.patterns ?? []
+  const oldPromptValue = oldConfig.translate?.promptsConfig?.prompt
 
   return {
     ...oldConfig,
@@ -31,6 +32,8 @@ export function migrate(oldConfig: any): any {
       ...oldConfig.translate,
       promptsConfig: {
         ...oldConfig.translate?.promptsConfig,
+        prompt: undefined, // Remove old field
+        promptId: oldPromptValue === 'default' ? null : oldPromptValue,
         patterns: oldPatterns.filter((p: any) => p.id !== 'default'),
       },
     },

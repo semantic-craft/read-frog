@@ -1,6 +1,6 @@
 import { getConfigFromStorage } from '@/utils/config/config'
 import { DEFAULT_CONFIG } from '../constants/config'
-import { DEFAULT_BATCH_TRANSLATE_PROMPT, DEFAULT_TRANSLATE_PROMPT, DEFAULT_TRANSLATE_PROMPT_ID, getTokenCellText, INPUT, TARGET_LANG } from '../constants/prompt'
+import { DEFAULT_BATCH_TRANSLATE_PROMPT, DEFAULT_TRANSLATE_PROMPT, getTokenCellText, INPUT, TARGET_LANG } from '../constants/prompt'
 
 export async function getTranslatePrompt(
   targetLang: string,
@@ -9,11 +9,11 @@ export async function getTranslatePrompt(
 ) {
   const config = await getConfigFromStorage() ?? DEFAULT_CONFIG
   const promptsConfig = config.translate.promptsConfig
-  const { patterns = [], prompt: promptId = '' } = promptsConfig
+  const { patterns = [], promptId } = promptsConfig
 
-  // Prioritize default ID check - use constant directly
+  // If no custom prompt selected, use default constant
   let prompt: string
-  if (promptId === DEFAULT_TRANSLATE_PROMPT_ID) {
+  if (!promptId) {
     prompt = DEFAULT_TRANSLATE_PROMPT
   }
   else {

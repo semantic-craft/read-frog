@@ -50,13 +50,13 @@ function PromptList() {
   const patterns = promptsConfig.patterns
   const setSelectedPrompts = useSetAtom(selectedPromptsToExportAtom)
   const [isExportMode, setIsExportMode] = useAtom(isExportPromptModeAtom)
-  const currentPromptId = promptsConfig.prompt
+  const currentPromptId = promptsConfig.promptId
 
-  const setCurrentPromptId = (value: string) => {
+  const setCurrentPromptId = (value: string | null) => {
     void setTranslateConfig({
       promptsConfig: {
         ...promptsConfig,
-        prompt: value,
+        promptId: value,
       },
     })
   }
@@ -109,8 +109,8 @@ function PromptGrid({
   currentPromptId,
   setCurrentPromptId,
 }: {
-  currentPromptId: string
-  setCurrentPromptId: (value: string) => void
+  currentPromptId: string | null
+  setCurrentPromptId: (value: string | null) => void
 }) {
   const [translateConfig] = useAtom(configFieldsAtomMap.translate)
   const promptsConfig = translateConfig.promptsConfig
@@ -132,7 +132,7 @@ function PromptGrid({
     const isDefault = pattern.id === DEFAULT_TRANSLATE_PROMPT_ID
 
     if (!isExportMode) {
-      setCurrentPromptId(pattern.id)
+      setCurrentPromptId(isDefault ? null : pattern.id)
     }
     else if (!isDefault) {
       // In export mode, only allow selecting custom prompts (not default)
@@ -152,6 +152,7 @@ function PromptGrid({
       {
         allPrompts.map((pattern) => {
           const isDefault = pattern.id === DEFAULT_TRANSLATE_PROMPT_ID
+          const isActive = isDefault ? currentPromptId === null : currentPromptId === pattern.id
 
           return (
             <Card
@@ -189,7 +190,7 @@ function PromptGrid({
                     >
                       {pattern.name}
                     </Label>
-                    <Activity mode={currentPromptId === pattern.id ? 'visible' : 'hidden'}>
+                    <Activity mode={isActive ? 'visible' : 'hidden'}>
                       <Badge className="bg-primary">
                         {i18n.t('options.translation.personalizedPrompts.current')}
                       </Badge>

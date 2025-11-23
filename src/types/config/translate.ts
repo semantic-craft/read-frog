@@ -45,8 +45,7 @@ export const translatePromptObjSchema = z.object({
 export type TranslatePromptObj = z.infer<typeof translatePromptObjSchema>
 
 export const promptsConfigSchema = z.object({
-  // TODO: change this `prompt` to `promptName`?
-  prompt: z.string(),
+  promptId: z.string().nullable(),
   patterns: z.array(
     translatePromptObjSchema,
   ),

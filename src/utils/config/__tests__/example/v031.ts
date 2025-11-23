@@ -109,7 +109,7 @@ export const testSeries: TestSeriesObject = {
           shortcut: ['alt', 'b'],
         },
         promptsConfig: {
-          prompt: '123e4567-e89b-12d3-a456-426614174000',
+          promptId: '123e4567-e89b-12d3-a456-426614174000',
           patterns: [
             // 'default' prompt removed - only custom prompts remain
             {
@@ -157,7 +157,7 @@ export const testSeries: TestSeriesObject = {
     },
   },
   'config-with-no-default-openai-model': {
-    description: 'Remove default prompt from patterns array, keep promptId as "default"',
+    description: 'Remove default prompt from patterns array, convert "default" to null',
     config: {
       floatingButton: {
         disabledFloatingButtonPatterns: [],
@@ -241,7 +241,7 @@ export const testSeries: TestSeriesObject = {
           patterns: [
             // 'default' prompt removed - patterns array is now empty
           ],
-          prompt: 'default', // promptId remains 'default'
+          promptId: null, // 'default' converted to null
         },
         providerId: 'gemini-default',
         requestQueueConfig: {
