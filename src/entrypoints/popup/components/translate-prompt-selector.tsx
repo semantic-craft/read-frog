@@ -22,8 +22,8 @@ export default function TranslatePromptSelector() {
   if (!translateProviderConfig?.provider || !isLLMTranslateProvider(translateProviderConfig?.provider))
     return null
 
-  const promptsConfig = translateConfig.promptsConfig
-  const { patterns = [], promptId } = promptsConfig
+  const customPromptsConfig = translateConfig.customPromptsConfig
+  const { patterns = [], promptId } = customPromptsConfig
 
   return (
     <div className="flex items-center justify-between gap-2">
@@ -44,8 +44,8 @@ export default function TranslatePromptSelector() {
         value={promptId ?? DEFAULT_TRANSLATE_PROMPT_ID}
         onValueChange={(value) => {
           void setTranslateConfig({
-            promptsConfig: {
-              ...promptsConfig,
+            customPromptsConfig: {
+              ...customPromptsConfig,
               promptId: value === DEFAULT_TRANSLATE_PROMPT_ID ? null : value,
             },
           })

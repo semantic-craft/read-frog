@@ -46,16 +46,16 @@ export function PersonalizedPrompts() {
 
 function PromptList() {
   const [translateConfig, setTranslateConfig] = useAtom(configFieldsAtomMap.translate)
-  const promptsConfig = translateConfig.promptsConfig
-  const patterns = promptsConfig.patterns
+  const customPromptsConfig = translateConfig.customPromptsConfig
+  const patterns = customPromptsConfig.patterns
   const setSelectedPrompts = useSetAtom(selectedPromptsToExportAtom)
   const [isExportMode, setIsExportMode] = useAtom(isExportPromptModeAtom)
-  const currentPromptId = promptsConfig.promptId
+  const currentPromptId = customPromptsConfig.promptId
 
   const setCurrentPromptId = (value: string | null) => {
     void setTranslateConfig({
-      promptsConfig: {
-        ...promptsConfig,
+      customPromptsConfig: {
+        ...customPromptsConfig,
         promptId: value,
       },
     })
@@ -113,8 +113,8 @@ function PromptGrid({
   setCurrentPromptId: (value: string | null) => void
 }) {
   const [translateConfig] = useAtom(configFieldsAtomMap.translate)
-  const promptsConfig = translateConfig.promptsConfig
-  const patterns = promptsConfig.patterns
+  const customPromptsConfig = translateConfig.customPromptsConfig
+  const patterns = customPromptsConfig.patterns
   const [selectedPrompts, setSelectedPrompts] = useAtom(selectedPromptsToExportAtom)
   const isExportMode = useAtomValue(isExportPromptModeAtom)
 
@@ -275,11 +275,11 @@ function ConfigurePrompt({
       return
     }
 
-    const _patterns = translateConfig.promptsConfig.patterns
+    const _patterns = translateConfig.customPromptsConfig.patterns
 
     void setTranslateConfig({
-      promptsConfig: {
-        ...translateConfig.promptsConfig,
+      customPromptsConfig: {
+        ...translateConfig.customPromptsConfig,
         patterns: inEdit
           ? _patterns.map(p => p.id === prompt.id ? prompt : p)
           : [..._patterns, prompt],

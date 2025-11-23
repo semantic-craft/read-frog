@@ -108,7 +108,7 @@ export const testSeries: TestSeriesObject = {
           autoTranslateLanguages: [],
           shortcut: ['alt', 'b'],
         },
-        promptsConfig: {
+        customPromptsConfig: {
           promptId: '123e4567-e89b-12d3-a456-426614174000',
           patterns: [
             // 'default' prompt removed - only custom prompts remain
@@ -237,7 +237,7 @@ export const testSeries: TestSeriesObject = {
             'q',
           ],
         },
-        promptsConfig: {
+        customPromptsConfig: {
           patterns: [
             // 'default' prompt removed - patterns array is now empty
           ],

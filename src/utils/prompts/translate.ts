@@ -8,8 +8,8 @@ export async function getTranslatePrompt(
   options?: { isBatch?: boolean },
 ) {
   const config = await getConfigFromStorage() ?? DEFAULT_CONFIG
-  const promptsConfig = config.translate.promptsConfig
-  const { patterns = [], promptId } = promptsConfig
+  const customPromptsConfig = config.translate.customPromptsConfig
+  const { patterns = [], promptId } = customPromptsConfig
 
   // If no custom prompt selected, use default constant
   let prompt: string

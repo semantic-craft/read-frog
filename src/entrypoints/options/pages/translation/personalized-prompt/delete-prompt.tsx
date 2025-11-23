@@ -17,11 +17,11 @@ export function DeletePrompt({
 } & React.ComponentProps<'button'>) {
   const isExportMode = useAtomValue(isExportPromptModeAtom)
   const [translateConfig, setTranslateConfig] = useAtom(configFieldsAtomMap.translate)
-  const { patterns, promptId } = translateConfig.promptsConfig
+  const { patterns, promptId } = translateConfig.customPromptsConfig
   const deletePrompt = () => {
     void setTranslateConfig({
-      promptsConfig: {
-        ...translateConfig.promptsConfig,
+      customPromptsConfig: {
+        ...translateConfig.customPromptsConfig,
         patterns: patterns.filter(p => p.id !== originPrompt.id),
         promptId: promptId !== originPrompt.id ? promptId : null,
       },

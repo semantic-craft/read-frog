@@ -44,7 +44,7 @@ export const translatePromptObjSchema = z.object({
 })
 export type TranslatePromptObj = z.infer<typeof translatePromptObjSchema>
 
-export const promptsConfigSchema = z.object({
+export const customPromptsConfigSchema = z.object({
   promptId: z.string().nullable(),
   patterns: z.array(
     translatePromptObjSchema,
@@ -76,7 +76,7 @@ export const translateConfigSchema = z.object({
     autoTranslateLanguages: z.array(langCodeISO6393Schema),
     shortcut: z.array(z.string()),
   }),
-  promptsConfig: promptsConfigSchema,
+  customPromptsConfig: customPromptsConfigSchema,
   requestQueueConfig: requestQueueConfigSchema,
   batchQueueConfig: batchQueueConfigSchema,
   translationNodeStyle: translationNodeStyleConfigSchema,
