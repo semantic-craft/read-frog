@@ -6,6 +6,7 @@ const GOOGLE_REDIRECT_URI = browser.identity.getRedirectURL()
 const GOOGLE_SCOPES = [
   'https://www.googleapis.com/auth/drive.appdata',
 ]
+const TOKEN_EXPIRY_BUFFER_MS = 60000
 
 export interface GoogleAuthToken {
   access_token: string
@@ -61,35 +62,7 @@ export async function authenticateGoogleDrive(): Promise<string> {
 }
 
 /**
- * Validate access token via Google Token Info API
- */
-export async function validateAccessToken(accessToken: string): Promise<boolean> {
-  try {
-    const response = await fetch(
-      `https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${accessToken}`,
-    )
-
-    if (!response.ok) {
-      return false
-    }
-
-    const data = await response.json()
-
-    const hasRequiredScopes = GOOGLE_SCOPES.every(scope =>
-      data.scope?.includes(scope),
-    )
-    const isExpired = !data.expires_in || data.expires_in <= 0
-
-    return hasRequiredScopes && !isExpired
-  }
-  catch (error) {
-    logger.error('Failed to validate access token', error)
-    return false
-  }
-}
-
-/**
- * Get valid access token, re-authenticate if expired or invalid
+ * Get valid access token, re-authenticate if expired
  */
 export async function getValidAccessToken(): Promise<string> {
   try {
@@ -97,18 +70,11 @@ export async function getValidAccessToken(): Promise<string> {
     const tokenData = result.google_drive_token as GoogleAuthToken | undefined
 
     // Re-authenticate if token not found or expiring soon (within 1 minute)
-    if (!tokenData || Date.now() >= tokenData.expires_at - 60000) {
+    if (!tokenData || Date.now() >= tokenData.expires_at - TOKEN_EXPIRY_BUFFER_MS) {
       return await authenticateGoogleDrive()
     }
 
-    // Validate token to check if it's been revoked
-    const isValid = await validateAccessToken(tokenData.access_token)
-
-    if (!isValid) {
-      await clearAccessToken()
-      return await authenticateGoogleDrive()
-    }
-
+    // Trust local expiry check - validate only on API 401 errors
     return tokenData.access_token
   }
   catch (error) {
@@ -139,7 +105,7 @@ export async function isAuthenticated(): Promise<boolean> {
       return false
     }
 
-    return Date.now() < tokenData.expires_at - 60000
+    return Date.now() < tokenData.expires_at - TOKEN_EXPIRY_BUFFER_MS
   }
   catch (error) {
     logger.error('Failed to check authentication status', error)

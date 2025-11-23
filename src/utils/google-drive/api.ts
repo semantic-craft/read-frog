@@ -1,5 +1,5 @@
 import { logger } from '../logger'
-import { getValidAccessToken } from './auth'
+import { clearAccessToken, getValidAccessToken } from './auth'
 
 const GOOGLE_DRIVE_API_BASE = 'https://www.googleapis.com/drive/v3'
 const GOOGLE_DRIVE_UPLOAD_API_BASE = 'https://www.googleapis.com/upload/drive/v3'
@@ -36,6 +36,9 @@ export async function findFileInAppData(fileName: string): Promise<GoogleDriveFi
     })
 
     if (!response.ok) {
+      if (response.status === 401) {
+        await clearAccessToken()
+      }
       throw new Error(`Failed to search file: ${response.statusText}`)
     }
 
@@ -62,6 +65,9 @@ export async function downloadFile(fileId: string): Promise<string> {
     })
 
     if (!response.ok) {
+      if (response.status === 401) {
+        await clearAccessToken()
+      }
       throw new Error(`Failed to download file: ${response.statusText}`)
     }
 
@@ -116,6 +122,9 @@ export async function uploadFile(
     })
 
     if (!response.ok) {
+      if (response.status === 401) {
+        await clearAccessToken()
+      }
       const errorText = await response.text()
       throw new Error(`Failed to upload file: ${response.statusText}, ${errorText}`)
     }
@@ -142,6 +151,9 @@ export async function deleteFile(fileId: string): Promise<void> {
     })
 
     if (!response.ok) {
+      if (response.status === 401) {
+        await clearAccessToken()
+      }
       throw new Error(`Failed to delete file: ${response.statusText}`)
     }
   }
