@@ -14,16 +14,10 @@ export function GoogleDriveSyncCard() {
     setIsSyncing(true)
 
     try {
-      logger.info('Starting Google Drive sync from UI')
-
-      // 执行同步
       await syncConfig()
-
-      // 显示同步成功提示
       toast.success(i18n.t('options.config.sync.googleDrive.syncSuccess'))
     }
     catch (error) {
-      console.error('Google Drive sync error:', error)
       logger.error('Google Drive sync error from UI', error)
       toast.error(i18n.t('options.config.sync.googleDrive.syncError'))
     }

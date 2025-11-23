@@ -122,6 +122,7 @@ export async function syncConfig(): Promise<void> {
     const remote = await getRemoteConfig()
 
     if (!remote) {
+      logger.info('No remote config found, uploading local config')
       await uploadLocalConfig(local.config, local.schemaVersion, local.lastModified)
       await setLastSyncTime(Date.now())
       return
@@ -131,23 +132,27 @@ export async function syncConfig(): Promise<void> {
     const isFirstSync = lastSyncTime === null
 
     if (isFirstSync) {
+      logger.info('First sync, downloading remote config')
       await downloadRemoteConfig(remote)
       await setLastSyncTime(Date.now())
       return
     }
 
     if (remote.lastModified > local.lastModified) {
+      logger.info('Remote config is newer, downloading remote config')
       await downloadRemoteConfig(remote)
       await setLastSyncTime(Date.now())
       return
     }
 
     if (local.lastModified > remote.lastModified) {
+      logger.info('Local config is newer, uploading local config')
       await uploadLocalConfig(local.config, local.schemaVersion, local.lastModified)
       await setLastSyncTime(Date.now())
       return
     }
 
+    logger.info('No changes, skipping sync')
     await setLastSyncTime(Date.now())
   }
   catch (error) {
