@@ -82,7 +82,7 @@ export function getDocumentInfo(): {
   article: ReturnType<Readability<Node>['parse']>
   paragraphs: string[]
   lang: string
-  detectedCode: LangCodeISO6393
+  detectedCodeOrUnd: LangCodeISO6393 | 'und'
 } {
   const documentClone = document.cloneNode(true)
   removeDummyNodes(documentClone as Document)
@@ -95,12 +95,13 @@ export function getDocumentInfo(): {
 
   const lang = article?.textContent ? franc(article.textContent) : 'und'
 
-  const detectedCode = lang === 'und' ? 'eng' : (lang as LangCodeISO6393)
+  // const detectedCode = lang === 'und' ? 'eng' : (lang as LangCodeISO6393)
+  const detectedCodeOrUnd = lang as LangCodeISO6393 | 'und'
 
   return {
     article,
     paragraphs,
     lang,
-    detectedCode,
+    detectedCodeOrUnd,
   }
 }
