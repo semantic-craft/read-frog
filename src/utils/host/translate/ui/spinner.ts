@@ -26,7 +26,7 @@ export function createLightweightSpinner(ownerDoc: Document): HTMLElement {
     margin: 0 4px !important;
     vertical-align: middle !important;
     border: 3px solid var(--read-frog-muted) !important;
-    border-top: 3px solid red !important;
+    border-top: 3px solid var(--read-frog-primary) !important;
     border-radius: 50% !important;
     box-sizing: content-box !important;
   `
