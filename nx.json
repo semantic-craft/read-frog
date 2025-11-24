@@ -8,6 +8,7 @@
         "{projectRoot}/public/**/*",
         "{projectRoot}/wxt.config.ts",
         "{projectRoot}/package.json",
+        "{projectRoot}/pnpm-lock.yaml",
         "{projectRoot}/tsconfig.json",
         "{projectRoot}/postcss.config.cjs",
         "{projectRoot}/vitest.setup.ts"
@@ -21,6 +22,7 @@
         "{projectRoot}/public/**/*",
         "{projectRoot}/wxt.config.ts",
         "{projectRoot}/package.json",
+        "{projectRoot}/pnpm-lock.yaml",
         "{projectRoot}/tsconfig.json",
         "{projectRoot}/postcss.config.cjs",
         "{projectRoot}/vitest.setup.ts"
