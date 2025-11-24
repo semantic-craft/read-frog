@@ -159,7 +159,7 @@ function PromptGrid({
               className={cn(
                 'h-full gap-0 pb-2 py-0 cursor-pointer hover:scale-[1.02] transition-transform duration-30 ease-in-out',
                 // for highlight checked card in export mode
-                isExportMode ? 'has-aria-checked:border-primary has-aria-checked:bg-primary/5 dark:has-aria-checked:border-primary/70 dark:has-aria-checked::bg-primary/10' : '',
+                isExportMode ? 'has-aria-checked:border-primary has-aria-checked:bg-primary/5 dark:has-aria-checked:border-primary/70 dark:has-aria-checked:bg-primary/10' : '',
               )}
               key={pattern.id}
             >
