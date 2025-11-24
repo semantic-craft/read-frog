@@ -4,20 +4,26 @@
     "build": {
       "cache": true,
       "inputs": [
-        "{projectRoot}/**/*",
-        "!{projectRoot}/.output/**/*",
-        "!{projectRoot}/.wxt/**/*",
-        "!{projectRoot}/node_modules/**/*"
+        "{projectRoot}/src/**/*",
+        "{projectRoot}/public/**/*",
+        "{projectRoot}/wxt.config.ts",
+        "{projectRoot}/package.json",
+        "{projectRoot}/tsconfig.json",
+        "{projectRoot}/postcss.config.cjs",
+        "{projectRoot}/vitest.setup.ts"
       ],
       "outputs": ["{projectRoot}/.output", "{projectRoot}/.wxt"]
     },
     "build:firefox": {
       "cache": true,
       "inputs": [
-        "{projectRoot}/**/*",
-        "!{projectRoot}/.output/**/*",
-        "!{projectRoot}/.wxt/**/*",
-        "!{projectRoot}/node_modules/**/*"
+        "{projectRoot}/src/**/*",
+        "{projectRoot}/public/**/*",
+        "{projectRoot}/wxt.config.ts",
+        "{projectRoot}/package.json",
+        "{projectRoot}/tsconfig.json",
+        "{projectRoot}/postcss.config.cjs",
+        "{projectRoot}/vitest.setup.ts"
       ],
       "outputs": ["{projectRoot}/.output", "{projectRoot}/.wxt"]
     },
