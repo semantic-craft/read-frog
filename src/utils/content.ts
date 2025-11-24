@@ -109,30 +109,35 @@ export async function getDocumentInfo(): Promise<{
   let detectedCodeOrUnd: LangCodeISO6393 | 'und' = 'und'
   let detectionSource: DetectionSource = 'fallback'
 
-  // Try LLM detection first
-  try {
-    // Combine and truncate text for LLM detection
-    // Keep full title, truncate content to ~1500 chars
-    const title = article?.title || ''
-    const content = article?.textContent || ''
-    const MAX_CONTENT_LENGTH = 1500
-    const truncatedContent = content.length > MAX_CONTENT_LENGTH
-      ? content.slice(0, MAX_CONTENT_LENGTH)
-      : content
-    const textForLLM = `${title}\n\n${truncatedContent}`.trim()
+  // Get config to check if LLM detection is enabled
+  const config = await getConfigFromStorage()
 
-    if (textForLLM) {
-      const llmResult = await detectLanguageWithLLM(textForLLM)
+  // Try LLM detection first if enabled
+  if (config?.translate.page.enableLLMDetection) {
+    try {
+      // Combine and truncate text for LLM detection
+      // Keep full title, truncate content to ~1500 chars
+      const title = article?.title || ''
+      const content = article?.textContent || ''
+      const MAX_CONTENT_LENGTH = 1500
+      const truncatedContent = content.length > MAX_CONTENT_LENGTH
+        ? content.slice(0, MAX_CONTENT_LENGTH)
+        : content
+      const textForLLM = `${title}\n\n${truncatedContent}`.trim()
 
-      if (llmResult) {
-        detectedCodeOrUnd = llmResult
-        detectionSource = 'llm'
-        logger.info(`Language detected by LLM: ${llmResult}`)
+      if (textForLLM) {
+        const llmResult = await detectLanguageWithLLM(textForLLM)
+
+        if (llmResult) {
+          detectedCodeOrUnd = llmResult
+          detectionSource = 'llm'
+          logger.info(`Language detected by LLM: ${llmResult}`)
+        }
       }
     }
-  }
-  catch (error) {
-    logger.error('LLM language detection failed, will fallback to franc:', error)
+    catch (error) {
+      logger.error('LLM language detection failed, will fallback to franc:', error)
+    }
   }
 
   // Fallback to franc only if LLM didn't succeed
