@@ -10,7 +10,8 @@
         "{projectRoot}/package.json",
         "{projectRoot}/tsconfig.json",
         "{projectRoot}/postcss.config.cjs",
-        "{projectRoot}/vitest.setup.ts"
+        "{projectRoot}/vitest.setup.ts",
+        "{workspaceRoot}/pnpm-lock.yaml"
       ],
       "outputs": ["{projectRoot}/.output", "{projectRoot}/.wxt"]
     },
@@ -23,7 +24,8 @@
         "{projectRoot}/package.json",
         "{projectRoot}/tsconfig.json",
         "{projectRoot}/postcss.config.cjs",
-        "{projectRoot}/vitest.setup.ts"
+        "{projectRoot}/vitest.setup.ts",
+        "{workspaceRoot}/pnpm-lock.yaml"
       ],
       "outputs": ["{projectRoot}/.output", "{projectRoot}/.wxt"]
     },
