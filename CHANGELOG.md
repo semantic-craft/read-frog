@@ -1,5 +1,31 @@
 # @read-frog/extension
 
+## 1.17.3
+
+### Patch Changes
+
+- [#730](https://github.com/mengxi-ream/read-frog/pull/730) [`f06a62c`](https://github.com/mengxi-ream/read-frog/commit/f06a62c78a1dcb61a80584b2814e1c3321c8f48f) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - feat: add LLM language detection toggle with provider status indicator
+
+- [#727](https://github.com/mengxi-ream/read-frog/pull/727) [`2f1cd26`](https://github.com/mengxi-ream/read-frog/commit/2f1cd265c790cffa3e3e992c221143abf4c57781) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - feat: add superRefine validation for custom prompt configuration integrity
+
+- [#727](https://github.com/mengxi-ream/read-frog/pull/727) [`2f1cd26`](https://github.com/mengxi-ream/read-frog/commit/2f1cd265c790cffa3e3e992c221143abf4c57781) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - fix: nx config for proper build caching
+
+- [#727](https://github.com/mengxi-ream/read-frog/pull/727) [`2f1cd26`](https://github.com/mengxi-ream/read-frog/commit/2f1cd265c790cffa3e3e992c221143abf4c57781) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - fix: add prompt into translation hash to invalidate cache when prompt changes
+
+- [#730](https://github.com/mengxi-ream/read-frog/pull/730) [`f06a62c`](https://github.com/mengxi-ream/read-frog/commit/f06a62c78a1dcb61a80584b2814e1c3321c8f48f) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - fix: spinner style not correct on some page
+
+- [#727](https://github.com/mengxi-ream/read-frog/pull/727) [`2f1cd26`](https://github.com/mengxi-ream/read-frog/commit/2f1cd265c790cffa3e3e992c221143abf4c57781) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - refactor: default prompts no longer stored in storage, only custom prompts persist
+
+- [#727](https://github.com/mengxi-ream/read-frog/pull/727) [`2f1cd26`](https://github.com/mengxi-ream/read-frog/commit/2f1cd265c790cffa3e3e992c221143abf4c57781) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - refactor: rename promptsConfig to customPromptsConfig and prompt to promptId for clarity
+
+## 1.17.2
+
+### Patch Changes
+
+- [#723](https://github.com/mengxi-ream/read-frog/pull/723) [`4808a82`](https://github.com/mengxi-ream/read-frog/commit/4808a8295c72af9915703015f589edbe9785fd7f) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - fix: skip empty nodes in translation traversal to fix Inoreader style issue
+
+- [#721](https://github.com/mengxi-ream/read-frog/pull/721) [`265e2c7`](https://github.com/mengxi-ream/read-frog/commit/265e2c73ac195beb47192ac1627ef27c5b0e467d) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - refactor: add ts-reset to fix array.includes type narrowing
+
 ## 1.17.1
 
 ### Patch Changes
