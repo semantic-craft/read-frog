@@ -72,7 +72,7 @@ export default defineContentScript({
         const config = await getConfigFromStorage()
         if (!config)
           return
-        const { detectedCodeOrUnd } = getDocumentInfo()
+        const { detectedCodeOrUnd } = await getDocumentInfo()
         await storage.setItem<Config>(`local:${CONFIG_STORAGE_KEY}`, {
           ...config,
           language: { ...config.language, detectedCode: detectedCodeOrUnd === 'und' ? 'eng' : detectedCodeOrUnd },
@@ -105,7 +105,7 @@ export default defineContentScript({
 
     const config = await getConfigFromStorage()
     if (config) {
-      const { detectedCodeOrUnd } = getDocumentInfo()
+      const { detectedCodeOrUnd } = await getDocumentInfo()
       await storage.setItem<Config>(`local:${CONFIG_STORAGE_KEY}`, {
         ...config,
         language: { ...config.language, detectedCode: detectedCodeOrUnd === 'und' ? 'eng' : detectedCodeOrUnd },

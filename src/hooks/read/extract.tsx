@@ -13,16 +13,16 @@ export function useExtractContent() {
     queryFn: async () => {
       try {
         // TODO: in analyzing, we should re-extract the article in case it changed, and reset the lang
-        const { detectedCodeOrUnd, lang, paragraphs, article } = getDocumentInfo()
+        const { detectedCodeOrUnd, paragraphs, article } = await getDocumentInfo()
 
-        logger.log('franc detected lang', lang)
+        logger.log('detected lang', detectedCodeOrUnd)
 
         void setLanguage({ detectedCode: detectedCodeOrUnd === 'und' ? 'eng' : detectedCodeOrUnd })
 
         return {
           article: {
             ...article,
-            lang,
+            lang: detectedCodeOrUnd,
           },
           paragraphs,
         }
