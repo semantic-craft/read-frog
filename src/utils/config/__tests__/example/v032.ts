@@ -160,11 +160,16 @@ export const testSeries: TestSeriesObject = {
   'config-with-no-default-openai-model': {
     description: 'Add enableLLMDetection field to translate.page',
     config: {
+      floatingButton: {
+        disabledFloatingButtonPatterns: [],
+        enabled: true,
+        position: 0.66,
+      },
       language: {
         detectedCode: 'eng',
+        level: 'intermediate',
         sourceCode: 'auto',
         targetCode: 'cmn',
-        level: 'intermediate',
       },
       providersConfig: [
         {
@@ -180,55 +185,67 @@ export const testSeries: TestSeriesObject = {
           provider: 'microsoft',
         },
         {
-          id: 'openai-default',
+          id: 'gemini-default',
           enabled: true,
-          name: 'OpenAI',
-          provider: 'openai',
-          apiKey: 'sk-test',
-          baseURL: 'https://api.openai.com/v1',
+          apiKey: '1',
           models: {
             read: {
-              model: 'gpt-4o-mini',
+              customModel: null,
               isCustomModel: false,
-              customModel: '',
+              model: 'gemini-2.5-pro',
             },
             translate: {
-              model: 'gpt-4o-mini',
-              isCustomModel: false,
-              customModel: '',
+              customModel: 'gemini-1.5-pro',
+              isCustomModel: true,
+              model: 'gemini-2.5-pro',
             },
           },
+          name: 'Gemini',
+          provider: 'gemini',
         },
         {
           id: 'deeplx-default',
           enabled: true,
+          apiKey: '11113',
           name: 'DeepLX',
           provider: 'deeplx',
-          apiKey: undefined,
-          baseURL: undefined,
         },
       ],
       read: {
-        providerId: 'openai-default',
+        providerId: 'gemini-default',
+      },
+      selectionToolbar: {
+        enabled: true,
+        disabledSelectionToolbarPatterns: [],
+      },
+      sideContent: {
+        width: 420,
       },
       translate: {
-        providerId: 'microsoft-default',
-        mode: 'bilingual',
+        mode: 'translationOnly',
         node: {
           enabled: true,
           hotkey: 'Control',
         },
         page: {
-          range: 'main',
-          autoTranslatePatterns: ['news.ycombinator.com'],
           autoTranslateLanguages: [],
-          shortcut: ['alt', 't'],
+          autoTranslatePatterns: [
+            'news.ycombinator.com',
+          ],
+          range: 'all',
+          shortcut: [
+            'alt',
+            'q',
+          ],
           enableLLMDetection: false, // New field added in v032
         },
         customPromptsConfig: {
-          promptId: null,
-          patterns: [],
+          patterns: [
+            // 'default' prompt removed - patterns array is now empty
+          ],
+          promptId: null, // 'default' converted to null
         },
+        providerId: 'gemini-default',
         requestQueueConfig: {
           capacity: 200,
           rate: 2,
@@ -248,18 +265,6 @@ export const testSeries: TestSeriesObject = {
         model: 'tts-1',
         voice: 'alloy',
         speed: 1,
-      },
-      floatingButton: {
-        enabled: true,
-        position: 0.66,
-        disabledFloatingButtonPatterns: [],
-      },
-      selectionToolbar: {
-        enabled: true,
-        disabledSelectionToolbarPatterns: [],
-      },
-      sideContent: {
-        width: 420,
       },
       betaExperience: {
         enabled: false,

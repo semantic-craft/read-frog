@@ -112,8 +112,8 @@ export async function getDocumentInfo(): Promise<{
   // Get config to check if LLM detection is enabled
   const config = await getConfigFromStorage()
 
-  // Try LLM detection first if enabled
-  if (config?.translate.page.enableLLMDetection) {
+  // Try LLM detection first if enabled and auto-translate languages are configured
+  if (config?.translate.page.enableLLMDetection && config?.translate.page.autoTranslateLanguages?.length > 0) {
     try {
       // Combine and truncate text for LLM detection
       // Keep full title, truncate content to ~1500 chars

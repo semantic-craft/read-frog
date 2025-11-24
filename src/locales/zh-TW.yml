@@ -283,7 +283,7 @@ options:
       description: 當檢測到特定語言時自動翻譯頁面內容
       selectLanguages: 選擇語言
       enableLLMDetection: 使用 LLM 偵測語言
-      enableLLMDetectionDescription: 提高準確率，但會增加延遲和 API 費用。需要設定 LLM 翻譯提供商。
+      enableLLMDetectionDescription: 提高準確率，但會增加延遲和 API 費用。需要設定 LLM 翻譯提供商，並需配置自動翻譯語言。
       llmProviderConfigured: 已設定 LLM 翻譯提供商
       llmProviderNotConfigured: 未設定 LLM 翻譯提供商
   tts:
