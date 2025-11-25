@@ -290,6 +290,8 @@ options:
     aiContentAware:
       title: AI 스마트 컨텍스트 번역
       description: AI에 문서 컨텍스트를 제공하여 번역 품질을 향상시킵니다
+      enable: AI 스마트 컨텍스트 번역 활성화
+      enableDescription: AI가 문서 요약을 사용하여 번역 정확도를 향상시킵니다. LLM 제공업체가 필요합니다. 번역 시작 시 지연이 발생하고 API 비용이 증가합니다.
   tts:
     title: 텍스트 음성 변환
     description: 선호하는 OpenAI 음성 설정으로 말하기 버튼을 사용자 지정하세요.

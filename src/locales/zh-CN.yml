@@ -291,6 +291,8 @@ options:
     aiContentAware:
       title: AI 智能上下文翻译
       description: 通过向 AI 提供文章上下文来提高翻译质量
+      enable: 启用 AI 智能上下文翻译
+      enableDescription: AI 使用文章摘要来提高翻译准确性。需要 LLM 翻译提供商。刚开始翻译页面时会有延迟，并增加 API 费用。
   tts:
     title: 文本转语音
     description: 自定义朗读按钮使用的 OpenAI 语音参数。

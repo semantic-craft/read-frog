@@ -87,6 +87,7 @@ async function buildHashComponents(
   text: string,
   providerConfig: ProviderConfig,
   langConfig: Config['language'],
+  enableAIContentAware: boolean,
 ): Promise<string[]> {
   const hashComponents = [
     text,
@@ -99,6 +100,7 @@ async function buildHashComponents(
     const targetLangName = LANG_CODE_TO_EN_NAME[langConfig.targetCode]
     const prompt = await getTranslatePrompt(targetLangName, text, { isBatch: true })
     hashComponents.push(prompt)
+    hashComponents.push(enableAIContentAware ? 'enableAIContentAware=true' : 'enableAIContentAware=false')
   }
 
   return hashComponents
@@ -117,7 +119,7 @@ export async function translateText(text: string) {
   }
 
   const langConfig = config.language
-  const hashComponents = await buildHashComponents(text, providerConfig, langConfig)
+  const hashComponents = await buildHashComponents(text, providerConfig, langConfig, config.translate.enableAIContentAware)
 
   // Get article data for LLM providers
   let articleTitle: string | undefined

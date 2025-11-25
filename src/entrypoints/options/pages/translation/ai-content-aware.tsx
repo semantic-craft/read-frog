@@ -2,6 +2,8 @@ import { i18n } from '#imports'
 import { deepmerge } from 'deepmerge-ts'
 import { useAtom } from 'jotai'
 import { useMemo } from 'react'
+import { Badge } from '@/components/shadcn/badge'
+import { Field, FieldContent, FieldDescription, FieldLabel } from '@/components/shadcn/field'
 import { Switch } from '@/components/shadcn/switch'
 import { isLLMTranslateProviderConfig } from '@/types/config/provider'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
@@ -20,7 +22,13 @@ export function AIContentAware() {
 
   return (
     <ConfigCard
-      title={i18n.t('options.translation.aiContentAware.title')}
+      title={(
+        <>
+          {i18n.t('options.translation.aiContentAware.title')}
+          {' '}
+          <Badge variant="secondary" className="align-middle">Public Beta</Badge>
+        </>
+      )}
       description={(
         <>
           {i18n.t('options.translation.aiContentAware.description')}
@@ -28,7 +36,15 @@ export function AIContentAware() {
         </>
       )}
     >
-      <div className="w-full flex justify-end">
+      <Field orientation="horizontal">
+        <FieldContent>
+          <FieldLabel htmlFor="ai-content-aware-toggle">
+            {i18n.t('options.translation.aiContentAware.enable')}
+          </FieldLabel>
+          <FieldDescription>
+            {i18n.t('options.translation.aiContentAware.enableDescription')}
+          </FieldDescription>
+        </FieldContent>
         <Switch
           id="ai-content-aware-toggle"
           checked={translateConfig.enableAIContentAware}
@@ -40,7 +56,7 @@ export function AIContentAware() {
             )
           }}
         />
-      </div>
+      </Field>
     </ConfigCard>
   )
 }
