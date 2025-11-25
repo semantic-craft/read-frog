@@ -1,4 +1,4 @@
-export const DEFAULT_TRANSLATION_NODE_STYLE = 'default'
+export const DEFAULT_TRANSLATION_NODE_STYLE = 'textColor'
 
 export const TRANSLATION_NODE_STYLE = [DEFAULT_TRANSLATION_NODE_STYLE, 'blur', 'blockquote', 'weakened', 'dashedLine', 'border', 'textColor', 'background'] as const
 
