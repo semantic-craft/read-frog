@@ -6,6 +6,7 @@ import { putBatchRequestRecord } from '@/utils/batch-request-record'
 import { DEFAULT_CONFIG } from '@/utils/constants/config'
 import { BATCH_SEPARATOR } from '@/utils/constants/prompt'
 import { generateArticleSummary } from '@/utils/content/summary'
+import { cleanText } from '@/utils/content/utils'
 import { db } from '@/utils/db/dexie/db'
 import { Sha256Hex } from '@/utils/hash'
 import { executeTranslate } from '@/utils/host/translate/execute-translate'
@@ -49,7 +50,7 @@ export async function setUpRequestQueue() {
     providerConfig: LLMTranslateProviderConfig,
   ): Promise<string | undefined> {
     // Prepare text for cache key
-    const preparedText = articleTextContent
+    const preparedText = cleanText(articleTextContent)
     if (!preparedText) {
       return undefined
     }
