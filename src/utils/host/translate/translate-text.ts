@@ -1,20 +1,87 @@
 import type { Config } from '@/types/config/config'
 import type { ProviderConfig } from '@/types/config/provider'
 import { i18n } from '#imports'
-import { ISO6393_TO_6391, LANG_CODE_TO_EN_NAME, LANG_CODE_TO_LOCALE_NAME } from '@read-frog/definitions'
+import { Readability } from '@mozilla/readability'
+import { LANG_CODE_TO_EN_NAME, LANG_CODE_TO_LOCALE_NAME } from '@read-frog/definitions'
 import { toast } from 'sonner'
-import { isAPIProviderConfig, isLLMTranslateProviderConfig, isNonAPIProvider, isPureAPIProvider } from '@/types/config/provider'
+import { isAPIProviderConfig, isLLMTranslateProviderConfig } from '@/types/config/provider'
 import { getProviderConfigById } from '@/utils/config/helpers'
 import { getFinalSourceCode } from '@/utils/config/languages'
+import { removeDummyNodes } from '@/utils/content/utils'
 import { logger } from '@/utils/logger'
 import { getTranslatePrompt } from '@/utils/prompts/translate'
 import { getConfigFromStorage } from '../../config/config'
 import { Sha256Hex } from '../../hash'
 import { sendMessage } from '../../message'
-import { aiTranslate } from './api/ai'
-import { deeplxTranslate } from './api/deeplx'
-import { googleTranslate } from './api/google'
-import { microsoftTranslate } from './api/microsoft'
+
+// Module-level cache for article data (only meaningful in content script context)
+let cachedArticleData: {
+  url: string
+  title: string
+  textContent: string
+} | null = null
+
+function getCachedArticleData(): typeof cachedArticleData {
+  // Clear cache if URL has changed
+  if (typeof window !== 'undefined' && cachedArticleData?.url !== window.location.href) {
+    cachedArticleData = null
+  }
+  return cachedArticleData
+}
+
+async function getOrFetchArticleData(
+  includeTextContent: boolean,
+): Promise<{ title: string, textContent?: string } | null> {
+  // Only works in browser context
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return null
+  }
+
+  const cached = getCachedArticleData()
+  if (cached) {
+    return {
+      title: cached.title,
+      textContent: includeTextContent ? cached.textContent : undefined,
+    }
+  }
+
+  // Always get title
+  const title = document.title || ''
+
+  // Only extract textContent if needed
+  let textContent = ''
+  if (includeTextContent) {
+    // Try Readability first for cleaner content
+    try {
+      const documentClone = document.cloneNode(true) as Document
+      await removeDummyNodes(documentClone)
+      const article = new Readability(documentClone, { serializer: el => el }).parse()
+
+      if (article?.textContent) {
+        textContent = article.textContent
+      }
+    }
+    catch (error) {
+      logger.warn('Readability parsing failed, falling back to body textContent:', error)
+    }
+
+    // Fallback to document.body if Readability failed
+    if (!textContent) {
+      textContent = document.body?.textContent || ''
+    }
+  }
+
+  cachedArticleData = {
+    url: window.location.href,
+    title,
+    textContent,
+  }
+
+  return {
+    title,
+    textContent: includeTextContent ? textContent : undefined,
+  }
+}
 
 async function buildHashComponents(
   text: string,
@@ -52,56 +119,27 @@ export async function translateText(text: string) {
   const langConfig = config.language
   const hashComponents = await buildHashComponents(text, providerConfig, langConfig)
 
+  // Get article data for LLM providers
+  let articleTitle: string | undefined
+  let articleTextContent: string | undefined
+
+  if (isLLMTranslateProviderConfig(providerConfig)) {
+    const articleData = await getOrFetchArticleData(config.translate.enableAIContentAware)
+    if (articleData) {
+      articleTitle = articleData.title
+      articleTextContent = articleData.textContent
+    }
+  }
+
   return await sendMessage('enqueueTranslateRequest', {
     text,
     langConfig,
     providerConfig,
     scheduleAt: Date.now(),
     hash: Sha256Hex(...hashComponents),
+    articleTitle,
+    articleTextContent,
   })
-}
-
-export async function executeTranslate(text: string, langConfig: Config['language'], providerConfig: ProviderConfig, options?: { forceBackgroundFetch?: boolean, isBatch?: boolean }) {
-  const cleanText = text.replace(/\u200B/g, '').trim()
-  if (cleanText === '') {
-    return ''
-  }
-
-  const { provider } = providerConfig
-  let translatedText = ''
-
-  if (isNonAPIProvider(provider)) {
-    const sourceLang = langConfig.sourceCode === 'auto' ? 'auto' : (ISO6393_TO_6391[langConfig.sourceCode] ?? 'auto')
-    const targetLang = ISO6393_TO_6391[langConfig.targetCode]
-    if (!targetLang) {
-      throw new Error(`Invalid target language code: ${langConfig.targetCode}`)
-    }
-    if (provider === 'google') {
-      translatedText = await googleTranslate(text, sourceLang, targetLang)
-    }
-    else if (provider === 'microsoft') {
-      translatedText = await microsoftTranslate(text, sourceLang, targetLang)
-    }
-  }
-  else if (isPureAPIProvider(provider)) {
-    const sourceLang = langConfig.sourceCode === 'auto' ? 'auto' : (ISO6393_TO_6391[langConfig.sourceCode] ?? 'auto')
-    const targetLang = ISO6393_TO_6391[langConfig.targetCode]
-    if (!targetLang) {
-      throw new Error(`Invalid target language code: ${langConfig.targetCode}`)
-    }
-    if (provider === 'deeplx') {
-      translatedText = await deeplxTranslate(text, sourceLang, targetLang, providerConfig, options)
-    }
-  }
-  else if (isLLMTranslateProviderConfig(providerConfig)) {
-    const targetLangName = LANG_CODE_TO_EN_NAME[langConfig.targetCode]
-    translatedText = await aiTranslate(text, targetLangName, providerConfig, options)
-  }
-  else {
-    throw new Error(`Unknown provider: ${provider}`)
-  }
-
-  return translatedText.trim()
 }
 
 export function validateTranslationConfig(config: Pick<Config, 'providersConfig' | 'translate' | 'language'>): boolean {

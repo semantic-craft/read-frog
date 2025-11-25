@@ -286,6 +286,13 @@ options:
       enableLLMDetectionDescription: 提高準確率，但會增加延遲和 API 費用。需要設定 LLM 翻譯提供商，並需配置自動翻譯語言。
       llmProviderConfigured: 已設定 LLM 翻譯提供商
       llmProviderNotConfigured: 未設定 LLM 翻譯提供商
+    aiContentAware:
+      title: AI 智慧上下文翻譯
+      description: 透過向 AI 提供文章上下文來提高翻譯品質
+      enable: 啟用 AI 智慧上下文翻譯
+      enableDescription: 啟用後，AI 將分析文章並使用其標題和摘要來提高專業術語的翻譯準確性。
+      llmProviderConfigured: 已設定 LLM 翻譯提供商
+      llmProviderNotConfigured: 未設定 LLM 翻譯提供商
   tts:
     title: 文字轉語音
     description: 使用您偏好的 OpenAI 語音設定自訂「朗讀」按鈕。

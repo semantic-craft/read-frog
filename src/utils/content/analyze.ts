@@ -11,7 +11,7 @@ import { getProviderConfigById } from '../config/helpers'
 import { getProviderOptions } from '../constants/model'
 import { logger } from '../logger'
 import { getTranslateModelById } from '../providers/model'
-import { removeDummyNodes } from './utils'
+import { cleanText, removeDummyNodes } from './utils'
 
 export type DetectionSource = 'llm' | 'franc' | 'fallback'
 
@@ -42,14 +42,9 @@ export async function getDocumentInfo(): Promise<{
   if (config?.translate.page.enableLLMDetection && config?.translate.page.autoTranslateLanguages?.length > 0) {
     try {
       // Combine and truncate text for LLM detection
-      // Keep full title, truncate content to ~1500 chars
       const title = article?.title || ''
       const content = article?.textContent || ''
-      const MAX_CONTENT_LENGTH = 1500
-      const truncatedContent = content.length > MAX_CONTENT_LENGTH
-        ? content.slice(0, MAX_CONTENT_LENGTH)
-        : content
-      const textForLLM = `${title}\n\n${truncatedContent}`.trim()
+      const textForLLM = cleanText(`${title}\n\n${content}`, 1500)
 
       if (textForLLM) {
         const llmResult = await detectLanguageWithLLM(textForLLM)
@@ -68,7 +63,7 @@ export async function getDocumentInfo(): Promise<{
 
   // Fallback to franc only if LLM didn't succeed
   if (detectionSource !== 'llm') {
-    const francInput = `${article?.title || ''} ${article?.textContent || ''}`.trim()
+    const francInput = cleanText(`${article?.title || ''} ${article?.textContent || ''}`, Infinity)
     if (francInput) {
       const francResult = franc(francInput)
       logger.info('franc result', francResult)

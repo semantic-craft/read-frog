@@ -1,5 +1,6 @@
 import { i18n } from '#imports'
 import { PageLayout } from '../../components/page-layout'
+import { AIContentAware } from './ai-content-aware'
 import { AutoTranslateLanguages } from './auto-translate-languages'
 import { AutoTranslateWebsitePatterns } from './auto-translate-website-patterns'
 import { ClearCacheConfig } from './clear-cache-config'
@@ -22,6 +23,7 @@ export function TranslationPage() {
       <CustomTranslationStyle />
       <AutoTranslateWebsitePatterns />
       <AutoTranslateLanguages />
+      <AIContentAware />
       <PersonalizedPrompts />
       <ClearCacheConfig />
     </PageLayout>

@@ -286,6 +286,13 @@ options:
       enableLLMDetectionDescription: Improves accuracy but adds latency and API costs. Requires LLM translate provider and configured auto-translate languages.
       llmProviderConfigured: LLM translate provider configured
       llmProviderNotConfigured: No LLM translate provider configured
+    aiContentAware:
+      title: AI Smart Context Translation
+      description: Enhance translation quality by providing article context to the AI
+      enable: Enable AI Smart Context Translation
+      enableDescription: When enabled, the AI will analyze the article and use its title and summary to improve translation accuracy for domain-specific terms.
+      llmProviderConfigured: LLM translate provider configured
+      llmProviderNotConfigured: No LLM translate provider configured
   tts:
     title: Text to Speech
     description: Customize the Speak button with your preferred OpenAI voice settings.
