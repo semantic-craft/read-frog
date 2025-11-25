@@ -6,7 +6,6 @@ import { putBatchRequestRecord } from '@/utils/batch-request-record'
 import { DEFAULT_CONFIG } from '@/utils/constants/config'
 import { BATCH_SEPARATOR } from '@/utils/constants/prompt'
 import { generateArticleSummary } from '@/utils/content/summary'
-import { cleanText } from '@/utils/content/utils'
 import { db } from '@/utils/db/dexie/db'
 import { Sha256Hex } from '@/utils/hash'
 import { executeTranslate } from '@/utils/host/translate/execute-translate'
@@ -50,7 +49,7 @@ export async function setUpRequestQueue() {
     providerConfig: LLMTranslateProviderConfig,
   ): Promise<string | undefined> {
     // Prepare text for cache key
-    const preparedText = cleanText(articleTextContent)
+    const preparedText = articleTextContent
     if (!preparedText) {
       return undefined
     }
@@ -91,12 +90,14 @@ export async function setUpRequestQueue() {
       return summary
     }
 
-    const summary = await requestQueue.enqueue(thunk, Date.now(), cacheKey)
-    if (!summary) {
+    try {
+      const summary = await requestQueue.enqueue(thunk, Date.now(), cacheKey)
+      return summary || undefined
+    }
+    catch (error) {
+      logger.warn('Failed to get/generate article summary:', error)
       return undefined
     }
-
-    return summary
   }
 
   const batchQueue = new BatchQueue<TranslateBatchData, string>({
