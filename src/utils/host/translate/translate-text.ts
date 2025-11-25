@@ -40,7 +40,10 @@ async function getOrFetchArticleData(
   // When our extension add content to the page, we don't want the cache to be invalidated
   // so our cache here will always live unless the page is refreshed
   const cached = getCachedArticleData()
-  if (cached) {
+
+  // Cache should only be reused when the stored entry already includes text content
+  // otherwise the feature never obtains article text after being enabled mid-session.
+  if (cached && (!includeTextContent || cached.textContent)) {
     return {
       title: cached.title,
       textContent: includeTextContent ? cached.textContent : undefined,

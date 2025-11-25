@@ -1,6 +1,6 @@
 import { getConfigFromStorage } from '../config/config'
 import { DEFAULT_CONFIG } from '../constants/config'
-import { isDontWalkIntoAndDontTranslateAsChildElement, isDontWalkIntoButTranslateAsChildElement, isHTMLElement } from '../host/dom/filter'
+import { isDontWalkIntoAndDontTranslateAsChildElement, isHTMLElement } from '../host/dom/filter'
 
 export const MAX_TEXT_LENGTH = 3000
 
@@ -8,8 +8,7 @@ export async function removeDummyNodes(root: Document) {
   const elements = root.querySelectorAll('*')
   const config = await getConfigFromStorage() ?? DEFAULT_CONFIG
   elements.forEach((element) => {
-    const isDontTranslate = isHTMLElement(element)
-      && (isDontWalkIntoButTranslateAsChildElement(element) || isDontWalkIntoAndDontTranslateAsChildElement(element, config))
+    const isDontTranslate = isHTMLElement(element) && isDontWalkIntoAndDontTranslateAsChildElement(element, config)
     if (isDontTranslate) {
       element.remove()
     }
