@@ -18,12 +18,12 @@ export function TranslationPage() {
       <TranslationMode />
       <PageTranslationShortcut />
       <NodeTranslationHotkey />
+      <AIContentAware />
       <RequestRate />
       <RequestBatch />
       <CustomTranslationStyle />
       <AutoTranslateWebsitePatterns />
       <AutoTranslateLanguages />
-      <AIContentAware />
       <PersonalizedPrompts />
       <ClearCacheConfig />
     </PageLayout>
