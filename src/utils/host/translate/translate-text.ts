@@ -37,6 +37,8 @@ async function getOrFetchArticleData(
     return null
   }
 
+  // When our extension add content to the page, we don't want the cache to be invalidated
+  // so our cache here will always live unless the page is refreshed
   const cached = getCachedArticleData()
   if (cached) {
     return {
@@ -88,6 +90,7 @@ async function buildHashComponents(
   providerConfig: ProviderConfig,
   langConfig: Config['language'],
   enableAIContentAware: boolean,
+  articleContext?: { title?: string, textContent?: string },
 ): Promise<string[]> {
   const hashComponents = [
     text,
@@ -101,6 +104,18 @@ async function buildHashComponents(
     const prompt = await getTranslatePrompt(targetLangName, text, { isBatch: true })
     hashComponents.push(prompt)
     hashComponents.push(enableAIContentAware ? 'enableAIContentAware=true' : 'enableAIContentAware=false')
+
+    // Include article context in hash when AI Content Aware is enabled
+    // to ensure when we get different content from the same url, we get different cache entries
+    if (enableAIContentAware && articleContext) {
+      if (articleContext.title) {
+        hashComponents.push(`title:${articleContext.title}`)
+      }
+      if (articleContext.textContent) {
+        // Use a substring hash to avoid huge hash inputs while still differentiating articles
+        hashComponents.push(`content:${articleContext.textContent.slice(0, 1000)}`)
+      }
+    }
   }
 
   return hashComponents
@@ -119,9 +134,8 @@ export async function translateText(text: string) {
   }
 
   const langConfig = config.language
-  const hashComponents = await buildHashComponents(text, providerConfig, langConfig, config.translate.enableAIContentAware)
 
-  // Get article data for LLM providers
+  // Get article data for LLM providers first (needed for both hash and request)
   let articleTitle: string | undefined
   let articleTextContent: string | undefined
 
@@ -132,6 +146,14 @@ export async function translateText(text: string) {
       articleTextContent = articleData.textContent
     }
   }
+
+  const hashComponents = await buildHashComponents(
+    text,
+    providerConfig,
+    langConfig,
+    config.translate.enableAIContentAware,
+    { title: articleTitle, textContent: articleTextContent },
+  )
 
   return await sendMessage('enqueueTranslateRequest', {
     text,
