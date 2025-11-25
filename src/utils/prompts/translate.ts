@@ -1,7 +1,7 @@
 import type { ArticleContent } from '@/types/content'
 import { getConfigFromStorage } from '@/utils/config/config'
 import { DEFAULT_CONFIG } from '../constants/config'
-import { DEFAULT_BATCH_TRANSLATE_PROMPT, DEFAULT_TRANSLATE_PROMPT, getTokenCellText, INPUT, TARGET_LANG } from '../constants/prompt'
+import { DEFAULT_BATCH_TRANSLATE_PROMPT, DEFAULT_TRANSLATE_PROMPT, getTokenCellText, INPUT, SUMMARY, TARGET_LANG, TITLE } from '../constants/prompt'
 
 export interface TranslatePromptOptions {
   isBatch?: boolean
@@ -36,28 +36,13 @@ ${DEFAULT_BATCH_TRANSLATE_PROMPT}
 `
   }
 
-  // Inject article context if provided (after translation rules, before input)
-  if (options?.content) {
-    const { title, summary } = options.content
-    let articleContext = `
-## Article Context
-This text is from an article titled "${title}".
-`
-    if (summary) {
-      articleContext += `Summary: ${summary}\n`
-    }
-    articleContext += `
-Use this context to improve translation accuracy for domain-specific terms and maintain consistency with the article's topic.
-
-`
-    // Insert before "Translate to" line
-    prompt = prompt.replace(
-      `Translate to ${getTokenCellText(TARGET_LANG)}:`,
-      `${articleContext}Translate to ${getTokenCellText(TARGET_LANG)}:`,
-    )
-  }
+  // Build title and summary replacement values
+  const title = options?.content?.title ?? ''
+  const summary = options?.content?.summary ?? ''
 
   return prompt
     .replaceAll(getTokenCellText(TARGET_LANG), targetLang)
     .replaceAll(getTokenCellText(INPUT), input)
+    .replaceAll(getTokenCellText(TITLE), title)
+    .replaceAll(getTokenCellText(SUMMARY), summary)
 }
