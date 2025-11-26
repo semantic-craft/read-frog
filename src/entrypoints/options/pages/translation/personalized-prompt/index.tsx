@@ -316,49 +316,49 @@ function ConfigurePrompt({
       <SheetContent className="w-[400px] sm:w-[500px] sm:max-w-none">
         <SheetHeader>
           <SheetTitle>{sheetTitle}</SheetTitle>
-          <div className="grid flex-1 auto-rows-min gap-6 py-6">
-            <div className="grid gap-3">
-              <Label htmlFor="prompt-name">{i18n.t('options.translation.personalizedPrompts.editPrompt.name')}</Label>
-              <Input
-                id="prompt-name"
-                value={prompt.name}
-                disabled={isDefault}
-                onChange={(e) => {
-                  setPrompt({
-                    ...prompt,
-                    name: e.target.value,
-                  })
-                }}
-              />
-            </div>
-            <div className="grid gap-3">
-              <Label htmlFor="system-prompt">{i18n.t('options.translation.personalizedPrompts.editPrompt.systemPrompt')}</Label>
-              <QuickInsertableTextarea
-                value={prompt.systemPrompt}
-                className="max-h-60"
-                disabled={isDefault}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt({ ...prompt, systemPrompt: e.target.value })}
-                insertCells={TOKENS.map(token => ({
-                  text: getTokenCellText(token),
-                  description: i18n.t(`options.translation.personalizedPrompts.editPrompt.promptCellInput.${token}`),
-                }))}
-              />
-            </div>
-            <div className="grid gap-3">
-              <Label htmlFor="prompt">{i18n.t('options.translation.personalizedPrompts.editPrompt.prompt')}</Label>
-              <QuickInsertableTextarea
-                value={prompt.prompt}
-                className="max-h-60"
-                disabled={isDefault}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt({ ...prompt, prompt: e.target.value })}
-                insertCells={TOKENS.map(token => ({
-                  text: getTokenCellText(token),
-                  description: i18n.t(`options.translation.personalizedPrompts.editPrompt.promptCellInput.${token}`),
-                }))}
-              />
-            </div>
-          </div>
         </SheetHeader>
+        <div className="grid flex-1 gap-6 overflow-y-auto px-4">
+          <div className="grid gap-3">
+            <Label htmlFor="prompt-name">{i18n.t('options.translation.personalizedPrompts.editPrompt.name')}</Label>
+            <Input
+              id="prompt-name"
+              value={prompt.name}
+              disabled={isDefault}
+              onChange={(e) => {
+                setPrompt({
+                  ...prompt,
+                  name: e.target.value,
+                })
+              }}
+            />
+          </div>
+          <div className="grid gap-3">
+            <Label htmlFor="system-prompt">{i18n.t('options.translation.personalizedPrompts.editPrompt.systemPrompt')}</Label>
+            <QuickInsertableTextarea
+              value={prompt.systemPrompt}
+              className="min-h-40 max-h-80"
+              disabled={isDefault}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt({ ...prompt, systemPrompt: e.target.value })}
+              insertCells={TOKENS.map(token => ({
+                text: getTokenCellText(token),
+                description: i18n.t(`options.translation.personalizedPrompts.editPrompt.promptCellInput.${token}`),
+              }))}
+            />
+          </div>
+          <div className="grid gap-3">
+            <Label htmlFor="prompt">{i18n.t('options.translation.personalizedPrompts.editPrompt.prompt')}</Label>
+            <QuickInsertableTextarea
+              value={prompt.prompt}
+              className="max-h-60"
+              disabled={isDefault}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt({ ...prompt, prompt: e.target.value })}
+              insertCells={TOKENS.map(token => ({
+                text: getTokenCellText(token),
+                description: i18n.t(`options.translation.personalizedPrompts.editPrompt.promptCellInput.${token}`),
+              }))}
+            />
+          </div>
+        </div>
         {!isDefault && (
           <SheetFooter>
             <SheetClose asChild>
