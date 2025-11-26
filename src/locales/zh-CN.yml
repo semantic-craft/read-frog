@@ -28,6 +28,8 @@ popup:
     description: ⭐️ 为我们加星，获取及时 GitHub 发布通知！
   blog:
     notification: 陪读蛙更新动态
+  aiSmartContext: AI 智能上下文
+  aiSmartContextDescription: 结合网页上下文提升翻译效果。需要配置 LLM 翻译服务商。
 options:
   sidebar:
     settings: 设置

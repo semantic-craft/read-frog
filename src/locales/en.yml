@@ -28,6 +28,8 @@ popup:
     description: ⭐️ Star us for new release notifications without delay!
   blog:
     notification: What's new in Read Frog
+  aiSmartContext: AI Smart Context
+  aiSmartContextDescription: Uses webpage context to improve translation quality. Requires LLM translation provider.
 options:
   sidebar:
     settings: Settings

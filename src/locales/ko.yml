@@ -27,6 +27,8 @@ popup:
     description: ⭐️ 새로운 릴리스 알림을 지체 없이 받으려면 별표를 눌러주세요!
   blog:
     notification: Read Frog의 새로운 소식
+  aiSmartContext: AI 스마트 컨텍스트
+  aiSmartContextDescription: 웹페이지 컨텍스트를 사용하여 번역 품질을 향상시킵니다. LLM 번역 제공자가 필요합니다.
 options:
   sidebar:
     settings: 설정

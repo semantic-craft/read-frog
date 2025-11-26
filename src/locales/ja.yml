@@ -27,6 +27,8 @@ popup:
     description: ⭐️ スターを付けると、新しいリリース通知をすぐに受け取れます！
   blog:
     notification: 読書カエルの最新情報
+  aiSmartContext: AI スマートコンテキスト
+  aiSmartContextDescription: ウェブページのコンテキストを使用して翻訳品質を向上させます。LLM翻訳プロバイダーが必要です。
 options:
   sidebar:
     settings: 設定

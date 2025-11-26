@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/shadcn/too
 import { UserAccount } from '@/components/user-account'
 import { version } from '../../../package.json'
 import { initIsIgnoreTabAtom } from './atoms/ignore'
+import { AISmartContext } from './components/ai-smart-context'
 import { AlwaysTranslate } from './components/always-translate'
 import BlogNotification from './components/blog-notification'
 import LanguageOptionsSelector from './components/language-options-selector'
@@ -45,6 +46,7 @@ function App() {
         </div>
         <AlwaysTranslate />
         <Hotkey />
+        <AISmartContext />
         {/* <FloatingButton />
         <SelectionToolbar /> */}
         <QuickLinks />
