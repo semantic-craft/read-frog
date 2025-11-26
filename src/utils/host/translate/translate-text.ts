@@ -146,7 +146,7 @@ export async function translateText(text: string) {
     const detectedLang = franc(text)
     if (detectedLang === langConfig.targetCode) {
       logger.info(`translateText: skipping translation because text is already in target language. text: ${text}`)
-      return text
+      return ''
     }
   }
 
