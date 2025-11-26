@@ -15,10 +15,19 @@ popup:
   options: Options
   hover: Hover
   translateParagraph: to translate paragraph
+  discord:
+    tooltip: Join Discord to connect with developers and get early access to new features
   blog:
     notification: What's new in Read Frog
   aiSmartContext: AI Smart Context
   aiSmartContextDescription: Uses webpage context to improve translation quality. Requires LLM translation provider.
+  more:
+    title: More
+    joinDiscord: Join Discord
+    joinWechat: Join WeChat Group
+    starGithub: Star on Github
+    ebook: Third-party E-book Reader
+    tutorial: Tutorial
 options:
   sidebar:
     settings: Settings

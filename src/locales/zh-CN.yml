@@ -15,10 +15,19 @@ popup:
   options: 选项
   hover: 鼠标悬停
   translateParagraph: 来翻译段落
+  discord:
+    tooltip: 加入 Discord 与开发者交流，抢先体验新功能
   blog:
     notification: 陪读蛙更新动态
   aiSmartContext: AI 智能上下文
   aiSmartContextDescription: 结合网页上下文提升翻译效果。需要配置 LLM 翻译服务商。
+  more:
+    title: 更多
+    joinDiscord: 加入 Discord
+    joinWechat: 加入微信群
+    starGithub: Github 加星
+    ebook: 第三方电子书阅读器
+    tutorial: 使用教程
 options:
   sidebar:
     settings: 设置

@@ -14,10 +14,19 @@ popup:
   options: オプション
   hover: ホバー
   translateParagraph: 段落を翻訳
+  discord:
+    tooltip: Discordに参加して開発者とつながり、新機能を先行体験しましょう
   blog:
     notification: 読書カエルの最新情報
   aiSmartContext: AI スマートコンテキスト
   aiSmartContextDescription: ウェブページのコンテキストを使用して翻訳品質を向上させます。LLM翻訳プロバイダーが必要です。
+  more:
+    title: その他
+    joinDiscord: Discordに参加
+    joinWechat: WeChatグループに参加
+    starGithub: Githubでスター
+    ebook: サードパーティ電子書籍リーダー
+    tutorial: 使い方ガイド
 options:
   sidebar:
     settings: 設定
