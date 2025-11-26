@@ -14,6 +14,7 @@ import {
   CardTitle,
 } from '@/components/shadcn/card'
 import { Checkbox } from '@/components/shadcn/checkbox'
+import { Field, FieldGroup, FieldLabel } from '@/components/shadcn/field'
 import { Input } from '@/components/shadcn/input'
 import { Label } from '@/components/shadcn/label'
 import { Separator } from '@/components/shadcn/separator'
@@ -317,9 +318,9 @@ function ConfigurePrompt({
         <SheetHeader>
           <SheetTitle>{sheetTitle}</SheetTitle>
         </SheetHeader>
-        <div className="grid flex-1 gap-6 overflow-y-auto px-4">
-          <div className="grid gap-3">
-            <Label htmlFor="prompt-name">{i18n.t('options.translation.personalizedPrompts.editPrompt.name')}</Label>
+        <FieldGroup className="flex-1 overflow-y-auto px-4">
+          <Field>
+            <FieldLabel htmlFor="prompt-name">{i18n.t('options.translation.personalizedPrompts.editPrompt.name')}</FieldLabel>
             <Input
               id="prompt-name"
               value={prompt.name}
@@ -331,9 +332,9 @@ function ConfigurePrompt({
                 })
               }}
             />
-          </div>
-          <div className="grid gap-3">
-            <Label htmlFor="system-prompt">{i18n.t('options.translation.personalizedPrompts.editPrompt.systemPrompt')}</Label>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="system-prompt">{i18n.t('options.translation.personalizedPrompts.editPrompt.systemPrompt')}</FieldLabel>
             <QuickInsertableTextarea
               value={prompt.systemPrompt}
               className="min-h-40 max-h-80"
@@ -344,9 +345,9 @@ function ConfigurePrompt({
                 description: i18n.t(`options.translation.personalizedPrompts.editPrompt.promptCellInput.${token}`),
               }))}
             />
-          </div>
-          <div className="grid gap-3">
-            <Label htmlFor="prompt">{i18n.t('options.translation.personalizedPrompts.editPrompt.prompt')}</Label>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="prompt">{i18n.t('options.translation.personalizedPrompts.editPrompt.prompt')}</FieldLabel>
             <QuickInsertableTextarea
               value={prompt.prompt}
               className="max-h-60"
@@ -357,8 +358,8 @@ function ConfigurePrompt({
                 description: i18n.t(`options.translation.personalizedPrompts.editPrompt.promptCellInput.${token}`),
               }))}
             />
-          </div>
-        </div>
+          </Field>
+        </FieldGroup>
         {!isDefault && (
           <SheetFooter>
             <SheetClose asChild>
