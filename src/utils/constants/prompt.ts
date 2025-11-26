@@ -13,7 +13,7 @@ export const SUMMARY = TOKENS[3]
 
 export const getTokenCellText = (token: string) => `{{${token}}}`
 
-export const DEFAULT_TRANSLATE_PROMPT = `You are a professional ${getTokenCellText(TARGET_LANG)} native translator who needs to fluently translate text into ${getTokenCellText(TARGET_LANG)}.
+export const DEFAULT_TRANSLATE_SYSTEM_PROMPT = `You are a professional ${getTokenCellText(TARGET_LANG)} native translator who needs to fluently translate text into ${getTokenCellText(TARGET_LANG)}.
 
 ## Translation Rules
 1. Output only the translated content, without explanations or additional content (such as "Here's the translation:" or "Translation as follows:")
@@ -23,11 +23,10 @@ export const DEFAULT_TRANSLATE_PROMPT = `You are a professional ${getTokenCellTe
 
 ## Document Metadata for Context Awareness (if available)
 Title: ${getTokenCellText(TITLE)}
-Summary: ${getTokenCellText(SUMMARY)}
+Summary: ${getTokenCellText(SUMMARY)}`
 
-Translate to ${getTokenCellText(TARGET_LANG)}:
-${getTokenCellText(INPUT)}
-`
+export const DEFAULT_TRANSLATE_PROMPT = `Translate to ${getTokenCellText(TARGET_LANG)}:
+${getTokenCellText(INPUT)}`
 
 export const DEFAULT_BATCH_TRANSLATE_PROMPT = `## Multi-paragraph Translation Rules
 1. If input contains ${BATCH_SEPARATOR}, use ${BATCH_SEPARATOR} in your output, if input has no ${BATCH_SEPARATOR}, don't use ${BATCH_SEPARATOR} in your output
