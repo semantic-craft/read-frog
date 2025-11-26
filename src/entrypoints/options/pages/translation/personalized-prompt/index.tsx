@@ -271,12 +271,7 @@ function ConfigurePrompt({
     })
   }
 
-  const configurePrompt = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    if (!prompt.id || !prompt.name || !prompt.prompt) {
-      event.preventDefault()
-      return
-    }
-
+  const configurePrompt = () => {
     const _patterns = translateConfig.customPromptsConfig.patterns
 
     void setTranslateConfig({
