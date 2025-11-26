@@ -3,7 +3,6 @@ import { Icon } from '@iconify/react'
 import { useSetAtom } from 'jotai'
 import { useEffect } from 'react'
 import FrogToast from '@/components/frog-toast'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/shadcn/tooltip'
 import { UserAccount } from '@/components/user-account'
 import { version } from '../../../package.json'
 import { initIsIgnoreTabAtom } from './atoms/ignore'
@@ -11,8 +10,8 @@ import { AISmartContext } from './components/ai-smart-context'
 import { AlwaysTranslate } from './components/always-translate'
 import BlogNotification from './components/blog-notification'
 import LanguageOptionsSelector from './components/language-options-selector'
+import { MoreMenu } from './components/more-menu'
 import Hotkey from './components/node-translation-hotkey-selector'
-import QuickLinks from './components/quick-links'
 import ReadButton from './components/read-button'
 import ReadProviderField from './components/read-provider-field'
 import TranslateButton from './components/translate-button'
@@ -47,9 +46,6 @@ function App() {
         <AlwaysTranslate />
         <Hotkey />
         <AISmartContext />
-        {/* <FloatingButton />
-        <SelectionToolbar /> */}
-        <QuickLinks />
       </div>
       <div className="flex items-center justify-between bg-neutral-200 px-2 py-1 dark:bg-neutral-800">
         <button
@@ -65,31 +61,10 @@ function App() {
         <span className="text-sm text-neutral-500 dark:text-neutral-400">
           {version}
         </span>
-        <GithubButton />
+        <MoreMenu />
       </div>
       <FrogToast />
     </>
-  )
-}
-
-function GithubButton() {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          className="flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 hover:bg-neutral-300 dark:hover:bg-neutral-700"
-          onClick={() =>
-            window.open('https://github.com/mengxi-ream/read-frog', '_blank')}
-        >
-          <Icon icon="tabler:brand-github" className="size-4" strokeWidth={1.6} />
-          <span className="text-[13px] font-medium">Github</span>
-        </button>
-      </TooltipTrigger>
-      <TooltipContent className="max-w-[180px] break-words text-center">
-        {i18n.t('popup.github.description')}
-      </TooltipContent>
-    </Tooltip>
   )
 }
 

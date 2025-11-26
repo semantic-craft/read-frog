@@ -15,17 +15,6 @@ popup:
   options: Options
   hover: Hover
   translateParagraph: to translate paragraph
-  help:
-    title: Help
-    description: Discover more tips and tricks
-  book:
-    title: E-book
-    description: Read any ePub books on Neat Reader. (Neat Reader and Read Frog are independent; purchases in Neat Reader have no connection to Read Frog.)
-  discord:
-    title: Discord
-    description: Join Discord server to connect with developers and other users
-  github:
-    description: ⭐️ Star us for new release notifications without delay!
   blog:
     notification: What's new in Read Frog
   aiSmartContext: AI Smart Context

@@ -15,17 +15,6 @@ popup:
   options: 选项
   hover: 鼠标悬停
   translateParagraph: 来翻译段落
-  help:
-    title: 帮助
-    description: 发现更多提示和技巧
-  book:
-    title: 电子书
-    description: 阅读 ePub 电子书。（Neat Reader 和陪读蛙是独立的产品；在 Neat Reader 中的购买与陪读蛙无关。）
-  discord:
-    title: Discord
-    description: 加入 Discord 服务器，与开发者和其他用户交流
-  github:
-    description: ⭐️ 为我们加星，获取及时 GitHub 发布通知！
   blog:
     notification: 陪读蛙更新动态
   aiSmartContext: AI 智能上下文

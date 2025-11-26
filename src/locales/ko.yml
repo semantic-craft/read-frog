@@ -14,17 +14,6 @@ popup:
   options: 옵션
   hover: 마우스 오버
   translateParagraph: 단락 번역
-  help:
-    title: 도움말
-    description: 더 많은 팁과 트릭 발견하기
-  book:
-    title: 전자책
-    description: Neat Reader에서 ePub 책을 읽어보세요. (Neat Reader와 Read Frog는 독립적입니다. Neat Reader의 구매는 Read Frog와 관련이 없습니다.)
-  discord:
-    title: Discord
-    description: Discord 서버에 참여하여 개발자 및 다른 사용자들과 소통하세요
-  github:
-    description: ⭐️ 새로운 릴리스 알림을 지체 없이 받으려면 별표를 눌러주세요!
   blog:
     notification: Read Frog의 새로운 소식
   aiSmartContext: AI 스마트 컨텍스트
