@@ -198,8 +198,8 @@ options:
         title: 最大段落數
         description: 每個批量翻譯的最大段落數，用於控制單次翻譯的內容量
       statisticsLink: 過去 7 天已為您節省約 $1 成本
-    alwaysTranslate:
-      title: 總是翻譯
+    autoTranslateWebsite:
+      title: 基於網站自動翻譯
       description: 總是翻譯這個網站
       urlPattern: URL 模式
       enterUrlPattern: 輸入 URL 模式

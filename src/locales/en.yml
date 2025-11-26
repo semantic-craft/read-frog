@@ -198,8 +198,8 @@ options:
         title: Maximum Paragraph Count
         description: Maximum number of paragraphs for each batch translation to control the content volume of each translation
       statisticsLink: Saved approximately $1 cost in the past 7 days
-    alwaysTranslate:
-      title: Always Translate
+    autoTranslateWebsite:
+      title: Auto Translate Based on Website
       description: Always translate this website
       urlPattern: URL Pattern
       enterUrlPattern: Enter URL Pattern
@@ -277,15 +277,15 @@ options:
         bilingual: Bilingual
         translationOnly: Translation Only
     pageTranslationShortcut:
-      title: Page translation shortcut
+      title: Page Translation Shortcut
       description: Customize the shortcut key for translating entire web pages
     nodeTranslationHotkey:
-      title: Hover translation shortcut
+      title: Hover Translation Shortcut
       description: Customize the modifier key for hovering over text to translate paragraphs
     llmProviderConfigured: LLM translate provider configured
     llmProviderNotConfigured: No LLM translate provider configured
     autoTranslateLanguages:
-      title: Auto translate based on language
+      title: Auto Translate Based on Language
       description: Automatically translate page content when specific languages are detected
       selectLanguages: Select languages
       enableLLMDetection: Use LLM for language detection
