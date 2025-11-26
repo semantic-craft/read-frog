@@ -34,7 +34,7 @@ export async function getTranslatePrompt(
   else {
     // Find custom prompt, fallback to default
     const customPrompt = patterns.find(pattern => pattern.id === promptId)
-    systemPrompt = customPrompt?.systemPrompt ?? ''
+    systemPrompt = customPrompt?.systemPrompt ?? DEFAULT_TRANSLATE_SYSTEM_PROMPT
     prompt = customPrompt?.prompt ?? DEFAULT_TRANSLATE_PROMPT
   }
 
