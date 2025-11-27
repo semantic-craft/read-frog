@@ -84,6 +84,13 @@ async function uploadLocalConfig(
   }
 }
 
+async function saveLocalConfig(config: Config, lastModified: number): Promise<void> {
+  const validatedConfig = configSchema.parse(config)
+  await storage.setItem(`local:${CONFIG_STORAGE_KEY}`, validatedConfig)
+  await storage.setItem(`local:${CONFIG_SCHEMA_VERSION_STORAGE_KEY}`, CONFIG_SCHEMA_VERSION)
+  await storage.setMeta(`local:${CONFIG_STORAGE_KEY}`, { modifiedAt: lastModified })
+}
+
 async function downloadRemoteConfig(remoteData: RemoteConfigData): Promise<void> {
   try {
     let config: Config = remoteData[CONFIG_STORAGE_KEY]
@@ -98,14 +105,41 @@ async function downloadRemoteConfig(remoteData: RemoteConfigData): Promise<void>
       config = await migrateConfig(config, remoteSchemaVersion)
     }
 
-    const validatedConfig = configSchema.parse(config)
-
-    await storage.setItem(`local:${CONFIG_STORAGE_KEY}`, validatedConfig)
-    await storage.setItem(`local:${CONFIG_SCHEMA_VERSION_STORAGE_KEY}`, CONFIG_SCHEMA_VERSION)
-    await storage.setMeta(`local:${CONFIG_STORAGE_KEY}`, { modifiedAt: remoteData.lastModified })
+    await saveLocalConfig(config, remoteData.lastModified)
   }
   catch (error) {
     logger.error('Failed to download remote config', error)
+    throw error
+  }
+}
+
+export class SyncConflictError extends Error {
+  constructor(
+    public readonly localConfig: Config,
+    public readonly remoteConfig: Config,
+    public readonly localLastModified: number,
+    public readonly remoteLastModified: number,
+  ) {
+    super('Sync conflict detected')
+    this.name = 'SyncConflictError'
+  }
+}
+
+async function completeSync(syncAction: () => Promise<void>): Promise<void> {
+  await syncAction()
+  await setLastSyncTime(Date.now())
+}
+
+export async function resolveConflictWithMerge(mergedConfig: Config): Promise<void> {
+  try {
+    const now = Date.now()
+    await saveLocalConfig(mergedConfig, now)
+    await uploadLocalConfig(mergedConfig, CONFIG_SCHEMA_VERSION, now)
+    await setLastSyncTime(now)
+    logger.info('Conflict resolved with merged config')
+  }
+  catch (error) {
+    logger.error('Failed to resolve conflict', error)
     throw error
   }
 }
@@ -121,37 +155,59 @@ export async function syncConfig(): Promise<void> {
     const local = await getLocalConfig()
     const remote = await getRemoteConfig()
 
+    // Case 1: No remote config exists - upload local
     if (!remote) {
       logger.info('No remote config found, uploading local config')
-      await uploadLocalConfig(local.config, local.schemaVersion, local.lastModified)
-      await setLastSyncTime(Date.now())
+      await completeSync(() =>
+        uploadLocalConfig(local.config, local.schemaVersion, local.lastModified),
+      )
       return
     }
 
     const lastSyncTime = await getLastSyncTime()
-    const isFirstSync = lastSyncTime === null
 
-    if (isFirstSync) {
+    // Case 2: First sync - download remote
+    if (!lastSyncTime) {
       logger.info('First sync, downloading remote config')
-      await downloadRemoteConfig(remote)
-      await setLastSyncTime(Date.now())
+      await completeSync(() => downloadRemoteConfig(remote))
       return
     }
 
+    // Case 3: Detect conflicts
+    const localChangedSinceSync = local.lastModified > lastSyncTime
+    const remoteChangedSinceSync = remote.lastModified > lastSyncTime
+
+    if (localChangedSinceSync && remoteChangedSinceSync) {
+      logger.warn('Sync conflict detected', {
+        localLastModified: local.lastModified,
+        remoteLastModified: remote.lastModified,
+        lastSyncTime,
+      })
+      throw new SyncConflictError(
+        local.config,
+        remote[CONFIG_STORAGE_KEY],
+        local.lastModified,
+        remote.lastModified,
+      )
+    }
+
+    // Case 4: Remote is newer - download
     if (remote.lastModified > local.lastModified) {
       logger.info('Remote config is newer, downloading remote config')
-      await downloadRemoteConfig(remote)
-      await setLastSyncTime(Date.now())
+      await completeSync(() => downloadRemoteConfig(remote))
       return
     }
 
+    // Case 5: Local is newer - upload
     if (local.lastModified > remote.lastModified) {
       logger.info('Local config is newer, uploading local config')
-      await uploadLocalConfig(local.config, local.schemaVersion, local.lastModified)
-      await setLastSyncTime(Date.now())
+      await completeSync(() =>
+        uploadLocalConfig(local.config, local.schemaVersion, local.lastModified),
+      )
       return
     }
 
+    // Case 6: No changes
     logger.info('No changes, skipping sync')
     await setLastSyncTime(Date.now())
   }

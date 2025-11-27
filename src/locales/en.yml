@@ -336,6 +336,20 @@ options:
         syncing: Syncing...
         syncSuccess: Sync successful
         syncError: Sync failed, please try again
+        conflictDetected: Sync Conflict Detected
+        conflictDescription: Both local and remote configurations have changed since the last sync. Please select which version to keep for each differing field.
+        localConfig: Local Config
+        remoteConfig: Remote Config
+        selectAllLocal: Keep All Local
+        selectAllRemote: Keep All Remote
+        confirmMerge: Confirm Merge
+        conflictResolveError: Failed to resolve conflict, please try again
+        fieldPath: Field Path
+        localCurrent: Local (Current)
+        remoteIncoming: Remote (Incoming)
+        actions: Actions
+        acceptAllLocal: Accept All Local
+        acceptAllRemote: Accept All Remote
     backup:
       title: Config Backup
       description: Automatic backups are created every hour if the config is changed. You can restore previous configurations here. (Maximum $1 backups)

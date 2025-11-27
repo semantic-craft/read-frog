@@ -334,6 +334,20 @@ options:
         syncing: 同期中...
         syncSuccess: 同期が完了しました
         syncError: 同期に失敗しました。もう一度お試しください
+        conflictDetected: 同期競合が検出されました
+        conflictDescription: ローカルとリモートの設定が最後の同期以降に変更されています。異なるフィールドごとにどちらのバージョンを保持するか選択してください。
+        localConfig: ローカル設定
+        remoteConfig: リモート設定
+        selectAllLocal: すべてローカルを保持
+        selectAllRemote: すべてリモートを保持
+        confirmMerge: マージを確認
+        conflictResolveError: 競合の解決に失敗しました。もう一度お試しください
+        fieldPath: フィールドパス
+        localCurrent: ローカル（現在）
+        remoteIncoming: リモート（受信）
+        actions: アクション
+        acceptAllLocal: すべてローカルを受け入れる
+        acceptAllRemote: すべてリモートを受け入れる
     backup:
       title: 設定のバックアップ
       description: 設定が変更された場合、1時間ごとに自動的にバックアップが作成されます。以前の設定をここで復元できます。（最大 $1 個のバックアップ）

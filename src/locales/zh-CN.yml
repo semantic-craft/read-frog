@@ -335,6 +335,20 @@ options:
         syncing: 同步中...
         syncSuccess: 同步成功
         syncError: 同步失败，请重试
+        conflictDetected: 检测到配置冲突
+        conflictDescription: 本地和远程配置都在上次同步后发生了更改，请选择每个差异字段保留哪个版本
+        localConfig: 本地配置
+        remoteConfig: 远程配置
+        selectAllLocal: 全部保留本地
+        selectAllRemote: 全部保留远程
+        confirmMerge: 确认合并
+        conflictResolveError: 解决冲突失败，请重试
+        fieldPath: 字段路径
+        localCurrent: 本地（当前）
+        remoteIncoming: 远程（传入）
+        actions: 操作
+        acceptAllLocal: 全部接受本地
+        acceptAllRemote: 全部接受远程
     backup:
       title: 配置备份
       description: 如果配置发生变化，每小时会自动创建备份。您可以在这里恢复之前的配置。（最多 $1 个备份）

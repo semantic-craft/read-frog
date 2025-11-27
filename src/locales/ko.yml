@@ -335,6 +335,20 @@ options:
         syncing: 동기화 중...
         syncSuccess: 동기화 완료
         syncError: 동기화 실패, 다시 시도해 주세요
+        conflictDetected: 동기화 충돌 감지됨
+        conflictDescription: 마지막 동기화 이후 로컬 및 원격 구성이 모두 변경되었습니다. 각기 다른 필드에 대해 유지할 버전을 선택하십시오.
+        localConfig: 로컬 구성
+        remoteConfig: 원격 구성
+        selectAllLocal: 모두 로컬 유지
+        selectAllRemote: 모두 원격 유지
+        confirmMerge: 병합 확인
+        conflictResolveError: 충돌 해결 실패, 다시 시도해 주세요
+        fieldPath: 필드 경로
+        localCurrent: 로컬 (현재)
+        remoteIncoming: 원격 (수신)
+        actions: 작업
+        acceptAllLocal: 모두 로컬 수락
+        acceptAllRemote: 모두 원격 수락
     backup:
       title: 설정 백업
       description: 설정이 변경되면 매시간 자동으로 백업이 생성됩니다. 여기에서 이전 설정을 복원할 수 있습니다. (최대 $1개 백업)
