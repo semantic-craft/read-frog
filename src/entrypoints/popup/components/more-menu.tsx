@@ -51,7 +51,7 @@ export function MoreMenu() {
         {MENU_ITEMS.map(item => (
           <DropdownMenuItem
             key={item.key}
-            onClick={() => window.open(item.url, '_blank')}
+            onClick={() => window.open(item.url, '_blank', 'noopener,noreferrer')}
             className="cursor-pointer"
           >
             <Icon icon={item.icon} className="size-4" strokeWidth={1.6} />
