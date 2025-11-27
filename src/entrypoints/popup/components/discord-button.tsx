@@ -10,7 +10,7 @@ export function DiscordButton() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => window.open('https://discord.gg/ej45e3PezJ', '_blank')}
+          onClick={() => window.open('https://discord.gg/ej45e3PezJ', '_blank', 'noopener,noreferrer')}
         >
           <Icon icon="tabler:brand-discord" />
         </Button>
