@@ -2,6 +2,7 @@ import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
 import { deepmerge } from 'deepmerge-ts'
 import { useAtom } from 'jotai'
+import { NewBadge } from '@/components/badges/new-badge'
 import { Switch } from '@/components/shadcn/switch'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/shadcn/tooltip'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
@@ -12,6 +13,7 @@ export function AISmartContext() {
   return (
     <div className="flex items-center justify-between gap-2">
       <span className="flex items-center gap-1.5 text-[13px] font-medium">
+        <NewBadge size="sm" />
         {i18n.t('popup.aiSmartContext')}
         <Tooltip>
           <TooltipTrigger asChild>
