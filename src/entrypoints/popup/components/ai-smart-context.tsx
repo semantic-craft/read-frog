@@ -13,8 +13,8 @@ export function AISmartContext() {
   return (
     <div className="flex items-center justify-between gap-2">
       <span className="flex items-center gap-1.5 text-[13px] font-medium">
-        <NewBadge size="sm" />
         {i18n.t('popup.aiSmartContext')}
+        <NewBadge size="sm" />
         <Tooltip>
           <TooltipTrigger asChild>
             <Icon icon="tabler:help" className="size-3 text-blue-300 dark:text-blue-700/70" />
