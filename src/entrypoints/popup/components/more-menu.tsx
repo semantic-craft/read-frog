@@ -25,12 +25,12 @@ const MENU_ITEMS = [
   },
   {
     key: 'ebook',
-    icon: 'tabler:book-filled',
+    icon: 'tabler:book',
     url: 'https://www.neat-reader.com/webapp#/',
   },
   {
     key: 'tutorial',
-    icon: 'tabler:help-circle-filled',
+    icon: 'tabler:help-circle',
     url: 'https://readfrog.app/tutorial/',
   },
 ] as const
