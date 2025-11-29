@@ -100,7 +100,7 @@ export const PRODUCT_NAV_ITEMS = {
     type: 'external',
     title: 'rateUs',
     action: true,
-    externalUrl: getReviewUrl(),
+    externalUrl: getReviewUrl('options'),
     icon: 'tabler:star',
   },
 } as const satisfies Record<string, NavItem>
