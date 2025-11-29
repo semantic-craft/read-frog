@@ -6,6 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/shadcn/dropdown-menu'
+import { getReviewUrl } from '@/utils/utils'
 
 const MENU_ITEMS = [
   {
@@ -22,6 +23,11 @@ const MENU_ITEMS = [
     key: 'starGithub',
     icon: 'fa7-brands:github',
     url: 'https://github.com/mengxi-ream/read-frog',
+  },
+  {
+    key: 'rateUs',
+    icon: 'tabler:star',
+    url: getReviewUrl(),
   },
   {
     key: 'ebook',
