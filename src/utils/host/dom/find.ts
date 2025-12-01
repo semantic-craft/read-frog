@@ -125,24 +125,21 @@ export function deepQueryTopLevelSelector(element: HTMLElement | ShadowRoot | Do
 }
 
 export async function unwrapDeepestOnlyHTMLChild(element: HTMLElement) {
+  const config = await getConfigFromStorage() ?? DEFAULT_CONFIG
   let currentElement = element
   while (currentElement) {
     smashTruncationStyle(currentElement)
 
-    const config = await getConfigFromStorage() ?? DEFAULT_CONFIG
     // create array from currentElement.childNodes
-    const effectiveChildNodes = Array.from(currentElement.childNodes).filter((child) => {
-      if (child.nodeType === Node.TEXT_NODE)
-        return true
-      if (isHTMLElement(child) && !isDontWalkIntoAndDontTranslateAsChildElement(child, config))
-        return true
-      return false
-    }).filter(child => child.textContent?.trim())
-    const effectiveChildren = Array.from(currentElement.children).filter((child) => {
-      if (isHTMLElement(child) && !isDontWalkIntoAndDontTranslateAsChildElement(child, config))
-        return true
-      return false
-    }).filter(child => child.textContent?.trim())
+    const effectiveChildNodes = Array.from(currentElement.childNodes)
+      .filter(child =>
+        child.nodeType === Node.TEXT_NODE
+        || (isHTMLElement(child) && !isDontWalkIntoAndDontTranslateAsChildElement(child, config)),
+      )
+      .filter(child => child.textContent?.trim())
+    const effectiveChildren = Array.from(currentElement.children)
+      .filter(child => isHTMLElement(child) && !isDontWalkIntoAndDontTranslateAsChildElement(child, config))
+      .filter(child => child.textContent?.trim())
 
     // Only have one HTML child and no Text Child
     if (!(effectiveChildren.length === 1 && effectiveChildNodes.length === 1))

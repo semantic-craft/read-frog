@@ -285,9 +285,7 @@ export async function translateNodeTranslationOnlyMode(
       lastChildNode.parentNode?.insertBefore(translatedWrapperNode, lastChildNode.nextSibling)
 
       // Remove all original nodes
-      allChildNodes.forEach((childNode) => {
-        childNode.remove()
-      })
+      allChildNodes.forEach(childNode => childNode.remove())
     })
   }
   finally {
