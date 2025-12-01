@@ -130,16 +130,16 @@ export async function unwrapDeepestOnlyHTMLChild(element: HTMLElement) {
   while (currentElement) {
     smashTruncationStyle(currentElement)
 
-    // create array from currentElement.childNodes
-    const effectiveChildNodes = Array.from(currentElement.childNodes)
-      .filter(child =>
-        child.nodeType === Node.TEXT_NODE
-        || (isHTMLElement(child) && !isDontWalkIntoAndDontTranslateAsChildElement(child, config)),
-      )
-      .filter(child => child.textContent?.trim())
-    const effectiveChildren = Array.from(currentElement.children)
-      .filter(child => isHTMLElement(child) && !isDontWalkIntoAndDontTranslateAsChildElement(child, config))
-      .filter(child => child.textContent?.trim())
+    const shouldKeepNode = (child: ChildNode) => {
+      if (!child.textContent?.trim())
+        return false
+      if (child.nodeType === Node.TEXT_NODE)
+        return true
+      return isHTMLElement(child) && !isDontWalkIntoAndDontTranslateAsChildElement(child, config)
+    }
+
+    const effectiveChildNodes = Array.from(currentElement.childNodes).filter(shouldKeepNode)
+    const effectiveChildren = effectiveChildNodes.filter(child => child.nodeType === Node.ELEMENT_NODE)
 
     // Only have one HTML child and no Text Child
     if (!(effectiveChildren.length === 1 && effectiveChildNodes.length === 1))
