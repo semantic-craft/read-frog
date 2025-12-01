@@ -335,6 +335,24 @@ options:
         syncing: 동기화 중...
         syncSuccess: 동기화 완료
         syncError: 동기화 실패, 다시 시도해 주세요
+        autoMergeSuccess: 자동 병합 성공
+        conflict:
+          title: 구성 충돌
+          description: 마지막 동기화 이후 로컬 및 원격 구성이 모두 수정되었습니다. 충돌하는 각 필드에 대해 유지할 버전을 선택하세요.
+          resolved: 해결됨
+          unresolved: 미해결
+          localValue: 로컬 값
+          remoteValue: 원격 값
+          useLocal: 로컬 사용
+          useRemote: 원격 사용
+          reset: 선택 재설정
+          progress: $1/$2개의 충돌 해결됨
+          confirm: 병합 확인
+          cancel: 취소
+          merging: 병합 중...
+          mergeSuccess: 병합 성공
+          mergeFailed: 병합 실패
+          allResolutionsRequired: 확인하기 전에 모든 충돌을 해결하세요
     backup:
       title: 설정 백업
       description: 설정이 변경되면 매시간 자동으로 백업이 생성됩니다. 여기에서 이전 설정을 복원할 수 있습니다. (최대 $1개 백업)

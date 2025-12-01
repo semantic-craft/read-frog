@@ -336,6 +336,24 @@ options:
         syncing: Syncing...
         syncSuccess: Sync successful
         syncError: Sync failed, please try again
+        autoMergeSuccess: Auto-merge successful
+        conflict:
+          title: Configuration Conflict
+          description: Both local and remote configurations have been modified since the last sync. Please choose which version to keep for each conflicting field.
+          resolved: Resolved
+          unresolved: Unresolved
+          localValue: Local Value
+          remoteValue: Remote Value
+          useLocal: Use Local
+          useRemote: Use Remote
+          reset: Reset Selection
+          progress: Resolved $1/$2 conflicts
+          confirm: Confirm Merge
+          cancel: Cancel
+          merging: Merging...
+          mergeSuccess: Merge successful
+          mergeFailed: Merge failed
+          allResolutionsRequired: Please resolve all conflicts before confirming
     backup:
       title: Config Backup
       description: Automatic backups are created every hour if the config is changed. You can restore previous configurations here. (Maximum $1 backups)

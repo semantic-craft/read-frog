@@ -334,6 +334,24 @@ options:
         sync: 同步到 Google Drive
         syncing: 同步中...
         syncSuccess: 同步成功
+        autoMergeSuccess: 自动合并成功
+        conflict:
+          title: 配置冲突
+          description: 检测到本地和云端都在上次同步后进行了修改，请选择每个冲突字段要保留的版本。
+          resolved: 已解决
+          unresolved: 未解决
+          localValue: 本地值
+          remoteValue: 远端值
+          useLocal: 使用本地
+          useRemote: 使用远端
+          reset: 撤销选择
+          progress: 已解决 $1/$2 个冲突
+          confirm: 确认合并
+          cancel: 取消
+          merging: 合并中...
+          mergeSuccess: 合并成功
+          mergeFailed: 合并失败
+          allResolutionsRequired: 请解决所有冲突后再确认
         syncError: 同步失败，请重试
     backup:
       title: 配置备份

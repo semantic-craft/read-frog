@@ -3,7 +3,7 @@ import type { Config } from '@/types/config/config'
 import { storage } from '#imports'
 import { configSchema } from '@/types/config/config'
 import { migrateConfig } from '../config/migration'
-import { CONFIG_SCHEMA_VERSION, CONFIG_SCHEMA_VERSION_STORAGE_KEY, CONFIG_STORAGE_KEY, LAST_SYNC_TIME_STORAGE_KEY } from '../constants/config'
+import { CONFIG_SCHEMA_VERSION, CONFIG_SCHEMA_VERSION_STORAGE_KEY, CONFIG_STORAGE_KEY, LAST_SYNC_TIME_STORAGE_KEY, LAST_SYNCED_CONFIG_STORAGE_KEY } from '../constants/config'
 import { logger } from '../logger'
 import { downloadFile, findFileInAppData, uploadFile } from './api'
 import { getValidAccessToken } from './auth'
@@ -12,6 +12,20 @@ const GOOGLE_DRIVE_CONFIG_FILENAME = 'read-frog-config.json'
 
 export interface RemoteConfigData extends ConfigBackup {
   lastModified: number
+}
+
+export class ConfigConflictError extends Error {
+  name = 'ConfigConflictError'
+
+  constructor(
+    public base: Config,
+    public local: Config,
+    public remote: Config,
+    public localModified: number,
+    public remoteModified: number,
+  ) {
+    super('Config sync conflict detected')
+  }
 }
 
 async function getLocalConfig(): Promise<{ config: Config, schemaVersion: number, lastModified: number }> {
@@ -41,6 +55,15 @@ async function getLastSyncTime(): Promise<number | null> {
 
 async function setLastSyncTime(timestamp: number): Promise<void> {
   await storage.setItem(`local:${LAST_SYNC_TIME_STORAGE_KEY}`, timestamp)
+}
+
+async function getLastSyncedConfig(): Promise<Config | null> {
+  const lastSyncedConfig = await storage.getItem<Config>(`local:${LAST_SYNCED_CONFIG_STORAGE_KEY}`)
+  return lastSyncedConfig ?? null
+}
+
+async function setLastSyncedConfig(config: Config): Promise<void> {
+  await storage.setItem(`local:${LAST_SYNCED_CONFIG_STORAGE_KEY}`, config)
 }
 
 async function getRemoteConfig(): Promise<RemoteConfigData | null> {
@@ -111,6 +134,38 @@ async function downloadRemoteConfig(remoteData: RemoteConfigData): Promise<void>
 }
 
 /**
+ * Sync merged config after conflict resolution
+ * - Save merged config to local storage
+ * - Upload merged config to Google Drive
+ * - Update last sync time and last synced config
+ */
+export async function syncMergedConfig(mergedConfig: Config): Promise<void> {
+  try {
+    const now = Date.now()
+
+    // Validate merged config
+    const validatedConfig = configSchema.parse(mergedConfig)
+
+    // Save to local storage
+    await storage.setItem(`local:${CONFIG_STORAGE_KEY}`, validatedConfig)
+    await storage.setMeta(`local:${CONFIG_STORAGE_KEY}`, { modifiedAt: now })
+
+    // Upload to Google Drive
+    await uploadLocalConfig(validatedConfig, CONFIG_SCHEMA_VERSION, now)
+
+    // Update sync metadata
+    await setLastSyncTime(now)
+    await setLastSyncedConfig(validatedConfig)
+
+    logger.info('Merged config synced successfully')
+  }
+  catch (error) {
+    logger.error('Failed to sync merged config', error)
+    throw error
+  }
+}
+
+/**
  * Synchronize configuration between local and Google Drive
  * - Upload local config if remote doesn't exist
  * - Download remote config on first sync
@@ -125,6 +180,7 @@ export async function syncConfig(): Promise<void> {
       logger.info('No remote config found, uploading local config')
       await uploadLocalConfig(local.config, local.schemaVersion, local.lastModified)
       await setLastSyncTime(Date.now())
+      await setLastSyncedConfig(local.config)
       return
     }
 
@@ -135,13 +191,64 @@ export async function syncConfig(): Promise<void> {
       logger.info('First sync, downloading remote config')
       await downloadRemoteConfig(remote)
       await setLastSyncTime(Date.now())
+      await setLastSyncedConfig(remote[CONFIG_STORAGE_KEY])
       return
+    }
+
+    // Check if both local and remote changed since last sync
+    const localChangedSinceSync = lastSyncTime && local.lastModified > lastSyncTime
+    const remoteChangedSinceSync = lastSyncTime && remote.lastModified > lastSyncTime
+
+    if (localChangedSinceSync && remoteChangedSinceSync) {
+      logger.info('Both local and remote changed since last sync, checking for conflicts')
+      const baseConfig = await getLastSyncedConfig() ?? local.config
+
+      if (!baseConfig) {
+        logger.error('Base config not found, cannot perform conflict merge')
+        throw new Error('Base config not found for conflict resolution')
+      }
+
+      // Import detectConflicts dynamically to avoid circular dependency
+      const { detectConflicts } = await import('./conflict-merge')
+      const diffResult = detectConflicts(baseConfig, local.config, remote[CONFIG_STORAGE_KEY])
+
+      if (diffResult.conflicts.length === 0) {
+        // No conflicts, auto-merge and sync
+        logger.info('No conflicts detected, auto-merging configurations')
+        const validatedConfig = configSchema.parse(diffResult.merged)
+        const now = Date.now()
+
+        // Save merged config to local storage
+        await storage.setItem(`local:${CONFIG_STORAGE_KEY}`, validatedConfig)
+        await storage.setMeta(`local:${CONFIG_STORAGE_KEY}`, { modifiedAt: now })
+
+        // Upload merged config to Google Drive
+        await uploadLocalConfig(validatedConfig, CONFIG_SCHEMA_VERSION, now)
+
+        // Update sync metadata
+        await setLastSyncTime(now)
+        await setLastSyncedConfig(validatedConfig)
+
+        logger.info('Auto-merge completed successfully')
+        return
+      }
+
+      // Conflicts detected, throw error for UI to handle
+      logger.warn(`Conflicts detected: ${diffResult.conflicts.length} conflicting fields`)
+      throw new ConfigConflictError(
+        baseConfig,
+        local.config,
+        remote[CONFIG_STORAGE_KEY],
+        local.lastModified,
+        remote.lastModified,
+      )
     }
 
     if (remote.lastModified > local.lastModified) {
       logger.info('Remote config is newer, downloading remote config')
       await downloadRemoteConfig(remote)
       await setLastSyncTime(Date.now())
+      await setLastSyncedConfig(remote[CONFIG_STORAGE_KEY])
       return
     }
 
@@ -149,11 +256,13 @@ export async function syncConfig(): Promise<void> {
       logger.info('Local config is newer, uploading local config')
       await uploadLocalConfig(local.config, local.schemaVersion, local.lastModified)
       await setLastSyncTime(Date.now())
+      await setLastSyncedConfig(local.config)
       return
     }
 
     logger.info('No changes, skipping sync')
     await setLastSyncTime(Date.now())
+    await setLastSyncedConfig(local.config)
   }
   catch (error) {
     logger.error('Config sync failed', error)
