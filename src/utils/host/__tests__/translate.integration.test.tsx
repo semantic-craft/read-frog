@@ -12,6 +12,7 @@ import {
   INLINE_CONTENT_CLASS,
   PARAGRAPH_ATTRIBUTE,
 } from '@/utils/constants/dom-labels'
+import { printNodeStructure } from '@/utils/debug'
 import { flushBatchedOperations } from '@/utils/host/dom/batch-dom'
 import { walkAndLabelElement } from '@/utils/host/dom/traversal'
 import { translateWalkedElement } from '@/utils/host/translate/node-manipulation'
@@ -121,6 +122,9 @@ describe('translate', () => {
         )
         const node = screen.getByTestId('test-node')
         await removeOrShowPageTranslation('translationOnly', true)
+
+        // eslint-disable-next-line no-console
+        console.log(printNodeStructure(node))
 
         expectNodeLabels(node, [BLOCK_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
         const wrapper = expectTranslationWrapper(node, 'translationOnly')

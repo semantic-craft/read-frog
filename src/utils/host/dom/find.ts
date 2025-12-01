@@ -131,15 +131,18 @@ export async function unwrapDeepestOnlyHTMLChild(element: HTMLElement) {
 
     const config = await getConfigFromStorage() ?? DEFAULT_CONFIG
     // create array from currentElement.childNodes
-    const validChildNodes = Array.from(currentElement.childNodes).filter((child) => {
+    const effectiveChildNodes = Array.from(currentElement.childNodes).filter((child) => {
       if (child.nodeType === Node.TEXT_NODE)
         return true
       if (isHTMLElement(child) && !isDontWalkIntoAndDontTranslateAsChildElement(child, config))
         return true
       return false
-    })
-    const effectiveChildNodes = validChildNodes.filter(child => child.textContent?.trim())
-    const effectiveChildren = validChildNodes.filter(child => child.textContent?.trim())
+    }).filter(child => child.textContent?.trim())
+    const effectiveChildren = Array.from(currentElement.children).filter((child) => {
+      if (isHTMLElement(child) && !isDontWalkIntoAndDontTranslateAsChildElement(child, config))
+        return true
+      return false
+    }).filter(child => child.textContent?.trim())
 
     // Only have one HTML child and no Text Child
     if (!(effectiveChildren.length === 1 && effectiveChildNodes.length === 1))
