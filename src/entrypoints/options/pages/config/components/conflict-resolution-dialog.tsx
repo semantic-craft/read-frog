@@ -24,8 +24,7 @@ interface ConflictResolutionDialogProps {
   base: Config
   local: Config
   remote: Config
-  onResolved: () => void
-  onCancel: () => void
+  onClose: () => void
 }
 
 export function ConflictResolutionDialog({
@@ -33,8 +32,7 @@ export function ConflictResolutionDialog({
   base,
   local,
   remote,
-  onResolved,
-  onCancel,
+  onClose,
 }: ConflictResolutionDialogProps) {
   const [resolutions, setResolutions] = useState<Record<string, 'local' | 'remote'>>({})
   const [isSyncing, setIsSyncing] = useState(false)
@@ -86,12 +84,12 @@ export function ConflictResolutionDialog({
 
     try {
       await syncMergedConfig(mergedConfig)
-      toast.success(i18n.t('options.config.sync.googleDrive.conflict.mergeSuccess'))
-      onResolved()
+      toast.success(i18n.t('options.config.sync.googleDrive.syncSuccess'))
+      onClose()
     }
     catch (error) {
       logger.error('Failed to sync merged config', error)
-      toast.error(i18n.t('options.config.sync.googleDrive.conflict.mergeFailed'))
+      toast.error(i18n.t('options.config.sync.googleDrive.syncError'))
     }
     finally {
       setIsSyncing(false)
@@ -101,11 +99,6 @@ export function ConflictResolutionDialog({
   return (
     <AlertDialog
       open={open}
-      onOpenChange={(isOpen) => {
-        if (!isOpen && !isSyncing) {
-          onCancel()
-        }
-      }}
     >
       <AlertDialogContent className="max-h-[90vh] flex flex-col" style={{ maxWidth: '960px' }}>
         <AlertDialogHeader>
@@ -133,7 +126,7 @@ export function ConflictResolutionDialog({
         </div>
 
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isSyncing}>
+          <AlertDialogCancel disabled={isSyncing} onClick={onClose}>
             {i18n.t('options.config.sync.googleDrive.conflict.cancel')}
           </AlertDialogCancel>
           <AlertDialogAction
@@ -144,7 +137,7 @@ export function ConflictResolutionDialog({
             }}
           >
             {isSyncing
-              ? i18n.t('options.config.sync.googleDrive.conflict.merging')
+              ? i18n.t('options.config.sync.googleDrive.syncing')
               : i18n.t('options.config.sync.googleDrive.conflict.confirm')}
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -172,7 +165,6 @@ function MergedConfigView({
 }: MergedConfigViewProps) {
   return (
     <div className="h-full rounded-lg overflow-hidden flex flex-col bg-slate-100 dark:bg-slate-900">
-      {/* Header */}
       <div className="px-4 py-2 flex items-center gap-4 text-xs border-b border-slate-200 dark:border-slate-700">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-yellow-500" />
@@ -189,8 +181,6 @@ function MergedConfigView({
           </div>
         </div>
       </div>
-
-      {/* JSON Tree Content */}
       <div className="flex-1 overflow-auto">
         <JsonTreeView
           data={mergedConfig}

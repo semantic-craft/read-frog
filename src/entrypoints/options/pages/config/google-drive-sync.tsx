@@ -34,12 +34,7 @@ export function GoogleDriveSyncCard() {
     }
   }
 
-  const handleConflictResolved = () => {
-    setConflictData(null)
-    toast.success(i18n.t('options.config.sync.googleDrive.syncSuccess'))
-  }
-
-  const handleConflictCancel = () => {
+  const handleConflictClose = () => {
     setConflictData(null)
   }
 
@@ -68,8 +63,7 @@ export function GoogleDriveSyncCard() {
           base={conflictData.base}
           local={conflictData.local}
           remote={conflictData.remote}
-          onResolved={handleConflictResolved}
-          onCancel={handleConflictCancel}
+          onClose={handleConflictClose}
         />
       )}
     </>

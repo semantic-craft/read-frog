@@ -1,4 +1,5 @@
 import type { FieldConflict } from '@/utils/google-drive/conflict-merge'
+import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
 import { useMemo, useState } from 'react'
 import { Button } from '@/components/shadcn/button'
@@ -31,7 +32,6 @@ function JsonTreeViewInternal({
   path,
   level,
 }: InternalProps) {
-  // 优化：只计算当前层级的折叠状态
   const initialCollapsed = useMemo(() => {
     const collapsed: Record<string, boolean> = {}
     const entries = Array.isArray(data) ? data.map((v, i) => [String(i), v]) : Object.entries(data)
@@ -54,7 +54,6 @@ function JsonTreeViewInternal({
 
   const indent = level * 16
 
-  // 处理 null/undefined
   if (data === null || data === undefined) {
     return (
       <div className="font-mono text-sm text-slate-600 dark:text-slate-400" style={{ paddingLeft: indent }}>
@@ -63,7 +62,6 @@ function JsonTreeViewInternal({
     )
   }
 
-  // 处理非对象类型
   if (typeof data !== 'object') {
     return (
       <div className="font-mono text-sm text-slate-700 dark:text-slate-300" style={{ paddingLeft: indent }}>
@@ -75,7 +73,6 @@ function JsonTreeViewInternal({
   const isArray = Array.isArray(data)
   const entries = isArray ? data.map((v, i) => [String(i), v]) : Object.entries(data)
 
-  // 根级别渲染：显示根 {}
   if (level === 0) {
     return (
       <div className="font-mono text-sm">
@@ -142,11 +139,11 @@ function JsonTreeViewInternal({
                                 <span className="text-slate-400 dark:text-slate-600 mx-1">
                                   {childCount}
                                   {' '}
-                                  {childCount === 1 ? 'item' : 'items'}
+                                  {childCount === 1 ? i18n.t('options.config.sync.googleDrive.conflict.item') : i18n.t('options.config.sync.googleDrive.conflict.items')}
                                 </span>
                                 {Array.isArray(value) ? ']' : '}'}
                                 {hasConflictInChildren && (
-                                  <span className="ml-2 text-orange-500 dark:text-orange-400 text-xs">⚠ 包含冲突</span>
+                                  <span className="ml-2 text-orange-500 dark:text-orange-400 text-xs">{i18n.t('options.config.sync.googleDrive.conflict.hasConflictInChildren')}</span>
                                 )}
                               </>
                             )
@@ -187,7 +184,6 @@ function JsonTreeViewInternal({
     )
   }
 
-  // 递归渲染子级
   return (
     <div className="font-mono text-sm">
       {entries.map(([key, value]) => {
@@ -252,11 +248,11 @@ function JsonTreeViewInternal({
                               <span className="text-slate-400 dark:text-slate-600 mx-1">
                                 {childCount}
                                 {' '}
-                                {childCount === 1 ? 'item' : 'items'}
+                                {childCount === 1 ? i18n.t('options.config.sync.googleDrive.conflict.item') : i18n.t('options.config.sync.googleDrive.conflict.items')}
                               </span>
                               {Array.isArray(value) ? ']' : '}'}
                               {hasConflictInChildren && (
-                                <span className="ml-2 text-orange-500 dark:text-orange-400 text-xs">⚠ 包含冲突</span>
+                                <span className="ml-2 text-orange-500 dark:text-orange-400 text-xs">{i18n.t('options.config.sync.googleDrive.conflict.hasConflictInChildren')}</span>
                               )}
                             </>
                           )
@@ -345,12 +341,10 @@ function ConflictField({
 
   return (
     <div className={`${bgColor} ${borderColor} my-1`}>
-      {/* Conflict indicator */}
       <div className="flex items-center py-1" style={{ paddingLeft: indent }}>
         <Icon icon="mdi:alert" className="size-4 text-orange-500 dark:text-orange-400 shrink-0 mr-2" />
-        <span className="text-orange-600 dark:text-orange-300 text-xs font-semibold">[冲突 - 请选择]</span>
+        <span className="text-orange-600 dark:text-orange-300 text-xs font-semibold">{i18n.t('options.config.sync.googleDrive.conflict.conflictPrompt')}</span>
 
-        {/* Reset button */}
         {resolution && (
           <div className="flex py-1" style={{ paddingLeft: indent + 20 }}>
             <Button
@@ -360,19 +354,18 @@ function ConflictField({
               onClick={onReset}
             >
               <Icon icon="mdi:undo" className="size-3 mr-1" />
-              撤销选择
+              {i18n.t('options.config.sync.googleDrive.conflict.reset')}
             </Button>
           </div>
         )}
       </div>
 
-      {/* Local option */}
       <div
         className={`flex items-center cursor-pointer hover:bg-green-200/50 dark:hover:bg-green-900/50 py-1 ${resolution === 'local' ? 'bg-green-200/60 dark:bg-green-900/40' : ''}`}
         style={{ paddingLeft: indent + 20 }}
         onClick={onSelectLocal}
       >
-        <span className="text-green-600 dark:text-green-400 text-xs px-2 py-0.5 bg-green-200/60 dark:bg-green-900/50 rounded mr-2 shrink-0">本地最新</span>
+        <span className="text-green-600 dark:text-green-400 text-xs px-2 py-0.5 bg-green-200/60 dark:bg-green-900/50 rounded mr-2 shrink-0">{i18n.t('options.config.sync.googleDrive.conflict.localLatest')}</span>
         {!isArray && (
           <span className="text-green-600 dark:text-green-400">
             "
@@ -387,13 +380,12 @@ function ConflictField({
         )}
       </div>
 
-      {/* Remote option */}
       <div
         className={`flex items-center cursor-pointer hover:bg-blue-200/50 dark:hover:bg-blue-900/50 py-1 ${resolution === 'remote' ? 'bg-blue-200/60 dark:bg-blue-900/40' : ''}`}
         style={{ paddingLeft: indent + 20 }}
         onClick={onSelectRemote}
       >
-        <span className="text-blue-600 dark:text-blue-400 text-xs px-2 py-0.5 bg-blue-200/60 dark:bg-blue-900/50 rounded mr-2 shrink-0">远端最新</span>
+        <span className="text-blue-600 dark:text-blue-400 text-xs px-2 py-0.5 bg-blue-200/60 dark:bg-blue-900/50 rounded mr-2 shrink-0">{i18n.t('options.config.sync.googleDrive.conflict.remoteLatest')}</span>
         {!isArray && (
           <span className="text-blue-600 dark:text-blue-400">
             "

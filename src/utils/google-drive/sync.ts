@@ -157,10 +157,10 @@ export async function syncMergedConfig(mergedConfig: Config): Promise<void> {
     await setLastSyncTime(now)
     await setLastSyncedConfig(validatedConfig)
 
-    logger.info('Merged config synced successfully')
+    logger.info('Synced config successfully')
   }
   catch (error) {
-    logger.error('Failed to sync merged config', error)
+    logger.error('Failed to sync config', error)
     throw error
   }
 }

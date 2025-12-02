@@ -1,4 +1,5 @@
 import type { Config } from '@/types/config/config'
+import { dequal } from 'dequal'
 import { logger } from '../logger'
 
 export interface FieldConflict {
@@ -11,40 +12,6 @@ export interface FieldConflict {
 export interface ConflictDiffResult {
   merged: Config // 非冲突字段已自动合并
   conflicts: FieldConflict[]
-}
-
-/**
- * Deep equality check for primitive values, arrays, and objects
- */
-function deepEqual(a: unknown, b: unknown): boolean {
-  if (a === b)
-    return true
-
-  if (a == null || b == null)
-    return a === b
-
-  if (typeof a !== typeof b)
-    return false
-
-  if (typeof a !== 'object')
-    return false
-
-  if (Array.isArray(a) && Array.isArray(b)) {
-    if (a.length !== b.length)
-      return false
-    return a.every((item, index) => deepEqual(item, b[index]))
-  }
-
-  if (Array.isArray(a) || Array.isArray(b))
-    return false
-
-  const aKeys = Object.keys(a as object)
-  const bKeys = Object.keys(b as object)
-
-  if (aKeys.length !== bKeys.length)
-    return false
-
-  return aKeys.every(key => deepEqual((a as any)[key], (b as any)[key]))
 }
 
 /**
@@ -75,12 +42,12 @@ export function detectConflicts(
       || typeof localVal !== 'object'
       || typeof remoteVal !== 'object'
     ) {
-      const baseChanged = !deepEqual(localVal, baseVal)
-      const remoteChanged = !deepEqual(remoteVal, baseVal)
+      const baseChanged = !dequal(localVal, baseVal)
+      const remoteChanged = !dequal(remoteVal, baseVal)
 
       if (baseChanged && remoteChanged) {
         // Both changed
-        if (deepEqual(localVal, remoteVal)) {
+        if (dequal(localVal, remoteVal)) {
           // Changed to same value - no conflict
           return localVal
         }
@@ -112,11 +79,11 @@ export function detectConflicts(
 
     // Handle arrays
     if (Array.isArray(baseVal)) {
-      const baseChanged = !deepEqual(localVal, baseVal)
-      const remoteChanged = !deepEqual(remoteVal, baseVal)
+      const baseChanged = !dequal(localVal, baseVal)
+      const remoteChanged = !dequal(remoteVal, baseVal)
 
       if (baseChanged && remoteChanged) {
-        if (deepEqual(localVal, remoteVal)) {
+        if (dequal(localVal, remoteVal)) {
           return localVal
         }
         else {

@@ -334,7 +334,6 @@ options:
         syncing: 同期中...
         syncSuccess: 同期が完了しました
         syncError: 同期に失敗しました。もう一度お試しください
-        autoMergeSuccess: 自動マージ成功
         conflict:
           title: 設定の競合
           description: 前回の同期以降、ローカルとリモートの両方の設定が変更されています。競合する各フィールドについて、保持するバージョンを選択してください。
@@ -346,12 +345,15 @@ options:
           useRemote: リモートを使用
           reset: 選択をリセット
           progress: $1/$2 個の競合を解決しました
-          confirm: マージを確認
+          confirm: 同期を確認
           cancel: キャンセル
-          merging: マージ中...
-          mergeSuccess: マージ成功
-          mergeFailed: マージ失敗
           allResolutionsRequired: 確認する前にすべての競合を解決してください
+          hasConflictInChildren: ⚠ 競合を含む
+          item: 項目
+          items: 項目
+          conflictPrompt: '[競合 - 選択してください]'
+          localLatest: ローカル最新
+          remoteLatest: リモート最新
     backup:
       title: 設定のバックアップ
       description: 設定が変更された場合、1時間ごとに自動的にバックアップが作成されます。以前の設定をここで復元できます。（最大 $1 個のバックアップ）
