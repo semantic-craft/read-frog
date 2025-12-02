@@ -1,4 +1,6 @@
-import { browser } from '#imports'
+import { browser, storage } from '#imports'
+import { z } from 'zod'
+import { GOOGLE_DRIVE_TOKEN_STORAGE_KEY } from '../constants/config'
 import { logger } from '../logger'
 
 const GOOGLE_CLIENT_ID = import.meta.env.WXT_GOOGLE_CLIENT_ID || 'YOUR_CLIENT_ID'
@@ -12,6 +14,36 @@ export interface GoogleAuthToken {
   access_token: string
   expires_at: number
   token_type: string
+}
+
+const googleAuthTokenSchema = z.object({
+  access_token: z.string(),
+  expires_at: z.number(),
+  token_type: z.string().default('Bearer'),
+})
+
+/**
+ * Get token from storage with validation
+ */
+async function getTokenFromStorage(): Promise<GoogleAuthToken | null> {
+  try {
+    const tokenData = await storage.getItem<GoogleAuthToken>(`local:${GOOGLE_DRIVE_TOKEN_STORAGE_KEY}`)
+    if (!tokenData) {
+      return null
+    }
+
+    const parsed = googleAuthTokenSchema.safeParse(tokenData)
+    if (!parsed.success) {
+      logger.warn('Invalid token data in storage', parsed.error)
+      return null
+    }
+
+    return parsed.data
+  }
+  catch (error) {
+    logger.error('Failed to get token from storage', error)
+    return null
+  }
 }
 
 /**
@@ -51,7 +83,9 @@ export async function authenticateGoogleDrive(): Promise<string> {
       token_type: 'Bearer',
     }
 
-    await browser.storage.local.set({ google_drive_token: tokenData })
+    // Validate before storing
+    const validatedToken = googleAuthTokenSchema.parse(tokenData)
+    await storage.setItem(`local:${GOOGLE_DRIVE_TOKEN_STORAGE_KEY}`, validatedToken)
 
     return accessToken
   }
@@ -66,8 +100,7 @@ export async function authenticateGoogleDrive(): Promise<string> {
  */
 export async function getValidAccessToken(): Promise<string> {
   try {
-    const result = await browser.storage.local.get('google_drive_token')
-    const tokenData = result.google_drive_token as GoogleAuthToken | undefined
+    const tokenData = await getTokenFromStorage()
 
     // Re-authenticate if token not found or expiring soon (within 1 minute)
     if (!tokenData || Date.now() >= tokenData.expires_at - TOKEN_EXPIRY_BUFFER_MS) {
@@ -85,7 +118,7 @@ export async function getValidAccessToken(): Promise<string> {
 
 export async function clearAccessToken(): Promise<void> {
   try {
-    await browser.storage.local.remove('google_drive_token')
+    await storage.removeItem(`local:${GOOGLE_DRIVE_TOKEN_STORAGE_KEY}`)
   }
   catch (error) {
     logger.error('Failed to clear access token', error)
@@ -98,8 +131,7 @@ export async function clearAccessToken(): Promise<void> {
  */
 export async function isAuthenticated(): Promise<boolean> {
   try {
-    const result = await browser.storage.local.get('google_drive_token')
-    const tokenData = result.google_drive_token as GoogleAuthToken | undefined
+    const tokenData = await getTokenFromStorage()
 
     if (!tokenData) {
       return false
