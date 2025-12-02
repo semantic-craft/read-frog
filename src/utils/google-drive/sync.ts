@@ -48,7 +48,7 @@ async function getLocalConfig(): Promise<{ config: Config, schemaVersion: number
   }
 }
 
-async function getLastSyncTime(): Promise<number | null> {
+export async function getLastSyncTime(): Promise<number | null> {
   const lastSyncTime = await storage.getItem<number>(`local:${LAST_SYNC_TIME_STORAGE_KEY}`)
   return lastSyncTime ?? null
 }
