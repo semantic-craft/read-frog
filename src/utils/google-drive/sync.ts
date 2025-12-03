@@ -14,6 +14,10 @@ export interface RemoteConfigData extends ConfigBackup {
   lastModified: number
 }
 
+interface ConfigMeta extends Record<string, unknown> {
+  modifiedAt: number
+}
+
 export class ConfigConflictError extends Error {
   name = 'ConfigConflictError'
 
@@ -31,16 +35,21 @@ export class ConfigConflictError extends Error {
 async function getLocalConfig(): Promise<{ config: Config, schemaVersion: number, lastModified: number }> {
   try {
     const config = await storage.getItem<Config>(`local:${CONFIG_STORAGE_KEY}`)
-    const schemaVersion = await storage.getItem<number>(`local:${CONFIG_SCHEMA_VERSION_STORAGE_KEY}`) ?? CONFIG_SCHEMA_VERSION
 
     if (!config) {
       throw new Error('Local config not found')
     }
 
-    const meta = await storage.getMeta(`local:${CONFIG_STORAGE_KEY}`)
-    const lastModified = (meta?.modifiedAt as number) ?? Date.now()
+    const parsedConfig = configSchema.safeParse(config)
+    if (!parsedConfig.success) {
+      throw new Error('Local config is invalid')
+    }
 
-    return { config, schemaVersion, lastModified }
+    const schemaVersion = await storage.getItem<number>(`local:${CONFIG_SCHEMA_VERSION_STORAGE_KEY}`) ?? CONFIG_SCHEMA_VERSION
+    const meta = await storage.getMeta<ConfigMeta>(`local:${CONFIG_STORAGE_KEY}`)
+    const lastModified = meta?.modifiedAt ?? Date.now()
+
+    return { config: parsedConfig.data, schemaVersion, lastModified }
   }
   catch (error) {
     logger.error('Failed to get local config', error)
@@ -76,7 +85,12 @@ async function getRemoteConfig(): Promise<RemoteConfigData | null> {
     }
 
     const content = await downloadFile(file.id)
-    return JSON.parse(content) as RemoteConfigData
+    const remoteData = JSON.parse(content) as RemoteConfigData
+    const parsedConfig = configSchema.safeParse(remoteData[CONFIG_STORAGE_KEY])
+    if (!parsedConfig.success) {
+      throw new Error('Remote config is invalid')
+    }
+    return remoteData
   }
   catch (error) {
     logger.error('Failed to get remote config', error)
