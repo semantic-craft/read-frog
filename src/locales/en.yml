@@ -350,7 +350,6 @@ options:
           progress: Resolved $1/$2 conflicts
           confirm: Confirm Sync
           cancel: Cancel
-          allResolutionsRequired: Please resolve all conflicts before confirming
           hasConflictInChildren: ⚠ Contains conflicts
           item: item
           items: items

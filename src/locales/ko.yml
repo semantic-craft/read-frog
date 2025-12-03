@@ -349,7 +349,6 @@ options:
           progress: $1/$2개의 충돌 해결됨
           confirm: 동기화 확인
           cancel: 취소
-          allResolutionsRequired: 확인하기 전에 모든 충돌을 해결하세요
           hasConflictInChildren: ⚠ 충돌 포함
           item: 항목
           items: 항목

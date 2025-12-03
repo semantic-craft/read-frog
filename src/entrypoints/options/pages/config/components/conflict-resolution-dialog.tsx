@@ -3,7 +3,6 @@ import type { FieldConflict } from '@/utils/google-drive/conflict-merge'
 import { i18n } from '#imports'
 import { Icon } from '@iconify/react'
 import { useMemo, useState } from 'react'
-import { toast } from 'sonner'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,8 +14,6 @@ import {
   AlertDialogTitle,
 } from '@/components/shadcn/alert-dialog'
 import { applyResolutions, detectConflicts } from '@/utils/google-drive/conflict-merge'
-import { syncMergedConfig } from '@/utils/google-drive/sync'
-import { logger } from '@/utils/logger'
 import { JsonTreeView } from './json-tree-view'
 
 interface ConflictResolutionDialogProps {
@@ -24,7 +21,9 @@ interface ConflictResolutionDialogProps {
   base: Config
   local: Config
   remote: Config
-  onClose: () => void
+  isSyncing: boolean
+  onCancel: () => void
+  onConfirm: (mergedConfig: Config) => Promise<void>
 }
 
 export function ConflictResolutionDialog({
@@ -32,10 +31,11 @@ export function ConflictResolutionDialog({
   base,
   local,
   remote,
-  onClose,
+  isSyncing,
+  onCancel,
+  onConfirm,
 }: ConflictResolutionDialogProps) {
   const [resolutions, setResolutions] = useState<Record<string, 'local' | 'remote'>>({})
-  const [isSyncing, setIsSyncing] = useState(false)
 
   const diffResult = useMemo(() => {
     return detectConflicts(base, local, remote)
@@ -75,25 +75,7 @@ export function ConflictResolutionDialog({
   }
 
   const handleConfirm = async () => {
-    if (!allResolved) {
-      toast.error(i18n.t('options.config.sync.googleDrive.conflict.allResolutionsRequired'))
-      return
-    }
-
-    setIsSyncing(true)
-
-    try {
-      await syncMergedConfig(mergedConfig)
-      toast.success(i18n.t('options.config.sync.googleDrive.syncSuccess'))
-      onClose()
-    }
-    catch (error) {
-      logger.error('Failed to sync merged config', error)
-      toast.error(i18n.t('options.config.sync.googleDrive.syncError'))
-    }
-    finally {
-      setIsSyncing(false)
-    }
+    await onConfirm(mergedConfig)
   }
 
   return (
@@ -126,7 +108,7 @@ export function ConflictResolutionDialog({
         </div>
 
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isSyncing} onClick={onClose}>
+          <AlertDialogCancel disabled={isSyncing} onClick={onCancel}>
             {i18n.t('options.config.sync.googleDrive.conflict.cancel')}
           </AlertDialogCancel>
           <AlertDialogAction

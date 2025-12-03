@@ -349,7 +349,6 @@ options:
           progress: 已解決 $1/$2 個衝突
           confirm: 確認同步
           cancel: 取消
-          allResolutionsRequired: 請解決所有衝突後再確認
           hasConflictInChildren: ⚠ 包含衝突
           item: 項
           items: 項

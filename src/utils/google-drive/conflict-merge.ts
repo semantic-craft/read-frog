@@ -1,5 +1,6 @@
 import type { Config } from '@/types/config/config'
 import { dequal } from 'dequal'
+import { configSchema } from '@/types/config/config'
 import { logger } from '../logger'
 
 export interface FieldConflict {
@@ -10,7 +11,7 @@ export interface FieldConflict {
 }
 
 export interface ConflictDiffResult {
-  merged: Config // 非冲突字段已自动合并
+  merged: Config
   conflicts: FieldConflict[]
 }
 
@@ -24,14 +25,12 @@ export function detectConflicts(
   remote: Config,
 ): ConflictDiffResult {
   const conflicts: FieldConflict[] = []
-  const merged = {} as Config
 
   function traverse(
     basePath: string[],
     baseVal: any,
     localVal: any,
     remoteVal: any,
-    _target: any,
   ) {
     // Handle primitive values or null
     if (
@@ -42,17 +41,14 @@ export function detectConflicts(
       || typeof localVal !== 'object'
       || typeof remoteVal !== 'object'
     ) {
-      const baseChanged = !dequal(localVal, baseVal)
+      const localChanged = !dequal(localVal, baseVal)
       const remoteChanged = !dequal(remoteVal, baseVal)
 
-      if (baseChanged && remoteChanged) {
-        // Both changed
+      if (localChanged && remoteChanged) {
         if (dequal(localVal, remoteVal)) {
-          // Changed to same value - no conflict
           return localVal
         }
         else {
-          // Conflict!
           conflicts.push({
             path: basePath,
             baseValue: baseVal,
@@ -63,7 +59,7 @@ export function detectConflicts(
           return localVal
         }
       }
-      else if (baseChanged) {
+      else if (localChanged) {
         // Only local changed
         return localVal
       }
@@ -79,10 +75,10 @@ export function detectConflicts(
 
     // Handle arrays
     if (Array.isArray(baseVal)) {
-      const baseChanged = !dequal(localVal, baseVal)
+      const localChanged = !dequal(localVal, baseVal)
       const remoteChanged = !dequal(remoteVal, baseVal)
 
-      if (baseChanged && remoteChanged) {
+      if (localChanged && remoteChanged) {
         if (dequal(localVal, remoteVal)) {
           return localVal
         }
@@ -96,7 +92,7 @@ export function detectConflicts(
           return localVal
         }
       }
-      else if (baseChanged) {
+      else if (localChanged) {
         return localVal
       }
       else if (remoteChanged) {
@@ -121,22 +117,22 @@ export function detectConflicts(
         baseVal[key],
         localVal[key],
         remoteVal[key],
-        result,
       )
     }
 
     return result
   }
 
-  const mergedResult = traverse([], base, local, remote, merged)
+  const mergedResult = traverse([], base, local, remote)
 
-  logger.info('Conflict detection completed', {
-    conflictCount: conflicts.length,
-    conflicts: conflicts.map(c => c.path.join('.')),
-  })
+  const validatedMergedResult = configSchema.safeParse(mergedResult)
+  if (!validatedMergedResult.success) {
+    logger.error('Merged config is invalid, cannot detect conflicts')
+    throw new Error('Merged config is invalid for conflict detection')
+  }
 
   return {
-    merged: mergedResult as Config,
+    merged: validatedMergedResult.data,
     conflicts,
   }
 }
@@ -148,7 +144,12 @@ export function applyResolutions(
   diffResult: ConflictDiffResult,
   resolutions: Record<string, 'local' | 'remote'>,
 ): Config {
-  const result = JSON.parse(JSON.stringify(diffResult.merged)) as Config
+  const parsedResult = configSchema.safeParse(diffResult.merged)
+  if (!parsedResult.success) {
+    logger.error('Merged config is invalid, cannot apply resolutions')
+    throw new Error('Merged config is invalid for conflict resolution')
+  }
+  const result = parsedResult.data
 
   for (const conflict of diffResult.conflicts) {
     const pathKey = conflict.path.join('.')
@@ -170,9 +171,11 @@ export function applyResolutions(
     current[lastKey] = resolution === 'local' ? conflict.localValue : conflict.remoteValue
   }
 
-  logger.info('Applied resolutions', {
-    resolvedCount: Object.keys(resolutions).length,
-  })
+  const validatedResult = configSchema.safeParse(result)
+  if (!validatedResult.success) {
+    logger.error('Validated merged config is invalid, cannot apply resolutions')
+    throw new Error('Validated merged config is invalid for conflict resolution')
+  }
 
-  return result
+  return validatedResult.data
 }
