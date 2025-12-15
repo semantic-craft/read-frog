@@ -19,6 +19,7 @@ import TranslateButton from './components/translate-button'
 import TranslatePromptSelector from './components/translate-prompt-selector'
 import TranslateProviderField from './components/translate-provider-field'
 import TranslationModeSelector from './components/translation-mode-selector'
+import SelectExample from './select-example'
 
 function App() {
   const initIsIgnoreTab = useSetAtom(initIsIgnoreTabAtom)
@@ -37,6 +38,7 @@ function App() {
             <BlogNotification />
           </div>
         </div>
+        <SelectExample />
         <LanguageOptionsSelector />
         {/* <LanguageLevelSelector /> */}
         <TranslationModeSelector />
