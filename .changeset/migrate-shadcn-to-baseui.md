@@ -1,5 +1,5 @@
 ---
-"@anthropic/read-frog": minor
+"@read-frog/extension": minor
 ---
 
 refactor(ui): migrate shadcn components to base-ui
