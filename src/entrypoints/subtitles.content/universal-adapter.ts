@@ -23,6 +23,11 @@ export class UniversalVideoAdapter {
   private isNativeSubtitlesHidden = false
   private cachedVideoId: string | null = null
 
+  get videoIdChanged() {
+    const currentVideoId = this.config.getVideoId?.()
+    return !!(this.cachedVideoId && currentVideoId && currentVideoId !== this.cachedVideoId)
+  }
+
   constructor({
     config,
     subtitlesFetcher,
@@ -83,12 +88,14 @@ export class UniversalVideoAdapter {
 
     if (events.navigate) {
       const navigationListener = () => {
-        // Immediately hide subtitles to prevent stale content showing during navigation
-        this.subtitlesScheduler?.hide()
+        if (!this.videoIdChanged) {
+          return
+        }
+
         this.subtitlesScheduler?.reset()
 
         setTimeout(() => {
-          this.handleNavigation()
+          void this.handleNavigation()
         }, NAVIGATION_HANDLER_DELAY)
       }
 
@@ -96,11 +103,10 @@ export class UniversalVideoAdapter {
     }
   }
 
-  private handleNavigation() {
-    const currentVideoId = this.config.getVideoId?.()
-    if (currentVideoId && this.cachedVideoId && currentVideoId !== this.cachedVideoId) {
+  private async handleNavigation() {
+    if (this.videoIdChanged) {
       this.resetForNavigation()
-      void this.initializeScheduler()
+      await this.initializeScheduler()
       void this.renderTranslateButton()
     }
   }
@@ -215,7 +221,13 @@ export class UniversalVideoAdapter {
       }
 
       this.startBlockMonitoring()
-      this.subtitlesScheduler?.setState('idle')
+
+      // Only set idle if not in error state (translateSubtitlesBlock may have set error)
+      const currentBlocks = subtitlesStore.get(subtitlesTranslationBlocksAtom)
+      const hasError = currentBlocks.some(b => b.state === 'error')
+      if (!hasError) {
+        this.subtitlesScheduler?.setState('idle')
+      }
     }
     catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
@@ -224,6 +236,8 @@ export class UniversalVideoAdapter {
   }
 
   private async translateSubtitlesBlock(batch: SubtitlesTranslationBlock) {
+    const config = await getLocalConfig()
+
     const subtitlesBlocks = subtitlesStore.get(subtitlesTranslationBlocksAtom)
     subtitlesStore.set(subtitlesTranslationBlocksAtom, updateBlockState(subtitlesBlocks, batch.id, 'processing'))
 
@@ -236,7 +250,6 @@ export class UniversalVideoAdapter {
       let fragmentsToTranslate = batch.fragments
 
       // AI segmentation before translation if enabled
-      const config = await getLocalConfig()
       if (config?.videoSubtitles?.aiSegmentation) {
         this.subtitlesScheduler?.setState('segmenting')
         fragmentsToTranslate = await aiSegmentBlock(batch.fragments, config)
@@ -260,6 +273,10 @@ export class UniversalVideoAdapter {
         subtitlesTranslationBlocksAtom,
         updateBlockState(updatedBatches, batch.id, 'error'),
       )
+
+      const displayMode = config?.videoSubtitles?.style.displayMode
+      const fallbackSubtitles = batch.fragments.map(f => ({ ...f, translation: displayMode === 'translationOnly' ? f.text : '' }))
+      this.subtitlesScheduler?.supplementSubtitles(fallbackSubtitles)
 
       const errorMessage = error instanceof Error ? error.message : String(error)
       this.subtitlesScheduler?.setState('error', { message: errorMessage })
