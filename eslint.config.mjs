@@ -27,7 +27,12 @@ export default antfu({
     'unused-imports/no-unused-imports': 'error',
     'no-inner-declarations': 'error',
   },
-  react: true,
+  react: {
+    overrides: {
+      // Not useful in React 19 — key is no longer part of props
+      'react/no-implicit-key': 'off',
+    },
+  },
 }, [
   {
     files: ['**/*.ts', '**/*.tsx'],
