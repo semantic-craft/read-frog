@@ -107,6 +107,10 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     this.cachedTrackHash = null
   }
 
+  getSourceLanguage(): string {
+    return this.sourceLanguage
+  }
+
   async shouldUseSameTrack(): Promise<boolean> {
     if (this.subtitles.length === 0 || !this.cachedTrackHash) {
       return false

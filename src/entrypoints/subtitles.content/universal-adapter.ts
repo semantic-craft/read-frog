@@ -1,4 +1,5 @@
 import type { PlatformConfig } from '@/entrypoints/subtitles.content/platforms'
+import type { Config } from '@/types/config/config'
 import type { SubtitlesFetcher } from '@/utils/subtitles/fetchers/types'
 import type { SubtitlesFragment, SubtitlesTranslationBlock } from '@/utils/subtitles/types'
 import { i18n } from '#imports'
@@ -9,6 +10,7 @@ import { waitForElement } from '@/utils/dom/wait-for-element'
 import { ToastSubtitlesError } from '@/utils/subtitles/errors'
 import { aiSegmentBlock } from '@/utils/subtitles/processor/ai-segmentation'
 import { createSubtitlesBlocks, findNextBlockToTranslate, updateBlockState } from '@/utils/subtitles/processor/block-strategy'
+import { optimizeSubtitles } from '@/utils/subtitles/processor/optimizer'
 import { translateSubtitles } from '@/utils/subtitles/processor/translator'
 import { currentSubtitleAtom, subtitlesPositionAtom, subtitlesStore, subtitlesTranslationBlocksAtom } from './atoms'
 import { renderSubtitlesTranslateButton } from './renderer/render-translate-button'
@@ -179,8 +181,16 @@ export class UniversalVideoAdapter {
       const useSameTrack = await this.subtitlesFetcher.shouldUseSameTrack()
 
       if (useSameTrack) {
-        this.resetErrorBlocksToIdle()
-        this.startBlockMonitoring()
+        const blocks = subtitlesStore.get(subtitlesTranslationBlocksAtom)
+        const hasErrorBlocks = blocks.some(b => b.state === 'error')
+        if (hasErrorBlocks) {
+          this.clearBlocks()
+          this.subtitlesScheduler?.reset()
+          await this.processSubtitles()
+        }
+        else {
+          this.startBlockMonitoring()
+        }
         return
       }
 
@@ -209,16 +219,6 @@ export class UniversalVideoAdapter {
         this.subtitlesScheduler?.setState('error', { message: errorMessage })
       }
     }
-  }
-
-  private resetErrorBlocksToIdle(): void {
-    const blocks = subtitlesStore.get(subtitlesTranslationBlocksAtom)
-    const updatedBlocks = blocks.map(block =>
-      block.state === 'error'
-        ? { ...block, state: 'idle' as const, fragments: block.fragments.map(f => ({ ...f, translation: '' })) }
-        : block,
-    )
-    subtitlesStore.set(subtitlesTranslationBlocksAtom, updatedBlocks)
   }
 
   private clearBlocks(): void {
@@ -266,13 +266,14 @@ export class UniversalVideoAdapter {
       this.subtitlesScheduler?.setState('processing')
     }
 
-    try {
-      let fragmentsToTranslate = batch.fragments
+    const sourceLanguage = this.subtitlesFetcher.getSourceLanguage()
+    let fragmentsToTranslate = optimizeSubtitles(batch.fragments, sourceLanguage)
 
+    try {
       // AI segmentation before translation if enabled
       if (config?.videoSubtitles?.aiSegmentation) {
         this.subtitlesScheduler?.setState('segmenting')
-        fragmentsToTranslate = await aiSegmentBlock(batch.fragments, config)
+        fragmentsToTranslate = await this.segmentFragments(batch.fragments, config)
       }
 
       this.subtitlesScheduler?.setState('processing')
@@ -295,11 +296,25 @@ export class UniversalVideoAdapter {
       )
 
       const displayMode = config?.videoSubtitles?.style.displayMode
-      const fallbackSubtitles = batch.fragments.map(f => ({ ...f, translation: displayMode === 'translationOnly' ? f.text : '' }))
+      const fallbackSubtitles = fragmentsToTranslate.map(f => ({ ...f, translation: displayMode === 'translationOnly' ? f.text : '' }))
       this.subtitlesScheduler?.supplementSubtitles(fallbackSubtitles)
 
       const errorMessage = error instanceof Error ? error.message : String(error)
       this.subtitlesScheduler?.setState('error', { message: errorMessage })
+    }
+  }
+
+  private async segmentFragments(
+    fragments: SubtitlesFragment[],
+    config: Config,
+  ): Promise<SubtitlesFragment[]> {
+    try {
+      return await aiSegmentBlock(fragments, config)
+    }
+    catch (error) {
+      console.warn('AI segmentation failed, falling back to optimizer:', error)
+      const sourceLanguage = this.subtitlesFetcher.getSourceLanguage()
+      return optimizeSubtitles(fragments, sourceLanguage)
     }
   }
 
