@@ -1,5 +1,5 @@
 ---
-"read-frog": patch
+"@read-frog/extension": patch
 ---
 
 fix(selection): route selection stream requests through background to bypass CORS restrictions
