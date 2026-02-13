@@ -57,7 +57,6 @@ export class SubtitlesScheduler {
     this.subtitles.sort((a, b) => a.start - b.start)
     this.updateSubtitles(this.videoElement.currentTime)
 
-    // Force update store if current subtitle's translation was modified
     if (currentSubtitleUpdated) {
       this.updateCurrentSubtitle()
     }
@@ -100,11 +99,15 @@ export class SubtitlesScheduler {
     }
   }
 
-  reset() {
-    this.setState('idle')
+  clearSubtitles() {
     this.subtitles = []
     this.currentIndex = -1
     this.updateCurrentSubtitle()
+  }
+
+  reset() {
+    this.setState('idle')
+    this.clearSubtitles()
   }
 
   private attachListeners() {
@@ -133,12 +136,32 @@ export class SubtitlesScheduler {
     this.updateSubtitles(currentTime)
   }
 
+  private findPreferredSubtitleIndex(timeMs: number): number {
+    let preferredIndex = -1
+    let preferredStart = -1
+
+    for (let index = 0; index < this.subtitles.length; index++) {
+      const subtitle = this.subtitles[index]
+      const isActive = subtitle.start <= timeMs && subtitle.end > timeMs
+
+      if (!isActive) {
+        continue
+      }
+
+      if (subtitle.start >= preferredStart) {
+        preferredStart = subtitle.start
+        preferredIndex = index
+      }
+    }
+
+    return preferredIndex
+  }
+
   private updateSubtitles(currentTime: number) {
     const timeMs = currentTime * 1000
     subtitlesStore.set(currentTimeMsAtom, timeMs)
 
-    const subtitle = this.subtitles.find(sub => sub.start <= timeMs && sub.end > timeMs)
-    const newIndex = subtitle ? this.subtitles.indexOf(subtitle) : -1
+    const newIndex = this.findPreferredSubtitleIndex(timeMs)
 
     if (newIndex !== this.currentIndex) {
       this.currentIndex = newIndex
