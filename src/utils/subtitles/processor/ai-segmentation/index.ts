@@ -1,14 +1,14 @@
-import type { SubtitlesFragment } from '../types'
+import type { SubtitlesFragment } from '../../types'
 import type { Config } from '@/types/config/config'
 import { sendMessage } from '@/utils/message'
-import { enforceCueGuards } from './ai-segmentation/guards'
+import { enforceCueGuards } from './guards'
 import {
   cleanFragmentsForAi,
   formatFragmentsToJson,
   parseLineProtocolToUnits,
   validateSegmentationUnits,
-} from './ai-segmentation/protocol'
-import { buildFragmentsFromUnits, refineSegmentationUnits } from './ai-segmentation/refine'
+} from './protocol'
+import { buildFragmentsFromUnits, refineSegmentationUnits } from './refine'
 
 export async function aiSegmentBlock(
   fragments: SubtitlesFragment[],
