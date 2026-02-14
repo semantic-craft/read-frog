@@ -22,9 +22,7 @@ export class UniversalVideoAdapter {
   private isNativeSubtitlesHidden = false
   private cachedVideoId: string | null = null
 
-  // Non-AI path: processed fragments stored directly
   private processedFragments: SubtitlesFragment[] = []
-  // AI path: segmentation pipeline handles processing
   private segmentationPipeline: SegmentationPipeline | null = null
 
   private translationCoordinator: TranslationCoordinator | null = null
@@ -95,7 +93,8 @@ export class UniversalVideoAdapter {
           return
         }
 
-        this.subtitlesScheduler?.reset()
+        this.subtitlesScheduler?.clearSubtitles()
+        this.subtitlesScheduler?.setState('loading')
 
         setTimeout(() => {
           void this.handleNavigation()
@@ -187,7 +186,6 @@ export class UniversalVideoAdapter {
       const useSameTrack = await this.subtitlesFetcher.shouldUseSameTrack()
 
       if (useSameTrack) {
-        // Clear failed states to allow retry on resume
         this.translationCoordinator?.clearFailed()
         this.segmentationPipeline?.clearFailedStarts()
         this.translationCoordinator?.start()
@@ -198,12 +196,10 @@ export class UniversalVideoAdapter {
       this.translationCoordinator = null
       this.processedFragments = []
       this.segmentationPipeline = null
-      this.subtitlesScheduler?.reset()
-      this.subtitlesScheduler?.setState('fetching')
+      this.subtitlesScheduler?.setState('loading')
+      this.subtitlesScheduler?.clearSubtitles()
 
       this.originalSubtitles = await this.subtitlesFetcher.fetch()
-
-      this.subtitlesScheduler?.setState('fetchSuccess')
 
       if (this.originalSubtitles.length === 0) {
         this.subtitlesScheduler?.setState('error', { message: i18n.t('subtitles.errors.noSubtitlesFound') })
@@ -225,7 +221,7 @@ export class UniversalVideoAdapter {
   }
 
   private async processSubtitles() {
-    this.subtitlesScheduler?.setState('processing')
+    this.subtitlesScheduler?.setState('loading')
     const config = await getLocalConfig()
 
     const useAiSegmentation = !!config?.videoSubtitles?.aiSegmentation

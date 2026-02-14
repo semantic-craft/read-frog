@@ -78,6 +78,42 @@ export class SegmentationPipeline {
     }
   }
 
+  private replaceChunkRange(chunkStart: number, chunkEnd: number, nextFragments: SubtitlesFragment[]) {
+    this.processedFragments = this.processedFragments.filter(
+      fragment => fragment.end <= chunkStart || fragment.start >= chunkEnd,
+    )
+    this.processedFragments.push(...nextFragments)
+    this.normalizeProcessedTimeline()
+  }
+
+  private normalizeProcessedTimeline() {
+    if (this.processedFragments.length === 0) {
+      return
+    }
+
+    const sorted = this.processedFragments
+      .map(fragment => ({ ...fragment }))
+      .sort((a, b) => a.start - b.start)
+
+    const normalized: SubtitlesFragment[] = []
+
+    for (const fragment of sorted) {
+      const current = {
+        ...fragment,
+        end: Math.max(fragment.end, fragment.start),
+      }
+      const previous = normalized[normalized.length - 1]
+
+      if (previous && previous.end > current.start) {
+        previous.end = Math.max(previous.start, current.start)
+      }
+
+      normalized.push(current)
+    }
+
+    this.processedFragments = normalized
+  }
+
   private async processNextChunk(currentTimeMs: number): Promise<boolean> {
     const chunk = this.findNextChunk(currentTimeMs)
     if (chunk.length === 0)
@@ -85,24 +121,20 @@ export class SegmentationPipeline {
 
     chunk.forEach(f => this.segmentedRawStarts.add(f.start))
 
+    const chunkStart = chunk[0].start
+    const chunkEnd = chunk[chunk.length - 1].end
+
     try {
       const config = await getLocalConfig()
       if (config) {
         const segmented = await aiSegmentBlock(chunk, config)
-        const chunkStart = chunk[0].start
-        const chunkEnd = chunk[chunk.length - 1].end
-        this.processedFragments = this.processedFragments.filter(
-          f => f.start < chunkStart || f.start > chunkEnd,
-        )
-        this.processedFragments.push(...segmented)
-        this.processedFragments.sort((a, b) => a.start - b.start)
+        this.replaceChunkRange(chunkStart, chunkEnd, segmented)
       }
     }
     catch {
       chunk.forEach(f => this.aiSegmentFailedRawStarts.add(f.start))
       const optimized = optimizeSubtitles(chunk, this.getSourceLanguage())
-      this.processedFragments.push(...optimized)
-      this.processedFragments.sort((a, b) => a.start - b.start)
+      this.replaceChunkRange(chunkStart, chunkEnd, optimized)
     }
 
     return true
