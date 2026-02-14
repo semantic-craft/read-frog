@@ -88,7 +88,7 @@ export class SegmentationPipeline {
     try {
       const config = await getLocalConfig()
       if (config) {
-        const segmented = await aiSegmentBlock(chunk, config)
+        const segmented = await aiSegmentBlock(chunk, config, this.getSourceLanguage())
         const chunkStart = chunk[0].start
         const chunkEnd = chunk[chunk.length - 1].end
         this.processedFragments = this.processedFragments.filter(

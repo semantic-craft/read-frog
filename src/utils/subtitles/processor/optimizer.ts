@@ -1,6 +1,6 @@
 import type { SubtitlesFragment } from '../types'
-import { PAUSE_TIMEOUT_MS, SENTENCE_END_PATTERN } from '@/utils/constants/subtitles'
-import { getMaxLength, getTextLength, isCJKLanguage } from '@/utils/subtitles/utils'
+import { PAUSE_TIMEOUT_MS } from '@/utils/constants/subtitles'
+import { getMaxLength, getTextLength, isCJKLanguage, isStrongSentenceBoundary } from '@/utils/subtitles/utils'
 
 const QUALITY_LENGTH_THRESHOLD = 250
 const QUALITY_PERCENTAGE_THRESHOLD = 0.2
@@ -107,7 +107,7 @@ function processSubtitles(
     const lastSegment = buffer[buffer.length - 1]
 
     if (lastSegment) {
-      const isEndOfSentence = SENTENCE_END_PATTERN.test(lastSegment.text)
+      const isEndOfSentence = isStrongSentenceBoundary(lastSegment.text)
       const isTimeout = frag.start - lastSegment.end > PAUSE_TIMEOUT_MS
       const wouldExceedLimit = bufferLength + fragLength > maxLength
 

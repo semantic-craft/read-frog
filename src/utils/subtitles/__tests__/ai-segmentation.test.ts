@@ -2,10 +2,12 @@ import type { SubtitlesFragment } from '../types'
 import { describe, expect, it } from 'vitest'
 import { enforceCueGuards } from '../processor/ai-segmentation/guards'
 import {
+  cleanLineProtocolResponse,
   parseLineProtocolToUnits,
   validateSegmentationUnits,
 } from '../processor/ai-segmentation/protocol'
 import { buildFragmentsFromUnits, refineSegmentationUnits } from '../processor/ai-segmentation/refine'
+import { measureTextLengthUnits } from '../utils'
 
 describe('ai segmentation line protocol', () => {
   it('parses valid protocol lines and ignores non-protocol lines', () => {
@@ -30,6 +32,26 @@ describe('ai segmentation line protocol', () => {
     ])
   })
 
+  it('cleans line protocol response from markdown fences and think tags', () => {
+    const raw = `\n\`\`\`text\n<think>internal</think>\n0-1 | Hello\n2-2 | world\n\`\`\`\n`
+
+    const result = cleanLineProtocolResponse(raw)
+
+    expect(result).toBe('0-1 | Hello\n2-2 | world')
+  })
+
+  it('throws when line protocol has no valid units', () => {
+    expect(() => parseLineProtocolToUnits('Result: none')).toThrow(
+      'AI segmentation returned invalid line protocol',
+    )
+  })
+
+  it('measures text length by explicit source language', () => {
+    expect(measureTextLengthUnits('hello world', 'en')).toBe(2)
+    expect(measureTextLengthUnits('hello world', 'zh')).toBe(10)
+    expect(measureTextLengthUnits('你好 世界', 'zh')).toBe(4)
+  })
+
   it('validates complete contiguous coverage', () => {
     const units = [
       { from: 0, to: 1, text: 'First.' },
@@ -46,6 +68,24 @@ describe('ai segmentation line protocol', () => {
     ]
 
     expect(() => validateSegmentationUnits(units, 5)).toThrow()
+  })
+
+  it('throws when units overlap', () => {
+    const units = [
+      { from: 0, to: 2, text: 'First.' },
+      { from: 2, to: 4, text: 'Second.' },
+    ]
+
+    expect(() => validateSegmentationUnits(units, 5)).toThrow('Segmentation overlap')
+  })
+
+  it('throws when range is invalid or out of bounds', () => {
+    expect(() => validateSegmentationUnits([{ from: 2, to: 1, text: 'bad' }], 3)).toThrow(
+      'Invalid segmentation range',
+    )
+    expect(() => validateSegmentationUnits([{ from: 0, to: 3, text: 'bad' }], 3)).toThrow(
+      'Segmentation range out of bounds',
+    )
   })
 
   it('rebuilds cue timeline from source indexes', () => {
@@ -68,6 +108,17 @@ describe('ai segmentation line protocol', () => {
     ])
   })
 
+  it('throws when rebuilding timeline with out-of-range indexes', () => {
+    const source: SubtitlesFragment[] = [
+      { text: 'hello', start: 1000, end: 1200 },
+    ]
+    const units = [
+      { from: 0, to: 1, text: 'Hello world.' },
+    ]
+
+    expect(() => buildFragmentsFromUnits(units, source)).toThrow('Segmentation unit index out of bounds')
+  })
+
   it('merges short adjacent cues without strong boundary regardless of language', () => {
     const source: SubtitlesFragment[] = [
       { text: '你好', start: 0, end: 220 },
@@ -80,7 +131,7 @@ describe('ai segmentation line protocol', () => {
       { from: 1, to: 2, text: '世界 欢迎你' },
     ]
 
-    const refined = refineSegmentationUnits(units, source)
+    const refined = refineSegmentationUnits(units, source, 'zh')
 
     expect(refined).toEqual([
       { from: 0, to: 2, text: '你好 世界 欢迎你' },
@@ -104,7 +155,7 @@ describe('ai segmentation line protocol', () => {
       },
     ]
 
-    const refined = refineSegmentationUnits(units, source)
+    const refined = refineSegmentationUnits(units, source, 'zh')
 
     expect(refined).toEqual([
       { from: 0, to: 2, text: '这是一个非常非常长的句子片段 我们继续补充更多内容以便测试 。' },
@@ -128,7 +179,7 @@ describe('ai segmentation line protocol', () => {
       },
     ]
 
-    const refined = refineSegmentationUnits(units, source)
+    const refined = refineSegmentationUnits(units, source, 'ja')
 
     expect(refined).toEqual(units)
   })
@@ -149,7 +200,7 @@ describe('ai segmentation line protocol', () => {
       },
     ]
 
-    const refined = refineSegmentationUnits(units, source)
+    const refined = refineSegmentationUnits(units, source, 'en')
 
     expect(refined).toEqual(units)
   })
@@ -160,7 +211,7 @@ describe('ai segmentation line protocol', () => {
       { text: 'this is better.', start: 1200, end: 2200 },
     ]
 
-    const result = enforceCueGuards(cues)
+    const result = enforceCueGuards(cues, 'en')
 
     expect(result).toEqual([
       { text: 'well this is better.', start: 1000, end: 2200 },
@@ -173,29 +224,31 @@ describe('ai segmentation line protocol', () => {
       { text: 'next thought', start: 1200, end: 2200 },
     ]
 
-    const result = enforceCueGuards(cues)
+    const result = enforceCueGuards(cues, 'en')
 
     expect(result).toEqual(cues)
   })
 
-  it('treats comma as strong boundary from shared sentence-end pattern', () => {
+  it('does not treat comma as strong boundary for cue merge guards', () => {
     const cues: SubtitlesFragment[] = [
       { text: 'well,', start: 1000, end: 1200 },
       { text: 'this is better', start: 1200, end: 2200 },
     ]
 
-    const result = enforceCueGuards(cues)
+    const result = enforceCueGuards(cues, 'en')
 
-    expect(result).toEqual(cues)
+    expect(result).toEqual([
+      { text: 'well, this is better', start: 1000, end: 2200 },
+    ])
   })
 
-  it('does not treat colon as strong boundary from shared sentence-end pattern', () => {
+  it('does not treat colon as strong boundary for cue merge guards', () => {
     const cues: SubtitlesFragment[] = [
       { text: 'note:', start: 1000, end: 1200 },
       { text: 'this continues', start: 1200, end: 2200 },
     ]
 
-    const result = enforceCueGuards(cues)
+    const result = enforceCueGuards(cues, 'en')
 
     expect(result).toEqual([
       { text: 'note: this continues', start: 1000, end: 2200 },

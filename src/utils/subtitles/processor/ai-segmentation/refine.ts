@@ -1,9 +1,6 @@
 import type { SubtitlesFragment } from '../../types'
 import type { SegmentationUnit } from './protocol'
-import { SENTENCE_END_PATTERN } from '@/utils/constants/subtitles'
-
-const CJK_CHAR_PATTERN = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u
-const LATIN_CHAR_PATTERN = /[A-Z]/i
+import { isStrongSentenceBoundary, measureTextLengthUnits, normalizeSpaces } from '@/utils/subtitles/utils'
 
 const MERGE_MAX_LENGTH_UNITS = 5
 const MERGE_MAX_DURATION_MS = 900
@@ -12,45 +9,6 @@ const MERGE_MAX_GAP_MS = 280
 const SPLIT_MIN_TOTAL_UNITS = 20
 const SPLIT_MIN_SIDE_UNITS = 4
 const SPLIT_MIN_SCORE = 1
-
-function normalizeSpaces(text: string): string {
-  return text.replace(/\s+/g, ' ').trim()
-}
-
-function hasStrongBoundary(text: string): boolean {
-  return SENTENCE_END_PATTERN.test(text.trim())
-}
-
-function shouldUseWordLikeMeasure(text: string): boolean {
-  const trimmed = text.trim()
-
-  if (!/\s/.test(trimmed)) {
-    return false
-  }
-
-  if (!LATIN_CHAR_PATTERN.test(trimmed)) {
-    return false
-  }
-
-  if (CJK_CHAR_PATTERN.test(trimmed)) {
-    return false
-  }
-
-  return true
-}
-
-function measureTextLengthUnits(text: string): number {
-  const normalized = normalizeSpaces(text)
-  if (!normalized) {
-    return 0
-  }
-
-  if (shouldUseWordLikeMeasure(normalized)) {
-    return normalized.split(/\s+/).filter(Boolean).length
-  }
-
-  return Array.from(normalized.replace(/\s+/g, '')).length
-}
 
 function composeTextFromSourceRange(
   source: SubtitlesFragment[],
@@ -93,12 +51,13 @@ function shouldMergeAdjacentUnits(
   previous: SegmentationUnit,
   current: SegmentationUnit,
   source: SubtitlesFragment[],
+  sourceLanguage: string,
 ): boolean {
-  if (hasStrongBoundary(previous.text)) {
+  if (isStrongSentenceBoundary(previous.text)) {
     return false
   }
 
-  if (measureTextLengthUnits(previous.text) > MERGE_MAX_LENGTH_UNITS) {
+  if (measureTextLengthUnits(previous.text, sourceLanguage) > MERGE_MAX_LENGTH_UNITS) {
     return false
   }
 
@@ -112,6 +71,7 @@ function shouldMergeAdjacentUnits(
 function mergeOverFragmentedUnits(
   units: SegmentationUnit[],
   source: SubtitlesFragment[],
+  sourceLanguage: string,
 ): SegmentationUnit[] {
   if (units.length <= 1) {
     return units.map(unit => ({ ...unit }))
@@ -127,7 +87,7 @@ function mergeOverFragmentedUnits(
       continue
     }
 
-    if (shouldMergeAdjacentUnits(previous, unit, source)) {
+    if (shouldMergeAdjacentUnits(previous, unit, source, sourceLanguage)) {
       previous.to = unit.to
       previous.text = normalizeSpaces(`${previous.text} ${unit.text}`)
       continue
@@ -143,6 +103,7 @@ function evaluateSplitScore(
   source: SubtitlesFragment[],
   unit: SegmentationUnit,
   splitIndex: number,
+  sourceLanguage: string,
 ): { score: number, leftText: string, rightText: string } | null {
   const leftText = composeTextFromSourceRange(source, unit.from, splitIndex - 1)
   const rightText = composeTextFromSourceRange(source, splitIndex, unit.to)
@@ -151,8 +112,8 @@ function evaluateSplitScore(
     return null
   }
 
-  const leftLength = measureTextLengthUnits(leftText)
-  const rightLength = measureTextLengthUnits(rightText)
+  const leftLength = measureTextLengthUnits(leftText, sourceLanguage)
+  const rightLength = measureTextLengthUnits(rightText, sourceLanguage)
 
   if (leftLength < SPLIT_MIN_SIDE_UNITS || rightLength < SPLIT_MIN_SIDE_UNITS) {
     return null
@@ -171,7 +132,7 @@ function evaluateSplitScore(
     score -= 1
   }
 
-  if (hasStrongBoundary(leftText)) {
+  if (isStrongSentenceBoundary(leftText)) {
     score += 2
   }
 
@@ -185,11 +146,14 @@ function evaluateSplitScore(
 function splitLongUnitsBySignals(
   units: SegmentationUnit[],
   source: SubtitlesFragment[],
+  sourceLanguage: string,
 ): SegmentationUnit[] {
+  // Intentional single-pass split: choose one strongest boundary per long unit.
+  // If still too long, we prefer keeping semantic continuity instead of recursive splitting.
   const splitUnits: SegmentationUnit[] = []
 
   for (const unit of units) {
-    if (unit.from === unit.to || measureTextLengthUnits(unit.text) <= SPLIT_MIN_TOTAL_UNITS) {
+    if (unit.from === unit.to || measureTextLengthUnits(unit.text, sourceLanguage) <= SPLIT_MIN_TOTAL_UNITS) {
       splitUnits.push({ ...unit })
       continue
     }
@@ -200,7 +164,7 @@ function splitLongUnitsBySignals(
     let bestRightText = ''
 
     for (let splitIndex = unit.from + 1; splitIndex <= unit.to; splitIndex++) {
-      const candidate = evaluateSplitScore(source, unit, splitIndex)
+      const candidate = evaluateSplitScore(source, unit, splitIndex, sourceLanguage)
       if (!candidate) {
         continue
       }
@@ -236,9 +200,10 @@ function splitLongUnitsBySignals(
 export function refineSegmentationUnits(
   units: SegmentationUnit[],
   source: SubtitlesFragment[],
+  sourceLanguage: string,
 ): SegmentationUnit[] {
-  const mergedUnits = mergeOverFragmentedUnits(units, source)
-  return splitLongUnitsBySignals(mergedUnits, source)
+  const mergedUnits = mergeOverFragmentedUnits(units, source, sourceLanguage)
+  return splitLongUnitsBySignals(mergedUnits, source, sourceLanguage)
 }
 
 export function buildFragmentsFromUnits(
@@ -248,6 +213,9 @@ export function buildFragmentsFromUnits(
   return units.map((unit) => {
     const startFragment = source[unit.from]
     const endFragment = source[unit.to]
+    if (!startFragment || !endFragment) {
+      throw new Error(`Segmentation unit index out of bounds: ${unit.from}-${unit.to}`)
+    }
 
     return {
       text: unit.text,

@@ -1,29 +1,16 @@
 import type { SubtitlesFragment } from '../../types'
-import { SENTENCE_END_PATTERN } from '@/utils/constants/subtitles'
+import {
+  isStrongSentenceBoundary,
+  measureTextLengthUnits,
+  normalizeSpaces,
+} from '@/utils/subtitles/utils'
 
 const MIN_READABLE_DURATION_MS = 800
 const TINY_CUE_GAP_MS = 300
 const TINY_TEXT_LENGTH_UNITS = 6
 
-function normalizeSpaces(text: string): string {
-  return text.replace(/\s+/g, ' ').trim()
-}
-
-function hasStrongBoundary(text: string): boolean {
-  return SENTENCE_END_PATTERN.test(text.trim())
-}
-
-function isTinyCueText(text: string): boolean {
-  const normalized = normalizeSpaces(text)
-  if (!normalized) {
-    return true
-  }
-
-  if (/\s/.test(normalized)) {
-    return normalized.split(/\s+/).filter(Boolean).length <= TINY_TEXT_LENGTH_UNITS
-  }
-
-  return Array.from(normalized).length <= TINY_TEXT_LENGTH_UNITS
+function isTinyCueText(text: string, sourceLanguage: string): boolean {
+  return measureTextLengthUnits(text, sourceLanguage) <= TINY_TEXT_LENGTH_UNITS
 }
 
 function normalizeTimeline(fragments: SubtitlesFragment[]): SubtitlesFragment[] {
@@ -53,7 +40,7 @@ function normalizeTimeline(fragments: SubtitlesFragment[]): SubtitlesFragment[] 
   return normalized
 }
 
-function mergeTinyCues(fragments: SubtitlesFragment[]): SubtitlesFragment[] {
+function mergeTinyCues(fragments: SubtitlesFragment[], sourceLanguage: string): SubtitlesFragment[] {
   if (fragments.length <= 1) {
     return fragments
   }
@@ -72,8 +59,8 @@ function mergeTinyCues(fragments: SubtitlesFragment[]): SubtitlesFragment[] {
     const gap = fragment.start - previous.end
     const isShortDuration = prevDuration < MIN_READABLE_DURATION_MS
     const isSmallGap = gap <= TINY_CUE_GAP_MS
-    const isPreviousTiny = isTinyCueText(previous.text)
-    const hasBoundary = hasStrongBoundary(previous.text)
+    const isPreviousTiny = isTinyCueText(previous.text, sourceLanguage)
+    const hasBoundary = isStrongSentenceBoundary(previous.text)
     const shouldMerge = isShortDuration && isSmallGap && isPreviousTiny && !hasBoundary
 
     if (shouldMerge) {
@@ -90,6 +77,9 @@ function mergeTinyCues(fragments: SubtitlesFragment[]): SubtitlesFragment[] {
 
 export function enforceCueGuards(
   fragments: SubtitlesFragment[],
+  sourceLanguage: string,
 ): SubtitlesFragment[] {
-  return normalizeTimeline(mergeTinyCues(normalizeTimeline(fragments)))
+  // First pass fixes malformed timeline from model output/input.
+  // Second pass fixes possible overlaps introduced while merging tiny cues.
+  return normalizeTimeline(mergeTinyCues(normalizeTimeline(fragments), sourceLanguage))
 }

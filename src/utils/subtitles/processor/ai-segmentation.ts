@@ -13,9 +13,13 @@ import { buildFragmentsFromUnits, refineSegmentationUnits } from './ai-segmentat
 export async function aiSegmentBlock(
   fragments: SubtitlesFragment[],
   config: Config,
+  sourceLanguage: string,
 ): Promise<SubtitlesFragment[]> {
   if (fragments.length === 0) {
     return fragments
+  }
+  if (!sourceLanguage.trim()) {
+    throw new Error('sourceLanguage is required for AI segmentation')
   }
 
   const cleanedFragments = cleanFragmentsForAi(fragments)
@@ -32,9 +36,9 @@ export async function aiSegmentBlock(
   const units = parseLineProtocolToUnits(segmentedOutput)
   validateSegmentationUnits(units, cleanedFragments.length)
 
-  const refinedUnits = refineSegmentationUnits(units, cleanedFragments)
+  const refinedUnits = refineSegmentationUnits(units, cleanedFragments, sourceLanguage)
   validateSegmentationUnits(refinedUnits, cleanedFragments.length)
 
   const rebuiltFragments = buildFragmentsFromUnits(refinedUnits, cleanedFragments)
-  return enforceCueGuards(rebuiltFragments)
+  return enforceCueGuards(rebuiltFragments, sourceLanguage)
 }

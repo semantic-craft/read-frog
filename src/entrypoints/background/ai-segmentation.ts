@@ -7,6 +7,7 @@ import { logger } from '@/utils/logger'
 import { getSubtitlesSegmentationPrompt } from '@/utils/prompts/subtitles-segmentation'
 import { getTranslateModelById } from '@/utils/providers/model'
 import { getProviderOptionsWithOverride } from '@/utils/providers/options'
+import { cleanLineProtocolResponse } from '@/utils/subtitles/processor/ai-segmentation/protocol'
 import { ensureInitializedConfig } from './config'
 
 interface AiSegmentSubtitlesData {
@@ -15,22 +16,6 @@ interface AiSegmentSubtitlesData {
 }
 
 const AI_SEGMENTATION_CACHE_SCHEMA_VERSION = 'seg-line-v1'
-
-/**
- * Clean line-protocol response from AI (remove markdown fences and model thinking content)
- */
-function cleanLineProtocolResponse(text: string): string {
-  let cleaned = text.trim()
-
-  // Remove markdown code blocks
-  cleaned = cleaned.replace(/```[\w-]*\n?/g, '').replace(/```\n?/g, '')
-
-  // Handle thinking model output (strip <think> tags)
-  const [, afterThink = cleaned] = cleaned.match(/<\/think>([\s\S]*)/) || []
-  cleaned = afterThink.trim()
-
-  return cleaned
-}
 
 /**
  * Run AI segmentation on JSON subtitle content

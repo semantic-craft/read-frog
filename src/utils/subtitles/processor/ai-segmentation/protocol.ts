@@ -9,6 +9,17 @@ export interface SegmentationUnit {
   text: string
 }
 
+export function cleanLineProtocolResponse(text: string): string {
+  let cleaned = text.trim()
+
+  cleaned = cleaned.replace(/```[\w-]*\n?/g, '').replace(/```\n?/g, '')
+
+  const [, afterThink = cleaned] = cleaned.match(/<\/think>([\s\S]*)/) || []
+  cleaned = afterThink.trim()
+
+  return cleaned
+}
+
 export function cleanFragmentsForAi(fragments: SubtitlesFragment[]): SubtitlesFragment[] {
   return fragments
     .map(fragment => ({
@@ -75,6 +86,10 @@ export function validateSegmentationUnits(
     throw new Error('Cannot validate segmentation units with empty source')
   }
 
+  if (units.length === 0) {
+    throw new Error('Segmentation units are empty')
+  }
+
   let expectedFrom = 0
 
   for (const unit of units) {
@@ -86,8 +101,12 @@ export function validateSegmentationUnits(
       throw new Error(`Segmentation range out of bounds: ${unit.from}-${unit.to}`)
     }
 
-    if (unit.from !== expectedFrom) {
-      throw new Error(`Segmentation coverage mismatch at index ${expectedFrom}`)
+    if (unit.from > expectedFrom) {
+      throw new Error(`Segmentation coverage gap at index ${expectedFrom}`)
+    }
+
+    if (unit.from < expectedFrom) {
+      throw new Error(`Segmentation overlap at index ${unit.from}`)
     }
 
     expectedFrom = unit.to + 1
