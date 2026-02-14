@@ -14,23 +14,20 @@ interface AiSegmentSubtitlesData {
   providerId: string
 }
 
+const AI_SEGMENTATION_CACHE_SCHEMA_VERSION = 'seg-line-v1'
+
 /**
- * Clean VTT response from AI (remove markdown code blocks, ensure WEBVTT header)
+ * Clean line-protocol response from AI (remove markdown fences and model thinking content)
  */
-function cleanVttResponse(text: string): string {
+function cleanLineProtocolResponse(text: string): string {
   let cleaned = text.trim()
 
   // Remove markdown code blocks
-  cleaned = cleaned.replace(/```vtt\n?/g, '').replace(/```\n?/g, '')
+  cleaned = cleaned.replace(/```[\w-]*\n?/g, '').replace(/```\n?/g, '')
 
   // Handle thinking model output (strip <think> tags)
   const [, afterThink = cleaned] = cleaned.match(/<\/think>([\s\S]*)/) || []
   cleaned = afterThink.trim()
-
-  // Ensure starts with WEBVTT
-  if (!cleaned.toUpperCase().startsWith('WEBVTT')) {
-    cleaned = `WEBVTT\n\n${cleaned}`
-  }
 
   return cleaned
 }
@@ -61,7 +58,11 @@ export async function runAiSegmentSubtitles(data: AiSegmentSubtitlesData): Promi
 
   // Check cache
   const jsonContentHash = Sha256Hex(jsonContent)
-  const cacheKey = Sha256Hex(jsonContentHash, JSON.stringify(providerConfig))
+  const cacheKey = Sha256Hex(
+    jsonContentHash,
+    JSON.stringify(providerConfig),
+    AI_SEGMENTATION_CACHE_SCHEMA_VERSION,
+  )
   const cached = await db.aiSegmentationCache.get(cacheKey)
   if (cached) {
     logger.info('[Background] AI subtitle segmentation cache hit')
@@ -76,7 +77,7 @@ export async function runAiSegmentSubtitles(data: AiSegmentSubtitlesData): Promi
   const { systemPrompt, prompt } = getSubtitlesSegmentationPrompt(jsonContent)
 
   try {
-    const { text: segmentedVtt } = await generateText({
+    const { text: segmentedOutput } = await generateText({
       model,
       system: systemPrompt,
       prompt,
@@ -85,7 +86,7 @@ export async function runAiSegmentSubtitles(data: AiSegmentSubtitlesData): Promi
       maxRetries: 0,
     })
 
-    const result = cleanVttResponse(segmentedVtt)
+    const result = cleanLineProtocolResponse(segmentedOutput)
 
     // Write to cache
     await db.aiSegmentationCache.put({

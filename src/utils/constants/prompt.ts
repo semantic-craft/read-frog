@@ -83,65 +83,53 @@ export const DEFAULT_TRANSLATE_PROMPTS_CONFIG = {
 
 // === Subtitles Segmentation Prompts ===
 
-export const DEFAULT_SUBTITLES_SEGMENTATION_SYSTEM_PROMPT = `You are a subtitle segmentation expert. Convert word-level subtitle fragments into sentence-based VTT format.
+export const DEFAULT_SUBTITLES_SEGMENTATION_SYSTEM_PROMPT = `You are a subtitle segmentation expert. Re-group subtitle fragments into readable cues and add natural punctuation.
 
 ## Input
-JSON array of word-level fragments:
-[{"s": 1000, "e": 1200, "t": "hello"}, {"s": 1200, "e": 1500, "t": "world"}, ...]
+JSON array of fragments:
+[{"i": 0, "s": 1000, "e": 1200, "t": "hello"}, {"i": 1, "s": 1200, "e": 1500, "t": "world"}, ...]
+- i: fragment index (strictly increasing)
 - s: start time (milliseconds)
 - e: end time (milliseconds)
 - t: text content
 
-## Output
-Simplified VTT format with millisecond timestamps:
+## Output format (STRICT)
+Output ONLY lines in this format:
+from-to | text
 
-WEBVTT
-
-1000 --> 1500
-Hello world.
-
-2000 --> 3500
-This is a sentence.
+Example:
+0-1 | Hello world.
+2-4 | This is a sentence.
 
 ## Rules
-1. **Complete sentences only** - Each cue must be a COMPLETE, standalone sentence that expresses a full thought.
-2. **Never split at incomplete clauses** - A clause that cannot stand alone as a complete thought MUST be merged with the clause it depends on. Signs of incomplete clauses:
-   - Sets up a condition, time, or reason but doesn't state the result/consequence
-   - Ends with a conjunction or leaves an expectation unfulfilled
-   - Would sound unfinished if spoken alone
-   Example: "When Moses left Egypt" is INCOMPLETE - it sets up a time but doesn't say what happened.
-3. **Timestamp extraction algorithm** - For EACH sentence:
-   - Find the FIRST word of the sentence in the input array → use its "s" value as START time
-   - Find the LAST word of the sentence in the input array → use its "e" value as END time
-   - If a fragment has no "e", look at the next fragment's "s" as the implicit end
-4. **Punctuation** - Add appropriate punctuation (. ? ! ,) based on context
-5. **Capitalization** - Capitalize first letter of each sentence
-6. **No translation** - Keep the original language
-7. **Output only** - Return ONLY the VTT content, no explanations
-8. **No omission** - Include ALL input fragments. Every fragment must appear in exactly one cue.
+1. **Keep order and coverage**
+   - Do not reorder fragments.
+   - Every input index must appear exactly once in one output range.
+   - Ranges must be continuous and non-overlapping.
 
-## Critical Example: Correct Timestamp Alignment
+2. **No translation**
+   - Keep the original language.
+   - You may add punctuation and capitalization for readability.
 
-Input:
-[{"s":134200,"e":134760,"t":"Moses"},{"s":134760,"e":135160,"t":"had"},{"s":135160,"e":136160,"t":"died"},{"s":136160,"e":136270,"t":"I"},{"s":136280,"e":136519,"t":"thought"},{"s":136519,"e":136720,"t":"the"},{"s":136720,"e":137040,"t":"story"},{"s":137040,"e":137239,"t":"was"},{"s":137239,"e":137599,"t":"about"},{"s":137599,"e":138160,"t":"him"}]
+3. **Readability with continuity priority**
+   - Prefer coherent phrases and complete thoughts.
+   - Avoid over-fragmentation (especially tiny 4-5 word English chunks) unless there is a strong boundary.
+   - Strong boundaries: clear punctuation (. ? ! ; :), obvious pause, or explicit speaker/thought shift.
+   - Prefer splitting at discourse boundaries like: I mean / actually / but / so / then / now / when / if.
+   - Avoid splitting before connector starts (and / or / to / of / with) when the thought is still continuous.
+   - Avoid awkward adjective chain breaks (bad: "super | and tall", good: "super and tall | I ...").
 
-WRONG (timestamps shifted - using end of previous sentence as start of next):
-134200 --> 138160
-Moses had died.
+4. **Length guidance (soft)**
+   - CJK target: 10-18 chars, hard limit 22 chars.
+   - Space-separated languages target: 6-14 words, hard limit 18 words.
+   - If length and continuity conflict, prefer semantic continuity and split at the nearest meaningful boundary.
 
-138160 --> ...
-I thought the story was about him.
-
-CORRECT (each sentence uses its OWN first word's "s" and last word's "e"):
-134200 --> 136160
-Moses had died.
-
-136160 --> 138160
-I thought the story was about him.
-
-Explanation:
-- "Moses had died" → first word "Moses" has s:134200, last word "died" has e:136160 → 134200 --> 136160
-- "I thought the story was about him" → first word "I" has s:136160, last word "him" has e:138160 → 136160 --> 138160`
+5. **Output constraints**
+   - Output ONLY protocol lines: from-to | text
+   - No markdown code blocks.
+   - No JSON.
+   - No explanations.
+   - No extra prefixes/suffixes.`
 
 export const DEFAULT_SUBTITLES_SEGMENTATION_PROMPT = `Re-segment these subtitles:
 
