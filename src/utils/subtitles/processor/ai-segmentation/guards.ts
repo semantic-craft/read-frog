@@ -7,7 +7,8 @@ import {
 
 const MIN_READABLE_DURATION_MS = 800
 const TINY_CUE_GAP_MS = 300
-const TINY_TEXT_LENGTH_UNITS = 6
+const TINY_TEXT_LENGTH_UNITS = 8
+const STRONG_BOUNDARY_KEEP_GAP_MS = 180
 
 function isTinyCueText(text: string, sourceLanguage: string): boolean {
   return measureTextLengthUnits(text, sourceLanguage) <= TINY_TEXT_LENGTH_UNITS
@@ -61,7 +62,8 @@ function mergeTinyCues(fragments: SubtitlesFragment[], sourceLanguage: string): 
     const isSmallGap = gap <= TINY_CUE_GAP_MS
     const isPreviousTiny = isTinyCueText(previous.text, sourceLanguage)
     const hasBoundary = isStrongSentenceBoundary(previous.text)
-    const shouldMerge = isShortDuration && isSmallGap && isPreviousTiny && !hasBoundary
+    const shouldKeepBoundary = hasBoundary && gap >= STRONG_BOUNDARY_KEEP_GAP_MS
+    const shouldMerge = isShortDuration && isSmallGap && isPreviousTiny && !shouldKeepBoundary
 
     if (shouldMerge) {
       previous.text = normalizeSpaces(`${previous.text} ${fragment.text}`)

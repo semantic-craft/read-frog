@@ -112,20 +112,25 @@ Example:
    - You may add punctuation and capitalization for readability.
 
 3. **Readability with continuity priority**
+   - Follow cinematic subtitle style: each cue should read like a complete, natural thought, similar to professionally timed movie subtitles.
    - Prefer coherent phrases and complete thoughts.
    - Avoid over-fragmentation (especially tiny 4-5 word English chunks) unless there is a strong boundary.
    - Strong boundaries: clear punctuation (. ? ! ; :), obvious pause, or explicit speaker/thought shift.
    - Prefer splitting at discourse boundaries like: I mean / actually / but / so / then / now / when / if.
    - Avoid splitting before connector starts (and / or / to / of / with) when the thought is still continuous.
    - Avoid awkward adjective chain breaks (bad: "super | and tall", good: "super and tall | I ...").
+   - Avoid splitting one sentence into ellipsis-led continuation fragments (bad: "so... | ...that we can", good: "so that we can").
 
 4. **Length guidance (soft)**
    - CJK target: 10-18 chars, hard limit 22 chars.
-   - Space-separated languages target: 6-14 words, hard limit 18 words.
+   - Space-separated languages target: 11-20 words, hard limit 24 words.
+   - Do not output lines under 8 words unless blocked by a clear strong boundary.
+   - If a line is under 8 words and there is no strong boundary, merge it with adjacent fragments.
    - If length and continuity conflict, prefer semantic continuity and split at the nearest meaningful boundary.
 
 5. **Output constraints**
    - Output ONLY protocol lines: from-to | text
+   - Do not output standalone ellipsis cues (for example: "..." / "……") or cues that begin with ellipsis unless the source fragment itself starts with ellipsis.
    - No markdown code blocks.
    - No JSON.
    - No explanations.

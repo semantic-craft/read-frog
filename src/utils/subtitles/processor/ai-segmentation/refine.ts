@@ -1,14 +1,48 @@
 import type { SubtitlesFragment } from '../../types'
 import type { SegmentationUnit } from './protocol'
-import { isStrongSentenceBoundary, measureTextLengthUnits, normalizeSpaces } from '@/utils/subtitles/utils'
+import {
+  isCJKLanguage,
+  isStrongSentenceBoundary,
+  measureTextLengthUnits,
+  normalizeSpaces,
+} from '@/utils/subtitles/utils'
 
-const MERGE_MAX_LENGTH_UNITS = 5
-const MERGE_MAX_DURATION_MS = 900
-const MERGE_MAX_GAP_MS = 280
+const MERGE_HARD_MIN_UNITS_SPACE = 8
+const MERGE_HARD_MIN_UNITS_CJK = 6
+const MERGE_TARGET_MIN_UNITS_SPACE = 11
+const MERGE_TARGET_MIN_UNITS_CJK = 10
+const MERGE_MAX_COMBINED_UNITS_SPACE = 24
+const MERGE_MAX_COMBINED_UNITS_CJK = 22
+const MERGE_MAX_DURATION_MS = 2_200
+const MERGE_MAX_GAP_MS = 320
+const MERGE_STRONG_BOUNDARY_OVERRIDE_MAX_UNITS_SPACE = 4
+const MERGE_STRONG_BOUNDARY_OVERRIDE_MAX_UNITS_CJK = 4
+const MERGE_STRONG_BOUNDARY_OVERRIDE_MAX_GAP_MS = 120
 
-const SPLIT_MIN_TOTAL_UNITS = 20
-const SPLIT_MIN_SIDE_UNITS = 4
+const SPLIT_MIN_TOTAL_UNITS = 24
 const SPLIT_MIN_SCORE = 1
+
+function getMergeHardMinUnits(sourceLanguage: string): number {
+  return isCJKLanguage(sourceLanguage) ? MERGE_HARD_MIN_UNITS_CJK : MERGE_HARD_MIN_UNITS_SPACE
+}
+
+function getMergeTargetMinUnits(sourceLanguage: string): number {
+  return isCJKLanguage(sourceLanguage) ? MERGE_TARGET_MIN_UNITS_CJK : MERGE_TARGET_MIN_UNITS_SPACE
+}
+
+function getMergeMaxCombinedUnits(sourceLanguage: string): number {
+  return isCJKLanguage(sourceLanguage) ? MERGE_MAX_COMBINED_UNITS_CJK : MERGE_MAX_COMBINED_UNITS_SPACE
+}
+
+function getStrongBoundaryOverrideMaxUnits(sourceLanguage: string): number {
+  return isCJKLanguage(sourceLanguage)
+    ? MERGE_STRONG_BOUNDARY_OVERRIDE_MAX_UNITS_CJK
+    : MERGE_STRONG_BOUNDARY_OVERRIDE_MAX_UNITS_SPACE
+}
+
+function getSplitMinSideUnits(sourceLanguage: string): number {
+  return getMergeHardMinUnits(sourceLanguage)
+}
 
 function composeTextFromSourceRange(
   source: SubtitlesFragment[],
@@ -53,11 +87,20 @@ function shouldMergeAdjacentUnits(
   source: SubtitlesFragment[],
   sourceLanguage: string,
 ): boolean {
-  if (isStrongSentenceBoundary(previous.text)) {
+  const previousLength = measureTextLengthUnits(previous.text, sourceLanguage)
+  const currentLength = measureTextLengthUnits(current.text, sourceLanguage)
+  const hardMinUnits = getMergeHardMinUnits(sourceLanguage)
+  const targetMinUnits = getMergeTargetMinUnits(sourceLanguage)
+  const combinedText = normalizeSpaces(`${previous.text} ${current.text}`)
+  const combinedLength = measureTextLengthUnits(combinedText, sourceLanguage)
+
+  const shouldMergeForLength = previousLength < targetMinUnits
+    || currentLength < hardMinUnits
+  if (!shouldMergeForLength) {
     return false
   }
 
-  if (measureTextLengthUnits(previous.text, sourceLanguage) > MERGE_MAX_LENGTH_UNITS) {
+  if (combinedLength > getMergeMaxCombinedUnits(sourceLanguage)) {
     return false
   }
 
@@ -65,7 +108,19 @@ function shouldMergeAdjacentUnits(
     return false
   }
 
-  return getBoundaryGapMs(source, current.from) <= MERGE_MAX_GAP_MS
+  const gap = getBoundaryGapMs(source, current.from)
+  if (gap > MERGE_MAX_GAP_MS) {
+    return false
+  }
+
+  if (!isStrongSentenceBoundary(previous.text)) {
+    return true
+  }
+
+  const canOverrideUltraShort = previousLength <= getStrongBoundaryOverrideMaxUnits(sourceLanguage)
+  const canOverrideShortPair = previousLength < targetMinUnits && currentLength < hardMinUnits
+  return (canOverrideUltraShort || canOverrideShortPair)
+    && gap <= MERGE_STRONG_BOUNDARY_OVERRIDE_MAX_GAP_MS
 }
 
 function mergeOverFragmentedUnits(
@@ -114,8 +169,9 @@ function evaluateSplitScore(
 
   const leftLength = measureTextLengthUnits(leftText, sourceLanguage)
   const rightLength = measureTextLengthUnits(rightText, sourceLanguage)
+  const minSideUnits = getSplitMinSideUnits(sourceLanguage)
 
-  if (leftLength < SPLIT_MIN_SIDE_UNITS || rightLength < SPLIT_MIN_SIDE_UNITS) {
+  if (leftLength < minSideUnits || rightLength < minSideUnits) {
     return null
   }
 

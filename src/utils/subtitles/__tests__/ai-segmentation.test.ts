@@ -205,6 +205,42 @@ describe('ai segmentation line protocol', () => {
     expect(refined).toEqual(units)
   })
 
+  it('merges short english units into readable length even with punctuation noise', () => {
+    const source: SubtitlesFragment[] = [
+      { text: 'Become', start: 0, end: 180 },
+      { text: 'tense', start: 180, end: 360 },
+      { text: 'and', start: 360, end: 520 },
+      { text: 'difficult', start: 520, end: 760 },
+      { text: 'lets', start: 760, end: 940 },
+      { text: 'listen', start: 940, end: 1120 },
+      { text: 'to', start: 1120, end: 1260 },
+      { text: 'that', start: 1260, end: 1420 },
+      { text: 'song', start: 1420, end: 1620 },
+      { text: 'and', start: 1620, end: 1780 },
+      { text: 'learn', start: 1780, end: 1940 },
+      { text: 'some', start: 1940, end: 2080 },
+      { text: 'new', start: 2080, end: 2220 },
+      { text: 'vocabulary', start: 2220, end: 2460 },
+    ]
+
+    const units = [
+      { from: 0, to: 1, text: 'Become tense.' },
+      { from: 2, to: 3, text: 'and difficult.' },
+      { from: 4, to: 8, text: 'lets listen to that song.' },
+      { from: 9, to: 13, text: 'and learn some new vocabulary.' },
+    ]
+
+    const refined = refineSegmentationUnits(units, source, 'en')
+
+    expect(refined).toEqual([
+      {
+        from: 0,
+        to: 13,
+        text: 'Become tense. and difficult. lets listen to that song. and learn some new vocabulary.',
+      },
+    ])
+  })
+
   it('merges tiny adjacent cues without strong boundary', () => {
     const cues: SubtitlesFragment[] = [
       { text: 'well', start: 1000, end: 1200 },
@@ -218,7 +254,18 @@ describe('ai segmentation line protocol', () => {
     ])
   })
 
-  it('keeps tiny cue when it already has strong boundary punctuation', () => {
+  it('keeps tiny cue when strong boundary has noticeable pause', () => {
+    const cues: SubtitlesFragment[] = [
+      { text: 'Okay.', start: 1000, end: 1200 },
+      { text: 'next thought', start: 1450, end: 2200 },
+    ]
+
+    const result = enforceCueGuards(cues, 'en')
+
+    expect(result).toEqual(cues)
+  })
+
+  it('merges tiny cue with punctuation when there is no real pause', () => {
     const cues: SubtitlesFragment[] = [
       { text: 'Okay.', start: 1000, end: 1200 },
       { text: 'next thought', start: 1200, end: 2200 },
@@ -226,7 +273,9 @@ describe('ai segmentation line protocol', () => {
 
     const result = enforceCueGuards(cues, 'en')
 
-    expect(result).toEqual(cues)
+    expect(result).toEqual([
+      { text: 'Okay. next thought', start: 1000, end: 2200 },
+    ])
   })
 
   it('does not treat comma as strong boundary for cue merge guards', () => {
