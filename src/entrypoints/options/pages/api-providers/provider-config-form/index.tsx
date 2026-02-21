@@ -56,7 +56,6 @@ export function ProviderConfigForm() {
   }
 
   const chooseNextProviderConfig = (providersConfig: ProvidersConfig) => {
-    // better not choose non API provider
     const firstProvider = providersConfig.find(p => !isNonAPIProvider(p.provider))
     return firstProvider ?? providersConfig[0]
   }
