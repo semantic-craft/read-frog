@@ -45,7 +45,6 @@ export function ProviderConfigForm() {
   const isTranslateProviderName = isTranslateProvider(providerType)
   const isLLM = isLLMProvider(providerType)
 
-  // Reset form when selectedProviderId changes
   useEffect(() => {
     if (providerConfig && isAPIProviderConfig(providerConfig)) {
       form.reset(providerConfig)
