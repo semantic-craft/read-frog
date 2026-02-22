@@ -2,9 +2,8 @@ import { i18n } from '#imports'
 import { deepmerge } from 'deepmerge-ts'
 import { useAtom } from 'jotai'
 import { useMemo } from 'react'
-import { NewBadge } from '@/components/badges/new-badge'
+import { HelpTooltip } from '@/components/help-tooltip'
 import { Field, FieldContent, FieldLabel } from '@/components/ui/base-ui/field'
-import { Hint } from '@/components/ui/base-ui/hint'
 import { Switch } from '@/components/ui/base-ui/switch'
 import { isLLMProviderConfig } from '@/types/config/provider'
 import { configFieldsAtomMap } from '@/utils/atoms/config'
@@ -23,17 +22,11 @@ export function AIContentAware() {
 
   return (
     <ConfigCard
-      title={(
-        <>
-          {i18n.t('options.translation.aiContentAware.title')}
-          {' '}
-          <NewBadge className="align-middle" />
-        </>
-      )}
+      title={i18n.t('options.translation.aiContentAware.title')}
       description={(
         <>
           {i18n.t('options.translation.aiContentAware.description')}
-          <LLMStatusIndicator hasLLMProvider={hasLLMProvider} />
+          <LLMStatusIndicator hasLLMProvider={hasLLMProvider} featureName={i18n.t('options.general.featureProviders.features.translate')} />
         </>
       )}
     >
@@ -41,7 +34,7 @@ export function AIContentAware() {
         <FieldContent className="self-center">
           <FieldLabel htmlFor="ai-content-aware-toggle">
             {i18n.t('options.translation.aiContentAware.enable')}
-            <Hint content={i18n.t('options.translation.aiContentAware.enableDescription')} />
+            <HelpTooltip>{i18n.t('options.translation.aiContentAware.enableDescription')}</HelpTooltip>
           </FieldLabel>
         </FieldContent>
         <Switch

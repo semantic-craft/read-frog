@@ -151,17 +151,9 @@ options:
         inputTranslation: 輸入翻譯
         videoSubtitles: 影片字幕
     translationConfig:
-      title: 翻譯配置
-      description: 僅用於網頁內的翻譯，如雙語段落翻譯。
-      provider: 提供商
       model:
         title: 模型
-        enterCustomModel: 輸入自定義模型名稱
-      translateRange:
-        title: 翻譯範圍
-        range:
-          main: 主要內容
-          all: 所有內容
+        enterCustomModel: 輸入自訂模型名稱
     clearCache:
       title: 清理快取
       description: 清理瀏覽器中的所有翻譯快取
@@ -369,6 +361,12 @@ options:
       mode:
         bilingual: 雙語對照
         translationOnly: 僅顯示翻譯
+    translateRange:
+      title: 翻譯範圍
+      description: 選擇是僅翻譯主要內容還是翻譯頁面上的所有內容。
+      range:
+        main: 主要內容
+        all: 全部內容
     pageTranslationShortcut:
       title: 網頁翻譯快捷鍵
       description: 自訂翻譯整個網頁的快捷鍵
@@ -394,20 +392,26 @@ options:
     nodeTranslationHotkey:
       title: 懸停或長按翻譯快捷鍵
       description: 自訂懸停翻譯的修飾鍵，或使用滑鼠長按翻譯段落
-    llmProviderConfigured: 已設定 LLM 翻譯提供商
-    llmProviderNotConfigured: 未設定 LLM 翻譯提供商
+    llmProviderConfigured: 已為$1選擇 LLM 提供商
+    llmProviderNotConfigured: 沒有為$1選擇 LLM 提供商
     autoTranslateLanguages:
       title: 基於語言的自動翻譯
       description: 當檢測到特定語言時自動翻譯頁面內容
       selectLanguages: 選擇語言
-      enableLLMDetection: 使用 LLM 偵測語言
-      enableLLMDetectionDescription: 提高準確率，但會增加延遲和 API 費用。需要設定 LLM 翻譯提供商，並需配置自動翻譯語言。
+      detection:
+        label: 語言偵測
+        basic: 基礎
+        llm: LLM
+        description: 基礎偵測快速且免費。LLM 偵測更準確，但會增加延遲和 API 費用。需配置自動翻譯語言。
     skipLanguages:
       title: 基於語言的自動跳過
       description: 當檢測到指定語言時自動跳過段落翻譯
       selectLanguages: 選擇語言
-      enableLLMDetection: 使用 LLM 偵測語言
-      enableLLMDetectionDescription: 提高準確率，但會增加延遲和 API 費用。需要設定 LLM 翻譯提供商。
+      detection:
+        label: 語言偵測
+        basic: 基礎
+        llm: LLM
+        description: 基礎偵測快速且免費。LLM 偵測更準確，但會增加延遲和 API 費用。
     aiContentAware:
       title: AI 智慧上下文翻譯
       description: 透過向 AI 提供文章上下文來提高翻譯品質

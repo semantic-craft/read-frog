@@ -151,17 +151,9 @@ options:
         inputTranslation: 输入翻译
         videoSubtitles: 视频字幕
     translationConfig:
-      title: 翻译配置
-      description: 仅用于网页内的翻译，如双语段落翻译。
-      provider: 提供商
       model:
         title: 模型
         enterCustomModel: 输入自定义模型名称
-      translateRange:
-        title: 翻译范围
-        range:
-          main: 主要内容
-          all: 所有内容
     clearCache:
       title: 清理缓存
       description: 清理浏览器中的所有翻译缓存
@@ -369,6 +361,12 @@ options:
       mode:
         bilingual: 双语对照
         translationOnly: 仅显示翻译
+    translateRange:
+      title: 翻译范围
+      description: 选择是仅翻译主要内容还是翻译页面上的所有内容。
+      range:
+        main: 主要内容
+        all: 全部内容
     pageTranslationShortcut:
       title: 网页翻译快捷键
       description: 自定义翻译整个网页的快捷键
@@ -394,20 +392,26 @@ options:
     nodeTranslationHotkey:
       title: 悬停或长按翻译快捷键
       description: 自定义悬停翻译的修饰键，或使用鼠标长按翻译段落
-    llmProviderConfigured: 已配置 LLM 翻译提供商
-    llmProviderNotConfigured: 未配置 LLM 翻译提供商
+    llmProviderConfigured: 已为$1选择 LLM 提供商
+    llmProviderNotConfigured: 没有为$1选择 LLM 提供商
     autoTranslateLanguages:
       title: 基于语言的自动翻译
       description: 当检测到指定语言时自动翻译页面内容
       selectLanguages: 选择语言
-      enableLLMDetection: 使用 LLM 检测语言
-      enableLLMDetectionDescription: 提高准确率，但会增加延迟和 API 费用。需要配置 LLM 翻译提供商，并需配置自动翻译语言。
+      detection:
+        label: 语言检测
+        basic: 基础
+        llm: LLM
+        description: 基础检测快速且免费。LLM 检测更准确，但会增加延迟和 API 费用。需配置自动翻译语言。
     skipLanguages:
       title: 基于语言的自动跳过
       description: 当检测到指定语言时自动跳过段落翻译
       selectLanguages: 选择语言
-      enableLLMDetection: 使用 LLM 检测语言
-      enableLLMDetectionDescription: 提高准确率，但会增加延迟和 API 费用。需要配置 LLM 翻译提供商。
+      detection:
+        label: 语言检测
+        basic: 基础
+        llm: LLM
+        description: 基础检测快速且免费。LLM 检测更准确，但会增加延迟和 API 费用。
     aiContentAware:
       title: AI 智能上下文翻译
       description: 通过向 AI 提供文章上下文来提高翻译质量

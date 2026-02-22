@@ -151,17 +151,9 @@ options:
         inputTranslation: Dịch đầu vào
         videoSubtitles: Phụ đề video
     translationConfig:
-      title: Cấu hình dịch
-      description: Chỉ dùng cho dịch trong trang web, như dịch đoạn văn song ngữ.
-      provider: Nhà cung cấp
       model:
         title: Mô hình
         enterCustomModel: Nhập tên mô hình tùy chỉnh
-      translateRange:
-        title: Phạm vi dịch
-        range:
-          main: Nội dung chính
-          all: Tất cả nội dung
     clearCache:
       title: Xóa bộ nhớ đệm
       description: Xóa tất cả bộ nhớ đệm dịch trong trình duyệt của bạn
@@ -367,6 +359,12 @@ options:
       mode:
         bilingual: Song ngữ
         translationOnly: Chỉ bản dịch
+    translateRange:
+      title: Phạm vi dịch
+      description: Chọn chỉ dịch nội dung chính hay tất cả nội dung trên trang.
+      range:
+        main: Nội dung chính
+        all: Tất cả nội dung
     pageTranslationShortcut:
       title: Phím tắt dịch trang
       description: Tùy chỉnh phím tắt để dịch toàn bộ trang web
@@ -392,20 +390,26 @@ options:
     nodeTranslationHotkey:
       title: Phím tắt dịch khi di chuột hoặc nhấn giữ
       description: Tùy chỉnh phím bổ trợ khi di chuột hoặc dùng nhấn giữ để dịch đoạn văn
-    llmProviderConfigured: Đã cấu hình nhà cung cấp dịch LLM
-    llmProviderNotConfigured: Chưa cấu hình nhà cung cấp dịch LLM
+    llmProviderConfigured: Đã chọn nhà cung cấp LLM cho $1
+    llmProviderNotConfigured: Chưa chọn nhà cung cấp LLM cho $1
     autoTranslateLanguages:
       title: Tự động dịch theo ngôn ngữ
       description: Tự động dịch nội dung trang khi phát hiện các ngôn ngữ cụ thể
       selectLanguages: Chọn ngôn ngữ
-      enableLLMDetection: Sử dụng LLM để phát hiện ngôn ngữ
-      enableLLMDetectionDescription: Cải thiện độ chính xác nhưng thêm độ trễ và chi phí API. Yêu cầu nhà cung cấp dịch LLM và các ngôn ngữ tự động dịch đã cấu hình.
+      detection:
+        label: Phát hiện ngôn ngữ
+        basic: Cơ bản
+        llm: LLM
+        description: Phát hiện cơ bản nhanh và miễn phí. Phát hiện LLM chính xác hơn nhưng thêm độ trễ và chi phí API. Yêu cầu các ngôn ngữ tự động dịch đã cấu hình.
     skipLanguages:
       title: Tự động bỏ qua theo ngôn ngữ
       description: Tự động bỏ qua dịch đoạn văn khi phát hiện các ngôn ngữ cụ thể
       selectLanguages: Chọn ngôn ngữ
-      enableLLMDetection: Sử dụng LLM để phát hiện ngôn ngữ
-      enableLLMDetectionDescription: Cải thiện độ chính xác nhưng thêm độ trễ và chi phí API. Yêu cầu nhà cung cấp dịch LLM.
+      detection:
+        label: Phát hiện ngôn ngữ
+        basic: Cơ bản
+        llm: LLM
+        description: Phát hiện cơ bản nhanh và miễn phí. Phát hiện LLM chính xác hơn nhưng thêm độ trễ và chi phí API.
     aiContentAware:
       title: Dịch ngữ cảnh thông minh AI
       description: Nâng cao chất lượng dịch bằng cách cung cấp ngữ cảnh bài viết cho AI
