@@ -105,7 +105,7 @@ export const DEFAULT_CONFIG: Config = {
     timeThreshold: 300,
   },
   videoSubtitles: {
-    enabled: false,
+    enabled: true,
     autoStart: false,
     providerId: 'microsoft-translate-default',
     style: {
