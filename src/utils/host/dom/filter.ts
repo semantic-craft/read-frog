@@ -109,9 +109,7 @@ export function isCustomForceBlockTranslation(element: HTMLElement): boolean {
 }
 
 export function isDontWalkIntoButTranslateAsChildElement(element: HTMLElement): boolean {
-  const dontWalkClass = [NOTRANSLATE_CLASS, "sr-only"].some(className =>
-    element.classList.contains(className),
-  )
+  const dontWalkClass = element.classList.contains(NOTRANSLATE_CLASS)
 
   const dontWalkTag = DONT_WALK_BUT_TRANSLATE_TAGS.has(element.tagName)
 
@@ -129,7 +127,10 @@ export function isDontWalkIntoAndDontTranslateAsChildElement(element: HTMLElemen
     = window.getComputedStyle(element).display === "none"
       || window.getComputedStyle(element).visibility === "hidden"
   const dontWalkAriaHidden = element.getAttribute("aria-hidden") === "true"
-  return dontWalkCustomElement || dontWalkContent || dontWalkInvalidTag || dontWalkCSS || dontWalkAriaHidden
+  const dontWalkVisuallyHidden = ["sr-only", "visually-hidden"].some(cls =>
+    element.classList.contains(cls),
+  )
+  return dontWalkCustomElement || dontWalkContent || dontWalkInvalidTag || dontWalkCSS || dontWalkAriaHidden || dontWalkVisuallyHidden
 }
 
 export function isInlineTransNode(node: TransNode): boolean {
