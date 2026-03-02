@@ -59,6 +59,9 @@ options:
     settings: Настройки
     tools: Инструменты
     product: Продукт
+    guest: Гость
+    logIn: Войти
+    logOut: Выйти
   tools:
     translationHub: Центр переводов
   setAPIKeyWarning:

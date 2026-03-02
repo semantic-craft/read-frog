@@ -59,6 +59,9 @@ options:
     settings: 설정
     tools: 도구
     product: 제품
+    guest: 게스트
+    logIn: 로그인
+    logOut: 로그아웃
   tools:
     translationHub: 번역 허브
   setAPIKeyWarning:

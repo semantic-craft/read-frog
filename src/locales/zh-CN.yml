@@ -59,6 +59,9 @@ options:
     settings: 设置
     tools: 工具
     product: 产品
+    guest: 访客
+    logIn: 登录
+    logOut: 退出登录
   tools:
     translationHub: 翻译中心
   setAPIKeyWarning:

@@ -3,9 +3,11 @@ import readFrogLogo from "@/assets/icons/read-frog.png"
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
 } from "@/components/ui/base-ui/sidebar"
 import { version } from "../../../../package.json"
+import { NavUser } from "./nav-user"
 import { ProductNav } from "./product-nav"
 import { SettingsNav } from "./settings-nav"
 import { ToolsNav } from "./tools-nav"
@@ -27,6 +29,9 @@ export function AppSidebar() {
         <ToolsNav />
         <ProductNav />
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
     </Sidebar>
   )
 }

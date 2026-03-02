@@ -59,6 +59,9 @@ options:
     settings: Settings
     tools: Tools
     product: Product
+    guest: Guest
+    logIn: Log in
+    logOut: Log out
   tools:
     translationHub: Translation Hub
   setAPIKeyWarning:

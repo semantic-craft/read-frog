@@ -59,6 +59,9 @@ options:
     settings: Cài đặt
     tools: Công cụ
     product: Sản phẩm
+    guest: Khách
+    logIn: Đăng nhập
+    logOut: Đăng xuất
   tools:
     translationHub: Trung tâm Dịch thuật
   setAPIKeyWarning:

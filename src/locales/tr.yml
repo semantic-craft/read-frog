@@ -59,6 +59,9 @@ options:
     settings: Ayarlar
     tools: Araçlar
     product: Ürün
+    guest: Misafir
+    logIn: Giriş yap
+    logOut: Çıkış yap
   tools:
     translationHub: Çeviri Merkezi
   setAPIKeyWarning:
