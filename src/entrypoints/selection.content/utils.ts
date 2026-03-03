@@ -4,15 +4,15 @@
  */
 export function extractTextContext(fullText: string, selection: string) {
   // Handle edge cases
-  if (selection === '' || fullText === '' || !fullText.includes(selection)) {
-    return { before: '', selection, after: '' }
+  if (selection === "" || fullText === "" || !fullText.includes(selection)) {
+    return { before: "", selection, after: "" }
   }
 
   const index = fullText.indexOf(selection)
 
   // If selection is the entire text, return it with no context
   if (index === 0 && selection.length === fullText.length) {
-    return { before: '', selection, after: '' }
+    return { before: "", selection, after: "" }
   }
 
   // Find sentence boundaries around the selection
@@ -42,7 +42,7 @@ export function extractTextContext(fullText: string, selection: string) {
 
   // If selection is at the beginning or end of sentence, return empty context
   if (relativeIndex === 0 || relativeIndex + selection.length === sentence.length) {
-    return { before: '', selection, after: '' }
+    return { before: "", selection, after: "" }
   }
 
   const before = sentence.slice(0, relativeIndex)
@@ -66,7 +66,7 @@ export function getContext(selectionRange: Range) {
     root = container
   }
 
-  const fullText = root?.textContent ?? ''
+  const fullText = root?.textContent ?? ""
   const selection = selectionRange.toString()
 
   return extractTextContext(fullText, selection)
@@ -89,4 +89,77 @@ export function createHighlightData(selectionRange: Range): HighlightData {
   return {
     context: getContext(selectionRange),
   }
+}
+
+const PARAGRAPH_LIKE_TAGS = new Set([
+  "P",
+  "LI",
+  "TD",
+  "TH",
+  "DT",
+  "DD",
+  "BLOCKQUOTE",
+  "PRE",
+  "H1",
+  "H2",
+  "H3",
+  "H4",
+  "H5",
+  "H6",
+  "FIGCAPTION",
+])
+
+function isParagraphLikeElement(element: HTMLElement) {
+  if (element.tagName === "BODY") {
+    return false
+  }
+
+  if (PARAGRAPH_LIKE_TAGS.has(element.tagName)) {
+    return true
+  }
+
+  const display = window.getComputedStyle(element).display
+  return [
+    "block",
+    "list-item",
+    "table-cell",
+    "table-row",
+    "flex",
+    "grid",
+  ].includes(display)
+}
+
+function findNearestParagraphElement(node: Node | null) {
+  if (!node) {
+    return null
+  }
+
+  let current: HTMLElement | null = node instanceof HTMLElement
+    ? node
+    : node.parentElement
+
+  while (current) {
+    if (isParagraphLikeElement(current)) {
+      return current
+    }
+    current = current.parentElement
+  }
+
+  return null
+}
+
+function normalizeTextContent(text: string) {
+  return text.replace(/\s+/g, " ").trim()
+}
+
+export function getSelectionParagraphText(selectionRange: Range) {
+  const paragraph
+    = findNearestParagraphElement(selectionRange.startContainer)
+      ?? findNearestParagraphElement(selectionRange.commonAncestorContainer)
+
+  if (paragraph?.textContent) {
+    return normalizeTextContent(paragraph.textContent)
+  }
+
+  return normalizeTextContent(selectionRange.commonAncestorContainer.textContent ?? "")
 }

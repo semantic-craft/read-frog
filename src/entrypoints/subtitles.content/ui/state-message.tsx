@@ -1,62 +1,43 @@
-import type { SubtitlesState } from '@/utils/subtitles/types'
-import { i18n } from '#imports'
-import { useAtomValue } from 'jotai'
-import { STATE_MESSAGE_CLASS } from '@/utils/constants/subtitles'
-import { subtitlesStateAtom } from '../atoms'
+import type { SubtitlesState } from "@/utils/subtitles/types"
+import { i18n } from "#imports"
+import { STATE_MESSAGE_CLASS } from "@/utils/constants/subtitles"
 
-const STATE_CONFIG: Record<SubtitlesState, { color: string, getText: () => string }> = {
-  idle: {
-    color: 'oklch(100% 0 0)',
-    getText: () => i18n.t('subtitles.state.idle'),
-  },
-  fetching: {
-    color: 'oklch(70% 0.19 250)',
-    getText: () => i18n.t('subtitles.state.fetching'),
-  },
-  fetchSuccess: {
-    color: 'oklch(70% 0.17 165)',
-    getText: () => i18n.t('subtitles.state.fetchSuccess'),
-  },
-  fetchFailed: {
-    color: 'oklch(63% 0.24 25)',
-    getText: () => i18n.t('subtitles.state.fetchFailed'),
-  },
-  segmenting: {
-    color: 'oklch(70% 0.19 250)',
-    getText: () => i18n.t('subtitles.state.segmenting'),
-  },
-  processing: {
-    color: 'oklch(70% 0.19 250)',
-    getText: () => i18n.t('subtitles.state.processing'),
+const STATE_CONFIG: Record<Exclude<SubtitlesState, "idle">, { color: string, getText: () => string }> = {
+  loading: {
+    color: "oklch(70% 0.19 250)",
+    getText: () => i18n.t("subtitles.state.loading"),
   },
   error: {
-    color: 'oklch(63% 0.24 25)',
-    getText: () => i18n.t('subtitles.state.error'),
+    color: "oklch(63% 0.24 25)",
+    getText: () => i18n.t("subtitles.state.error"),
   },
 }
 
-export function StateMessage() {
-  const stateData = useAtomValue(subtitlesStateAtom)
+interface StateMessageProps {
+  state?: Exclude<SubtitlesState, "idle">
+  message?: string
+}
 
-  if (!stateData || stateData.state === 'idle') {
+export function StateMessage({ state, message }: StateMessageProps) {
+  if (!state)
     return null
-  }
 
-  const { color, getText } = STATE_CONFIG[stateData.state]
-  const message = stateData.message || getText()
+  const { color, getText } = STATE_CONFIG[state]
+
+  const text = state === "error" ? message : getText()
 
   return (
     <div
-      className={`${STATE_MESSAGE_CLASS} absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto`}
+      className={`${STATE_MESSAGE_CLASS} absolute left-1/2 -translate-x-1/2 bottom-1/6 pointer-events-auto`}
       style={{
-        fontFamily: 'Roboto, "Arial Unicode Ms", Arial, Helvetica, Verdana, "PT Sans Caption", sans-serif',
+        fontFamily: "Roboto, \"Arial Unicode Ms\", Arial, Helvetica, Verdana, \"PT Sans Caption\", sans-serif",
       }}
     >
       <div
         className="flex items-center justify-center px-3 py-2 rounded-md text-base font-medium whitespace-nowrap leading-tight backdrop-blur-sm bg-black/85 shadow-[0_4px_16px_rgba(0,0,0,0.35)]"
         style={{ color }}
       >
-        {message}
+        {text}
       </div>
     </div>
   )

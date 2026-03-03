@@ -1,9 +1,10 @@
-import type { LLMTranslateProviderConfig } from '@/types/config/provider'
-import type { ArticleContent } from '@/types/content'
-import type { TranslatePromptOptions, TranslatePromptResult } from '@/utils/prompts/translate'
-import { generateText } from 'ai'
-import { getTranslateModelById } from '@/utils/providers/model'
-import { getProviderOptionsWithOverride } from '@/utils/providers/options'
+import type { LLMProviderConfig } from "@/types/config/provider"
+import type { ArticleContent } from "@/types/content"
+import type { TranslatePromptOptions, TranslatePromptResult } from "@/utils/prompts/translate"
+import { generateText } from "ai"
+import { extractAISDKErrorMessage } from "@/utils/error/extract-message"
+import { getModelById, resolveModelId } from "@/utils/providers/model"
+import { getProviderOptionsWithOverride } from "@/utils/providers/options"
 
 export type PromptResolver = (
   targetLang: string,
@@ -14,27 +15,32 @@ export type PromptResolver = (
 export async function aiTranslate(
   text: string,
   targetLangName: string,
-  providerConfig: LLMTranslateProviderConfig,
+  providerConfig: LLMProviderConfig,
   promptResolver: PromptResolver,
   options?: { isBatch?: boolean, content?: ArticleContent },
 ) {
-  const { id: providerId, models: { translate }, provider, providerOptions: userProviderOptions, temperature } = providerConfig
-  const translateModel = translate.isCustomModel ? translate.customModel : translate.model
-  const model = await getTranslateModelById(providerId)
+  const { id: providerId, model: providerModel, provider, providerOptions: userProviderOptions, temperature } = providerConfig
+  const modelName = resolveModelId(providerModel)
+  const model = await getModelById(providerId)
 
-  const providerOptions = getProviderOptionsWithOverride(translateModel ?? '', provider, userProviderOptions)
+  const providerOptions = getProviderOptionsWithOverride(modelName ?? "", provider, userProviderOptions)
   const { systemPrompt, prompt } = await promptResolver(targetLangName, text, options)
 
-  const { text: translatedText } = await generateText({
-    model,
-    system: systemPrompt,
-    prompt,
-    temperature,
-    providerOptions,
-    maxRetries: 0, // Disable SDK built-in retries, let RequestQueue/BatchQueue handle it
-  })
+  try {
+    const { text: translatedText } = await generateText({
+      model,
+      system: systemPrompt,
+      prompt,
+      temperature,
+      providerOptions,
+      maxRetries: 0, // Disable SDK built-in retries, let RequestQueue/BatchQueue handle it
+    })
 
-  const [, finalTranslation = translatedText] = translatedText.match(/<\/think>([\s\S]*)/) || []
+    const [, finalTranslation = translatedText] = translatedText.match(/<\/think>([\s\S]*)/) || []
 
-  return finalTranslation
+    return finalTranslation
+  }
+  catch (error) {
+    throw new Error(extractAISDKErrorMessage(error))
+  }
 }

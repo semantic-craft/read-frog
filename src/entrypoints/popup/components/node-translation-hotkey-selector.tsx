@@ -1,43 +1,44 @@
-import { i18n } from '#imports'
-import { deepmerge } from 'deepmerge-ts'
-import { useAtom } from 'jotai'
+import { i18n } from "#imports"
+import { deepmerge } from "deepmerge-ts"
+import { useAtom } from "jotai"
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
-} from '@/components/ui/base-ui/select'
-import { Switch } from '@/components/ui/base-ui/switch'
-import { configFieldsAtomMap } from '@/utils/atoms/config'
-import { HOTKEY_ICONS, HOTKEYS } from '@/utils/constants/hotkeys'
+} from "@/components/ui/base-ui/select"
+import { Switch } from "@/components/ui/base-ui/switch"
+import { configFieldsAtomMap } from "@/utils/atoms/config"
+import { HOTKEY_ICONS, HOTKEYS } from "@/utils/constants/hotkeys"
 
 function HotkeyDisplay({ hotkey }: { hotkey: typeof HOTKEYS[number] }) {
   const icon = HOTKEY_ICONS[hotkey]
   const label = i18n.t(`hotkey.${hotkey}`)
 
-  if (hotkey === 'clickAndHold') {
+  if (hotkey === "clickAndHold") {
     return (
       <>
         {icon}
-        {' '}
+        {" "}
         {label}
-        {' '}
-        {i18n.t('popup.translateParagraph')}
+        {" "}
+        {i18n.t("popup.translateParagraph")}
       </>
     )
   }
 
   return (
     <>
-      {i18n.t('popup.hover')}
-      {' '}
+      {i18n.t("popup.hover")}
+      {" "}
       +
-      {' '}
+      {" "}
       {icon}
-      {' '}
+      {" "}
       {label}
-      {' '}
-      {i18n.t('popup.translateParagraph')}
+      {" "}
+      {i18n.t("popup.translateParagraph")}
     </>
   )
 }
@@ -58,18 +59,20 @@ export default function NodeTranslationHotkeySelector() {
       >
         <SelectTrigger
           size="sm"
-          className="pt-3.5 -mt-3.5 pb-4 -mb-4 px-2 -ml-2 h-5! ring-none cursor-pointer truncate border-none text-[13px] font-medium shadow-none focus-visible:border-none focus-visible:ring-0 bg-transparent rounded-md"
+          className="pt-3.5 -mt-3.5 pb-4 -mb-4 px-2 -ml-2 h-5! ring-none cursor-pointer truncate border-none text-[13px] font-medium shadow-none focus-visible:border-none focus-visible:ring-0 bg-transparent! rounded-md"
         >
           <div className="truncate">
             <HotkeyDisplay hotkey={translateConfig.node.hotkey} />
           </div>
         </SelectTrigger>
-        <SelectContent>
-          {HOTKEYS.map(item => (
-            <SelectItem key={item} value={item}>
-              <HotkeyDisplay hotkey={item} />
-            </SelectItem>
-          ))}
+        <SelectContent className="min-w-fit">
+          <SelectGroup>
+            {HOTKEYS.map(item => (
+              <SelectItem key={item} value={item}>
+                <HotkeyDisplay hotkey={item} />
+              </SelectItem>
+            ))}
+          </SelectGroup>
         </SelectContent>
       </Select>
       <Switch

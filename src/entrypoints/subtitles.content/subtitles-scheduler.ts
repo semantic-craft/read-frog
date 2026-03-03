@@ -1,5 +1,5 @@
-import type { StateData, SubtitlesFragment, SubtitlesState } from '@/utils/subtitles/types'
-import { currentSubtitleAtom, currentTimeMsAtom, subtitlesStateAtom, subtitlesStore, subtitlesVisibleAtom } from './atoms'
+import type { StateData, SubtitlesFragment, SubtitlesState } from "@/utils/subtitles/types"
+import { currentSubtitleAtom, currentTimeMsAtom, subtitlesStateAtom, subtitlesStore, subtitlesVisibleAtom } from "./atoms"
 
 const ERROR_STATE_AUTO_HIDE_MS = 5_000
 
@@ -9,7 +9,7 @@ export class SubtitlesScheduler {
   private currentIndex = -1
   private isActive = false
   private currentState: StateData = {
-    state: 'idle',
+    state: "idle",
   }
 
   private errorAutoHideTimeoutId: ReturnType<typeof setTimeout> | null = null
@@ -67,6 +67,10 @@ export class SubtitlesScheduler {
     return this.videoElement
   }
 
+  getState(): SubtitlesState {
+    return this.currentState.state ?? "idle"
+  }
+
   stop() {
     this.isActive = false
     this.detachListeners()
@@ -83,7 +87,7 @@ export class SubtitlesScheduler {
     this.updateVisibility()
   }
 
-  setState(state: SubtitlesState, data?: Partial<Omit<StateData, 'state'>>) {
+  setState(state: SubtitlesState, data?: Partial<Omit<StateData, "state">>) {
     this.clearErrorAutoHide()
     this.currentState = {
       state,
@@ -91,30 +95,30 @@ export class SubtitlesScheduler {
     }
     this.updateState()
 
-    if (state === 'error') {
+    if (state === "error") {
       this.errorAutoHideTimeoutId = setTimeout(() => {
-        if (this.currentState.state === 'error') {
-          this.setState('idle')
+        if (this.currentState.state === "error") {
+          this.setState("idle")
         }
       }, ERROR_STATE_AUTO_HIDE_MS)
     }
   }
 
   reset() {
-    this.setState('idle')
+    this.setState("idle")
     this.subtitles = []
     this.currentIndex = -1
     this.updateCurrentSubtitle()
   }
 
   private attachListeners() {
-    this.videoElement.addEventListener('timeupdate', this.handleTimeUpdate)
-    this.videoElement.addEventListener('seeking', this.handleSeeking)
+    this.videoElement.addEventListener("timeupdate", this.handleTimeUpdate)
+    this.videoElement.addEventListener("seeking", this.handleSeeking)
   }
 
   private detachListeners() {
-    this.videoElement.removeEventListener('timeupdate', this.handleTimeUpdate)
-    this.videoElement.removeEventListener('seeking', this.handleSeeking)
+    this.videoElement.removeEventListener("timeupdate", this.handleTimeUpdate)
+    this.videoElement.removeEventListener("seeking", this.handleSeeking)
   }
 
   private handleTimeUpdate = () => {
@@ -152,7 +156,7 @@ export class SubtitlesScheduler {
   }
 
   private updateState() {
-    const stateData = this.currentState.state !== 'idle' ? this.currentState : null
+    const stateData = this.currentState.state !== "idle" ? this.currentState : null
     subtitlesStore.set(subtitlesStateAtom, stateData)
   }
 

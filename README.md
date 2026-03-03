@@ -12,10 +12,12 @@ Master languages effortlessly and deeply with AI, right in your browser.
 
 [![][extension-release-shield]][github-release-link]
 [![][chrome-version-shield]][chrome-store-link]
-[![][edge-version-shield]][edge-store-link]<br/>
+[![][edge-version-shield]][edge-store-link]
+[![][firefox-version-shield]][firefox-store-link]<br/>
 [![][discord-shield]][discord-link]
 [![][chrome-users-shield]][chrome-store-link]
-[![][edge-users-shield]][edge-store-link]<br/>
+[![][edge-users-shield]][edge-store-link]
+[![][firefox-users-shield]][firefox-store-link]<br/>
 [![][star-history-shield]][star-history-link]
 [![][contributors-shield]][contributors-link]
 ![][last-commit-shield]
@@ -42,7 +44,7 @@ Master languages effortlessly and deeply with AI, right in your browser.
   - [📝 Custom Prompts](#-custom-prompts)
   - [📦 Batch Requests](#-batch-requests)
   - [🤖 20+ AI Providers](#-20-ai-providers)
-  - [🎬 Subtitle Translation (Beta)](#-subtitle-translation-beta)
+  - [🎬 Subtitle Translation](#-subtitle-translation)
   - [🔊 Text-to-Speech (TTS)](#-text-to-speech-tts)
   - [📖 Read Article](#-read-article)
 - [🤝 Contribute](#-contribute)
@@ -70,10 +72,11 @@ Whether you are a user or a developer, Read Frog will be an important part of yo
 
 ### Download
 
-| Browser | Version                                         | Download                                                          |
-| ------- | ----------------------------------------------- | ----------------------------------------------------------------- |
-| Chrome  | [![][chrome-version-shield]][chrome-store-link] | [Chrome Web Store][chrome-store-link] or [中国镜像][crxsoso-link] |
-| Edge    | [![][edge-version-shield]][edge-store-link]     | [Microsoft Edge Addons][edge-store-link]                          |
+| Browser | Version                                           | Download                                                          |
+| ------- | ------------------------------------------------- | ----------------------------------------------------------------- |
+| Chrome  | [![][chrome-version-shield]][chrome-store-link]   | [Chrome Web Store][chrome-store-link] or [中国镜像][crxsoso-link] |
+| Edge    | [![][edge-version-shield]][edge-store-link]       | [Microsoft Edge Addons][edge-store-link]                          |
+| Firefox | [![][firefox-version-shield]][firefox-store-link] | [Firefox Add-ons][firefox-store-link]                             |
 
 ### Community
 
@@ -198,7 +201,7 @@ Plus free translation options: Google Translate, Microsoft Translate, and DeepLX
 
 <!-- ![][image-feat-subtitle] -->
 
-### 🎬 [Subtitle Translation (Beta)][docs-tutorial]
+### 🎬 [Subtitle Translation][docs-tutorial]
 
 Translate YouTube subtitles directly in the video player. Watch foreign language content with translations displayed alongside the original subtitles, making video content accessible for language learning.
 
@@ -212,9 +215,9 @@ Translate YouTube subtitles directly in the video player. Watch foreign language
 
 ### 🔊 [Text-to-Speech (TTS)][docs-tutorial]
 
-Listen to any selected text with high-quality AI voices. Powered by OpenAI's TTS models, choose from multiple voices (Alloy, Ash, Coral, Echo, and more) and adjust playback speed from 0.25x to 4x.
+Listen to any selected text with high-quality AI voices. Powered by **Edge TTS** — completely free, with 150+ voices across 80+ languages including Chinese, English, Japanese, Korean, and many more. Adjust rate, pitch, and volume to your preference.
 
-Smart sentence-aware chunking handles long text by splitting at natural boundaries and prefetching the next chunk for seamless playback. Perfect for pronunciation practice and auditory learning.
+Automatic language detection (basic or LLM-powered) with per-language voice mapping ensures the right voice for every language. Smart sentence-aware chunking handles long text by splitting at natural boundaries and prefetching the next chunk for seamless playback. Perfect for pronunciation practice and auditory learning.
 
 <div align="right">
 
@@ -301,8 +304,8 @@ Every donation helps us build a better language learning experience. Thank you f
 [2025-recap]: /assets/2025-recap.png
 [back-to-top]: https://img.shields.io/badge/-BACK_TO_TOP-151515?style=flat-square
 [chrome-store-link]: https://chromewebstore.google.com/detail/read-frog-open-source-ai/modkelfkcfjpgbfmnbnllalkiogfofhb
-[chrome-users-shield]: https://img.shields.io/chrome-web-store/users/modkelfkcfjpgbfmnbnllalkiogfofhb?style=flat-square&label=Chrome%20Users&color=orange&labelColor=black
-[chrome-version-shield]: https://img.shields.io/chrome-web-store/v/modkelfkcfjpgbfmnbnllalkiogfofhb?style=flat-square&label=Chrome%20Version&labelColor=black&color=orange
+[chrome-users-shield]: https://img.shields.io/chrome-web-store/users/modkelfkcfjpgbfmnbnllalkiogfofhb?style=flat-square&label=Chrome%20Users&color=yellow&labelColor=black
+[chrome-version-shield]: https://img.shields.io/chrome-web-store/v/modkelfkcfjpgbfmnbnllalkiogfofhb?style=flat-square&label=Chrome%20Version&labelColor=black&color=yellow
 [contributors-link]: https://github.com/mengxi-ream/read-frog/graphs/contributors
 [contributors-shield]: https://img.shields.io/github/contributors/mengxi-ream/read-frog?style=flat-square&labelColor=black
 [crxsoso-link]: https://www.crxsoso.com/webstore/detail/modkelfkcfjpgbfmnbnllalkiogfofhb
@@ -310,6 +313,9 @@ Every donation helps us build a better language learning experience. Thank you f
 [discord-shield]: https://img.shields.io/discord/1371229720942874646?style=flat-square&label=Discord&logo=discord&logoColor=white&color=5865F2&labelColor=black
 [discord-shield-badge]: https://img.shields.io/badge/chat-Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white&labelColor=black
 [edge-store-link]: https://microsoftedge.microsoft.com/addons/detail/read-frog-open-source-a/cbcbomlgikfbdnoaohcjfledcoklcjbo
+[firefox-store-link]: https://addons.mozilla.org/firefox/addon/read-frog-open-ai-translator/
+[firefox-version-shield]: https://img.shields.io/amo/v/read-frog-open-ai-translator?style=flat-square&label=Firefox%20Version&labelColor=black&color=orange
+[firefox-users-shield]: https://img.shields.io/amo/users/read-frog-open-ai-translator?style=flat-square&label=Firefox%20Users&color=orange&labelColor=black
 [edge-users-shield]: https://img.shields.io/badge/dynamic/json?style=flat-square&logo=microsoft-edge&label=Edge%20Users&query=%24.activeInstallCount&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fcbcbomlgikfbdnoaohcjfledcoklcjbo&labelColor=black
 [edge-version-shield]: https://img.shields.io/badge/dynamic/json?style=flat-square&logo=microsoft-edge&label=Edge%20Version&query=%24.version&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fcbcbomlgikfbdnoaohcjfledcoklcjbo&labelColor=black&prefix=v
 [extension-release-shield]: https://img.shields.io/github/package-json/v/mengxi-ream/read-frog?filename=package.json&style=flat-square&label=Latest%20Version&color=brightgreen&labelColor=black

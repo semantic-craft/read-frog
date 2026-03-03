@@ -1,14 +1,15 @@
-import type { APIProviderConfig, LLMTranslateProviderConfig } from '@/types/config/provider'
-import { i18n } from '#imports'
-import { useStore } from '@tanstack/react-form'
-import { useEffect, useMemo, useState } from 'react'
-import { Field, FieldError, FieldLabel } from '@/components/ui/base-ui/field'
-import { Hint } from '@/components/ui/base-ui/hint'
-import { JSONCodeEditor } from '@/components/ui/json-code-editor'
-import { useDebouncedValue } from '@/hooks/use-debounced-value'
-import { isLLMTranslateProviderConfig } from '@/types/config/provider'
-import { getProviderOptions } from '@/utils/providers/options'
-import { withForm } from './form'
+import type { APIProviderConfig, LLMProviderConfig } from "@/types/config/provider"
+import { i18n } from "#imports"
+import { useStore } from "@tanstack/react-form"
+import { useEffect, useEffectEvent, useMemo, useState } from "react"
+import { HelpTooltip } from "@/components/help-tooltip"
+import { Field, FieldError, FieldLabel } from "@/components/ui/base-ui/field"
+import { JSONCodeEditor } from "@/components/ui/json-code-editor"
+import { useDebouncedValue } from "@/hooks/use-debounced-value"
+import { isLLMProviderConfig } from "@/types/config/provider"
+import { resolveModelId } from "@/utils/providers/model"
+import { getProviderOptions } from "@/utils/providers/options"
+import { withForm } from "./form"
 
 function parseJson(input: string): { valid: true, value: Record<string, unknown> | undefined } | { valid: false, error: string } {
   if (!input.trim()) {
@@ -18,7 +19,7 @@ function parseJson(input: string): { valid: true, value: Record<string, unknown>
     return { valid: true, value: JSON.parse(input) }
   }
   catch {
-    return { valid: false, error: i18n.t('options.apiProviders.form.invalidJson') }
+    return { valid: false, error: i18n.t("options.apiProviders.form.invalidJson") }
   }
 }
 
@@ -26,13 +27,23 @@ export const ProviderOptionsField = withForm({
   ...{ defaultValues: {} as APIProviderConfig },
   render: function Render({ form }) {
     const providerConfig = useStore(form.store, state => state.values)
-    const isLLMProvider = isLLMTranslateProviderConfig(providerConfig)
+    const isLLMProvider = isLLMProviderConfig(providerConfig)
+
+    const toJson = (options: APIProviderConfig["providerOptions"]) =>
+      options ? JSON.stringify(options, null, 2) : ""
 
     // Local state for the JSON string input
-    const initialValue = providerConfig.providerOptions
-      ? JSON.stringify(providerConfig.providerOptions, null, 2)
-      : ''
-    const [jsonInput, setJsonInput] = useState(initialValue)
+    const [jsonInput, setJsonInput] = useState(() => toJson(providerConfig.providerOptions))
+
+    // Keep editor input in sync when switching to a different provider config.
+    const syncJsonInput = useEffectEvent(() => {
+      // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
+      setJsonInput(toJson(providerConfig.providerOptions))
+    })
+
+    useEffect(() => {
+      syncJsonInput()
+    }, [providerConfig.id])
 
     // Debounce the input value
     const debouncedJsonInput = useDebouncedValue(jsonInput, 500)
@@ -43,7 +54,7 @@ export const ProviderOptionsField = withForm({
     // Submit when debounced value changes and is valid
     useEffect(() => {
       if (parseResult.valid) {
-        form.setFieldValue('providerOptions', parseResult.value)
+        form.setFieldValue("providerOptions", parseResult.value)
         void form.handleSubmit()
       }
     }, [parseResult, form])
@@ -52,10 +63,8 @@ export const ProviderOptionsField = withForm({
       if (!isLLMProvider) {
         return null
       }
-      const llmConfig = providerConfig as LLMTranslateProviderConfig
-      return llmConfig.models.translate.isCustomModel
-        ? llmConfig.models.translate.customModel
-        : llmConfig.models.translate.model
+      const llmConfig = providerConfig as LLMProviderConfig
+      return resolveModelId(llmConfig.model)
     }, [isLLMProvider, providerConfig])
 
     const defaultOptions = useMemo(() => {
@@ -68,7 +77,7 @@ export const ProviderOptionsField = withForm({
 
     const placeholderText = useMemo(() => {
       if (Object.keys(defaultOptions).length === 0) {
-        return '{\n  \n}'
+        return "{\n  \n}"
       }
       return JSON.stringify(defaultOptions, null, 2)
     }, [defaultOptions])
@@ -84,8 +93,8 @@ export const ProviderOptionsField = withForm({
         <FieldLabel>
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-1.5">
-              <span>{i18n.t('options.apiProviders.form.providerOptions')}</span>
-              <Hint content={i18n.t('options.apiProviders.form.providerOptionsHint')} />
+              <span>{i18n.t("options.apiProviders.form.providerOptions")}</span>
+              <HelpTooltip>{i18n.t("options.apiProviders.form.providerOptionsHint")}</HelpTooltip>
             </div>
             <a
               href="https://ai-sdk.dev/providers/ai-sdk-providers"
@@ -93,7 +102,7 @@ export const ProviderOptionsField = withForm({
               rel="noreferrer"
               className="text-xs text-link hover:opacity-90"
             >
-              {i18n.t('options.apiProviders.form.providerOptionsDocsLink')}
+              {i18n.t("options.apiProviders.form.providerOptionsDocsLink")}
             </a>
           </div>
         </FieldLabel>

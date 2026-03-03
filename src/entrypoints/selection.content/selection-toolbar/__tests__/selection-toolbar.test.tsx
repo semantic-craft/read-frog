@@ -1,29 +1,34 @@
 // @vitest-environment jsdom
-import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
-import { atom } from 'jotai'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { SelectionToolbar } from '../index'
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react"
+import { atom } from "jotai"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { SelectionToolbar } from "../index"
 
-const MOCK_SELECTED_TEXT = 'Selected Text'
+const MOCK_SELECTED_TEXT = "Selected Text"
 
 // Mock child components
-vi.mock('../ai-button', () => ({
+vi.mock("../ai-button", () => ({
   AiButton: () => null,
   AiPopover: () => null,
 }))
 
-vi.mock('../translate-button', () => ({
+vi.mock("../translate-button", () => ({
   TranslateButton: () => null,
   TranslatePopover: () => null,
 }))
 
-vi.mock('../speak-button', () => ({
+vi.mock("../speak-button", () => ({
   SpeakButton: () => null,
 }))
 
+vi.mock("../custom-feature-button", () => ({
+  SelectionToolbarCustomFeatureButtons: () => null,
+  SelectionToolbarCustomFeaturePopover: () => null,
+}))
+
 // Mock atoms
-vi.mock('@/utils/atoms/config', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/utils/atoms/config')>()
+vi.mock("@/utils/atoms/config", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/utils/atoms/config")>()
   return {
     ...actual,
     configFieldsAtomMap: {
@@ -33,7 +38,7 @@ vi.mock('@/utils/atoms/config', async (importOriginal) => {
   }
 })
 
-describe('selectionToolbar - isInputOrTextarea logic', () => {
+describe("selectionToolbar - isInputOrTextarea logic", () => {
   let originalRequestAnimationFrame: typeof requestAnimationFrame
   let rafCallbacks: FrameRequestCallback[]
   let mockSelectionToString: () => string
@@ -84,9 +89,9 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
   }
 
   const clearToolbarState = async () => {
-    setMockSelectionText('')
+    setMockSelectionText("")
     await act(async () => {
-      document.dispatchEvent(new Event('selectionchange'))
+      document.dispatchEvent(new Event("selectionchange"))
     })
     setMockSelectionText(MOCK_SELECTED_TEXT)
   }
@@ -96,13 +101,13 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
     clientX = 100,
     clientY = 100,
   ) => {
-    const mouseUpEvent = new MouseEvent('mouseup', {
+    const mouseUpEvent = new MouseEvent("mouseup", {
       bubbles: true,
       clientX,
       clientY,
     })
 
-    Object.defineProperty(mouseUpEvent, 'target', {
+    Object.defineProperty(mouseUpEvent, "target", {
       value: target,
       writable: false,
     })
@@ -116,14 +121,14 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
   }
 
   const expectToolbarVisible = () => {
-    expect(document.querySelector('.absolute.z-2147483647')).toBeTruthy()
+    expect(document.querySelector(".absolute.z-2147483647")).toBeTruthy()
   }
 
   const expectToolbarHidden = () => {
-    expect(document.querySelector('.absolute.z-2147483647')).toBeFalsy()
+    expect(document.querySelector(".absolute.z-2147483647")).toBeFalsy()
   }
 
-  it('should show toolbar when selecting text in a normal div element', async () => {
+  it("should show toolbar when selecting text in a normal div element", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -131,11 +136,11 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
       </div>,
     )
 
-    await triggerMouseUpWithSelection(screen.getByTestId('test-element'))
+    await triggerMouseUpWithSelection(screen.getByTestId("test-element"))
     await waitFor(expectToolbarVisible)
   })
 
-  it('should show toolbar when selecting text in input and target equals activeElement', async () => {
+  it("should show toolbar when selecting text in input and target equals activeElement", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -143,8 +148,8 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
       </div>,
     )
 
-    const element = screen.getByTestId('test-element')
-    const spy = vi.spyOn(document, 'activeElement', 'get').mockReturnValue(element)
+    const element = screen.getByTestId("test-element")
+    const spy = vi.spyOn(document, "activeElement", "get").mockReturnValue(element)
 
     await triggerMouseUpWithSelection(element)
     await waitFor(expectToolbarVisible)
@@ -152,7 +157,7 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
     spy.mockRestore()
   })
 
-  it('should show toolbar when selecting text in textarea and target equals activeElement', async () => {
+  it("should show toolbar when selecting text in textarea and target equals activeElement", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -160,8 +165,8 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
       </div>,
     )
 
-    const element = screen.getByTestId('test-element')
-    const spy = vi.spyOn(document, 'activeElement', 'get').mockReturnValue(element)
+    const element = screen.getByTestId("test-element")
+    const spy = vi.spyOn(document, "activeElement", "get").mockReturnValue(element)
 
     await triggerMouseUpWithSelection(element)
     await waitFor(expectToolbarVisible)
@@ -169,7 +174,7 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
     spy.mockRestore()
   })
 
-  it('should not show toolbar when input is activeElement but click target is outside', async () => {
+  it("should not show toolbar when input is activeElement but click target is outside", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -180,17 +185,17 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
 
     await clearToolbarState()
 
-    const spy = vi.spyOn(document, 'activeElement', 'get').mockReturnValue(
-      screen.getByTestId('input-element'),
+    const spy = vi.spyOn(document, "activeElement", "get").mockReturnValue(
+      screen.getByTestId("input-element"),
     )
 
-    await triggerMouseUpWithSelection(screen.getByTestId('outside-div'))
+    await triggerMouseUpWithSelection(screen.getByTestId("outside-div"))
     expectToolbarHidden()
 
     spy.mockRestore()
   })
 
-  it('should not show toolbar when textarea is activeElement but click target is outside', async () => {
+  it("should not show toolbar when textarea is activeElement but click target is outside", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -201,18 +206,18 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
 
     await clearToolbarState()
 
-    const spy = vi.spyOn(document, 'activeElement', 'get').mockReturnValue(
-      screen.getByTestId('textarea-element'),
+    const spy = vi.spyOn(document, "activeElement", "get").mockReturnValue(
+      screen.getByTestId("textarea-element"),
     )
 
-    await triggerMouseUpWithSelection(screen.getByTestId('outside-div'))
+    await triggerMouseUpWithSelection(screen.getByTestId("outside-div"))
     expectToolbarHidden()
 
     spy.mockRestore()
   })
 
-  it('should not show toolbar when no text is selected', async () => {
-    setMockSelectionText('')
+  it("should not show toolbar when no text is selected", async () => {
+    setMockSelectionText("")
 
     render(
       <div>
@@ -222,14 +227,14 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
     )
 
     await act(async () => {
-      document.dispatchEvent(new Event('selectionchange'))
+      document.dispatchEvent(new Event("selectionchange"))
     })
 
-    await triggerMouseUpWithSelection(screen.getByTestId('test-element'))
+    await triggerMouseUpWithSelection(screen.getByTestId("test-element"))
     expectToolbarHidden()
   })
 
-  it('should show toolbar when valid text is selected', async () => {
+  it("should show toolbar when valid text is selected", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -239,11 +244,11 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
 
     await clearToolbarState()
 
-    await triggerMouseUpWithSelection(screen.getByTestId('test-element'))
+    await triggerMouseUpWithSelection(screen.getByTestId("test-element"))
     await waitFor(expectToolbarVisible)
   })
 
-  it('should not show toolbar when selection does not contain the click target when click target is a button', async () => {
+  it("should not show toolbar when selection does not contain the click target when click target is a button", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -255,7 +260,7 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
     await clearToolbarState()
 
     // Mock selection that doesn't contain the click target
-    const clickElement = screen.getByTestId('click-element')
+    const clickElement = screen.getByTestId("click-element")
     window.getSelection = vi.fn(() => ({
       toString: vi.fn(() => MOCK_SELECTED_TEXT),
       getRangeAt: () => ({
@@ -271,7 +276,7 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
     expectToolbarHidden()
   })
 
-  it('should show toolbar when selection contains the click target', async () => {
+  it("should show toolbar when selection contains the click target", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -281,7 +286,7 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
 
     await clearToolbarState()
 
-    const element = screen.getByTestId('test-element')
+    const element = screen.getByTestId("test-element")
     // Mock selection that contains the click target
     window.getSelection = vi.fn(() => ({
       toString: vi.fn(() => MOCK_SELECTED_TEXT),
@@ -298,7 +303,7 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
     await waitFor(expectToolbarVisible)
   })
 
-  it('should show toolbar in input even when selection does not contain click target', async () => {
+  it("should show toolbar in input even when selection does not contain click target", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -306,8 +311,8 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
       </div>,
     )
 
-    const element = screen.getByTestId('input-element')
-    const spy = vi.spyOn(document, 'activeElement', 'get').mockReturnValue(element)
+    const element = screen.getByTestId("input-element")
+    const spy = vi.spyOn(document, "activeElement", "get").mockReturnValue(element)
 
     // Mock selection that doesn't contain the click target
     // But this should still show toolbar because it's an input element
@@ -329,7 +334,7 @@ describe('selectionToolbar - isInputOrTextarea logic', () => {
   })
 })
 
-describe('selectionToolbar - positioning logic', () => {
+describe("selectionToolbar - positioning logic", () => {
   let originalRequestAnimationFrame: typeof requestAnimationFrame
   let rafCallbacks: FrameRequestCallback[]
 
@@ -355,26 +360,26 @@ describe('selectionToolbar - positioning logic', () => {
     })) as unknown as typeof window.getSelection
 
     // Mock window dimensions
-    Object.defineProperty(window, 'innerHeight', {
+    Object.defineProperty(window, "innerHeight", {
       writable: true,
       configurable: true,
       value: 800,
     })
 
-    Object.defineProperty(document.documentElement, 'clientWidth', {
+    Object.defineProperty(document.documentElement, "clientWidth", {
       writable: true,
       configurable: true,
       value: 1200,
     })
 
     // Mock scrollY and scrollX
-    Object.defineProperty(window, 'scrollY', {
+    Object.defineProperty(window, "scrollY", {
       writable: true,
       configurable: true,
       value: 0,
     })
 
-    Object.defineProperty(window, 'scrollX', {
+    Object.defineProperty(window, "scrollX", {
       writable: true,
       configurable: true,
       value: 0,
@@ -395,24 +400,24 @@ describe('selectionToolbar - positioning logic', () => {
     endX: number,
     endY: number,
   ) => {
-    const mouseDownEvent = new MouseEvent('mousedown', {
+    const mouseDownEvent = new MouseEvent("mousedown", {
       bubbles: true,
       clientX: startX,
       clientY: startY,
     })
 
-    const mouseUpEvent = new MouseEvent('mouseup', {
+    const mouseUpEvent = new MouseEvent("mouseup", {
       bubbles: true,
       clientX: endX,
       clientY: endY,
     })
 
-    Object.defineProperty(mouseDownEvent, 'target', {
+    Object.defineProperty(mouseDownEvent, "target", {
       value: target,
       writable: false,
     })
 
-    Object.defineProperty(mouseUpEvent, 'target', {
+    Object.defineProperty(mouseUpEvent, "target", {
       value: target,
       writable: false,
     })
@@ -430,23 +435,23 @@ describe('selectionToolbar - positioning logic', () => {
   }
 
   const getToolbarElement = () => {
-    return document.querySelector('.absolute.z-2147483647') as HTMLElement
+    return document.querySelector(".absolute.z-2147483647") as HTMLElement
   }
 
   const mockToolbarDimensions = (toolbar: HTMLElement, width: number, height: number) => {
-    Object.defineProperty(toolbar, 'offsetWidth', {
+    Object.defineProperty(toolbar, "offsetWidth", {
       writable: true,
       configurable: true,
       value: width,
     })
-    Object.defineProperty(toolbar, 'offsetHeight', {
+    Object.defineProperty(toolbar, "offsetHeight", {
       writable: true,
       configurable: true,
       value: height,
     })
   }
 
-  it('should position toolbar at bottom-right when selecting from top-left to bottom-right', async () => {
+  it("should position toolbar at bottom-right when selecting from top-left to bottom-right", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -454,7 +459,7 @@ describe('selectionToolbar - positioning logic', () => {
       </div>,
     )
 
-    const target = screen.getByTestId('test-element')
+    const target = screen.getByTestId("test-element")
 
     // Select from (100, 100) to (200, 200) - bottom-right direction
     await triggerMouseDownAndUp(target, 100, 100, 200, 200)
@@ -474,7 +479,7 @@ describe('selectionToolbar - positioning logic', () => {
     })
   })
 
-  it('should position toolbar at bottom-left when selecting from top-right to bottom-left', async () => {
+  it("should position toolbar at bottom-left when selecting from top-right to bottom-left", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -482,7 +487,7 @@ describe('selectionToolbar - positioning logic', () => {
       </div>,
     )
 
-    const target = screen.getByTestId('test-element')
+    const target = screen.getByTestId("test-element")
 
     // Select from (200, 100) to (100, 200) - bottom-left direction
     await triggerMouseDownAndUp(target, 200, 100, 100, 200)
@@ -503,7 +508,7 @@ describe('selectionToolbar - positioning logic', () => {
     })
   })
 
-  it('should position toolbar at top-right when selecting from bottom-left to top-right', async () => {
+  it("should position toolbar at top-right when selecting from bottom-left to top-right", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -511,7 +516,7 @@ describe('selectionToolbar - positioning logic', () => {
       </div>,
     )
 
-    const target = screen.getByTestId('test-element')
+    const target = screen.getByTestId("test-element")
 
     // Select from (100, 200) to (200, 100) - top-right direction
     await triggerMouseDownAndUp(target, 100, 200, 200, 100)
@@ -533,7 +538,7 @@ describe('selectionToolbar - positioning logic', () => {
     })
   })
 
-  it('should position toolbar at top-left when selecting from bottom-right to top-left', async () => {
+  it("should position toolbar at top-left when selecting from bottom-right to top-left", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -541,7 +546,7 @@ describe('selectionToolbar - positioning logic', () => {
       </div>,
     )
 
-    const target = screen.getByTestId('test-element')
+    const target = screen.getByTestId("test-element")
 
     // Select from (200, 200) to (100, 100) - top-left direction
     await triggerMouseDownAndUp(target, 200, 200, 100, 100)
@@ -564,7 +569,7 @@ describe('selectionToolbar - positioning logic', () => {
     })
   })
 
-  it('should clamp toolbar position within left boundary', async () => {
+  it("should clamp toolbar position within left boundary", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -572,7 +577,7 @@ describe('selectionToolbar - positioning logic', () => {
       </div>,
     )
 
-    const target = screen.getByTestId('test-element')
+    const target = screen.getByTestId("test-element")
 
     // Try to position toolbar at x=5 (less than MARGIN which is 10)
     await triggerMouseDownAndUp(target, 5, 100, 5, 100)
@@ -586,7 +591,7 @@ describe('selectionToolbar - positioning logic', () => {
     })
   })
 
-  it('should clamp toolbar position within top boundary', async () => {
+  it("should clamp toolbar position within top boundary", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -594,7 +599,7 @@ describe('selectionToolbar - positioning logic', () => {
       </div>,
     )
 
-    const target = screen.getByTestId('test-element')
+    const target = screen.getByTestId("test-element")
 
     // Try to position toolbar at y=5 (less than MARGIN)
     await triggerMouseDownAndUp(target, 100, 5, 100, 5)
@@ -608,7 +613,7 @@ describe('selectionToolbar - positioning logic', () => {
     })
   })
 
-  it('should clamp toolbar position within right boundary', async () => {
+  it("should clamp toolbar position within right boundary", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -616,7 +621,7 @@ describe('selectionToolbar - positioning logic', () => {
       </div>,
     )
 
-    const target = screen.getByTestId('test-element')
+    const target = screen.getByTestId("test-element")
 
     // Try to position toolbar at x=1195 (close to clientWidth of 1200)
     await triggerMouseDownAndUp(target, 100, 100, 1195, 100)
@@ -635,7 +640,7 @@ describe('selectionToolbar - positioning logic', () => {
       // Since mouseUp is at x=1195, toolbar should be clamped to left <= 975
       // Manually trigger updatePosition by dispatching a scroll event
       act(() => {
-        window.dispatchEvent(new Event('scroll'))
+        window.dispatchEvent(new Event("scroll"))
         const callbacks = [...rafCallbacks]
         rafCallbacks = []
         callbacks.forEach(cb => cb(0))
@@ -653,7 +658,7 @@ describe('selectionToolbar - positioning logic', () => {
     })
   })
 
-  it('should clamp toolbar position within bottom boundary', async () => {
+  it("should clamp toolbar position within bottom boundary", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -661,7 +666,7 @@ describe('selectionToolbar - positioning logic', () => {
       </div>,
     )
 
-    const target = screen.getByTestId('test-element')
+    const target = screen.getByTestId("test-element")
 
     // Try to position toolbar at y=795 (close to innerHeight of 800)
     await triggerMouseDownAndUp(target, 100, 100, 100, 795)
@@ -680,7 +685,7 @@ describe('selectionToolbar - positioning logic', () => {
       // Since mouseUp is at y=795, toolbar should be clamped to top <= 725
       // Manually trigger updatePosition by dispatching a scroll event
       act(() => {
-        window.dispatchEvent(new Event('scroll'))
+        window.dispatchEvent(new Event("scroll"))
         const callbacks = [...rafCallbacks]
         rafCallbacks = []
         callbacks.forEach(cb => cb(0))
@@ -698,7 +703,7 @@ describe('selectionToolbar - positioning logic', () => {
     })
   })
 
-  it('should update toolbar position on scroll', async () => {
+  it("should update toolbar position on scroll", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -706,7 +711,7 @@ describe('selectionToolbar - positioning logic', () => {
       </div>,
     )
 
-    const target = screen.getByTestId('test-element')
+    const target = screen.getByTestId("test-element")
 
     // Initial selection at client position (100, 100) with scrollY = 0
     await triggerMouseDownAndUp(target, 100, 100, 200, 200)
@@ -719,14 +724,14 @@ describe('selectionToolbar - positioning logic', () => {
     const toolbar = getToolbarElement()
 
     // Simulate scroll down by 100px
-    Object.defineProperty(window, 'scrollY', {
+    Object.defineProperty(window, "scrollY", {
       writable: true,
       configurable: true,
       value: 100,
     })
 
     await act(async () => {
-      window.dispatchEvent(new Event('scroll'))
+      window.dispatchEvent(new Event("scroll"))
       const callbacks = [...rafCallbacks]
       rafCallbacks = []
       callbacks.forEach(cb => cb(0))
@@ -738,15 +743,15 @@ describe('selectionToolbar - positioning logic', () => {
     expect(updatedTop).toBeGreaterThanOrEqual(110)
   })
 
-  it('should account for scroll offset when positioning toolbar', async () => {
+  it("should account for scroll offset when positioning toolbar", async () => {
     // Set initial scroll position
-    Object.defineProperty(window, 'scrollY', {
+    Object.defineProperty(window, "scrollY", {
       writable: true,
       configurable: true,
       value: 200,
     })
 
-    Object.defineProperty(window, 'scrollX', {
+    Object.defineProperty(window, "scrollX", {
       writable: true,
       configurable: true,
       value: 50,
@@ -759,7 +764,7 @@ describe('selectionToolbar - positioning logic', () => {
       </div>,
     )
 
-    const target = screen.getByTestId('test-element')
+    const target = screen.getByTestId("test-element")
 
     // Select at client position (100, 100)
     // Document position should be (150, 300) considering scroll
@@ -775,7 +780,7 @@ describe('selectionToolbar - positioning logic', () => {
     })
   })
 
-  it('should maintain toolbar visibility when window is resized', async () => {
+  it("should maintain toolbar visibility when window is resized", async () => {
     render(
       <div>
         <SelectionToolbar />
@@ -783,7 +788,7 @@ describe('selectionToolbar - positioning logic', () => {
       </div>,
     )
 
-    const target = screen.getByTestId('test-element')
+    const target = screen.getByTestId("test-element")
 
     // Initial selection
     await triggerMouseDownAndUp(target, 100, 100, 200, 200)
@@ -794,13 +799,13 @@ describe('selectionToolbar - positioning logic', () => {
     })
 
     // Resize window
-    Object.defineProperty(window, 'innerHeight', {
+    Object.defineProperty(window, "innerHeight", {
       writable: true,
       configurable: true,
       value: 600,
     })
 
-    Object.defineProperty(document.documentElement, 'clientWidth', {
+    Object.defineProperty(document.documentElement, "clientWidth", {
       writable: true,
       configurable: true,
       value: 1000,

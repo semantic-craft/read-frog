@@ -12,10 +12,12 @@
 
 [![][extension-release-shield]][github-release-link]
 [![][chrome-version-shield]][chrome-store-link]
-[![][edge-version-shield]][edge-store-link]<br/>
+[![][edge-version-shield]][edge-store-link]
+[![][firefox-version-shield]][firefox-store-link]<br/>
 [![][discord-shield]][discord-link]
 [![][chrome-users-shield]][chrome-store-link]
-[![][edge-users-shield]][edge-store-link]<br/>
+[![][edge-users-shield]][edge-store-link]
+[![][firefox-users-shield]][firefox-store-link]<br/>
 [![][star-history-shield]][star-history-link]
 [![][contributors-shield]][contributors-link]
 ![][last-commit-shield]
@@ -42,7 +44,7 @@
   - [📝 自定义提示词](#-自定义提示词)
   - [📦 批量请求](#-批量请求)
   - [🤖 20+ AI 服务商](#-20-ai-服务商)
-  - [🎬 字幕翻译 (Beta)](#-字幕翻译-beta)
+  - [🎬 字幕翻译](#-字幕翻译)
   - [🔊 文字转语音 (TTS)](#-文字转语音-tts)
   - [📖 阅读文章](#-阅读文章)
 - [🤝 贡献](#-贡献)
@@ -70,10 +72,11 @@ Read Frog 的愿景是为各个级别的语言学习者提供易于使用、智�
 
 ### 下载
 
-| 浏览器 | 版本                                            | 下载                                                             |
-| ------ | ----------------------------------------------- | ---------------------------------------------------------------- |
-| Chrome | [![][chrome-version-shield]][chrome-store-link] | [Chrome 应用商店][chrome-store-link] 或 [中国镜像][crxsoso-link] |
-| Edge   | [![][edge-version-shield]][edge-store-link]     | [Microsoft Edge 插件商店][edge-store-link]                       |
+| 浏览器  | 版本                                              | 下载                                                             |
+| ------- | ------------------------------------------------- | ---------------------------------------------------------------- |
+| Chrome  | [![][chrome-version-shield]][chrome-store-link]   | [Chrome 应用商店][chrome-store-link] 或 [中国镜像][crxsoso-link] |
+| Edge    | [![][edge-version-shield]][edge-store-link]       | [Microsoft Edge 插件商店][edge-store-link]                       |
+| Firefox | [![][firefox-version-shield]][firefox-store-link] | [Firefox 附加组件][firefox-store-link]                           |
 
 ### 社区
 
@@ -198,7 +201,7 @@ Read Frog 的愿景是为各个级别的语言学习者提供易于使用、智�
 
 <!-- ![][image-feat-subtitle] -->
 
-### 🎬 [字幕翻译 (Beta)][docs-tutorial]
+### 🎬 [字幕翻译][docs-tutorial]
 
 直接在视频播放器中翻译 YouTube 字幕。观看外语内容时，翻译会与原始字幕一起显示，让视频内容成为语言学习的好帮手。
 
@@ -212,9 +215,9 @@ Read Frog 的愿景是为各个级别的语言学习者提供易于使用、智�
 
 ### 🔊 [文字转语音 (TTS)][docs-tutorial]
 
-使用高质量 AI 语音朗读任何选中的文本。由 OpenAI 的 TTS 模型驱动，可从多种语音中选择（Alloy、Ash、Coral、Echo 等），并可调节 0.25x 到 4x 的播放速度。
+使用高质量 AI 语音朗读任何选中的文本。由 **Edge TTS** 驱动——完全免费，提供 150+ 种语音，覆盖 80+ 种语言，包括中文、英文、日文、韩文等。可自由调节语速、音调和音量。
 
-智能的句子感知分块功能处理长文本时会在自然边界处分割，并预取下一个片段以实现无缝播放。非常适合发音练习和听力学习。
+自动语言检测（基础模式或 LLM 驱动）与按语言映射语音，确保每种语言使用最合适的语音。智能的句子感知分块功能处理长文本时会在自然边界处分割，并预取下一个片段以实现无缝播放。非常适合发音练习和听力学习。
 
 <div align="right">
 
@@ -298,8 +301,8 @@ Read Frog 的愿景是为各个级别的语言学习者提供易于使用、智�
 
 [back-to-top]: https://img.shields.io/badge/-回到顶部-151515?style=flat-square
 [chrome-store-link]: https://chromewebstore.google.com/detail/read-frog-open-source-ai/modkelfkcfjpgbfmnbnllalkiogfofhb
-[chrome-users-shield]: https://img.shields.io/chrome-web-store/users/modkelfkcfjpgbfmnbnllalkiogfofhb?style=flat-square&label=Chrome%20用户&color=orange&labelColor=black
-[chrome-version-shield]: https://img.shields.io/chrome-web-store/v/modkelfkcfjpgbfmnbnllalkiogfofhb?style=flat-square&label=Chrome%20版本&labelColor=black
+[chrome-users-shield]: https://img.shields.io/chrome-web-store/users/modkelfkcfjpgbfmnbnllalkiogfofhb?style=flat-square&label=Chrome%20用户&color=yellow&labelColor=black
+[chrome-version-shield]: https://img.shields.io/chrome-web-store/v/modkelfkcfjpgbfmnbnllalkiogfofhb?style=flat-square&label=Chrome%20版本&labelColor=black&color=yellow
 [contributors-link]: https://github.com/mengxi-ream/read-frog/graphs/contributors
 [contributors-shield]: https://img.shields.io/github/contributors/mengxi-ream/read-frog?style=flat-square&labelColor=black
 [crxsoso-link]: https://www.crxsoso.com/webstore/detail/modkelfkcfjpgbfmnbnllalkiogfofhb
@@ -307,6 +310,9 @@ Read Frog 的愿景是为各个级别的语言学习者提供易于使用、智�
 [discord-shield]: https://img.shields.io/discord/1371229720942874646?style=flat-square&label=Discord&logo=discord&logoColor=white&color=5865F2&labelColor=black
 [discord-shield-badge]: https://img.shields.io/badge/聊天-Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white&labelColor=black
 [edge-store-link]: https://microsoftedge.microsoft.com/addons/detail/read-frog-open-source-a/cbcbomlgikfbdnoaohcjfledcoklcjbo
+[firefox-store-link]: https://addons.mozilla.org/firefox/addon/read-frog-open-ai-translator/
+[firefox-version-shield]: https://img.shields.io/amo/v/read-frog-open-ai-translator?style=flat-square&label=Firefox%20版本&labelColor=black&color=orange
+[firefox-users-shield]: https://img.shields.io/amo/users/read-frog-open-ai-translator?style=flat-square&label=Firefox%20用户&color=orange&labelColor=black
 [edge-users-shield]: https://img.shields.io/badge/dynamic/json?style=flat-square&logo=microsoft-edge&label=Edge%20用户&query=%24.activeInstallCount&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fcbcbomlgikfbdnoaohcjfledcoklcjbo&labelColor=black
 [edge-version-shield]: https://img.shields.io/badge/dynamic/json?style=flat-square&logo=microsoft-edge&label=Edge%20版本&query=%24.version&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fcbcbomlgikfbdnoaohcjfledcoklcjbo&labelColor=black&prefix=v
 [extension-release-shield]: https://img.shields.io/github/package-json/v/mengxi-ream/read-frog?filename=package.json&style=flat-square&label=最新版本&color=brightgreen&labelColor=black

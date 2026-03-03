@@ -1,9 +1,9 @@
-import { MAX_CHARS_CJK, MAX_WORDS, MAX_WORDS_EXTENDED, SENTENCE_END_PATTERN } from '@/utils/constants/subtitles'
+import { MAX_CHARS_CJK, MAX_WORDS, MAX_WORDS_EXTENDED, SENTENCE_END_PATTERN } from "@/utils/constants/subtitles"
 
 export function isCJKLanguage(lang?: string): boolean {
   if (!lang)
     return false
-  return ['zh', 'ja', 'ko', 'th', 'lo', 'km', 'my'].some(l => lang.startsWith(l))
+  return ["zh", "ja", "ko", "th", "lo", "km", "my"].some(l => lang.startsWith(l))
 }
 
 export function getTextLength(text: string, isCJK: boolean): number {
@@ -21,7 +21,7 @@ export function getMaxLength(isCJK: boolean, extended: boolean = false): number 
 }
 
 export function normalizeSpaces(text: string): string {
-  return text.replace(/\s+/g, ' ').trim()
+  return text.replace(/\s+/g, " ").trim()
 }
 
 export function measureTextLengthUnits(text: string, language: string): number {
@@ -31,7 +31,7 @@ export function measureTextLengthUnits(text: string, language: string): number {
   }
 
   if (isCJKLanguage(language)) {
-    return Array.from(normalized.replace(/\s+/g, '')).length
+    return Array.from(normalized.replace(/\s+/g, "")).length
   }
 
   return normalized.split(/\s+/).filter(Boolean).length
