@@ -1,14 +1,14 @@
-import type { SubtitlesFragment } from '../../types'
-import type { Config } from '@/types/config/config'
-import { sendMessage } from '@/utils/message'
-import { enforceCueGuards } from './guards'
+import type { SubtitlesFragment } from "../../types"
+import type { Config } from "@/types/config/config"
+import { sendMessage } from "@/utils/message"
+import { enforceCueGuards } from "./guards"
 import {
   cleanFragmentsForAi,
   formatFragmentsToJson,
   parseLineProtocolToUnits,
   validateSegmentationUnits,
-} from './protocol'
-import { buildFragmentsFromUnits, refineSegmentationUnits } from './refine'
+} from "./protocol"
+import { buildFragmentsFromUnits, refineSegmentationUnits } from "./refine"
 
 export async function aiSegmentBlock(
   fragments: SubtitlesFragment[],
@@ -19,7 +19,7 @@ export async function aiSegmentBlock(
     return fragments
   }
   if (!sourceLanguage.trim()) {
-    throw new Error('sourceLanguage is required for AI segmentation')
+    throw new Error("sourceLanguage is required for AI segmentation")
   }
 
   const cleanedFragments = cleanFragmentsForAi(fragments)
@@ -28,7 +28,7 @@ export async function aiSegmentBlock(
   }
 
   const jsonContent = formatFragmentsToJson(cleanedFragments)
-  const segmentedOutput = await sendMessage('aiSegmentSubtitles', {
+  const segmentedOutput = await sendMessage("aiSegmentSubtitles", {
     jsonContent,
     providerId: config.translate.providerId,
   })

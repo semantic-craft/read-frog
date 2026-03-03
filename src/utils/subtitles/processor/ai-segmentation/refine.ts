@@ -1,11 +1,11 @@
-import type { SubtitlesFragment } from '../../types'
-import type { SegmentationUnit } from './protocol'
+import type { SubtitlesFragment } from "../../types"
+import type { SegmentationUnit } from "./protocol"
 import {
   isCJKLanguage,
   isStrongSentenceBoundary,
   measureTextLengthUnits,
   normalizeSpaces,
-} from '@/utils/subtitles/utils'
+} from "@/utils/subtitles/utils"
 
 const MERGE_HARD_MIN_UNITS_SPACE = 8
 const MERGE_HARD_MIN_UNITS_CJK = 6
@@ -50,7 +50,7 @@ function composeTextFromSourceRange(
   to: number,
 ): string {
   if (from > to) {
-    return ''
+    return ""
   }
 
   const parts: string[] = []
@@ -61,7 +61,7 @@ function composeTextFromSourceRange(
     }
   }
 
-  return normalizeSpaces(parts.join(' '))
+  return normalizeSpaces(parts.join(" "))
 }
 
 function getBoundaryGapMs(source: SubtitlesFragment[], splitIndex: number): number {
@@ -216,8 +216,8 @@ function splitLongUnitsBySignals(
 
     let bestScore = Number.NEGATIVE_INFINITY
     let bestSplitIndex: number | null = null
-    let bestLeftText = ''
-    let bestRightText = ''
+    let bestLeftText = ""
+    let bestRightText = ""
 
     for (let splitIndex = unit.from + 1; splitIndex <= unit.to; splitIndex++) {
       const candidate = evaluateSplitScore(source, unit, splitIndex, sourceLanguage)

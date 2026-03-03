@@ -1,4 +1,4 @@
-import type { SubtitlesFragment } from '../../types'
+import type { SubtitlesFragment } from "../../types"
 
 const RANGE_PATTERN = /^(\d+)\s*-\s*(\d+)$/
 const LIST_PREFIX_PATTERN = /^\d+[.)]\s*/
@@ -12,7 +12,7 @@ export interface SegmentationUnit {
 export function cleanLineProtocolResponse(text: string): string {
   let cleaned = text.trim()
 
-  cleaned = cleaned.replace(/```[\w-]*\n?/g, '').replace(/```\n?/g, '')
+  cleaned = cleaned.replace(/```[\w-]*\n?/g, "").replace(/```\n?/g, "")
 
   const [, afterThink = cleaned] = cleaned.match(/<\/think>([\s\S]*)/) || []
   cleaned = afterThink.trim()
@@ -24,7 +24,7 @@ export function cleanFragmentsForAi(fragments: SubtitlesFragment[]): SubtitlesFr
   return fragments
     .map(fragment => ({
       ...fragment,
-      text: fragment.text.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim(),
+      text: fragment.text.replace(/\n/g, " ").replace(/\s+/g, " ").trim(),
     }))
     .filter(fragment => fragment.text.length > 0)
 }
@@ -41,18 +41,18 @@ export function formatFragmentsToJson(fragments: SubtitlesFragment[]): string {
 export function parseLineProtocolToUnits(raw: string): SegmentationUnit[] {
   const units: SegmentationUnit[] = []
 
-  for (const line of raw.split('\n')) {
+  for (const line of raw.split("\n")) {
     const trimmed = line.trim()
     if (!trimmed) {
       continue
     }
 
-    const pipeIndex = trimmed.indexOf('|')
+    const pipeIndex = trimmed.indexOf("|")
     if (pipeIndex < 0) {
       continue
     }
 
-    const leftPart = trimmed.slice(0, pipeIndex).trim().replace(LIST_PREFIX_PATTERN, '')
+    const leftPart = trimmed.slice(0, pipeIndex).trim().replace(LIST_PREFIX_PATTERN, "")
     const text = trimmed.slice(pipeIndex + 1).trim()
     if (!text) {
       continue
@@ -72,7 +72,7 @@ export function parseLineProtocolToUnits(raw: string): SegmentationUnit[] {
   }
 
   if (units.length === 0) {
-    throw new Error('AI segmentation returned invalid line protocol')
+    throw new Error("AI segmentation returned invalid line protocol")
   }
 
   return units
@@ -83,11 +83,11 @@ export function validateSegmentationUnits(
   sourceLength: number,
 ): void {
   if (sourceLength === 0) {
-    throw new Error('Cannot validate segmentation units with empty source')
+    throw new Error("Cannot validate segmentation units with empty source")
   }
 
   if (units.length === 0) {
-    throw new Error('Segmentation units are empty')
+    throw new Error("Segmentation units are empty")
   }
 
   let expectedFrom = 0

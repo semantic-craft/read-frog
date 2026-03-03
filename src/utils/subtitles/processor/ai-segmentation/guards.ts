@@ -1,9 +1,9 @@
-import type { SubtitlesFragment } from '../../types'
+import type { SubtitlesFragment } from "../../types"
 import {
   isStrongSentenceBoundary,
   measureTextLengthUnits,
   normalizeSpaces,
-} from '@/utils/subtitles/utils'
+} from "@/utils/subtitles/utils"
 
 const MIN_READABLE_DURATION_MS = 800
 const TINY_CUE_GAP_MS = 300
