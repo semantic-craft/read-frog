@@ -44,7 +44,8 @@ errorRecovery:
   backupTitle: Önce geçerli ayarları yedekleyin (önerilir)
   exportWithApiKeys: API Anahtarlarıyla Dışa Aktar
   exportWithoutApiKeys: API Anahtarları olmadan Dışa Aktar
-  resetTitle: Ayarları sıfırla
+  recoveryTitle: Kurtarma seçenekleri
+  refreshPage: Sayfayı yenile
   resetAction: Varsayılan ayarlara sıfırla
   resetSuccess: Kurtarma tamamlandı. Ayarlar sıfırlandı
   resetFailed: Kurtarma başarısız oldu. Ayarlar sıfırlanamadı
@@ -305,12 +306,24 @@ options:
           addField: Alan Ekle
           fieldName: Alan Adı
           fieldType: Alan Türü
+          fieldDescription: Açıklama
+          fieldDescriptionPlaceholder: Bu alanın ne içermesi gerektiğini açıklayın...
           actions: İşlemler
           cancel: İptal
           save: Kaydet
           defaultFieldName: sonuç
           fieldNamePlaceholder: alan_adı
           autoFieldPrefix: alan
+          addFieldDialog:
+            title: Çıktı Alanı Ekle
+          editFieldDialog:
+            title: Çıktı Alanını Düzenle
+            save: Kaydet
+          deleteFieldDialog:
+            title: Çıktı Alanı Silinsin mi?
+            description: Bu çıktı alanı kaldırılacaktır.
+            confirm: Sil
+            cancel: İptal
           tokens:
             selection: Seçilen metin içeriği
             context: Seçilen metnin bulunduğu paragraf metni

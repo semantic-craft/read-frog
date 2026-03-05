@@ -44,7 +44,8 @@ errorRecovery:
   backupTitle: Sao lưu cài đặt hiện tại trước (khuyến nghị)
   exportWithApiKeys: Xuất kèm API Key
   exportWithoutApiKeys: Xuất không kèm API Key
-  resetTitle: Đặt lại cài đặt
+  recoveryTitle: Tùy chọn khôi phục
+  refreshPage: Tải lại trang
   resetAction: Đặt lại về cài đặt mặc định
   resetSuccess: Khôi phục hoàn tất. Cài đặt đã được đặt lại
   resetFailed: Khôi phục thất bại. Không thể đặt lại cài đặt
@@ -305,12 +306,24 @@ options:
           addField: Thêm trường
           fieldName: Tên trường
           fieldType: Loại trường
+          fieldDescription: Mô tả
+          fieldDescriptionPlaceholder: Mô tả nội dung mà trường này nên chứa...
           actions: Thao tác
           cancel: Hủy
           save: Lưu
           defaultFieldName: kết quả
           fieldNamePlaceholder: tên_trường
           autoFieldPrefix: trường
+          addFieldDialog:
+            title: Thêm trường đầu ra
+          editFieldDialog:
+            title: Chỉnh sửa trường đầu ra
+            save: Lưu
+          deleteFieldDialog:
+            title: Xóa trường đầu ra?
+            description: Trường đầu ra này sẽ bị xóa.
+            confirm: Xóa
+            cancel: Hủy
           tokens:
             selection: Nội dung văn bản đã chọn
             context: Nội dung đoạn văn chứa văn bản đã chọn

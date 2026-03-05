@@ -44,7 +44,8 @@ errorRecovery:
   backupTitle: まず現在の設定をバックアップ（推奨）
   exportWithApiKeys: APIキーを含めてエクスポート
   exportWithoutApiKeys: APIキーを除外してエクスポート
-  resetTitle: 設定をリセット
+  recoveryTitle: 復旧オプション
+  refreshPage: ページを再読み込み
   resetAction: 設定をデフォルトにリセット
   resetSuccess: 復旧が完了しました。設定はリセットされました
   resetFailed: 復旧に失敗しました。設定をリセットできませんでした
@@ -305,12 +306,24 @@ options:
           addField: フィールドを追加
           fieldName: フィールド名
           fieldType: フィールド型
+          fieldDescription: 説明
+          fieldDescriptionPlaceholder: このフィールドに含めるべき内容を説明してください...
           actions: 操作
           cancel: キャンセル
           save: 保存
           defaultFieldName: 結果
           fieldNamePlaceholder: フィールド名
           autoFieldPrefix: フィールド
+          addFieldDialog:
+            title: 出力フィールドを追加
+          editFieldDialog:
+            title: 出力フィールドを編集
+            save: 保存
+          deleteFieldDialog:
+            title: 出力フィールドを削除しますか？
+            description: この出力フィールドは削除されます。
+            confirm: 削除
+            cancel: キャンセル
           tokens:
             selection: 選択したテキスト内容
             context: 選択テキストが含まれる段落内容
