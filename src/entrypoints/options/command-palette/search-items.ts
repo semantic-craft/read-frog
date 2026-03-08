@@ -24,6 +24,13 @@ export const SEARCH_ITEMS: SearchItem[] = [
     descriptionKey: "options.siteControl.mode.description",
     pageKey: "options.general.title",
   },
+  {
+    sectionId: "appearance",
+    route: "/",
+    titleKey: "options.general.appearance.title",
+    descriptionKey: "options.general.appearance.theme",
+    pageKey: "options.general.title",
+  },
 
   // API Providers page
   {
