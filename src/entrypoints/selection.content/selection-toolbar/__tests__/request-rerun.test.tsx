@@ -1,5 +1,9 @@
 // @vitest-environment jsdom
 import type { ReactElement } from "react"
+import type {
+  BackgroundStructuredObjectStreamSnapshot,
+  BackgroundTextStreamSnapshot,
+} from "@/types/background-stream"
 import type { Config } from "@/types/config/config"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react"
@@ -12,7 +16,7 @@ import { AiButton } from "../ai-button"
 import {
   selectionContentAtom,
   selectionRangeAtom,
-} from "../atom"
+} from "../atoms"
 import { SelectionToolbarCustomFeatureButtons } from "../custom-feature-button"
 import { TranslateButton } from "../translate-button"
 
@@ -58,17 +62,20 @@ vi.mock("@/components/ui/selection-popover", async () => {
 
   function Trigger({
     children,
-    title,
-  }: {
+    onClick,
+    ...props
+  }: React.ComponentProps<"button"> & {
     children: React.ReactNode
-    title?: string
   }) {
     const { onOpenChange } = usePopoverContext()
     return (
       <button
+        {...props}
         type="button"
-        aria-label={title}
-        onClick={() => onOpenChange?.(true)}
+        onClick={(event) => {
+          onClick?.(event)
+          onOpenChange?.(true)
+        }}
       >
         {children}
       </button>
@@ -189,7 +196,7 @@ vi.mock("@/components/markdown-renderer", () => ({
   MarkdownRenderer: ({ content }: { content: string }) => <div>{content}</div>,
 }))
 
-vi.mock("../structured-object-renderer", () => ({
+vi.mock("../custom-feature-button/structured-object-renderer", () => ({
   StructuredObjectRenderer: ({ value }: { value: Record<string, unknown> | null }) => (
     <pre>{JSON.stringify(value)}</pre>
   ),
@@ -243,6 +250,26 @@ function createDeferredPromise<T>() {
   })
 
   return { promise, resolve, reject }
+}
+
+function createTextSnapshot(output: string): BackgroundTextStreamSnapshot {
+  return {
+    output,
+    thinking: {
+      status: "complete",
+      text: "",
+    },
+  }
+}
+
+function createStructuredObjectSnapshot(output: Record<string, unknown>): BackgroundStructuredObjectStreamSnapshot {
+  return {
+    output,
+    thinking: {
+      status: "complete",
+      text: "",
+    },
+  }
 }
 
 function findAlternateTranslateProviderId(config: Config, currentProviderId: string) {
@@ -301,7 +328,7 @@ describe("selection toolbar requests", () => {
     store.set(selectionContentAtom, "Selected text")
     const view = renderWithProviders(<TranslateButton />, store)
 
-    fireEvent.click(screen.getByRole("button", { name: "Translation" }))
+    fireEvent.click(screen.getByRole("button", { name: "action.translation" }))
 
     await waitFor(() => {
       expect(translateTextCoreMock).toHaveBeenCalledTimes(1)
@@ -368,7 +395,7 @@ describe("selection toolbar requests", () => {
     store.set(selectionContentAtom, "Selected text")
     renderWithProviders(<TranslateButton />, store)
 
-    fireEvent.click(screen.getByRole("button", { name: "Translation" }))
+    fireEvent.click(screen.getByRole("button", { name: "action.translation" }))
 
     await waitFor(() => {
       expect(translateTextCoreMock).toHaveBeenCalledTimes(1)
@@ -400,13 +427,16 @@ describe("selection toolbar requests", () => {
   })
 
   it("aborts llm translations when the popover closes without surfacing an error", async () => {
-    const streamCalls: Array<{ signal?: AbortSignal, onChunk?: (data: string) => void }> = []
+    const streamCalls: Array<{ signal?: AbortSignal, onChunk?: (data: BackgroundTextStreamSnapshot) => void }> = []
     translateTextCoreMock.mockResolvedValue("")
 
-    streamBackgroundTextMock.mockImplementation((_payload, options: { signal?: AbortSignal, onChunk?: (data: string) => void }) => {
+    streamBackgroundTextMock.mockImplementation((_payload, options: {
+      signal?: AbortSignal
+      onChunk?: (data: BackgroundTextStreamSnapshot) => void
+    }) => {
       streamCalls.push({ signal: options.signal, onChunk: options.onChunk })
 
-      return new Promise<string>((_resolve, reject) => {
+      return new Promise<BackgroundTextStreamSnapshot>((_resolve, reject) => {
         options.signal?.addEventListener("abort", () => {
           reject(new DOMException("aborted", "AbortError"))
         })
@@ -424,7 +454,7 @@ describe("selection toolbar requests", () => {
       store.set(configAtom, updatedConfig)
     })
 
-    fireEvent.click(screen.getByRole("button", { name: "Translation" }))
+    fireEvent.click(screen.getByRole("button", { name: "action.translation" }))
 
     await waitFor(() => {
       expect(streamBackgroundTextMock).toHaveBeenCalledTimes(1)
@@ -442,7 +472,7 @@ describe("selection toolbar requests", () => {
     expect(screen.queryByTestId("translation-content")).toBeNull()
   })
 
-  it("normalizes translations identical to the original text", async () => {
+  it("shows translations identical to the original text", async () => {
     translateTextCoreMock.mockResolvedValue("Selected text")
     getOrFetchArticleDataMock.mockResolvedValue(null)
 
@@ -451,7 +481,7 @@ describe("selection toolbar requests", () => {
     store.set(selectionContentAtom, "Selected text")
     renderWithProviders(<TranslateButton />, store)
 
-    fireEvent.click(screen.getByRole("button", { name: "Translation" }))
+    fireEvent.click(screen.getByRole("button", { name: "action.translation" }))
 
     await waitFor(() => {
       expect(translateTextCoreMock).toHaveBeenCalledTimes(1)
@@ -461,11 +491,11 @@ describe("selection toolbar requests", () => {
       expect(screen.getByTestId("translation-status").textContent).toBe("false")
     })
 
-    expect(screen.getByTestId("translation-result").textContent).toBe("")
+    expect(screen.getByTestId("translation-result").textContent).toBe("Selected text")
   })
 
   it("does not refetch vocabulary insight on focus, but reruns when request values change", async () => {
-    streamBackgroundTextMock.mockResolvedValue("Insight response")
+    streamBackgroundTextMock.mockResolvedValue(createTextSnapshot("Insight response"))
 
     const paragraph = document.createElement("p")
     paragraph.textContent = "Before selected text after."
@@ -476,7 +506,7 @@ describe("selection toolbar requests", () => {
     store.set(selectionRangeAtom, createRangeFor(paragraph))
     renderWithProviders(<AiButton />, store)
 
-    fireEvent.click(screen.getByRole("button", { name: "Vocabulary insight" }))
+    fireEvent.click(screen.getByRole("button", { name: "action.vocabularyInsight" }))
 
     await waitFor(() => {
       expect(streamBackgroundTextMock).toHaveBeenCalledTimes(1)
@@ -513,8 +543,8 @@ describe("selection toolbar requests", () => {
   })
 
   it("reruns vocabulary insight from the footer and aborts the previous run", async () => {
-    const firstRun = createDeferredPromise<string>()
-    const secondRun = createDeferredPromise<string>()
+    const firstRun = createDeferredPromise<BackgroundTextStreamSnapshot>()
+    const secondRun = createDeferredPromise<BackgroundTextStreamSnapshot>()
     const signals: AbortSignal[] = []
 
     streamBackgroundTextMock
@@ -525,7 +555,10 @@ describe("selection toolbar requests", () => {
         })
         return firstRun.promise
       })
-      .mockImplementationOnce((_payload, options: { onChunk?: (data: string) => void, signal?: AbortSignal }) => {
+      .mockImplementationOnce((_payload, options: {
+        onChunk?: (data: BackgroundTextStreamSnapshot) => void
+        signal?: AbortSignal
+      }) => {
         signals.push(options.signal as AbortSignal)
         return secondRun.promise.then((value) => {
           options.onChunk?.(value)
@@ -542,7 +575,7 @@ describe("selection toolbar requests", () => {
     store.set(selectionRangeAtom, createRangeFor(paragraph))
     renderWithProviders(<AiButton />, store)
 
-    fireEvent.click(screen.getByRole("button", { name: "Vocabulary insight" }))
+    fireEvent.click(screen.getByRole("button", { name: "action.vocabularyInsight" }))
 
     await waitFor(() => {
       expect(streamBackgroundTextMock).toHaveBeenCalledTimes(1)
@@ -557,7 +590,7 @@ describe("selection toolbar requests", () => {
     expect(signals[0]?.aborted).toBe(true)
 
     await act(async () => {
-      secondRun.resolve("Fresh insight")
+      secondRun.resolve(createTextSnapshot("Fresh insight"))
       await Promise.resolve()
     })
 
@@ -567,7 +600,7 @@ describe("selection toolbar requests", () => {
   })
 
   it("does not rerun custom feature requests on passive config refresh, but reruns when request values change", async () => {
-    streamBackgroundStructuredObjectMock.mockResolvedValue({ summary: "done" })
+    streamBackgroundStructuredObjectMock.mockResolvedValue(createStructuredObjectSnapshot({ summary: "done" }))
 
     const paragraph = document.createElement("p")
     paragraph.textContent = "Selected text inside a paragraph."
@@ -621,8 +654,8 @@ describe("selection toolbar requests", () => {
   })
 
   it("reruns custom feature requests from the footer and aborts the previous run", async () => {
-    const firstRun = createDeferredPromise<Record<string, unknown>>()
-    const secondRun = createDeferredPromise<Record<string, unknown>>()
+    const firstRun = createDeferredPromise<BackgroundStructuredObjectStreamSnapshot>()
+    const secondRun = createDeferredPromise<BackgroundStructuredObjectStreamSnapshot>()
     const signals: AbortSignal[] = []
 
     streamBackgroundStructuredObjectMock
@@ -668,7 +701,7 @@ describe("selection toolbar requests", () => {
     expect(signals[0]?.aborted).toBe(true)
 
     await act(async () => {
-      secondRun.resolve({ summary: "fresh" })
+      secondRun.resolve(createStructuredObjectSnapshot({ summary: "fresh" }))
       await Promise.resolve()
     })
 

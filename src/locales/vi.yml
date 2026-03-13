@@ -767,8 +767,15 @@ action:
   copy: Sao chép
   copied: Đã sao chép
   regenerate: Tạo lại
+  translation: Dịch
   speak: Đọc
   playing: Đang phát
+  vocabularyInsight: Phân tích từ vựng
+thinking:
+  label: Đang suy luận
+  complete: Suy luận hoàn tất
+  expand: Mở rộng suy luận
+  collapse: Thu gọn suy luận
 shortcutKeySelector:
   placeholder: Vui lòng nhập phím tắt
 subtitles:

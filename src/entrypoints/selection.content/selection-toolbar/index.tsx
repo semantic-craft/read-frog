@@ -7,7 +7,7 @@ import { MARGIN } from "@/utils/constants/selection"
 import { cn } from "@/utils/styles/utils"
 import { matchDomainPattern } from "@/utils/url"
 import { AiButton } from "./ai-button"
-import { isSelectionToolbarVisibleAtom, selectionContentAtom, selectionRangeAtom } from "./atom"
+import { isSelectionToolbarVisibleAtom, selectionContentAtom, selectionRangeAtom } from "./atoms"
 import { CloseButton, DropEvent } from "./close-button"
 import { SelectionToolbarCustomFeatureButtons } from "./custom-feature-button"
 import { SpeakButton } from "./speak-button"
@@ -256,9 +256,9 @@ export function SelectionToolbar() {
           )}
         >
           <div className="flex items-center overflow-x-auto overflow-y-hidden rounded-sm max-w-105 no-scrollbar">
-            <AiButton />
             <TranslateButton />
             {!isFirefox && <SpeakButton />}
+            <AiButton />
             <SelectionToolbarCustomFeatureButtons />
           </div>
           <CloseButton />

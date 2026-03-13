@@ -879,8 +879,15 @@ action:
   copy: Copy
   copied: Copied
   regenerate: Regenerate
+  translation: Translation
   speak: Speak
   playing: Playing
+  vocabularyInsight: Vocabulary Insight
+thinking:
+  label: Thinking
+  complete: Thinking complete
+  expand: Expand thinking
+  collapse: Collapse thinking
 shortcutKeySelector:
   placeholder: Please enter the shortcut
 subtitles:

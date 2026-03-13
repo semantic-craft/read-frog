@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "#imports"
+import { i18n, useCallback, useMemo, useRef, useState } from "#imports"
 import { IconZoomScan } from "@tabler/icons-react"
 import { useQuery } from "@tanstack/react-query"
 import { useAtomValue, useSetAtom } from "jotai"
@@ -19,11 +19,12 @@ import { getProviderOptionsWithOverride } from "@/utils/providers/options"
 import { shadowWrapper } from ".."
 import { SelectionToolbarFooterContent } from "../components/selection-toolbar-footer-content"
 import { SelectionToolbarTitleContent } from "../components/selection-toolbar-title-content"
+import { SelectionToolbarTooltip } from "../components/selection-tooltip"
 import { createHighlightData } from "../utils"
 import {
   isSelectionToolbarVisibleAtom,
   selectionToolbarVocabularyInsightRequestAtom,
-} from "./atom"
+} from "./atoms"
 import { useSelectionPopoverSnapshot } from "./use-selection-popover-snapshot"
 
 function scrollSelectionPopoverBodyToBottom(ref: React.RefObject<HTMLDivElement | null>) {
@@ -68,6 +69,7 @@ export function AiButton() {
     () => filterEnabledProvidersConfig(providersConfig).filter(isLLMProviderConfig),
     [providersConfig],
   )
+  const triggerLabel = i18n.t("action.vocabularyInsight")
 
   const {
     isLoading,
@@ -131,13 +133,13 @@ export function AiButton() {
           {
             signal,
             onChunk: (data) => {
-              setAiResponse(data)
+              setAiResponse(data.output)
               scrollSelectionPopoverBodyToBottom(bodyRef)
             },
           },
         )
 
-        logger.log("aiResponse", "\n", finalResponse)
+        logger.log("aiResponse", "\n", finalResponse.output)
         return true
       }
       catch (error) {
@@ -179,9 +181,12 @@ export function AiButton() {
 
   return (
     <SelectionPopover.Root open={open} onOpenChange={handleOpenChange}>
-      <SelectionPopover.Trigger title="Vocabulary insight">
+      <SelectionToolbarTooltip
+        content={triggerLabel}
+        render={<SelectionPopover.Trigger aria-label={triggerLabel} />}
+      >
         <IconZoomScan className="size-4.5" />
-      </SelectionPopover.Trigger>
+      </SelectionToolbarTooltip>
 
       <SelectionPopover.Content key={popoverSessionKey} container={shadowWrapper ?? document.body}>
         <SelectionPopover.Header className="border-b">
@@ -196,7 +201,7 @@ export function AiButton() {
         </SelectionPopover.Header>
 
         <SelectionPopover.Body ref={bodyRef}>
-          <div className="p-4 pt-0 border-b">
+          <div className="p-4 pt-0">
             <div className="border-b pb-4 sticky pt-4 top-0 bg-white dark:bg-zinc-800 z-10">
               <p className="text-xs text-zinc-500 dark:text-zinc-500 mb-2">上下文:</p>
               <div className="text-sm text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 p-3 rounded leading-relaxed">
