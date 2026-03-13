@@ -763,6 +763,12 @@ speak:
   noTextSelected: Metin seçilmedi
   openaiNotConfigured: OpenAI sağlayıcısı yapılandırılmadı veya etkinleştirilmedi
   openaiApiKeyNotConfigured: OpenAI API anahtarı yapılandırılmadı
+action:
+  copy: Kopyala
+  copied: Kopyalandı
+  regenerate: Yeniden oluştur
+  speak: Oku
+  playing: Çalınıyor
 shortcutKeySelector:
   placeholder: Lütfen kısayolu girin
 subtitles:

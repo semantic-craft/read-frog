@@ -1,26 +1,26 @@
-import type { PopoverWrapperRef } from "./components/popover-wrapper"
 import type { SelectionToolbarCustomFeature } from "@/types/config/selection-toolbar"
 import { Icon } from "@iconify/react"
 import { LANG_CODE_TO_EN_NAME } from "@read-frog/definitions"
-import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { SelectionPopover } from "@/components/ui/selection-popover"
 import { isLLMProviderConfig } from "@/types/config/provider"
-import { configFieldsAtomMap } from "@/utils/atoms/config"
+import { configFieldsAtomMap, writeConfigAtom } from "@/utils/atoms/config"
+import { filterEnabledProvidersConfig } from "@/utils/config/helpers"
 import { streamBackgroundStructuredObject } from "@/utils/content-script/background-stream-client"
 import { resolveModelId } from "@/utils/providers/model"
 import { getProviderOptionsWithOverride } from "@/utils/providers/options"
+import { shadowWrapper } from ".."
+import { SelectionToolbarFooterContent } from "../components/selection-toolbar-footer-content"
+import { SelectionToolbarTitleContent } from "../components/selection-toolbar-title-content"
 import { getSelectionParagraphText } from "../utils"
 import {
-  activeCustomFeatureIdAtom,
-  isCustomFeaturePopoverVisibleAtom,
   isSelectionToolbarVisibleAtom,
-  mouseClickPositionAtom,
-  selectionContentAtom,
-  selectionRangeAtom,
+  selectionToolbarCustomFeatureRequestAtomFamily,
 } from "./atom"
-import { PopoverWrapper } from "./components/popover-wrapper"
 import { buildSelectionToolbarCustomFeatureSystemPrompt, replaceSelectionToolbarCustomFeaturePromptTokens } from "./custom-feature-prompt"
 import { StructuredObjectRenderer } from "./structured-object-renderer"
+import { useSelectionPopoverSnapshot } from "./use-selection-popover-snapshot"
 
 function normalizeSelectedText(value: string | null) {
   return value?.replace(/\u200B/g, "").trim() ?? ""
@@ -34,81 +34,81 @@ function getCustomFeatureErrorMessage(error: unknown) {
   return "Custom feature request failed"
 }
 
-function SelectionToolbarCustomFeatureButton({ feature }: { feature: SelectionToolbarCustomFeature }) {
-  const setIsSelectionToolbarVisible = useSetAtom(isSelectionToolbarVisibleAtom)
-  const setIsCustomFeaturePopoverVisible = useSetAtom(isCustomFeaturePopoverVisibleAtom)
-  const setMousePosition = useSetAtom(mouseClickPositionAtom)
-  const setActiveCustomFeatureId = useSetAtom(activeCustomFeatureIdAtom)
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect()
-    setMousePosition({ x: rect.left, y: rect.top })
-    setActiveCustomFeatureId(feature.id)
-    setIsSelectionToolbarVisible(false)
-    setIsCustomFeaturePopoverVisible(true)
-  }
-
-  return (
-    <button
-      type="button"
-      className="px-2 h-7 shrink-0 flex items-center justify-center hover:bg-accent cursor-pointer"
-      onClick={handleClick}
-      title={feature.name}
-    >
-      <Icon icon={feature.icon} strokeWidth={0.8} className="size-4.5" />
-    </button>
-  )
+function scrollSelectionPopoverBodyToBottom(ref: React.RefObject<HTMLDivElement | null>) {
+  requestAnimationFrame(() => {
+    if (ref.current) {
+      ref.current.scrollTop = ref.current.scrollHeight
+    }
+  })
 }
 
-export function SelectionToolbarCustomFeatureButtons() {
-  const selectionToolbarConfig = useAtomValue(configFieldsAtomMap.selectionToolbar)
-  const customFeatures = selectionToolbarConfig.customFeatures?.filter(feature => feature.enabled !== false) ?? []
-
-  return customFeatures.map(feature => (
-    <SelectionToolbarCustomFeatureButton key={feature.id} feature={feature} />
-  ))
-}
-
-export function SelectionToolbarCustomFeaturePopover() {
-  const [isVisible, setIsVisible] = useAtom(isCustomFeaturePopoverVisibleAtom)
-  const [activeCustomFeatureId, setActiveCustomFeatureId] = useAtom(activeCustomFeatureIdAtom)
-  const selectionToolbarConfig = useAtomValue(configFieldsAtomMap.selectionToolbar)
+function SelectionToolbarCustomFeatureAction({ feature }: { feature: SelectionToolbarCustomFeature }) {
+  const [open, setOpen] = useState(false)
+  const [rerunNonce, setRerunNonce] = useState(0)
+  const customFeatureRequest = useAtomValue(selectionToolbarCustomFeatureRequestAtomFamily(feature.id))
   const providersConfig = useAtomValue(configFieldsAtomMap.providersConfig)
-  const languageConfig = useAtomValue(configFieldsAtomMap.language)
-  const selectionContent = useAtomValue(selectionContentAtom)
-  const selectionRange = useAtomValue(selectionRangeAtom)
-  const popoverRef = useRef<PopoverWrapperRef>(null)
+  const selectionToolbarConfig = useAtomValue(configFieldsAtomMap.selectionToolbar)
+  const setIsSelectionToolbarVisible = useSetAtom(isSelectionToolbarVisibleAtom)
+  const setConfig = useSetAtom(writeConfigAtom)
+  const bodyRef = useRef<HTMLDivElement>(null)
+  const {
+    selectionContentSnapshot,
+    selectionRangeSnapshot,
+    popoverSessionKey,
+    captureSelectionSnapshot,
+    clearSelectionSnapshot,
+  } = useSelectionPopoverSnapshot()
 
   const [isRunning, setIsRunning] = useState(false)
   const [result, setResult] = useState<Record<string, unknown> | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  const activeFeature = useMemo(
-    () => selectionToolbarConfig.customFeatures?.find(feature => feature.enabled !== false && feature.id === activeCustomFeatureId) ?? null,
-    [selectionToolbarConfig.customFeatures, activeCustomFeatureId],
-  )
+  const resetSessionState = useCallback(() => {
+    setIsRunning(false)
+    setResult(null)
+    setErrorMessage(null)
+  }, [])
+
+  const activeFeature = customFeatureRequest.feature
   const cleanSelection = useMemo(
-    () => normalizeSelectedText(selectionContent),
-    [selectionContent],
+    () => normalizeSelectedText(selectionContentSnapshot),
+    [selectionContentSnapshot],
   )
   const paragraphText = useMemo(() => {
     if (!cleanSelection) {
       return ""
     }
 
-    const paragraphCandidate = selectionRange ? getSelectionParagraphText(selectionRange) : cleanSelection
+    const paragraphCandidate = selectionRangeSnapshot ? getSelectionParagraphText(selectionRangeSnapshot) : cleanSelection
     return paragraphCandidate || cleanSelection
-  }, [cleanSelection, selectionRange])
+  }, [cleanSelection, selectionRangeSnapshot])
 
-  const handleClose = useCallback(() => {
-    setActiveCustomFeatureId(null)
-    setIsRunning(false)
-    setResult(null)
-    setErrorMessage(null)
-  }, [setActiveCustomFeatureId])
+  const llmProviders = useMemo(
+    () => filterEnabledProvidersConfig(providersConfig).filter(isLLMProviderConfig),
+    [providersConfig],
+  )
+
+  const handleProviderChange = useCallback((providerId: string) => {
+    const updatedCustomFeatures = selectionToolbarConfig.customFeatures.map(item =>
+      item.id === feature.id
+        ? { ...item, providerId }
+        : item,
+    )
+
+    void setConfig({
+      selectionToolbar: {
+        ...selectionToolbarConfig,
+        customFeatures: updatedCustomFeatures,
+      },
+    })
+  }, [feature.id, selectionToolbarConfig, setConfig])
+
+  const handleRegenerate = useCallback(() => {
+    setRerunNonce(prev => prev + 1)
+  }, [])
 
   useEffect(() => {
-    if (!isVisible || !activeFeature) {
+    if (!open) {
       return
     }
 
@@ -131,7 +131,14 @@ export function SelectionToolbarCustomFeaturePopover() {
         return
       }
 
-      const providerConfig = providersConfig.find(provider => provider.id === activeFeature.providerId)
+      const currentFeature = customFeatureRequest.feature
+
+      if (!currentFeature) {
+        setRequestError("Selected feature is unavailable")
+        return
+      }
+
+      const providerConfig = customFeatureRequest.providerConfig
       if (!providerConfig || !isLLMProviderConfig(providerConfig)) {
         setRequestError("Selected provider is unavailable for this feature")
         return
@@ -142,7 +149,7 @@ export function SelectionToolbarCustomFeaturePopover() {
         return
       }
 
-      const targetLang = LANG_CODE_TO_EN_NAME[languageConfig.targetCode]
+      const targetLang = LANG_CODE_TO_EN_NAME[customFeatureRequest.language.targetCode]
       const pageTitle = document.title
 
       const promptTokens = {
@@ -152,11 +159,11 @@ export function SelectionToolbarCustomFeaturePopover() {
         title: pageTitle,
       }
       const systemPrompt = buildSelectionToolbarCustomFeatureSystemPrompt(
-        activeFeature.systemPrompt,
+        currentFeature.systemPrompt,
         promptTokens,
-        activeFeature.outputSchema,
+        currentFeature.outputSchema,
       )
-      const prompt = replaceSelectionToolbarCustomFeaturePromptTokens(activeFeature.prompt, promptTokens)
+      const prompt = replaceSelectionToolbarCustomFeaturePromptTokens(currentFeature.prompt, promptTokens)
       const modelName = resolveModelId(providerConfig.model) ?? ""
       const providerOptions = getProviderOptionsWithOverride(
         modelName,
@@ -174,7 +181,7 @@ export function SelectionToolbarCustomFeaturePopover() {
             providerId: providerConfig.id,
             system: systemPrompt,
             prompt,
-            outputSchema: activeFeature.outputSchema.map(({ name, type }) => ({ name, type })),
+            outputSchema: currentFeature.outputSchema.map(({ name, type }) => ({ name, type })),
             providerOptions,
             temperature: providerConfig.temperature,
           },
@@ -184,8 +191,9 @@ export function SelectionToolbarCustomFeaturePopover() {
               if (isCancelled) {
                 return
               }
+
               setResult(prev => ({ ...(prev ?? {}), ...partial }))
-              popoverRef.current?.scrollToBottom()
+              scrollSelectionPopoverBodyToBottom(bodyRef)
             },
           },
         )
@@ -219,43 +227,93 @@ export function SelectionToolbarCustomFeaturePopover() {
       isCancelled = true
       abortController.abort()
     }
-  }, [activeFeature, cleanSelection, isVisible, languageConfig.targetCode, paragraphText, providersConfig])
+  }, [
+    cleanSelection,
+    customFeatureRequest,
+    open,
+    paragraphText,
+    popoverSessionKey,
+    rerunNonce,
+  ])
+
+  const handleOpenChange = useCallback((nextOpen: boolean) => {
+    if (nextOpen) {
+      captureSelectionSnapshot()
+      resetSessionState()
+    }
+    else {
+      clearSelectionSnapshot()
+      resetSessionState()
+    }
+
+    setOpen(nextOpen)
+
+    if (nextOpen) {
+      setIsSelectionToolbarVisible(false)
+    }
+  }, [captureSelectionSnapshot, clearSelectionSnapshot, resetSessionState, setIsSelectionToolbarVisible])
+
+  if (!activeFeature) {
+    return null
+  }
 
   return (
-    <PopoverWrapper
-      ref={popoverRef}
-      title={activeFeature?.name ?? "Custom AI Feature"}
-      icon={<Icon icon={activeFeature?.icon ?? "tabler:sparkles"} strokeWidth={0.8} className="size-4.5 text-zinc-600 dark:text-zinc-400" />}
-      isVisible={isVisible}
-      setIsVisible={setIsVisible}
-      onClose={handleClose}
-    >
-      <div className="p-4 space-y-4">
-        <div className="border-b pb-4">
-          <p className="text-xs text-zinc-500 dark:text-zinc-500 mb-2">Selection</p>
-          <p className="text-sm whitespace-pre-wrap break-words text-zinc-700 dark:text-zinc-300">{selectionContent || "—"}</p>
-        </div>
+    <SelectionPopover.Root open={open} onOpenChange={handleOpenChange}>
+      <SelectionPopover.Trigger title={activeFeature.name}>
+        <Icon icon={activeFeature.icon} strokeWidth={0.8} className="size-4.5" />
+      </SelectionPopover.Trigger>
 
-        {activeFeature && (
-          <StructuredObjectRenderer
-            outputSchema={activeFeature.outputSchema}
-            value={result}
-            isStreaming={isRunning}
-          />
-        )}
-
-        {isRunning && (
-          <p className="text-xs text-zinc-500 dark:text-zinc-500">Streaming structured output…</p>
-        )}
-
-        {errorMessage && (
-          <div className="space-y-2">
-            <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
-              {errorMessage}
-            </div>
+      <SelectionPopover.Content key={popoverSessionKey} container={shadowWrapper ?? document.body}>
+        <SelectionPopover.Header className="border-b">
+          <SelectionToolbarTitleContent title={activeFeature.name} icon={activeFeature.icon} />
+          <div className="flex items-center gap-1">
+            <SelectionPopover.Pin />
+            <SelectionPopover.Close />
           </div>
-        )}
-      </div>
-    </PopoverWrapper>
+        </SelectionPopover.Header>
+
+        <SelectionPopover.Body ref={bodyRef}>
+          <div className="p-4 space-y-4">
+            <div className="border-b pb-4">
+              <p className="text-xs text-zinc-500 dark:text-zinc-500 mb-2">Selection</p>
+              <p className="text-sm whitespace-pre-wrap wrap-break-words text-zinc-700 dark:text-zinc-300">{selectionContentSnapshot || "—"}</p>
+            </div>
+
+            <StructuredObjectRenderer
+              outputSchema={activeFeature.outputSchema}
+              value={result}
+              isStreaming={isRunning}
+            />
+
+            {isRunning && (
+              <p className="text-xs text-zinc-500 dark:text-zinc-500">Streaming structured output…</p>
+            )}
+
+            {errorMessage && (
+              <div className="space-y-2">
+                <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
+                  {errorMessage}
+                </div>
+              </div>
+            )}
+          </div>
+        </SelectionPopover.Body>
+        <SelectionToolbarFooterContent
+          providers={llmProviders}
+          value={customFeatureRequest.providerConfig?.id ?? ""}
+          onProviderChange={handleProviderChange}
+          onRegenerate={handleRegenerate}
+        />
+      </SelectionPopover.Content>
+    </SelectionPopover.Root>
   )
+}
+
+export function SelectionToolbarCustomFeatureButtons() {
+  const selectionToolbarConfig = useAtomValue(configFieldsAtomMap.selectionToolbar)
+  const customFeatures = selectionToolbarConfig.customFeatures?.filter(feature => feature.enabled !== false) ?? []
+
+  return customFeatures.map(feature => (
+    <SelectionToolbarCustomFeatureAction key={feature.id} feature={feature} />
+  ))
 }

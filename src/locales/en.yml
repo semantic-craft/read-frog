@@ -875,6 +875,12 @@ speak:
   noTextSelected: No text selected
   openaiNotConfigured: OpenAI provider is not configured or enabled
   openaiApiKeyNotConfigured: OpenAI API key is not configured
+action:
+  copy: Copy
+  copied: Copied
+  regenerate: Regenerate
+  speak: Speak
+  playing: Playing
 shortcutKeySelector:
   placeholder: Please enter the shortcut
 subtitles:
