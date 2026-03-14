@@ -201,6 +201,19 @@ options:
         confirm: Xác nhận
         cancel: Hủy
         description: Thao tác này sẽ xóa tất cả bộ nhớ đệm dịch. Hành động này không thể hoàn tác.
+    languageDetection:
+      title: Phát hiện ngôn ngữ
+      description: Ảnh hưởng đến phát hiện ngôn ngữ tự động dịch, phát hiện ngôn ngữ bỏ qua và độ chính xác chọn giọng nói.
+      mode:
+        basic: Cơ bản
+        llm: LLM
+      provider:
+        label: Nhà cung cấp phát hiện
+        placeholder: Chọn nhà cung cấp
+      status:
+        noProviders: Hãy cấu hình nhà cung cấp LLM trước
+        basicRecommend: Khuyến nghị bật LLM
+        llmEnabled: Phát hiện LLM đã bật
   siteControl:
     title: Kiểm soát trang web
     mode:
@@ -321,6 +334,7 @@ options:
           fieldType: Loại trường
           fieldDescription: Mô tả
           fieldDescriptionPlaceholder: Mô tả nội dung mà trường này nên chứa...
+          fieldSpeaking: Bật đọc thành tiếng
           actions: Thao tác
           cancel: Hủy
           save: Lưu
@@ -523,11 +537,6 @@ options:
   tts:
     title: Chuyển văn bản thành giọng nói
     description: Tùy chỉnh nút Đọc với cài đặt giọng nói Edge TTS.
-    detectLanguage:
-      label: Phát hiện ngôn ngữ
-      basic: Cơ bản
-      llm: LLM
-      description: Phát hiện cơ bản nhanh và miễn phí. Phát hiện LLM chính xác hơn nhưng thêm độ trễ và chi phí API. Chế độ LLM sử dụng nhà cung cấp ở trang Dịch.
     voice:
       label: Giọng nói
       fallback: Dự phòng
@@ -760,6 +769,8 @@ noAPIKeyConfig:
     firstOnThe: trước trên trang
     optionsPage: tùy chọn
     page: ""
+languageDetection:
+  llmFailed: Phát hiện ngôn ngữ LLM thất bại, đã chuyển về phát hiện cơ bản
 translation:
   sameLanguage: Ngôn ngữ nguồn và đích phải khác nhau
   autoModeSameLanguage: Ngôn ngữ phát hiện '$1' giống với ngôn ngữ đích
@@ -778,6 +789,8 @@ action:
   speak: Đọc
   playing: Đang phát
   vocabularyInsight: Phân tích từ vựng
+  vocabularyInsightDeprecation: Tính năng này sẽ được thay thế bằng tính năng Từ điển của Hành động AI tùy chỉnh sau 2 tuần. Hành động Từ điển mang đến trải nghiệm linh hoạt và mạnh mẽ hơn.
+  vocabularyInsightDeprecationLink: Thiết lập Hành động Từ điển
 thinking:
   label: Đang suy luận
   complete: Suy luận hoàn tất
