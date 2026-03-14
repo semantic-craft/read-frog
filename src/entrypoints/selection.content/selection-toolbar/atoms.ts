@@ -1,3 +1,4 @@
+import type { ContextSnapshot, SelectionSnapshot } from "../utils"
 import type { Config } from "@/types/config/config"
 import type { ProviderConfig } from "@/types/config/provider"
 import type { SelectionToolbarCustomAction } from "@/types/config/selection-toolbar"
@@ -9,9 +10,27 @@ import { configAtom } from "@/utils/atoms/config"
 import { getProviderConfigById } from "@/utils/config/helpers"
 import { resolveProviderConfigOrNull } from "@/utils/constants/feature-providers"
 
-export const selectionContentAtom = atom<string | null>(null)
-export const selectionRangeAtom = atom<Range | null>(null)
+export const selectionAtom = atom<SelectionSnapshot | null>(null)
+export const contextAtom = atom<ContextSnapshot | null>(null)
 export const isSelectionToolbarVisibleAtom = atom<boolean>(false)
+
+export const selectionContentAtom = atom(get => get(selectionAtom)?.text ?? null)
+
+export const setSelectionStateAtom = atom(
+  null,
+  (_get, set, nextState: { selection: SelectionSnapshot | null, context: ContextSnapshot | null }) => {
+    set(selectionAtom, nextState.selection)
+    set(contextAtom, nextState.context)
+  },
+)
+
+export const clearSelectionStateAtom = atom(
+  null,
+  (_get, set) => {
+    set(selectionAtom, null)
+    set(contextAtom, null)
+  },
+)
 
 function createSelectionToolbarFeatureRequestAtom<T>(
   featureKey: "selectionToolbar.translate" | "selectionToolbar.vocabularyInsight", // TODO: make these string in const map

@@ -12,11 +12,13 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { isLLMProviderConfig, isTranslateProviderConfig } from "@/types/config/provider"
 import { configAtom } from "@/utils/atoms/config"
 import { DEFAULT_CONFIG } from "@/utils/constants/config"
-import { AiButton } from "../ai-button"
 import {
-  selectionContentAtom,
-  selectionRangeAtom,
-} from "../atoms"
+  buildContextSnapshot,
+  createRangeSnapshot,
+  normalizeSelectedText,
+} from "../../utils"
+import { AiButton } from "../ai-button"
+import { setSelectionStateAtom } from "../atoms"
 import { SelectionToolbarCustomActionButtons } from "../custom-action-button"
 import { TranslateButton } from "../translate-button"
 
@@ -140,20 +142,26 @@ vi.mock("../../components/selection-toolbar-title-content", () => ({
 
 vi.mock("../../components/selection-toolbar-footer-content", () => ({
   SelectionToolbarFooterContent: ({
+    contextText,
     onProviderChange,
     onRegenerate,
     providers,
+    titleText,
     value,
   }: {
+    contextText: string | null | undefined
     onProviderChange: (id: string) => void
     onRegenerate: () => void
     providers: Array<{ id: string }>
+    titleText: string | null | undefined
     value: string
   }) => {
     const nextProvider = providers.find(provider => provider.id !== value)
 
     return (
       <div>
+        <span data-testid="footer-title">{titleText}</span>
+        <span data-testid="footer-context">{contextText}</span>
         <button type="button" aria-label="Regenerate" onClick={onRegenerate}>
           Regenerate
         </button>
@@ -238,6 +246,39 @@ function createRangeFor(node: Node) {
   const range = document.createRange()
   range.selectNodeContents(node)
   return range
+}
+
+type TestStore = ReturnType<typeof createStore>
+
+function setSelectionState(
+  store: TestStore,
+  {
+    range,
+    text,
+  }: {
+    range?: Range | null
+    text?: string | null
+  },
+) {
+  if (text === undefined && !range) {
+    store.set(setSelectionStateAtom, { selection: null, context: null })
+    return
+  }
+
+  const normalizedText = text !== undefined
+    ? normalizeSelectedText(text)
+    : normalizeSelectedText(range?.toString())
+  const selection = {
+    text: normalizedText,
+    ranges: range ? [createRangeSnapshot(range)] : [],
+  }
+
+  store.set(setSelectionStateAtom, {
+    selection,
+    context: selection.ranges.length > 0 && selection.text !== ""
+      ? buildContextSnapshot(selection)
+      : null,
+  })
 }
 
 function createDeferredPromise<T>() {
@@ -325,7 +366,7 @@ describe("selection toolbar requests", () => {
 
     const store = createStore()
     store.set(configAtom, cloneConfig(DEFAULT_CONFIG))
-    store.set(selectionContentAtom, "Selected text")
+    setSelectionState(store, { text: "Selected text" })
     const view = renderWithProviders(<TranslateButton />, store)
 
     fireEvent.click(screen.getByRole("button", { name: "action.translation" }))
@@ -392,7 +433,7 @@ describe("selection toolbar requests", () => {
 
     const store = createStore()
     store.set(configAtom, cloneConfig(DEFAULT_CONFIG))
-    store.set(selectionContentAtom, "Selected text")
+    setSelectionState(store, { text: "Selected text" })
     renderWithProviders(<TranslateButton />, store)
 
     fireEvent.click(screen.getByRole("button", { name: "action.translation" }))
@@ -445,7 +486,7 @@ describe("selection toolbar requests", () => {
 
     const store = createStore()
     store.set(configAtom, cloneConfig(DEFAULT_CONFIG))
-    store.set(selectionContentAtom, "Selected text")
+    setSelectionState(store, { text: "Selected text" })
     renderWithProviders(<TranslateButton />, store)
 
     const updatedConfig = cloneConfig(store.get(configAtom))
@@ -481,7 +522,7 @@ describe("selection toolbar requests", () => {
 
     const store = createStore()
     store.set(configAtom, cloneConfig(DEFAULT_CONFIG))
-    store.set(selectionContentAtom, "Selected text")
+    setSelectionState(store, { text: "Selected text" })
     renderWithProviders(<TranslateButton />, store)
 
     fireEvent.click(screen.getByRole("button", { name: "action.translation" }))
@@ -513,7 +554,7 @@ describe("selection toolbar requests", () => {
     updatedConfig.selectionToolbar.features.translate.providerId = "missing-provider-id"
 
     store.set(configAtom, updatedConfig)
-    store.set(selectionContentAtom, "Selected text")
+    setSelectionState(store, { text: "Selected text" })
     renderWithProviders(<TranslateButton />, store)
 
     fireEvent.click(screen.getByRole("button", { name: "action.translation" }))
@@ -531,7 +572,7 @@ describe("selection toolbar requests", () => {
 
     const store = createStore()
     store.set(configAtom, cloneConfig(DEFAULT_CONFIG))
-    store.set(selectionContentAtom, "Selected text")
+    setSelectionState(store, { text: "Selected text" })
     renderWithProviders(<TranslateButton />, store)
 
     fireEvent.click(screen.getByRole("button", { name: "action.translation" }))
@@ -556,7 +597,7 @@ describe("selection toolbar requests", () => {
 
     const store = createStore()
     store.set(configAtom, cloneConfig(DEFAULT_CONFIG))
-    store.set(selectionRangeAtom, createRangeFor(paragraph))
+    setSelectionState(store, { range: createRangeFor(paragraph) })
     renderWithProviders(<AiButton />, store)
 
     fireEvent.click(screen.getByRole("button", { name: "action.vocabularyInsight" }))
@@ -625,7 +666,7 @@ describe("selection toolbar requests", () => {
 
     const store = createStore()
     store.set(configAtom, cloneConfig(DEFAULT_CONFIG))
-    store.set(selectionRangeAtom, createRangeFor(paragraph))
+    setSelectionState(store, { range: createRangeFor(paragraph) })
     renderWithProviders(<AiButton />, store)
 
     fireEvent.click(screen.getByRole("button", { name: "action.vocabularyInsight" }))
@@ -661,8 +702,7 @@ describe("selection toolbar requests", () => {
 
     const store = createStore()
     store.set(configAtom, cloneConfig(DEFAULT_CONFIG))
-    store.set(selectionContentAtom, "Selected text")
-    store.set(selectionRangeAtom, createRangeFor(paragraph))
+    setSelectionState(store, { text: "Selected text", range: createRangeFor(paragraph) })
     renderWithProviders(<SelectionToolbarCustomActionButtons />, store)
 
     const actionName = DEFAULT_CONFIG.selectionToolbar.customActions[0]?.name
@@ -730,8 +770,7 @@ describe("selection toolbar requests", () => {
 
     const store = createStore()
     store.set(configAtom, cloneConfig(DEFAULT_CONFIG))
-    store.set(selectionContentAtom, "Selected text")
-    store.set(selectionRangeAtom, createRangeFor(paragraph))
+    setSelectionState(store, { text: "Selected text", range: createRangeFor(paragraph) })
     renderWithProviders(<SelectionToolbarCustomActionButtons />, store)
 
     const actionName = DEFAULT_CONFIG.selectionToolbar.customActions[0]?.name
@@ -770,8 +809,7 @@ describe("selection toolbar requests", () => {
 
     const store = createStore()
     store.set(configAtom, cloneConfig(DEFAULT_CONFIG))
-    store.set(selectionContentAtom, "   ")
-    store.set(selectionRangeAtom, createRangeFor(paragraph))
+    setSelectionState(store, { text: "   ", range: createRangeFor(paragraph) })
     renderWithProviders(<SelectionToolbarCustomActionButtons />, store)
 
     const actionName = DEFAULT_CONFIG.selectionToolbar.customActions[0]?.name
@@ -798,8 +836,7 @@ describe("selection toolbar requests", () => {
 
     const store = createStore()
     store.set(configAtom, cloneConfig(DEFAULT_CONFIG))
-    store.set(selectionContentAtom, "Selected text")
-    store.set(selectionRangeAtom, createRangeFor(paragraph))
+    setSelectionState(store, { text: "Selected text", range: createRangeFor(paragraph) })
     renderWithProviders(<SelectionToolbarCustomActionButtons />, store)
 
     const actionName = DEFAULT_CONFIG.selectionToolbar.customActions[0]?.name

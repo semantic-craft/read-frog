@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import type { ProviderConfig } from "@/types/config/provider"
-import { fireEvent, render, screen } from "@testing-library/react"
+import { i18n } from "#imports"
+import { act, fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 import { TooltipProvider } from "@/components/ui/base-ui/tooltip"
 import { SelectionToolbarFooterContent } from "../selection-toolbar-footer-content"
@@ -52,14 +53,16 @@ describe("selectionToolbarFooterContent", () => {
     },
   ]
 
-  it("renders the provider selector and forwards footer actions", () => {
+  it("renders the provider selector and forwards footer actions", async () => {
     const onProviderChange = vi.fn()
     const onRegenerate = vi.fn()
 
     render(
       <TooltipProvider>
         <SelectionToolbarFooterContent
+          contextText="Context text"
           providers={providers}
+          titleText="Page Title"
           value="google-translate-default"
           onProviderChange={onProviderChange}
           onRegenerate={onRegenerate}
@@ -68,9 +71,47 @@ describe("selectionToolbarFooterContent", () => {
     )
 
     fireEvent.click(screen.getByTestId("provider-selector"))
-    fireEvent.click(screen.getByRole("button", { name: "action.regenerate" }))
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "action.viewContextDetails" }))
+      await Promise.resolve()
+    })
 
     expect(onProviderChange).toHaveBeenCalledWith("microsoft-translate-default")
+    expect(screen.getByText(i18n.t("action.contextDetailsTitleLabel"))).toBeInTheDocument()
+    expect(screen.getByText(i18n.t("action.contextDetailsContextLabel"))).toBeInTheDocument()
+    expect(screen.getByText("Page Title")).toBeInTheDocument()
+    expect(screen.getByText("Context text")).toBeInTheDocument()
+    expect(
+      screen.getByText("Context text").closest("[data-slot='selection-toolbar-footer-preview-value']"),
+    ).toHaveClass("max-h-36", "overflow-y-auto")
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "action.regenerate" }))
+      await Promise.resolve()
+    })
+
     expect(onRegenerate).toHaveBeenCalledTimes(1)
+  })
+
+  it("shows placeholders when title and context are empty", async () => {
+    render(
+      <TooltipProvider>
+        <SelectionToolbarFooterContent
+          contextText={null}
+          providers={providers}
+          titleText=""
+          value="google-translate-default"
+          onProviderChange={vi.fn()}
+          onRegenerate={vi.fn()}
+        />
+      </TooltipProvider>,
+    )
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "action.viewContextDetails" }))
+      await Promise.resolve()
+    })
+
+    expect(screen.getAllByText("—")).toHaveLength(2)
   })
 })
