@@ -1,5 +1,5 @@
 ---
-"read-frog": patch
+"@read-frog/extension": patch
 ---
 
-Add an opacity setting for the selection toolbar and its popover UI.
+feat: add an opacity setting for the selection toolbar and its popover UI.
