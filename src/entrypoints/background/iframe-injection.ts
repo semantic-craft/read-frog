@@ -8,6 +8,7 @@ const pendingDocumentKeys = new Set<string>()
 const injectedDocumentKeys = new Set<string>()
 
 function getDocumentInjectionKey(details: { tabId: number, frameId: number, documentId?: string }) {
+  // Gracefully skip document-level deduplication when Chromium does not expose documentId.
   if (!details.documentId) {
     return null
   }
@@ -15,18 +16,25 @@ function getDocumentInjectionKey(details: { tabId: number, frameId: number, docu
   return `${details.tabId}:${details.frameId}:${details.documentId}`
 }
 
-export function setupIframeInjection() {
-  browser.tabs.onRemoved.addListener((tabId) => {
-    for (const key of pendingDocumentKeys) {
-      if (key.startsWith(`${tabId}:`)) {
-        pendingDocumentKeys.delete(key)
-      }
+function clearTabDocumentKeys(tabId: number) {
+  for (const key of pendingDocumentKeys) {
+    if (key.startsWith(`${tabId}:`)) {
+      pendingDocumentKeys.delete(key)
     }
+  }
 
-    for (const key of injectedDocumentKeys) {
-      if (key.startsWith(`${tabId}:`)) {
-        injectedDocumentKeys.delete(key)
-      }
+  for (const key of injectedDocumentKeys) {
+    if (key.startsWith(`${tabId}:`)) {
+      injectedDocumentKeys.delete(key)
+    }
+  }
+}
+
+export function setupIframeInjection() {
+  browser.tabs.onRemoved.addListener(clearTabDocumentKeys)
+  browser.webNavigation.onBeforeNavigate.addListener((details) => {
+    if (details.frameId === 0) {
+      clearTabDocumentKeys(details.tabId)
     }
   })
 
