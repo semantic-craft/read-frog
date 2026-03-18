@@ -24,14 +24,8 @@ export const TranslateModelSelector = withForm({
     const { isCustomModel, customModel, model } = providerConfig.model
 
     const applyRecommendedProviderOptions = (options: Record<string, unknown>) => {
-      try {
-        void setProviderConfig(updateLLMProviderConfig(providerConfig, {
-          providerOptions: options,
-        }))
-      }
-      catch (error) {
-        toast.error(error instanceof Error ? error.message : "Failed to update configuration")
-      }
+      form.setFieldValue("providerOptions", options)
+      void form.handleSubmit()
     }
 
     const recommendationTrigger = (
