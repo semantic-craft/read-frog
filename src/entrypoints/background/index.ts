@@ -7,6 +7,7 @@ import { SessionCacheGroupRegistry } from "@/utils/session-cache/session-cache-g
 import { runAiSegmentSubtitles } from "./ai-segmentation"
 import { setupAnalyticsMessageHandlers } from "./analytics"
 import { dispatchBackgroundStreamPort } from "./background-stream"
+import { registerBrowserShortcutListeners } from "./browser-shortcuts"
 import { ensureInitializedConfig } from "./config"
 import { setUpConfigBackup } from "./config-backup"
 import { initializeContextMenu, registerContextMenuListeners } from "./context-menu"
@@ -81,6 +82,7 @@ export default defineBackground({
     newUserGuide()
     setupAnalyticsMessageHandlers()
     translationMessage()
+    registerBrowserShortcutListeners()
 
     // Register context menu listeners synchronously
     // This ensures listeners are registered before Chrome completes initialization

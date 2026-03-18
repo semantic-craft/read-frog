@@ -1,6 +1,7 @@
 name: 読書カエル
 extName: 読書カエル - オープンソースインビジブル翻訳
 extDescription: 読書カエルは、あらゆるウェブサイトから言語を深く学ぶために設計されたオープンソースのブラウザ拡張機能です。
+commandsTogglePageTranslation: ページ翻訳を切り替え
 uninstallSurveyUrl: https://tally.so/r/nPK6Ob
 dataTypes:
   string: テキスト
@@ -498,6 +499,12 @@ options:
     pageTranslationShortcut:
       title: ページ翻訳ショートカットキー
       description: ウェブページ全体を翻訳するショートカットキーをカスタマイズします
+      browserShortcut:
+        title: ブラウザーショートカット
+        description: ブラウザーの拡張機能ショートカット設定で、この機能用のブラウザー管理ショートカットを任意で割り当てます。見つけやすく、ウェブサイト側のショートカット競合も避けやすくなります。
+        current: 現在のブラウザーショートカット
+        notSet: ブラウザーでは未設定
+        openSettings: ブラウザーのショートカット設定を開く
     preloadConfig:
       title: 事前翻訳範囲
       description: ビューポート下のコンテンツをどれだけ事前翻訳するかを制御し、API コストを節約します

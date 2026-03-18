@@ -1,6 +1,7 @@
 name: Read Frog
 extName: Read Frog - Açık Kaynak Sürükleyici Çeviri
 extDescription: Read Frog, herhangi bir web sitesinden dilleri derinlemesine öğrenmenize yardımcı olmak için tasarlanmış açık kaynaklı bir tarayıcı uzantısıdır.
+commandsTogglePageTranslation: Sayfa çevirisini değiştir
 uninstallSurveyUrl: https://tally.so/r/nPK6Ob
 dataTypes:
   string: Metin
@@ -498,6 +499,12 @@ options:
     pageTranslationShortcut:
       title: Sayfa Çeviri Kısayolu
       description: Tüm web sayfalarını çevirmek için kısayol tuşunu özelleştirin
+      browserShortcut:
+        title: Tarayıcı kısayolu
+        description: Bu özellik için tarayıcının uzantı kısayol ayarlarında isteğe bağlı bir tarayıcı yönetimli kısayol atayın. Bu daha görünürdür ve web sitesi kısayol çakışmalarını azaltabilir.
+        current: Geçerli tarayıcı kısayolu
+        notSet: Tarayıcıda ayarlanmadı
+        openSettings: Tarayıcı kısayol ayarlarını aç
     preloadConfig:
       title: Ön Çeviri Aralığı
       description: API maliyetlerinden tasarruf etmek için görünüm alanının altındaki ne kadar içeriğin önceden çevrileceğini kontrol edin

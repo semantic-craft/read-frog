@@ -1,6 +1,7 @@
 name: Read Frog
 extName: Read Frog - Dịch Nhúng Mã Nguồn Mở
 extDescription: Read Frog là tiện ích mở rộng trình duyệt mã nguồn mở được thiết kế để giúp bạn học ngôn ngữ sâu từ bất kỳ trang web nào.
+commandsTogglePageTranslation: Chuyển đổi dịch trang
 uninstallSurveyUrl: https://tally.so/r/nPK6Ob
 dataTypes:
   string: Văn bản
@@ -498,6 +499,12 @@ options:
     pageTranslationShortcut:
       title: Phím tắt dịch trang
       description: Tùy chỉnh phím tắt để dịch toàn bộ trang web
+      browserShortcut:
+        title: Phím tắt trình duyệt
+        description: Gán một phím tắt do trình duyệt quản lý cho tính năng này trong phần cài đặt phím tắt của tiện ích. Cách này dễ tìm hơn và có thể tránh xung đột với phím tắt của trang web.
+        current: Phím tắt trình duyệt hiện tại
+        notSet: Chưa được đặt trong trình duyệt
+        openSettings: Mở cài đặt phím tắt của trình duyệt
     preloadConfig:
       title: Phạm vi dịch trước
       description: Kiểm soát lượng nội dung bên dưới vùng nhìn được dịch trước để tiết kiệm chi phí API

@@ -1,6 +1,7 @@
 name: 陪讀蛙
 extName: 陪讀蛙 - 開源沉浸式翻譯
 extDescription: 陪讀蛙是一款開放源代碼的瀏覽器插件，旨在幫助您從任何網站深入學習語言。
+commandsTogglePageTranslation: 切換網頁翻譯
 uninstallSurveyUrl: https://tally.so/r/3E9XDL
 dataTypes:
   string: 文字
@@ -498,6 +499,12 @@ options:
     pageTranslationShortcut:
       title: 網頁翻譯快捷鍵
       description: 自訂翻譯整個網頁的快捷鍵
+      browserShortcut:
+        title: 瀏覽器快捷鍵
+        description: 在瀏覽器的擴充功能快捷鍵設定中為此功能指派可選的瀏覽器級快捷鍵。這樣更容易被發現，也能減少與網站快捷鍵的衝突。
+        current: 目前的瀏覽器快捷鍵
+        notSet: 尚未在瀏覽器中設定
+        openSettings: 開啟瀏覽器快捷鍵設定
     preloadConfig:
       title: 預翻譯範圍
       description: 控制視窗下方多少內容會被預先翻譯，以節省 API 費用
