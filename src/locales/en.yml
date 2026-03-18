@@ -155,6 +155,7 @@ options:
         ai302: Provides the latest and most comprehensive models with pay-as-you-go API
         openaiCompatible: Third-party and OpenAI API compatible
         deeplx: Unofficial DeepL API
+        deepl: Official DeepL API
         bedrock: AWS managed service for enterprise-grade foundation models
         groq: Specialized hardware for ultra-fast LLM inference speeds
         deepinfra: Cost-effective cloud inference for popular open-source models
@@ -288,6 +289,9 @@ options:
       globalToggle:
         title: Enable Selection Toolbar
         description: Display the toolbar when selecting text on web pages for quick translation and vocabulary insights
+      opacity:
+        title: Opacity
+        description: Adjust the opacity of the selection toolbar and the expanded window opened from it
       featureToggles:
         title: Feature Toggles
         description: Choose which built-in features to show in the selection toolbar
@@ -695,6 +699,13 @@ options:
       batchRequestCount: Batch Request Count
   config:
     title: Config
+    about:
+      title: About
+      description: Read Frog was born in April 2025
+      mission: Read Frog aims to expand equal access to high-quality education in the AI era by making learning experiences that feel closer to a real teacher affordable across language learning, medicine, and other knowledge-heavy fields.
+      analytics:
+        title: Help improve user experience
+        tooltip: When enabled, Read Frog sends anonymous product usage signals so we can verify feature reliability, improve performance and UX polish, and prioritize future work.
     sync:
       title: Manual Config Sync
       description: Manually import and export your configuration settings

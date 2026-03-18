@@ -1,5 +1,29 @@
 # @read-frog/extension
 
+## 1.30.4
+
+### Patch Changes
+
+- [#1139](https://github.com/mengxi-ream/read-frog/pull/1139) [`341adba`](https://github.com/mengxi-ream/read-frog/commit/341adba45228666e64337affa06cbe23463932c3) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - fix(extension): add required Firefox consent field
+
+## 1.30.3
+
+### Patch Changes
+
+- [#1136](https://github.com/mengxi-ream/read-frog/pull/1136) [`0decdba`](https://github.com/mengxi-ream/read-frog/commit/0decdba82f8622fe20807be92a6535ccae781b07) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - fix(extension): add Firefox data collection consent metadata
+
+## 1.30.2
+
+### Patch Changes
+
+- [`f563623`](https://github.com/mengxi-ream/read-frog/commit/f563623b67b62d025c2cc66a36477d612c172723) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - chore: release ci fix
+
+## 1.30.1
+
+### Patch Changes
+
+- [#1126](https://github.com/mengxi-ream/read-frog/pull/1126) [`c533428`](https://github.com/mengxi-ream/read-frog/commit/c5334289807d43cffe93658b6c2d22ab19ad2579) Thanks [@Sufyr](https://github.com/Sufyr)! - feat: add an opacity setting for the selection toolbar and its popover UI.
+
 ## 1.30.0
 
 ### Minor Changes

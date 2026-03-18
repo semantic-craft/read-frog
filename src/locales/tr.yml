@@ -154,6 +154,7 @@ options:
         ai302: Kullandıkça öde API ile en son ve en kapsamlı modelleri sağlar
         openaiCompatible: Üçüncü taraf ve OpenAI API uyumlu
         deeplx: Resmi olmayan DeepL API
+        deepl: Resmi DeepL API
         bedrock: Kurumsal düzeyde temel modeller için AWS yönetilen hizmeti
         groq: Ultra hızlı LLM çıkarım hızları için özel donanım
         deepinfra: Popüler açık kaynak modelleri için uygun maliyetli bulut çıkarımı
@@ -287,6 +288,9 @@ options:
       globalToggle:
         title: Seçim Araç Çubuğunu Etkinleştir
         description: Hızlı çeviri ve kelime analizi için web sayfalarında metin seçerken araç çubuğunu görüntüle
+      opacity:
+        title: Opaklık
+        description: Seçim araç çubuğunun ve buradan açılan genişletilmiş pencerenin opaklığını ayarlayın
       featureToggles:
         title: Özellik Açma/Kapama
         description: Seçim araç çubuğunda hangi yerleşik özelliklerin gösterileceğini seçin
@@ -580,6 +584,13 @@ options:
       batchRequestCount: Toplu İstek Sayısı
   config:
     title: Yapılandırma
+    about:
+      title: Hakkında
+      description: Read Frog Nisan 2025'te doğdu
+      mission: Read Frog, yapay zeka çağında yüksek kaliteli eğitime daha eşit erişimi genişletmek için, dil öğrenimi, tıp ve bilgi yoğun diğer alanlarda gerçek bir öğretmene daha yakın hissettiren öğrenme deneyimlerini daha ulaşılabilir maliyetlerle sunmayı hedefler.
+      analytics:
+        title: Kullanıcı deneyimini geliştirmemize yardımcı ol
+        tooltip: Açık olduğunda Read Frog, özelliklerin güvenilir çalıştığını doğrulamak, performansı ve UX ayrıntılarını iyileştirmek ve sıradaki önceliklerimizi belirlemek için anonim kullanım sinyalleri gönderir.
     sync:
       title: Manuel Yapılandırma Senkronizasyonu
       description: Yapılandırma ayarlarınızı manuel olarak içe ve dışa aktarın

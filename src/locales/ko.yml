@@ -154,6 +154,7 @@ options:
         ai302: 최신의 포괄적인 모델과 종량제 API를 제공
         openaiCompatible: OpenAI API 호환 서드파티
         deeplx: 비공식 DeepL API
+        deepl: 공식 DeepL API
         bedrock: 엔터프라이즈급 파운데이션 모델을 위한 AWS 관리 서비스
         groq: 초고속 LLM 추론 속도에 특화된 하드웨어
         deepinfra: 인기 있는 오픈소스 모델을 위한 비용 효율적인 클라우드 추론
@@ -287,6 +288,9 @@ options:
       globalToggle:
         title: 선택 툴바 활성화
         description: 웹 페이지에서 텍스트를 선택할 때 툴바를 표시하여 빠른 번역 및 어휘 분석
+      opacity:
+        title: 투명도
+        description: 선택 툴바와 여기서 열리는 확장 창의 투명도를 조절합니다
       featureToggles:
         title: 기능 토글
         description: 선택 툴바에 표시할 기본 제공 기능 선택
@@ -580,6 +584,13 @@ options:
       batchRequestCount: 일괄 요청 수
   config:
     title: 설정
+    about:
+      title: 소개
+      description: Read Frog는 2025년 4월에 태어났습니다
+      mission: Read Frog는 언어 학습, 의학 등 지식 집약적 분야에서 AI 시대의 고품질 교육 기회에 더 평등하게 접근할 수 있도록, 실제 교사에 가까운 학습 경험을 더 낮은 비용으로 제공하는 것을 목표로 합니다.
+      analytics:
+        title: 사용자 경험 개선에 기여
+        tooltip: 켜면 Read Frog가 익명 사용 신호를 전송하여 기능 안정성을 검증하고, 성능과 UX 디테일을 개선하며, 앞으로 무엇을 우선적으로 만들지 결정하는 데 활용합니다.
     sync:
       title: 수동 설정 동기화
       description: 수동으로 설정 가져오기 및 내보내기

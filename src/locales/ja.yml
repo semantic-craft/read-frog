@@ -154,6 +154,7 @@ options:
         ai302: 最新かつ包括的なモデルと従量課金制APIを提供
         openaiCompatible: OpenAI API互換のサードパーティー
         deeplx: 非公式 DeepL API
+        deepl: 公式 DeepL API
         bedrock: エンタープライズグレードの基盤モデル向けAWSマネージドサービス
         groq: 超高速LLM推論速度に特化したハードウェア
         deepinfra: 人気のオープンソースモデル向けコスト効率的なクラウド推論
@@ -287,6 +288,9 @@ options:
       globalToggle:
         title: 選択ツールバーを有効化
         description: ウェブページでテキストを選択したときにツールバーを表示し、素早く翻訳と語彙分析
+      opacity:
+        title: 透明度
+        description: 選択ツールバーとそこから開く展開ウィンドウの透明度を調整します
       featureToggles:
         title: 機能トグル
         description: 選択ツールバーに表示する組み込み機能を選択
@@ -580,6 +584,13 @@ options:
       batchRequestCount: バッチリクエスト数
   config:
     title: 設定
+    about:
+      title: Read Frog について
+      description: Read Frog は 2025 年 4 月に生まれました
+      mission: Read Frog は、AI 時代における質の高い教育機会への平等なアクセスを広げるため、語学学習、医学、その他の知識集約型分野で、実際の教師に近い学習体験を手頃な価格で提供することを目指しています。
+      analytics:
+        title: ユーザー体験の改善に協力する
+        tooltip: 有効にすると、Read Frog は匿名の利用シグナルを送信し、機能の安定性確認、性能や UX の改善、今後優先すべき機能の判断に役立てます。
     sync:
       title: 手動設定同期
       description: 手動で設定をインポート・エクスポート

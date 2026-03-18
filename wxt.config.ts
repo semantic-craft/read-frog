@@ -3,6 +3,9 @@ import process from "node:process"
 import { defineConfig } from "wxt"
 
 const WXT_API_KEY_PATTERN = /^WXT_.*API_KEY/
+const ALLOWED_BUNDLED_API_KEYS = new Set([
+  "WXT_POSTHOG_API_KEY",
+])
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
@@ -57,7 +60,11 @@ export default defineConfig({
       browser_specific_settings: {
         gecko: {
           id: "{bd311a81-4530-4fcc-9178-74006155461b}",
-          strict_min_version: "109.0",
+          strict_min_version: "112.0",
+          data_collection_permissions: {
+            required: ["none"],
+            optional: ["technicalAndInteraction"],
+          },
         },
       },
     }),
@@ -79,6 +86,7 @@ export default defineConfig({
             buildStart() {
               const apiKeyVars = Object.keys(process.env)
                 .filter(key => WXT_API_KEY_PATTERN.test(key))
+                .filter(key => !ALLOWED_BUNDLED_API_KEYS.has(key))
 
               if (apiKeyVars.length > 0) {
                 throw new Error(
@@ -90,7 +98,11 @@ export default defineConfig({
 
               // Check required env vars only for zip builds
               if (process.env.WXT_ZIP_MODE) {
-                const requiredEnvVars = ["WXT_GOOGLE_CLIENT_ID"]
+                const requiredEnvVars = [
+                  "WXT_GOOGLE_CLIENT_ID",
+                  "WXT_POSTHOG_API_KEY",
+                  "WXT_POSTHOG_HOST",
+                ]
                 const missing = requiredEnvVars.filter(key => !process.env[key])
 
                 if (missing.length > 0) {
