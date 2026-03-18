@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { getProviderOptions } from "../../providers/options"
+import { getProviderOptions, getProviderOptionsWithOverride } from "../../providers/options"
 
 describe("getProviderOptions", () => {
   describe("model pattern matching", () => {
@@ -99,6 +99,23 @@ describe("getProviderOptions", () => {
 
       const end = getProviderOptions("model-GLM", "openai-compatible")
       expect(end.openaiCompatible).toBeUndefined()
+    })
+  })
+
+  describe("user provider option overrides", () => {
+    it("should let an explicit empty object clear matched default options", () => {
+      const options = getProviderOptionsWithOverride("qwen3-max", "alibaba", {})
+      expect(options).toEqual({ alibaba: {} })
+    })
+
+    it("should still fall back to matched defaults when user options are undefined", () => {
+      const options = getProviderOptionsWithOverride("qwen3-max", "alibaba")
+      expect(options.alibaba?.enableThinking).toBe(false)
+    })
+
+    it("should use user options as-is without merging matched defaults", () => {
+      const options = getProviderOptionsWithOverride("qwen3-max", "alibaba", { foo: "bar" })
+      expect(options).toEqual({ alibaba: { foo: "bar" } })
     })
   })
 })

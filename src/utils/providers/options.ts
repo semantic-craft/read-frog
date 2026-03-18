@@ -20,7 +20,8 @@ export function getProviderOptions(
 
 /**
  * Get provider options for AI SDK generateText calls.
- * If user-defined options exist, use them directly (no merge).
+ * If user-defined options are provided, use them directly (no merge).
+ * An explicit empty object should also override pattern defaults.
  * Otherwise fall back to default pattern-matched options.
  */
 export function getProviderOptionsWithOverride(
@@ -28,8 +29,8 @@ export function getProviderOptionsWithOverride(
   provider: string,
   userOptions?: Record<string, JSONValue>,
 ): Record<string, Record<string, JSONValue>> {
-  // User options completely override defaults
-  if (userOptions && Object.keys(userOptions).length > 0) {
+  // Treat an explicit empty object as "clear all defaults" instead of falling back.
+  if (userOptions !== undefined) {
     return { [provider]: userOptions }
   }
 
