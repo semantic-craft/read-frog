@@ -135,6 +135,11 @@ options:
       providerOptions: Provider Options
       providerOptionsHint: Provider-specific options for non-standard API features like thinking/reasoning mode. See the Vercel AI SDK docs or your provider's official documentation for configuration details.
       providerOptionsDocsLink: View Provider Docs
+      providerOptionsRecommendationTrigger: View recommended provider options
+      providerOptionsRecommendationTitle: Recommended provider options detected
+      providerOptionsRecommendationDescription: Review and manually apply the recommended configuration.
+      providerOptionsRecommendationApply: Apply
+      providerOptionsRecommendationApplied: Applied
       invalidJson: Invalid JSON format
     providers:
       description:

@@ -109,7 +109,7 @@ export const LLM_MODEL_OPTIONS: Array<{
 
   // Qwen/QwQ models - disable thinking
   {
-    pattern: /^qwen/,
+    pattern: /^(Qwen|qwen)/,
     options: { enableThinking: false },
   },
 ]
