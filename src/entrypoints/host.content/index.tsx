@@ -7,7 +7,7 @@ import { getDocumentInfo } from "@/utils/content/analyze"
 import { ensurePresetStyles } from "@/utils/host/translate/ui/style-injector"
 import { logger } from "@/utils/logger"
 import { onMessage, sendMessage } from "@/utils/message"
-import { isSiteEnabled } from "@/utils/site-control"
+import { clearEffectiveSiteControlUrl, getEffectiveSiteControlUrl, isSiteEnabled } from "@/utils/site-control"
 import { setupUrlChangeListener } from "./listen"
 import { mountHostToast } from "./mount-host-toast"
 import { bindTranslationShortcutKey } from "./translation-control/bind-translation-shortcut"
@@ -31,8 +31,11 @@ export default defineContentScript({
     window.__READ_FROG_HOST_INJECTED__ = true
 
     const initialConfig = await getLocalConfig()
-    if (!isSiteEnabled(window.location.href, initialConfig)) {
+    const siteControlUrl = getEffectiveSiteControlUrl(window.location.href)
+
+    if (!isSiteEnabled(siteControlUrl, initialConfig)) {
       window.__READ_FROG_HOST_INJECTED__ = false
+      clearEffectiveSiteControlUrl()
       return
     }
 
@@ -107,6 +110,7 @@ export default defineContentScript({
       cleanupTranslationStateListener()
       window.removeEventListener("extension:URLChange", handleExtensionUrlChange)
       window.__READ_FROG_HOST_INJECTED__ = false
+      clearEffectiveSiteControlUrl()
     })
 
     // Only the top frame should detect and set language to avoid race conditions from iframes
