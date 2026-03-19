@@ -1,7 +1,7 @@
 import { browser } from "#imports"
 import { getLocalConfig } from "@/utils/config/storage"
 import { logger } from "@/utils/logger"
-import { isSiteEnabled } from "@/utils/site-control"
+import { isSiteEnabled, SITE_CONTROL_URL_WINDOW_KEY } from "@/utils/site-control"
 import { resolveSiteControlUrl } from "./iframe-injection-utils"
 
 const pendingDocumentKeys = new Set<string>()
@@ -30,6 +30,18 @@ function clearTabDocumentKeys(tabId: number) {
   }
 }
 
+function getParentFrameIdHint(details: object): number | undefined {
+  if ("parentFrameId" in details && typeof details.parentFrameId === "number") {
+    return details.parentFrameId
+  }
+
+  return undefined
+}
+
+function setInjectedSiteControlUrl(propertyName: string, siteControlUrl: string) {
+  ;(globalThis as Record<string, unknown>)[propertyName] = siteControlUrl
+}
+
 export function setupIframeInjection() {
   browser.tabs.onRemoved.addListener(clearTabDocumentKeys)
   browser.webNavigation.onBeforeNavigate.addListener((details) => {
@@ -56,12 +68,19 @@ export function setupIframeInjection() {
     }
 
     try {
+      let siteControlUrl: string | undefined
+
       try {
         const config = await getLocalConfig()
         const frames = await browser.webNavigation.getAllFrames({ tabId: details.tabId }) ?? []
-        const siteControlUrl = resolveSiteControlUrl(details.frameId, details.url, frames)
+        siteControlUrl = resolveSiteControlUrl(
+          details.frameId,
+          details.url,
+          frames,
+          getParentFrameIdHint(details),
+        )
 
-        if (!isSiteEnabled(siteControlUrl ?? details.url, config)) {
+        if (!siteControlUrl || !isSiteEnabled(siteControlUrl, config)) {
           return
         }
       }
@@ -71,6 +90,12 @@ export function setupIframeInjection() {
       }
 
       try {
+        await browser.scripting.executeScript({
+          target: { tabId: details.tabId, frameIds: [details.frameId] },
+          func: setInjectedSiteControlUrl,
+          args: [SITE_CONTROL_URL_WINDOW_KEY, siteControlUrl],
+        })
+
         // Inject host.content script into the iframe
         await browser.scripting.executeScript({
           target: { tabId: details.tabId, frameIds: [details.frameId] },
