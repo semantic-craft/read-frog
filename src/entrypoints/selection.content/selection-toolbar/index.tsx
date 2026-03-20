@@ -1,12 +1,15 @@
+import type { ContextSnapshot, SelectionSnapshot } from "../utils"
+import type { FeatureUsageContext } from "@/types/analytics"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import { useCallback, useEffect, useLayoutEffect, useRef } from "react"
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { SELECTION_CONTENT_OVERLAY_LAYERS } from "@/entrypoints/selection.content/overlay-layers"
 import { configFieldsAtomMap } from "@/utils/atoms/config"
 import { NOTRANSLATE_CLASS } from "@/utils/constants/dom-labels"
 import { MARGIN } from "@/utils/constants/selection"
+import { onMessage } from "@/utils/message"
 import { cn } from "@/utils/styles/utils"
 import { matchDomainPattern } from "@/utils/url"
-import { buildContextSnapshot, readSelectionSnapshot } from "../utils"
+import { buildContextSnapshot, normalizeSelectedText, readSelectionSnapshot } from "../utils"
 import { AiButton } from "./ai-button"
 import {
   clearSelectionStateAtom,
@@ -74,11 +77,17 @@ export function SelectionToolbar() {
   const selectionPositionRef = useRef<{ x: number, y: number } | null>(null) // store selection position (base position without direction offset)
   const selectionStartRef = useRef<{ x: number, y: number } | null>(null) // store selection start position
   const selectionDirectionRef = useRef<SelectionDirection>(SelectionDirection.BOTTOM_RIGHT) // store selection direction
+  const contextMenuSelectionRef = useRef<{ selection: SelectionSnapshot, context: ContextSnapshot | null } | null>(null)
   const isDraggingFromTooltipRef = useRef(false) // track if dragging started from tooltip
+  const [translateOpenRequest, setTranslateOpenRequest] = useState<{
+    nonce: number
+    analyticsContext?: FeatureUsageContext
+  }>({ nonce: 0 })
   const [isSelectionToolbarVisible, setIsSelectionToolbarVisible] = useAtom(isSelectionToolbarVisibleAtom)
   const setSelectionState = useSetAtom(setSelectionStateAtom)
   const clearSelectionState = useSetAtom(clearSelectionStateAtom)
   const selectionToolbar = useAtomValue(configFieldsAtomMap.selectionToolbar)
+  const contextMenu = useAtomValue(configFieldsAtomMap.contextMenu)
   const dropdownOpenRef = useRef(false)
 
   const updatePosition = useCallback(() => {
@@ -197,9 +206,23 @@ export function SelectionToolbar() {
 
       // Record selection start position
       selectionStartRef.current = { x: e.clientX, y: e.clientY }
+      contextMenuSelectionRef.current = null
 
       clearSelectionState()
       setIsSelectionToolbarVisible(false)
+    }
+
+    const handleContextMenu = () => {
+      const selectionSnapshot = readSelectionSnapshot(window.getSelection())
+      if (!selectionSnapshot) {
+        contextMenuSelectionRef.current = null
+        return
+      }
+
+      contextMenuSelectionRef.current = {
+        selection: selectionSnapshot,
+        context: buildContextSnapshot(selectionSnapshot),
+      }
     }
 
     const handleSelectionChange = () => {
@@ -226,12 +249,14 @@ export function SelectionToolbar() {
 
     document.addEventListener("mouseup", handleMouseUp)
     document.addEventListener("mousedown", handleMouseDown)
+    document.addEventListener("contextmenu", handleContextMenu)
     document.addEventListener("selectionchange", handleSelectionChange)
     window.addEventListener("scroll", handleScroll, { passive: true })
 
     return () => {
       document.removeEventListener("mouseup", handleMouseUp)
       document.removeEventListener("mousedown", handleMouseDown)
+      document.removeEventListener("contextmenu", handleContextMenu)
       document.removeEventListener("selectionchange", handleSelectionChange)
       window.removeEventListener("scroll", handleScroll)
       if (animationFrameId) {
@@ -239,6 +264,38 @@ export function SelectionToolbar() {
       }
     }
   }, [clearSelectionState, isSelectionToolbarVisible, setIsSelectionToolbarVisible, setSelectionState, updatePosition])
+
+  useEffect(() => {
+    return onMessage("openSelectionToolbarTranslate", (message) => {
+      const selectedText = normalizeSelectedText(message.data.selectedText)
+      if (selectedText === "") {
+        return
+      }
+
+      const liveSelection = readSelectionSnapshot(window.getSelection())
+      const fallbackSelection = contextMenuSelectionRef.current?.selection.text === selectedText
+        ? contextMenuSelectionRef.current
+        : null
+      const selection = liveSelection ?? fallbackSelection?.selection
+
+      if (!selection) {
+        return
+      }
+
+      setSelectionState({
+        selection,
+        context: liveSelection
+          ? buildContextSnapshot(liveSelection)
+          : fallbackSelection?.context ?? buildContextSnapshot(selection),
+      })
+      setIsSelectionToolbarVisible(false)
+      setTranslateOpenRequest(prev => ({
+        nonce: prev.nonce + 1,
+        analyticsContext: message.data.analyticsContext,
+      }))
+      contextMenuSelectionRef.current = null
+    })
+  }, [setIsSelectionToolbarVisible, setSelectionState])
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -259,10 +316,12 @@ export function SelectionToolbar() {
       || (!isFirefox && features.speak.enabled)
       || features.vocabularyInsight.enabled
       || selectionToolbar.customActions.some(a => a.enabled !== false)
+  const isToolbarVisible = selectionToolbar.enabled && !isSiteDisabled && hasAnyEnabledFeature
+  const shouldRenderContextMenuTranslateBridge = contextMenu.enabled && !(isToolbarVisible && features.translate.enabled)
 
   return (
     <div ref={tooltipContainerRef} className={NOTRANSLATE_CLASS}>
-      {selectionToolbar.enabled && !isSiteDisabled && hasAnyEnabledFeature && (
+      {isToolbarVisible && (
         <div
           ref={tooltipRef}
           aria-hidden={!isSelectionToolbarVisible}
@@ -272,13 +331,19 @@ export function SelectionToolbar() {
           )}
         >
           <div className="flex items-center overflow-x-auto overflow-y-hidden rounded-sm max-w-105 no-scrollbar">
-            {features.translate.enabled && <TranslateButton />}
+            {features.translate.enabled && <TranslateButton openRequest={translateOpenRequest} />}
             {!isFirefox && features.speak.enabled && <SpeakButton />}
             {features.vocabularyInsight.enabled && <AiButton />}
             <SelectionToolbarCustomActionButtons />
           </div>
           <CloseButton />
         </div>
+      )}
+      {shouldRenderContextMenuTranslateBridge && (
+        <TranslateButton
+          renderTrigger={false}
+          openRequest={translateOpenRequest}
+        />
       )}
     </div>
   )

@@ -1,12 +1,13 @@
 import type { SelectionToolbarTranslateRequestSlice } from "../atoms"
 import type { SelectionToolbarInlineError } from "../inline-error"
+import type { FeatureUsageContext } from "@/types/analytics"
 import type { BackgroundTextStreamSnapshot, ThinkingSnapshot } from "@/types/background-stream"
 import type { LLMProviderConfig, ProviderConfig } from "@/types/config/provider"
 import { i18n } from "#imports"
 import { LANG_CODE_TO_EN_NAME } from "@read-frog/definitions"
 import { RiTranslate } from "@remixicon/react"
 import { useAtomValue, useSetAtom } from "jotai"
-import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { SelectionPopover } from "@/components/ui/selection-popover"
 import { ANALYTICS_FEATURE, ANALYTICS_SURFACE } from "@/types/analytics"
 import { isLLMProviderConfig, isTranslateProviderConfig } from "@/types/config/provider"
@@ -109,13 +110,27 @@ async function translateWithStandardProvider({
   return translatedText
 }
 
-export function TranslateButton() {
+interface TranslateButtonOpenRequest {
+  nonce: number
+  analyticsContext?: FeatureUsageContext
+}
+
+interface TranslateButtonProps {
+  renderTrigger?: boolean
+  openRequest?: TranslateButtonOpenRequest
+}
+
+export function TranslateButton({
+  renderTrigger = true,
+  openRequest,
+}: TranslateButtonProps) {
   const [open, setOpen] = useState(false)
   const [isTranslating, setIsTranslating] = useState(false)
   const [rerunNonce, setRerunNonce] = useState(0)
   const [translatedText, setTranslatedText] = useState<string | undefined>(undefined)
   const [thinking, setThinking] = useState<ThinkingSnapshot | null>(null)
   const [error, setError] = useState<SelectionToolbarInlineError | null>(null)
+  const [sessionAnalyticsContext, setSessionAnalyticsContext] = useState<FeatureUsageContext | null>(null)
   const translateRequest = useAtomValue(selectionToolbarTranslateRequestAtom)
   const providersConfig = useAtomValue(configFieldsAtomMap.providersConfig)
   const setIsSelectionToolbarVisible = useSetAtom(isSelectionToolbarVisibleAtom)
@@ -165,10 +180,11 @@ export function TranslateButton() {
       return
     }
 
-    const analyticsContext = createFeatureUsageContext(
-      ANALYTICS_FEATURE.SELECTION_TRANSLATION,
-      ANALYTICS_SURFACE.SELECTION_TOOLBAR,
-    )
+    const analyticsContext = sessionAnalyticsContext
+      ?? createFeatureUsageContext(
+        ANALYTICS_FEATURE.SELECTION_TRANSLATION,
+        ANALYTICS_SURFACE.SELECTION_TOOLBAR,
+      )
 
     setIsTranslating(true)
     setTranslatedText(undefined)
@@ -266,7 +282,7 @@ export function TranslateButton() {
         setIsTranslating(false)
       }
     }
-  }, [resetSessionState, selectionText, translateRequest])
+  }, [resetSessionState, selectionText, sessionAnalyticsContext, translateRequest])
 
   const startTranslation = useEffectEvent((runId: number) => {
     void runTranslation(runId)
@@ -308,20 +324,38 @@ export function TranslateButton() {
     }
 
     setOpen(nextOpen)
+    if (!nextOpen) {
+      setSessionAnalyticsContext(null)
+    }
 
     if (nextOpen) {
       setIsSelectionToolbarVisible(false)
     }
   }, [cancelCurrentTranslation, captureSelectionSnapshot, clearSelectionSnapshot, resetSessionState, setIsSelectionToolbarVisible])
 
+  useLayoutEffect(() => {
+    if (!openRequest || openRequest.nonce === 0) {
+      return
+    }
+
+    cancelCurrentTranslation()
+    resetSessionState()
+    setSessionAnalyticsContext(openRequest.analyticsContext ?? null)
+    captureSelectionSnapshot()
+    setOpen(true)
+    setIsSelectionToolbarVisible(false)
+  }, [cancelCurrentTranslation, captureSelectionSnapshot, openRequest, resetSessionState, setIsSelectionToolbarVisible])
+
   return (
     <SelectionPopover.Root open={open} onOpenChange={handleOpenChange}>
-      <SelectionToolbarTooltip
-        content={triggerLabel}
-        render={<SelectionPopover.Trigger aria-label={triggerLabel} />}
-      >
-        <RiTranslate className="size-4.5" />
-      </SelectionToolbarTooltip>
+      {renderTrigger && (
+        <SelectionToolbarTooltip
+          content={triggerLabel}
+          render={<SelectionPopover.Trigger aria-label={triggerLabel} />}
+        >
+          <RiTranslate className="size-4.5" />
+        </SelectionToolbarTooltip>
+      )}
 
       <SelectionPopover.Content key={popoverSessionKey} container={shadowWrapper ?? document.body}>
         <SelectionPopover.Header className="border-b">

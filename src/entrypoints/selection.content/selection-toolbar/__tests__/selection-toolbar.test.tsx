@@ -23,6 +23,10 @@ vi.mock("../custom-action-button", () => ({
   SelectionToolbarCustomActionButtons: () => null,
 }))
 
+vi.mock("@/utils/message", () => ({
+  onMessage: () => vi.fn(),
+}))
+
 // Mock atoms
 vi.mock("@/utils/atoms/config", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/utils/atoms/config")>()
@@ -30,6 +34,9 @@ vi.mock("@/utils/atoms/config", async (importOriginal) => {
     ...actual,
     configFieldsAtomMap: {
       ...actual.configFieldsAtomMap,
+      contextMenu: atom({
+        enabled: true,
+      }),
       selectionToolbar: atom({
         enabled: true,
         disabledSelectionToolbarPatterns: [],

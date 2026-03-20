@@ -467,6 +467,40 @@ describe("selection toolbar requests", () => {
     expect(screen.getByTestId("translation-status").textContent).toBe("false")
   })
 
+  it("can open and run translation programmatically without rendering the toolbar trigger", async () => {
+    translateTextCoreMock.mockResolvedValue("translated from context menu")
+    getOrFetchArticleDataMock.mockResolvedValue(null)
+
+    const store = createStore()
+    store.set(configAtom, cloneConfig(DEFAULT_CONFIG))
+    setSelectionState(store, { text: "Selected text" })
+    renderWithProviders(
+      <TranslateButton
+        renderTrigger={false}
+        openRequest={{
+          nonce: 1,
+          analyticsContext: {
+            feature: "selection_translation",
+            surface: "context_menu",
+            startedAt: 123,
+          },
+        }}
+      />,
+      store,
+    )
+
+    expect(screen.queryByRole("button", { name: "action.translation" })).toBeNull()
+
+    await waitFor(() => {
+      expect(translateTextCoreMock).toHaveBeenCalledTimes(1)
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId("translation-result").textContent).toBe("translated from context menu")
+    })
+    expect(screen.getByTestId("translation-selection").textContent).toBe("Selected text")
+  })
+
   it("aborts llm translations when the popover closes without surfacing an error", async () => {
     const streamCalls: Array<{ signal?: AbortSignal, onChunk?: (data: BackgroundTextStreamSnapshot) => void }> = []
     translateTextCoreMock.mockResolvedValue("")

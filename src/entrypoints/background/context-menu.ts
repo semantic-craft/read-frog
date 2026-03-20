@@ -8,7 +8,8 @@ import { getTranslationStateKey, TRANSLATION_STATE_KEY_PREFIX } from "@/utils/co
 import { sendMessage } from "@/utils/message"
 import { ensureInitializedConfig } from "./config"
 
-const MENU_ID_TRANSLATE = "read-frog-translate"
+const MENU_ID_TRANSLATE_PAGE = "read-frog-translate"
+const MENU_ID_TRANSLATE_SELECTION = "read-frog-translate-selection"
 
 /**
  * Register all context menu event listeners synchronously
@@ -88,9 +89,15 @@ async function updateContextMenuItems(config: Config) {
 
   if (translateEnabled) {
     browser.contextMenus.create({
-      id: MENU_ID_TRANSLATE,
+      id: MENU_ID_TRANSLATE_PAGE,
       title: i18n.t("contextMenu.translate"),
       contexts: ["page"],
+    })
+
+    browser.contextMenus.create({
+      id: MENU_ID_TRANSLATE_SELECTION,
+      title: i18n.t("contextMenu.translateSelection"),
+      contexts: ["selection"],
     })
   }
 
@@ -124,7 +131,7 @@ async function updateTranslateMenuTitle(tabId: number, enabled?: boolean) {
       isTranslated = state?.enabled ?? false
     }
 
-    await browser.contextMenus.update(MENU_ID_TRANSLATE, {
+    await browser.contextMenus.update(MENU_ID_TRANSLATE_PAGE, {
       title: isTranslated
         ? i18n.t("contextMenu.showOriginal")
         : i18n.t("contextMenu.translate"),
@@ -146,8 +153,12 @@ async function handleContextMenuClick(
     return
   }
 
-  if (info.menuItemId === MENU_ID_TRANSLATE) {
+  if (info.menuItemId === MENU_ID_TRANSLATE_PAGE) {
     await handleTranslateClick(tab.id)
+  }
+
+  if (info.menuItemId === MENU_ID_TRANSLATE_SELECTION) {
+    await handleSelectionTranslateClick(tab.id, info.selectionText)
   }
 }
 
@@ -174,4 +185,18 @@ async function handleTranslateClick(tabId: number) {
 
   // Update menu title immediately
   await updateTranslateMenuTitle(tabId)
+}
+
+async function handleSelectionTranslateClick(tabId: number, selectionText?: string) {
+  if (!selectionText?.trim()) {
+    return
+  }
+
+  void sendMessage("openSelectionToolbarTranslate", {
+    selectedText: selectionText,
+    analyticsContext: createFeatureUsageContext(
+      ANALYTICS_FEATURE.SELECTION_TRANSLATION,
+      ANALYTICS_SURFACE.CONTEXT_MENU,
+    ),
+  }, tabId)
 }
