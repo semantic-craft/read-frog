@@ -1,6 +1,6 @@
 import type { TranslationNodeStyleConfig } from "@/types/config/translate"
 import type { TransNode } from "@/types/dom"
-import { BLOCK_CONTENT_CLASS, INLINE_CONTENT_CLASS, NOTRANSLATE_CLASS } from "../../../constants/dom-labels"
+import { BLOCK_CONTENT_CLASS, BLOCK_WRAPPER_CLASS, INLINE_CONTENT_CLASS, NOTRANSLATE_CLASS } from "../../../constants/dom-labels"
 import { isBlockTransNode, isCustomForceBlockTranslation, isHTMLElement, isInlineTransNode } from "../../dom/filter"
 import { getOwnerDocument } from "../../dom/node"
 import { decorateTranslationNode } from "../ui/decorate-translation"
@@ -13,9 +13,8 @@ export function addInlineTranslation(ownerDoc: Document, translatedWrapperNode: 
   translatedNode.className = `${NOTRANSLATE_CLASS} ${INLINE_CONTENT_CLASS}`
 }
 
-export function addBlockTranslation(ownerDoc: Document, translatedWrapperNode: HTMLElement, translatedNode: HTMLElement): void {
-  const brNode = ownerDoc.createElement("br")
-  translatedWrapperNode.appendChild(brNode)
+export function addBlockTranslation(_ownerDoc: Document, translatedWrapperNode: HTMLElement, translatedNode: HTMLElement): void {
+  translatedWrapperNode.classList.add(BLOCK_WRAPPER_CLASS)
   translatedNode.className = `${NOTRANSLATE_CLASS} ${BLOCK_CONTENT_CLASS}`
 }
 

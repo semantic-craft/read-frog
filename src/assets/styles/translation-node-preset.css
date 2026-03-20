@@ -6,9 +6,14 @@
   text-decoration-skip-ink: auto;
 }
 
+.read-frog-translated-content-wrapper--block {
+  display: block;
+  margin-top: 4px;
+}
+
 .read-frog-translated-block-content {
-  display: inline-block;
-  margin: 8px 0 !important;
+  display: block;
+  margin: 0 !important;
   color: inherit;
   font-family: inherit;
 }

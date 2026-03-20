@@ -1,4 +1,5 @@
 export const CONTENT_WRAPPER_CLASS = "read-frog-translated-content-wrapper"
+export const BLOCK_WRAPPER_CLASS = "read-frog-translated-content-wrapper--block"
 export const INLINE_CONTENT_CLASS = "read-frog-translated-inline-content"
 export const BLOCK_CONTENT_CLASS = "read-frog-translated-block-content"
 

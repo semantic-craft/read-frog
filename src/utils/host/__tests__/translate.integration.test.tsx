@@ -7,6 +7,7 @@ import { DEFAULT_CONFIG } from "@/utils/constants/config"
 import {
   BLOCK_ATTRIBUTE,
   BLOCK_CONTENT_CLASS,
+  BLOCK_WRAPPER_CLASS,
   CONTENT_WRAPPER_CLASS,
   INLINE_ATTRIBUTE,
   INLINE_CONTENT_CLASS,
@@ -113,6 +114,8 @@ describe("translate", () => {
         expectNodeLabels(node, [BLOCK_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
         const wrapper = expectTranslationWrapper(node, "bilingual")
         expect(wrapper).toBe(node.childNodes[1])
+        expect(wrapper).toHaveClass(BLOCK_WRAPPER_CLASS)
+        expect(wrapper?.querySelector("br")).toBeNull()
         expectTranslatedContent(wrapper, BLOCK_CONTENT_CLASS)
 
         await removeOrShowPageTranslation("bilingual", true)
@@ -773,10 +776,16 @@ describe("translate", () => {
 
         expectNodeLabels(node, [BLOCK_ATTRIBUTE])
         const wrapper1 = node.children[0]
+        expect(wrapper1).toHaveClass(BLOCK_WRAPPER_CLASS)
+        expect(wrapper1.querySelector("br")).toBeNull()
         expectTranslatedContent(wrapper1 as Element, BLOCK_CONTENT_CLASS)
         const wrapper2 = node.children[2]
+        expect(wrapper2).toHaveClass(BLOCK_WRAPPER_CLASS)
+        expect(wrapper2.querySelector("br")).toBeNull()
         expectTranslatedContent(wrapper2 as Element, BLOCK_CONTENT_CLASS)
         const wrapper3 = node.children[4]
+        expect(wrapper3).toHaveClass(BLOCK_WRAPPER_CLASS)
+        expect(wrapper3.querySelector("br")).toBeNull()
         expectTranslatedContent(wrapper3 as Element, BLOCK_CONTENT_CLASS)
 
         await removeOrShowPageTranslation("bilingual", true)
