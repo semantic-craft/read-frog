@@ -1,8 +1,16 @@
 import type { ReactNode } from "react"
+import { useCallback, useState } from "react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/base-ui/tooltip"
+import { useSelectionPopoverOverlayProps } from "@/components/ui/selection-popover"
 import { cn } from "@/utils/styles/utils"
 import { shadowWrapper } from ".."
 import { SELECTION_CONTENT_OVERLAY_LAYERS } from "../overlay-layers"
+
+const TOOLTIP_TRIGGER_PRESS_REASON = "trigger-press"
+
+interface SelectionTooltipOpenChangeDetails {
+  reason: string
+}
 
 interface SelectionTooltipProps extends Pick<React.ComponentProps<typeof Tooltip>, "open" | "onOpenChange">,
   Pick<React.ComponentProps<typeof TooltipContent>, "align" | "alignOffset" | "className" | "side" | "sideOffset"> {
@@ -11,6 +19,28 @@ interface SelectionTooltipProps extends Pick<React.ComponentProps<typeof Tooltip
   render: React.ReactElement
   container?: React.ComponentProps<typeof TooltipContent>["container"]
   positionerClassName?: string
+}
+
+export function useSelectionTooltipState() {
+  const [open, setOpen] = useState(false)
+
+  const handlePress = useCallback(() => {
+    setOpen(true)
+  }, [])
+
+  const handleOpenChange = useCallback((nextOpen: boolean, eventDetails: SelectionTooltipOpenChangeDetails) => {
+    if (!nextOpen && eventDetails.reason === TOOLTIP_TRIGGER_PRESS_REASON) {
+      return
+    }
+
+    setOpen(nextOpen)
+  }, [])
+
+  return {
+    handlePress,
+    onOpenChange: handleOpenChange,
+    open,
+  }
 }
 
 function SelectionTooltip({
@@ -35,9 +65,27 @@ function SelectionTooltip({
       <TooltipContent
         align={align}
         alignOffset={alignOffset}
-        className={cn("whitespace-nowrap", className)}
+        // This wrapper is only for selection-content overlays. In this path we
+        // observed two separate real-browser failures:
+        // 1) hover-leave could land on the tooltip overlay itself, so the
+        //    browser never considered the pointer fully "back on the page";
+        // 2) even after Base UI set the tooltip to the closed state, the node
+        //    could remain visually visible until unmount.
+        //
+        // The CSS here intentionally addresses both layers:
+        // - `pointer-events-none`: make the tooltip body mouse-transparent so
+        //   it cannot become the hover target after leaving the trigger.
+        // - `data-closed:hidden data-closed:opacity-0`: Base UI guarantees the
+        //   `data-closed` attribute, but not an immediate visual hide. In the
+        //   selection-content shadow DOM we saw `data-closed` nodes remain
+        //   `display:block`/`opacity:1`, so we force the closed state to render
+        //   as invisible before unmount finishes.
+        className={cn("data-closed:hidden data-closed:opacity-0 pointer-events-none whitespace-nowrap", className)}
         container={container}
-        positionerClassName={positionerClassName}
+        // The positioner is a separate overlay box around the popup. Making the
+        // popup itself transparent is not enough if the pointer can still land
+        // on this wrapper during hover leave.
+        positionerClassName={cn("pointer-events-none", positionerClassName)}
         side={side}
         sideOffset={sideOffset}
       >
@@ -52,6 +100,21 @@ export function SelectionToolbarTooltip(props: Omit<SelectionTooltipProps, "cont
     <SelectionTooltip
       container={shadowWrapper ?? document.body}
       positionerClassName={SELECTION_CONTENT_OVERLAY_LAYERS.popoverOverlay}
+      {...props}
+    />
+  )
+}
+
+export function SelectionPopoverTooltip(props: Omit<SelectionTooltipProps, "container" | "positionerClassName">) {
+  const popoverOverlay = useSelectionPopoverOverlayProps()
+
+  return (
+    <SelectionTooltip
+      // Keep this workaround scoped to selection-content popovers. Shared
+      // Tooltip primitives are also used by options/popup pages, which do not
+      // need the same browser-specific close-state fix.
+      container={popoverOverlay.container}
+      positionerClassName={popoverOverlay.positionerClassName}
       {...props}
     />
   )
