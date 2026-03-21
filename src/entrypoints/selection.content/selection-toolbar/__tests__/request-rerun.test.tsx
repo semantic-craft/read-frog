@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { createStore, Provider } from "jotai"
 import { afterEach, describe, expect, it, vi } from "vitest"
+import { TooltipProvider } from "@/components/ui/base-ui/tooltip"
 import { isLLMProviderConfig, isTranslateProviderConfig } from "@/types/config/provider"
 import { configAtom } from "@/utils/atoms/config"
 import { DEFAULT_CONFIG } from "@/utils/constants/config"
@@ -376,6 +377,56 @@ describe("selection toolbar requests", () => {
     vi.resetAllMocks()
   })
 
+  it("closes the translate tooltip after opening the popover", async () => {
+    translateTextCoreMock.mockResolvedValue("translated once")
+    getOrFetchArticleDataMock.mockResolvedValue(null)
+
+    const store = createStore()
+    store.set(configAtom, cloneConfig(DEFAULT_CONFIG))
+    setSelectionState(store, { text: "Selected text" })
+
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    })
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <Provider store={store}>
+          <TooltipProvider>
+            <SelectionTranslationProvider>
+              <SelectionCustomActionProvider>
+                <TranslateButton />
+              </SelectionCustomActionProvider>
+            </SelectionTranslationProvider>
+          </TooltipProvider>
+        </Provider>
+      </QueryClientProvider>,
+    )
+
+    const trigger = screen.getByRole("button", { name: "action.translation" })
+
+    fireEvent.mouseEnter(trigger)
+    fireEvent.focus(trigger)
+
+    await waitFor(() => {
+      expect(document.querySelector("[data-slot='tooltip-content']")).toHaveTextContent("action.translation")
+    })
+
+    fireEvent.click(trigger)
+
+    await waitFor(() => {
+      expect(screen.getByTestId("selection-popover-content")).toBeInTheDocument()
+    })
+
+    await waitFor(() => {
+      expect(document.querySelector("[data-slot='tooltip-content']")).toBeNull()
+    })
+  })
+
   it("does not rerun translation on passive config refresh, but reruns when request values change", async () => {
     translateTextCoreMock.mockResolvedValue("translated once")
     getOrFetchArticleDataMock.mockResolvedValue(null)
@@ -383,7 +434,7 @@ describe("selection toolbar requests", () => {
     const store = createStore()
     store.set(configAtom, cloneConfig(DEFAULT_CONFIG))
     setSelectionState(store, { text: "Selected text" })
-    const view = renderWithProviders(<TranslateButton />, store)
+    renderWithProviders(<TranslateButton />, store)
 
     fireEvent.click(screen.getByRole("button", { name: "action.translation" }))
 
@@ -395,17 +446,6 @@ describe("selection toolbar requests", () => {
     act(() => {
       store.set(configAtom, refreshedConfig)
     })
-    view.rerender(
-      <QueryClientProvider client={view.queryClient}>
-        <Provider store={store}>
-          <SelectionTranslationProvider>
-            <SelectionCustomActionProvider>
-              <TranslateButton />
-            </SelectionCustomActionProvider>
-          </SelectionTranslationProvider>
-        </Provider>
-      </QueryClientProvider>,
-    )
 
     await act(async () => {
       await Promise.resolve()
