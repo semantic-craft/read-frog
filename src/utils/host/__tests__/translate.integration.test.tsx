@@ -253,6 +253,58 @@ describe("translate", () => {
         expect(node.textContent).toBe(MOCK_ORIGINAL_TEXT)
       })
     })
+    describe("heading with single anchor child", () => {
+      it("bilingual mode: should keep the translated wrapper outside the heading anchor", async () => {
+        render(
+          <h1 data-testid="test-node" data-docs-heading="">
+            <a style={{ display: "inline-flex" }}>
+              {MOCK_ORIGINAL_TEXT}
+              <span aria-hidden="true"></span>
+            </a>
+          </h1>,
+        )
+        const node = screen.getByTestId("test-node")
+        const anchor = node.querySelector("a") as HTMLAnchorElement
+        await removeOrShowPageTranslation("bilingual", true)
+
+        expectNodeLabels(node, [BLOCK_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        expectNodeLabels(anchor, [INLINE_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        const wrapper = expectTranslationWrapper(node, "bilingual")
+        expect(wrapper).toBe(node.lastChild)
+        expect(wrapper?.parentElement).toBe(node)
+        expect(anchor.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+        expectTranslatedContent(wrapper, INLINE_CONTENT_CLASS)
+
+        await removeOrShowPageTranslation("bilingual", true)
+        expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+        expect(node.querySelector("a")).toBeTruthy()
+        expect(node.textContent).toBe(MOCK_ORIGINAL_TEXT)
+      })
+
+      it("translation only mode: should replace the heading anchor instead of injecting inside it", async () => {
+        render(
+          <h1 data-testid="test-node" data-docs-heading="">
+            <a style={{ display: "inline-flex" }}>
+              {MOCK_ORIGINAL_TEXT}
+              <span aria-hidden="true"></span>
+            </a>
+          </h1>,
+        )
+        const node = screen.getByTestId("test-node")
+        await removeOrShowPageTranslation("translationOnly", true)
+
+        expectNodeLabels(node, [BLOCK_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        const wrapper = expectTranslationWrapper(node, "translationOnly")
+        expect(wrapper).toBe(node.firstChild)
+        expect(wrapper?.closest("a")).toBeFalsy()
+        expect(node.querySelector("a")).toBeFalsy()
+
+        await removeOrShowPageTranslation("translationOnly", true)
+        expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+        expect(node.querySelector("a")).toBeTruthy()
+        expect(node.textContent).toBe(MOCK_ORIGINAL_TEXT)
+      })
+    })
     describe("block node -> block node -> inline node", () => {
       it("bilingual mode: should insert translation wrapper after deepest inline node", async () => {
         render(

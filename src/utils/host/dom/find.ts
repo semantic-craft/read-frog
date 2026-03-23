@@ -1,3 +1,4 @@
+import type { Config } from "@/types/config/config"
 import type { Point } from "@/types/dom"
 
 import { getLocalConfig } from "@/utils/config/storage"
@@ -5,6 +6,8 @@ import { DEFAULT_CONFIG } from "@/utils/constants/config"
 import { CONTENT_WRAPPER_CLASS } from "@/utils/constants/dom-labels"
 import { isDontWalkIntoAndDontTranslateAsChildElement, isHTMLElement, isShallowInlineHTMLElement, isTranslatedContentNode, isTranslatedWrapperNode } from "./filter"
 import { smashTruncationStyle } from "./style"
+
+const HEADING_TAG_RE = /^H[1-6]$/
 
 /**
  * Find the deepest element at the given point, including inside shadow roots
@@ -117,29 +120,37 @@ export function deepQueryTopLevelSelector(element: HTMLElement | ShadowRoot | Do
   return result
 }
 
+export function findOnlyEffectiveHTMLElementChild(element: HTMLElement, config: Config): HTMLElement | null {
+  const shouldKeepNode = (child: ChildNode) => {
+    if (!child.textContent?.trim())
+      return false
+    if (child.nodeType === Node.TEXT_NODE)
+      return true
+    return isHTMLElement(child) && !isDontWalkIntoAndDontTranslateAsChildElement(child, config)
+  }
+
+  const effectiveChildNodes = [...element.childNodes].filter(shouldKeepNode)
+  const effectiveChildren = effectiveChildNodes.filter(child => child.nodeType === Node.ELEMENT_NODE)
+
+  if (!(effectiveChildren.length === 1 && effectiveChildNodes.length === 1))
+    return null
+
+  const onlyChildElement = effectiveChildren[0]
+  return isHTMLElement(onlyChildElement) ? onlyChildElement : null
+}
+
 export async function unwrapDeepestOnlyHTMLChild(element: HTMLElement) {
   const config = await getLocalConfig() ?? DEFAULT_CONFIG
   let currentElement = element
   while (currentElement) {
     smashTruncationStyle(currentElement)
 
-    const shouldKeepNode = (child: ChildNode) => {
-      if (!child.textContent?.trim())
-        return false
-      if (child.nodeType === Node.TEXT_NODE)
-        return true
-      return isHTMLElement(child) && !isDontWalkIntoAndDontTranslateAsChildElement(child, config)
-    }
-
-    const effectiveChildNodes = [...currentElement.childNodes].filter(shouldKeepNode)
-    const effectiveChildren = effectiveChildNodes.filter(child => child.nodeType === Node.ELEMENT_NODE)
-
-    // Only have one HTML child and no Text Child
-    if (!(effectiveChildren.length === 1 && effectiveChildNodes.length === 1))
+    const onlyChildElement = findOnlyEffectiveHTMLElementChild(currentElement, config)
+    if (!onlyChildElement)
       break
 
-    const onlyChildElement = effectiveChildren[0]
-    if (!isHTMLElement(onlyChildElement))
+    // Keep translated wrappers outside heading anchors so link-specific span styles do not hide them.
+    if (HEADING_TAG_RE.test(currentElement.tagName) && onlyChildElement.tagName === "A")
       break
 
     currentElement = onlyChildElement

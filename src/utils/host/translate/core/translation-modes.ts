@@ -9,7 +9,7 @@ import {
 } from "../../../constants/dom-labels"
 import { batchDOMOperation } from "../../dom/batch-dom"
 import { isBlockTransNode, isHTMLElement, isTextNode, isTransNode } from "../../dom/filter"
-import { unwrapDeepestOnlyHTMLChild } from "../../dom/find"
+import { findOnlyEffectiveHTMLElementChild, unwrapDeepestOnlyHTMLChild } from "../../dom/find"
 import { getOwnerDocument } from "../../dom/node"
 import { extractTextContent } from "../../dom/traversal"
 import { removeTranslatedWrapperWithRestore } from "../dom/translation-cleanup"
@@ -130,9 +130,16 @@ export async function translateNodesBilingualMode(
       return
     }
 
+    const onlyEffectiveChild = isHTMLElement(targetNode)
+      ? findOnlyEffectiveHTMLElementChild(targetNode, config)
+      : null
+    const translationStyleTarget = onlyEffectiveChild?.tagName === "A"
+      ? onlyEffectiveChild
+      : targetNode
+
     await insertTranslatedNodeIntoWrapper(
       translatedWrapperNode,
-      targetNode,
+      translationStyleTarget,
       translatedText,
       config.translate.translationNodeStyle,
       forceBlockTranslation,
