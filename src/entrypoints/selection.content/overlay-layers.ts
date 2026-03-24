@@ -1,3 +1,5 @@
+export const SELECTION_CONTENT_HOST_Z_INDEX = 2147483647
+
 export const SELECTION_CONTENT_OVERLAY_LAYERS = {
   selectionOverlay: "z-2147483647",
   popover: "z-2147483646",

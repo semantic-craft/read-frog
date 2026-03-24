@@ -20,6 +20,7 @@ import { addStyleToShadow } from "@/utils/styles"
 import { queryClient } from "@/utils/tanstack-query"
 import { getLocalThemeMode } from "@/utils/theme"
 import App from "./app"
+import { SELECTION_CONTENT_HOST_Z_INDEX } from "./overlay-layers"
 import "@/assets/styles/theme.css"
 
 function HydrateAtoms({
@@ -56,6 +57,7 @@ async function mountSelectionUI(ctx: ContentScriptContext) {
   const ui = await createShadowRootUi(ctx, {
     name: `${kebabCase(APP_NAME)}-selection`,
     position: "overlay",
+    zIndex: SELECTION_CONTENT_HOST_Z_INDEX,
     anchor: "body",
     css: selectionContentCss,
     onMount: (container, shadow, shadowHost) => {
