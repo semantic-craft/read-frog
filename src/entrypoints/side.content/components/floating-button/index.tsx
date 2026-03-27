@@ -32,6 +32,7 @@ export default function FloatingButton() {
   const [isSideOpen, setIsSideOpen] = useAtom(isSideOpenAtom)
   const [isDraggingButton, setIsDraggingButton] = useAtom(isDraggingButtonAtom)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isHoverExpanded, setIsHoverExpanded] = useState(false)
   const [dragPosition, setDragPosition] = useState<number | null>(null)
   const initialClientYRef = useRef<number | null>(null)
 
@@ -123,7 +124,7 @@ export default function FloatingButton() {
     document.addEventListener("mousemove", handleMouseMove)
   }
 
-  const attachSideClassName = isDraggingButton || isSideOpen || isDropdownOpen ? "translate-x-0" : ""
+  const isExpanded = isHoverExpanded || isDraggingButton || isSideOpen || isDropdownOpen
 
   if (!floatingButton.enabled || floatingButton.disabledFloatingButtonPatterns.some(pattern => matchDomainPattern(window.location.href, pattern))) {
     return null
@@ -131,23 +132,24 @@ export default function FloatingButton() {
 
   return (
     <div
-      className="group fixed z-2147483647 flex flex-col items-end gap-2 print:hidden"
+      className="fixed z-2147483647 flex flex-col items-end gap-2 print:hidden"
       style={{
         right: isSideOpen
           ? `calc(${sideContent.width}px + var(--removed-body-scroll-bar-size, 0px))`
           : "var(--removed-body-scroll-bar-size, 0px)",
         top: `${(dragPosition ?? floatingButton.position) * 100}vh`,
       }}
+      onMouseLeave={() => setIsHoverExpanded(false)}
     >
-      <TranslateButton className={attachSideClassName} />
+      <TranslateButton className={isExpanded ? "translate-x-0" : "translate-x-12"} />
       <div
         className={cn(
-          "border-border flex h-10 w-15 items-center rounded-l-full border border-r-0 bg-white opacity-60 shadow-lg group-hover:opacity-100 dark:bg-neutral-900",
-          "translate-x-5 transition-transform duration-300 group-hover:translate-x-0",
-          (isSideOpen || isDropdownOpen) && "opacity-100",
+          "border-border flex h-10 w-15 items-center rounded-l-full border border-r-0 bg-white shadow-lg dark:bg-neutral-900",
+          "transition-transform duration-300",
+          isExpanded ? "translate-x-0 opacity-100" : "translate-x-5 opacity-60",
           isDraggingButton ? "cursor-move" : "cursor-pointer",
-          attachSideClassName,
         )}
+        onMouseEnter={() => setIsHoverExpanded(true)}
         onMouseDown={handleButtonDragStart}
       >
         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
@@ -158,8 +160,7 @@ export default function FloatingButton() {
                 title="Close floating button"
                 className={cn(
                   "border-border absolute -top-1 -left-1 hidden cursor-pointer rounded-full border bg-neutral-100 dark:bg-neutral-900",
-                  "group-hover:block",
-                  isDropdownOpen && "block",
+                  isExpanded && "block",
                 )}
                 onMouseDown={e => e.stopPropagation()} // 父级不会收到 mousedown
               />
@@ -198,7 +199,7 @@ export default function FloatingButton() {
         />
       </div>
       <HiddenButton
-        className={attachSideClassName}
+        className={isExpanded ? "translate-x-0" : "translate-x-12"}
         icon={<IconSettings className="h-5 w-5" />}
         onClick={() => {
           void sendMessage("openOptionsPage", undefined)
