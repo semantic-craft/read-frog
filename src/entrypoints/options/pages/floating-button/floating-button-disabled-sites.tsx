@@ -1,6 +1,7 @@
 import { i18n } from "#imports"
 import { useAtom } from "jotai"
 import { configFieldsAtomMap } from "@/utils/atoms/config"
+import { normalizeDomainPattern } from "@/utils/url"
 import { ConfigCard } from "../../components/config-card"
 import { PatternsTable } from "../../components/patterns-table"
 
@@ -9,13 +10,13 @@ export function FloatingButtonDisabledSites() {
   const { disabledFloatingButtonPatterns = [] } = floatingButtonConfig
 
   const addPattern = (pattern: string) => {
-    const cleanedPattern = pattern.trim()
-    if (!cleanedPattern || disabledFloatingButtonPatterns.includes(cleanedPattern))
+    const normalizedPattern = normalizeDomainPattern(pattern)
+    if (!normalizedPattern || disabledFloatingButtonPatterns.includes(normalizedPattern))
       return
 
     void setFloatingButtonConfig({
       ...floatingButtonConfig,
-      disabledFloatingButtonPatterns: [...disabledFloatingButtonPatterns, cleanedPattern],
+      disabledFloatingButtonPatterns: [...disabledFloatingButtonPatterns, normalizedPattern],
     })
   }
 

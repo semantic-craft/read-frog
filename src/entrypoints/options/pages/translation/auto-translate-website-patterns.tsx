@@ -1,6 +1,7 @@
 import { i18n } from "#imports"
 import { useAtom } from "jotai"
 import { configFieldsAtomMap } from "@/utils/atoms/config"
+import { normalizeDomainPattern } from "@/utils/url"
 import { ConfigCard } from "../../components/config-card"
 import { PatternsTable } from "../../components/patterns-table"
 
@@ -9,14 +10,14 @@ export function AutoTranslateWebsitePatterns() {
   const { autoTranslatePatterns } = translateConfig.page
 
   const addPattern = (pattern: string) => {
-    const cleanedPattern = pattern.trim()
-    if (!cleanedPattern || autoTranslatePatterns.includes(cleanedPattern))
+    const normalizedPattern = normalizeDomainPattern(pattern)
+    if (!normalizedPattern || autoTranslatePatterns.includes(normalizedPattern))
       return
 
     void setTranslateConfig({
       page: {
         ...translateConfig.page,
-        autoTranslatePatterns: [...autoTranslatePatterns, cleanedPattern],
+        autoTranslatePatterns: [...autoTranslatePatterns, normalizedPattern],
       },
     })
   }

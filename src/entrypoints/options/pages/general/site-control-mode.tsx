@@ -3,6 +3,7 @@ import { useAtom } from "jotai"
 import { Label } from "@/components/ui/base-ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/base-ui/radio-group"
 import { configFieldsAtomMap } from "@/utils/atoms/config"
+import { normalizeDomainPattern } from "@/utils/url"
 import { ConfigCard } from "../../components/config-card"
 import { PatternsTable } from "../../components/patterns-table"
 
@@ -15,13 +16,13 @@ export default function SiteControlMode() {
   const patterns = siteControl[patternsKey] ?? []
 
   const addPattern = async (pattern: string) => {
-    const cleanedPattern = pattern.trim()
-    if (!cleanedPattern || patterns.includes(cleanedPattern))
+    const normalizedPattern = normalizeDomainPattern(pattern)
+    if (!normalizedPattern || patterns.includes(normalizedPattern))
       return
 
     await setSiteControl({
       ...siteControl,
-      [patternsKey]: [...patterns, cleanedPattern],
+      [patternsKey]: [...patterns, normalizedPattern],
     })
   }
 

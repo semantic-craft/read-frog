@@ -1,5 +1,23 @@
 import { describe, expect, it } from "vitest"
-import { matchDomainPattern } from "../url"
+import { matchDomainPattern, normalizeDomainPattern } from "../url"
+
+describe("normalizeDomainPattern", () => {
+  it("extracts the hostname from a full URL", () => {
+    expect(normalizeDomainPattern("https://news.ycombinator.com/")).toBe("news.ycombinator.com")
+  })
+
+  it("extracts the hostname from a bare hostname with a path", () => {
+    expect(normalizeDomainPattern("news.ycombinator.com/item?id=1")).toBe("news.ycombinator.com")
+  })
+
+  it("preserves a plain domain pattern", () => {
+    expect(normalizeDomainPattern("  Example.com  ")).toBe("example.com")
+  })
+
+  it("returns invalid non-url input as a trimmed lowercase pattern", () => {
+    expect(normalizeDomainPattern("  not a valid url pattern  ")).toBe("not a valid url pattern")
+  })
+})
 
 describe("matchDomainPattern", () => {
   describe("exact domain match", () => {
@@ -35,6 +53,11 @@ describe("matchDomainPattern", () => {
 
     it("should handle pattern with extra whitespace", () => {
       const result = matchDomainPattern("https://x.com", "  x.com  ")
+      expect(result).toBe(true)
+    })
+
+    it("should match when the pattern is a full URL", () => {
+      const result = matchDomainPattern("https://news.ycombinator.com/item?id=1", "https://news.ycombinator.com/")
       expect(result).toBe(true)
     })
   })
