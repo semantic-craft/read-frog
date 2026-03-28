@@ -3,8 +3,10 @@ import type { Config } from "@/types/config/config"
 import type { ProviderConfig } from "@/types/config/provider"
 import { i18n } from "#imports"
 import { APICallError } from "ai"
+import { isLLMProviderConfig } from "@/types/config/provider"
 import { getProviderConfigById } from "@/utils/config/helpers"
 import { getLocalConfig } from "@/utils/config/storage"
+import { cleanText } from "@/utils/content/utils"
 import { Sha256Hex } from "@/utils/hash"
 import { buildHashComponents } from "@/utils/host/translate/translate-text"
 import { sendMessage } from "@/utils/message"
@@ -36,6 +38,20 @@ function toFriendlyErrorMessage(error: unknown): string {
 export interface SubtitlesVideoContext {
   videoTitle: string
   subtitlesTextContent: string
+  summary?: string
+}
+
+export function buildSubtitlesSummaryContextHash(
+  videoContext: Pick<SubtitlesVideoContext, "subtitlesTextContent">,
+  providerConfig?: ProviderConfig,
+): string | undefined {
+  const preparedText = cleanText(videoContext.subtitlesTextContent)
+  if (!preparedText) {
+    return undefined
+  }
+
+  const textHash = Sha256Hex(preparedText)
+  return Sha256Hex(textHash, providerConfig ? JSON.stringify(providerConfig) : "")
 }
 
 async function translateSingleSubtitle(
@@ -50,8 +66,19 @@ async function translateSingleSubtitle(
     providerConfig,
     { sourceCode: langConfig.sourceCode, targetCode: langConfig.targetCode },
     enableAIContentAware,
-    { title: videoContext.videoTitle, textContent: videoContext.subtitlesTextContent },
+    {
+      title: videoContext.videoTitle,
+      textContent: videoContext.subtitlesTextContent,
+    },
   )
+
+  if (enableAIContentAware) {
+    const summary = videoContext.summary?.trim()
+    hashComponents.push(summary ? "subtitleSummary=ready" : "subtitleSummary=missing")
+    if (summary) {
+      hashComponents.push(`summary:${summary}`)
+    }
+  }
 
   return await sendMessage("enqueueSubtitlesTranslateRequest", {
     text,
@@ -60,8 +87,33 @@ async function translateSingleSubtitle(
     scheduleAt: Date.now(),
     hash: Sha256Hex(...hashComponents),
     videoTitle: enableAIContentAware ? videoContext.videoTitle : "",
-    subtitlesContext: enableAIContentAware ? videoContext.subtitlesTextContent : "",
+    summary: enableAIContentAware ? videoContext.summary : undefined,
   })
+}
+
+export async function fetchSubtitlesSummary(
+  videoContext: SubtitlesVideoContext,
+): Promise<string> {
+  const config = await getLocalConfig()
+  if (!config?.translate.enableAIContentAware) {
+    return ""
+  }
+
+  const providerConfig = getProviderConfigById(config.providersConfig, config.videoSubtitles.providerId)
+
+  if (!providerConfig || !isLLMProviderConfig(providerConfig)) {
+    return ""
+  }
+
+  if (!videoContext.videoTitle || !videoContext.subtitlesTextContent) {
+    return ""
+  }
+
+  return await sendMessage("getSubtitlesSummary", {
+    videoTitle: videoContext.videoTitle,
+    subtitlesContext: videoContext.subtitlesTextContent,
+    providerConfig,
+  }) ?? ""
 }
 
 export async function translateSubtitles(

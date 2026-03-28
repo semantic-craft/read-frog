@@ -246,7 +246,7 @@ export async function setUpSubtitlesTranslationQueue() {
   })
 
   onMessage("enqueueSubtitlesTranslateRequest", async (message) => {
-    const { data: { text, langConfig, providerConfig, scheduleAt, hash, videoTitle, subtitlesContext } } = message
+    const { data: { text, langConfig, providerConfig, scheduleAt, hash, videoTitle, summary } } = message
 
     if (hash) {
       const cached = await db.translationCache.get(hash)
@@ -258,19 +258,10 @@ export async function setUpSubtitlesTranslationQueue() {
     let result = ""
     const content: ArticleContent = {
       title: videoTitle || "",
+      summary: summary || "",
     }
 
     if (shouldUseBatchQueue(providerConfig)) {
-      const runtimeConfig = await ensureInitializedConfig()
-      if (
-        isLLMProviderConfig(providerConfig)
-        && runtimeConfig?.translate.enableAIContentAware
-        && videoTitle
-        && subtitlesContext
-      ) {
-        content.summary = await getOrGenerateSummary(videoTitle, subtitlesContext, providerConfig, requestQueue)
-      }
-
       const data = { text, langConfig, providerConfig, hash, scheduleAt, content }
       result = await batchQueue.enqueue(data)
     }
@@ -288,6 +279,16 @@ export async function setUpSubtitlesTranslationQueue() {
     }
 
     return result
+  })
+
+  onMessage("getSubtitlesSummary", async (message) => {
+    const { videoTitle, subtitlesContext, providerConfig } = message.data
+
+    if (!isLLMProviderConfig(providerConfig) || !videoTitle || !subtitlesContext) {
+      return ""
+    }
+
+    return await getOrGenerateSummary(videoTitle, subtitlesContext, providerConfig, requestQueue) ?? ""
   })
 
   onMessage("setSubtitlesRequestQueueConfig", (message) => {

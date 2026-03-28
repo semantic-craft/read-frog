@@ -5,11 +5,13 @@ import type { SubtitlesFragment } from "@/utils/subtitles/types"
 import { i18n } from "#imports"
 import { toast } from "sonner"
 import { trackFeatureUsed } from "@/utils/analytics"
+import { getProviderConfigById } from "@/utils/config/helpers"
 import { getLocalConfig } from "@/utils/config/storage"
 import { HIDE_NATIVE_CAPTIONS_STYLE_ID, NAVIGATION_HANDLER_DELAY, TRANSLATE_BUTTON_CONTAINER_ID } from "@/utils/constants/subtitles"
 import { waitForElement } from "@/utils/dom/wait-for-element"
 import { ToastSubtitlesError } from "@/utils/subtitles/errors"
 import { optimizeSubtitles } from "@/utils/subtitles/processor/optimizer"
+import { buildSubtitlesSummaryContextHash, fetchSubtitlesSummary } from "@/utils/subtitles/processor/translator"
 import { subtitlesPositionAtom, subtitlesStore } from "./atoms"
 import { renderSubtitlesTranslateButton } from "./renderer/render-translate-button"
 import { SegmentationPipeline } from "./segmentation-pipeline"
@@ -31,6 +33,7 @@ export class UniversalVideoAdapter {
   private segmentationPipeline: SegmentationPipeline | null = null
 
   private translationCoordinator: TranslationCoordinator | null = null
+  private subtitlesSummaryContextHash: string | null = null
 
   get videoIdChanged() {
     const currentVideoId = this.config.getVideoId?.()
@@ -71,6 +74,7 @@ export class UniversalVideoAdapter {
     this.segmentationPipeline = null
     this.originalSubtitles = []
     this.cachedVideoId = null
+    this.subtitlesSummaryContextHash = null
     this.subtitlesFetcher.cleanup()
     this.showNativeSubtitles()
     void this.restorePosition()
@@ -278,10 +282,14 @@ export class UniversalVideoAdapter {
     const config = await getLocalConfig()
 
     const useAiSegmentation = !!config?.videoSubtitles?.aiSegmentation
+    const providerConfig = config
+      ? getProviderConfigById(config.providersConfig, config.videoSubtitles.providerId)
+      : undefined
 
     const videoContext = {
       videoTitle: document.title || "",
       subtitlesTextContent: this.originalSubtitles.map(f => f.text).join(""),
+      summary: "",
     }
 
     if (useAiSegmentation) {
@@ -309,5 +317,19 @@ export class UniversalVideoAdapter {
       onStateChange: (state, data) => scheduler.setState(state, data),
     })
     this.translationCoordinator.start(videoContext)
+    const summaryContextHash = buildSubtitlesSummaryContextHash(videoContext, providerConfig)
+    this.subtitlesSummaryContextHash = summaryContextHash ?? null
+
+    void fetchSubtitlesSummary(videoContext).then((summary) => {
+      if (!summary || !summaryContextHash) {
+        return
+      }
+
+      if (this.subtitlesSummaryContextHash !== summaryContextHash) {
+        return
+      }
+
+      videoContext.summary = summary
+    })
   }
 }

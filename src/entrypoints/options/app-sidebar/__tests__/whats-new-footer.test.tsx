@@ -16,6 +16,17 @@ vi.mock("#imports", () => ({
   },
 }))
 
+vi.mock("@iconify/react", () => ({
+  Icon: ({ className, icon }: { className?: string, icon: string }) => (
+    <span
+      aria-hidden="true"
+      className={className}
+      data-icon={icon}
+      data-testid="whats-new-footer-icon"
+    />
+  ),
+}))
+
 vi.mock("@/components/ui/base-ui/sidebar", () => ({
   SidebarMenu: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   SidebarMenuButton: ({ children, ...props }: React.ComponentProps<"button">) => (

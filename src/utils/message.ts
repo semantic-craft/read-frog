@@ -49,7 +49,8 @@ interface ProtocolMap {
   returnPinState: (data: { isPinned: boolean }) => void
   // request
   enqueueTranslateRequest: (data: { text: string, langConfig: Config["language"], providerConfig: ProviderConfig, scheduleAt: number, hash: string, articleTitle?: string | null, articleTextContent?: string | null }) => Promise<string>
-  enqueueSubtitlesTranslateRequest: (data: { text: string, langConfig: Config["language"], providerConfig: ProviderConfig, scheduleAt: number, hash: string, videoTitle?: string, subtitlesContext?: string }) => Promise<string>
+  enqueueSubtitlesTranslateRequest: (data: { text: string, langConfig: Config["language"], providerConfig: ProviderConfig, scheduleAt: number, hash: string, videoTitle?: string, summary?: string }) => Promise<string>
+  getSubtitlesSummary: (data: { videoTitle: string, subtitlesContext: string, providerConfig: ProviderConfig }) => Promise<string>
   backgroundGenerateText: (data: BackgroundGenerateTextPayload) => Promise<BackgroundGenerateTextResponse>
   // AI subtitle segmentation
   aiSegmentSubtitles: (data: { jsonContent: string, providerId: string }) => Promise<string>
