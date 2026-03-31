@@ -1,10 +1,11 @@
 import type { ZodSchema } from "zod"
 import { storage } from "#imports"
+import { isNonNullish } from "@/utils/utils"
 
 export const storageAdapter = {
   async get<T>(key: string, fallback: T, schema: ZodSchema<T>): Promise<T> {
     const value = await storage.getItem<T>(`local:${key}`)
-    if (value) {
+    if (isNonNullish(value)) {
       const parsedValue = schema.safeParse(value)
       if (parsedValue.success) {
         return parsedValue.data
@@ -26,7 +27,7 @@ export const storageAdapter = {
   },
   watch<T>(key: string, callback: (newValue: T) => void) {
     const unwatch = storage.watch<T>(`local:${key}`, (newValue) => {
-      if (newValue !== null)
+      if (isNonNullish(newValue))
         callback(newValue)
     })
     return unwatch

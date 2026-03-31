@@ -2,6 +2,10 @@ import { browser } from "#imports"
 
 const THOUSANDS_SEPARATOR_PATTERN = /\B(?=(?:\d{3})+(?!\d))/g
 
+export function isNonNullish<T>(value: T): value is NonNullable<T> {
+  return value !== null && value !== undefined
+}
+
 export function getActiveTabUrl() {
   return browser.tabs.query({ active: true, currentWindow: true }).then(tabs => tabs[0].url)
 }

@@ -140,11 +140,11 @@ function MoreOptions({ backupId, backup }: { backupId: string, backup: ConfigBac
           <Icon icon="tabler:dots" />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-40" align="end">
-          <DropdownMenuItem onSelect={() => setShowExportDialog(true)} disabled={isExporting}>
+          <DropdownMenuItem onClick={() => setShowExportDialog(true)} disabled={isExporting}>
             <Icon icon="tabler:file-export" />
             {i18n.t("options.config.backup.item.export")}
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setShowDeleteDialog(true)}>
+          <DropdownMenuItem onClick={() => setShowDeleteDialog(true)}>
             <Icon icon="tabler:trash" />
             {i18n.t("options.config.backup.item.delete")}
           </DropdownMenuItem>
