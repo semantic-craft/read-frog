@@ -10,7 +10,7 @@ describe("page translation shortcut helpers", () => {
   })
 
   it("formats shortcuts for platform-native display", () => {
-    expect(formatPageTranslationShortcut("Mod+Shift+K", "mac")).toBe("⇧⌘K")
+    expect(formatPageTranslationShortcut("Mod+Shift+K", "mac")).toBe("⌘ ⇧ K")
     expect(formatPageTranslationShortcut("Mod+Shift+K", "windows")).toBe("Ctrl+Shift+K")
   })
 

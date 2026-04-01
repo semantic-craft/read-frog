@@ -87,7 +87,7 @@ export function ShortcutKeyRecorder(
         return
       }
 
-      if (isModifierKey(event)) {
+      if (isModifierKey(event.key)) {
         return
       }
 
