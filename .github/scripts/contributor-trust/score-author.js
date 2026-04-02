@@ -43,6 +43,9 @@ function scoreCommunityStanding(input) {
   const followers = toNumber(input.followers)
   score += followers < 10 ? 1 : followers < 50 ? 3 : followers < 200 ? 5 : followers < 1000 ? 7 : 10
 
+  const publicRepos = toNumber(input.publicRepos)
+  score += publicRepos === 0 ? 0 : publicRepos <= 5 ? 2 : publicRepos <= 20 ? 4 : publicRepos <= 50 ? 7 : 10
+
   return Math.min(score, 25)
 }
 
@@ -67,8 +70,10 @@ function scorePRTrackRecord(input) {
   if (resolvedPrs === 0)
     return 5
 
-  const mergeRate = (mergedPrs / resolvedPrs) * 100
-  return mergeRate === 0 ? 0 : mergeRate < 50 ? 5 : mergeRate < 75 ? 10 : mergeRate < 90 ? 15 : 20
+  const smoothedRate = (mergedPrs + 1) / (resolvedPrs + 2)
+  const confidence = Math.min(1, Math.log2(resolvedPrs + 1) / Math.log2(11))
+
+  return Math.round(20 * smoothedRate * confidence)
 }
 
 export function getTrustBucket(total) {
@@ -82,7 +87,7 @@ export function getTrustBucket(total) {
 }
 
 export function computeContributorScore(input) {
-  if (input.isMaintainer) {
+  if (input.isAdmin) {
     return {
       total: 100,
       repoFamiliarity: 35,
@@ -90,7 +95,7 @@ export function computeContributorScore(input) {
       ossInfluence: 20,
       prTrackRecord: 20,
       bucket: TRUST_BUCKETS.HIGHLY_TRUSTED,
-      exemptReason: "maintainer",
+      exemptReason: "admin",
       lowScoreThreshold: POLICY.lowScoreThreshold,
     }
   }

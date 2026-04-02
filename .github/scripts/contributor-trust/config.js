@@ -1,6 +1,7 @@
 export const COMMENT_MARKER = "contributor-trust-score:v1"
 export const COMMENT_MARKER_HTML = `<!-- ${COMMENT_MARKER} -->`
 export const FINGERPRINT_MARKER_PREFIX = "contributor-trust-fingerprint:"
+export const MANAGED_COMMENT_AUTHOR = "github-actions[bot]"
 export const TRUST_LABEL_PREFIX = "contrib-trust:"
 
 export const POLICY = Object.freeze({
@@ -9,8 +10,8 @@ export const POLICY = Object.freeze({
   autoCloseBelowScore: null,
   overrideLabel: "trust-check:skip",
   needsMaintainerReviewLabel: "needs-maintainer-review",
-  maintainerLabel: `${TRUST_LABEL_PREFIX}maintainer`,
-  maintainerPermissions: ["write", "maintain", "admin"],
+  adminLabel: `${TRUST_LABEL_PREFIX}admin`,
+  adminPermissions: ["admin"],
 })
 
 export const TRUST_BUCKETS = Object.freeze({
@@ -51,9 +52,9 @@ export const LABEL_DEFINITIONS = Object.freeze({
     color: "d4c5f9",
     description: "PR author trust score is 0-29.",
   },
-  [POLICY.maintainerLabel]: {
+  [POLICY.adminLabel]: {
     color: "5319e7",
-    description: "PR author has repository write access or higher.",
+    description: "PR author has repository admin access.",
   },
   [POLICY.needsMaintainerReviewLabel]: {
     color: "b60205",
@@ -67,7 +68,7 @@ export const LABEL_DEFINITIONS = Object.freeze({
 
 export const MANAGED_TRUST_LABELS = Object.freeze([
   ...Object.values(BUCKET_LABELS),
-  POLICY.maintainerLabel,
+  POLICY.adminLabel,
 ])
 
 export function bucketToLabel(bucket) {

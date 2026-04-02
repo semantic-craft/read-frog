@@ -2,7 +2,7 @@ import { appendFile, readFile } from "node:fs/promises"
 import process from "node:process"
 
 import { buildTrustComment } from "./comment-template.js"
-import { COMMENT_MARKER_HTML, LABEL_DEFINITIONS, POLICY } from "./config.js"
+import { LABEL_DEFINITIONS, POLICY } from "./config.js"
 import {
   addLabelsToIssue,
   closePullRequestIssue,
@@ -16,6 +16,7 @@ import {
   removeLabelFromIssue,
   updateIssueComment,
 } from "./github-api.js"
+import { findManagedTrustComment } from "./managed-comment.js"
 import { planTrustActions } from "./plan-actions.js"
 import { computeContributorScore } from "./score-author.js"
 
@@ -50,7 +51,7 @@ function resolvePullNumber(eventName, payload) {
   return null
 }
 
-function buildScoreInput({ isMaintainer, metrics }) {
+function buildScoreInput({ isAdmin, metrics }) {
   const contributionCount = metrics.mergedPrs + metrics.reviews
 
   return {
@@ -59,7 +60,7 @@ function buildScoreInput({ isMaintainer, metrics }) {
     contributionCount,
     followers: metrics.followers,
     isContributor: contributionCount > 0,
-    isMaintainer,
+    isAdmin,
     prsInRepo: [
       ...Array.from({ length: metrics.mergedPrs }).fill({ state: "merged" }),
       ...Array.from({ length: metrics.closedPrs }).fill({ state: "closed" }),
@@ -67,7 +68,7 @@ function buildScoreInput({ isMaintainer, metrics }) {
     ],
     publicRepos: metrics.publicRepos,
     reviewsInRepo: metrics.reviews,
-    topRepoStars: metrics.topRepoStars,
+    topRepoStars: metrics.topRepositories.map(repository => repository.stargazerCount),
   }
 }
 
@@ -96,7 +97,7 @@ async function syncLabels({ currentLabels, issueNumber, labelsToAdd, labelsToRem
 
 async function upsertComment({ body, issueNumber, owner, repo, token }) {
   const comments = await listIssueComments(token, owner, repo, issueNumber)
-  const existingComment = comments.find(comment => comment.body?.includes(COMMENT_MARKER_HTML))
+  const existingComment = findManagedTrustComment(comments)
 
   if (existingComment?.body === body) {
     console.log("Trust comment is already up to date.")
@@ -175,16 +176,17 @@ async function main() {
   const permission = await getCollaboratorPermission(token, owner, repo, pullRequest.user.login)
   const authorMetrics = await getAuthorMetrics(token, owner, repo, pullRequest.user.login)
   const scoreInput = buildScoreInput({
-    isMaintainer: POLICY.maintainerPermissions.includes(permission ?? ""),
+    isAdmin: POLICY.adminPermissions.includes(permission ?? ""),
     metrics: {
       accountCreated: authorMetrics.author.createdAt,
       closedPrs: authorMetrics.repoHistory.closedPrs,
+      excludedForkRepositories: authorMetrics.repoHistory.excludedForkRepositories,
       followers: authorMetrics.author.followers,
       mergedPrs: authorMetrics.repoHistory.mergedPrs,
       openPrs: authorMetrics.repoHistory.openPrs,
       publicRepos: authorMetrics.author.publicRepos,
       reviews: authorMetrics.repoHistory.reviews,
-      topRepoStars: authorMetrics.repoHistory.topRepoStars,
+      topRepositories: authorMetrics.repoHistory.topRepositories,
     },
   })
 
@@ -200,12 +202,13 @@ async function main() {
     metrics: {
       accountCreated: authorMetrics.author.createdAt,
       closedPrs: authorMetrics.repoHistory.closedPrs,
+      excludedForkRepositories: authorMetrics.repoHistory.excludedForkRepositories,
       followers: authorMetrics.author.followers,
       mergedPrs: authorMetrics.repoHistory.mergedPrs,
       openPrs: authorMetrics.repoHistory.openPrs,
       publicRepos: authorMetrics.author.publicRepos,
       reviews: authorMetrics.repoHistory.reviews,
-      topRepoStars: authorMetrics.repoHistory.topRepoStars,
+      topRepositories: authorMetrics.repoHistory.topRepositories,
     },
     owner,
     plan,
