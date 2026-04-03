@@ -17,6 +17,7 @@ import { setupLLMGenerateTextMessageHandlers } from "./llm-generate-text"
 import { initMockData } from "./mock-data"
 import { newUserGuide } from "./new-user-guide"
 import { proxyFetch } from "./proxy-fetch"
+import { setupSidePanelMessageHandlers } from "./side-panel"
 import { setUpSubtitlesTranslationQueue, setUpWebPageTranslationQueue } from "./translation-queues"
 import { translationMessage } from "./translation-signal"
 import { setupTTSPlaybackMessageHandlers } from "./tts-playback"
@@ -54,6 +55,7 @@ export default defineBackground({
       logger.info("openOptionsPage")
       void browser.runtime.openOptionsPage()
     })
+    setupSidePanelMessageHandlers()
 
     onMessage("aiSegmentSubtitles", async (message) => {
       try {
