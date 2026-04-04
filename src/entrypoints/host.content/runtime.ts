@@ -2,7 +2,7 @@ import type { ContentScriptContext } from "#imports"
 import type { LangCodeISO6393 } from "@read-frog/definitions"
 import type { Config } from "@/types/config/config"
 import { storage } from "#imports"
-import { DEFAULT_CONFIG, DETECTED_CODE_STORAGE_KEY } from "@/utils/constants/config"
+import { DEFAULT_CONFIG, DEFAULT_DETECTED_CODE, DETECTED_CODE_STORAGE_KEY } from "@/utils/constants/config"
 import { getDocumentInfo } from "@/utils/content/analyze"
 import { ensurePresetStyles } from "@/utils/host/translate/ui/style-injector"
 import { logger } from "@/utils/logger"
@@ -34,6 +34,27 @@ export async function bootstrapHostContent(ctx: ContentScriptContext, initialCon
 
   const cleanupTranslationShortcut = await bindTranslationShortcutKey(manager)
 
+  let latestDetectedCode: LangCodeISO6393 = DEFAULT_DETECTED_CODE
+
+  const syncDetectedCodeToStorage = async (detectedCode: LangCodeISO6393) => {
+    latestDetectedCode = detectedCode
+
+    if (document.visibilityState !== "visible") {
+      return
+    }
+
+    await storage.setItem<LangCodeISO6393>(`local:${DETECTED_CODE_STORAGE_KEY}`, detectedCode)
+  }
+
+  const handleDocumentVisibilityChange = () => {
+    if (window !== window.top || document.visibilityState !== "visible") {
+      return
+    }
+
+    void storage.setItem<LangCodeISO6393>(`local:${DETECTED_CODE_STORAGE_KEY}`, latestDetectedCode)
+  }
+  document.addEventListener("visibilitychange", handleDocumentVisibilityChange)
+
   // For late-loading iframes: check if translation is already enabled for this tab
   let translationEnabled = false
   try {
@@ -57,7 +78,7 @@ export async function bootstrapHostContent(ctx: ContentScriptContext, initialCon
       if (window === window.top) {
         const { detectedCodeOrUnd } = await getDocumentInfo()
         const detectedCode: LangCodeISO6393 = detectedCodeOrUnd === "und" ? "eng" : detectedCodeOrUnd
-        await storage.setItem<LangCodeISO6393>(`local:${DETECTED_CODE_STORAGE_KEY}`, detectedCode)
+        await syncDetectedCodeToStorage(detectedCode)
         // Notify background script that URL has changed, let it decide whether to automatically enable translation
         void sendMessage("checkAndAskAutoPageTranslation", { url: to, detectedCodeOrUnd })
       }
@@ -85,6 +106,7 @@ export async function bootstrapHostContent(ctx: ContentScriptContext, initialCon
     cleanupPageTranslationTriggers()
     cleanupTranslationShortcut()
     cleanupTranslationStateListener()
+    document.removeEventListener("visibilitychange", handleDocumentVisibilityChange)
     window.removeEventListener("extension:URLChange", handleExtensionUrlChange)
     window.__READ_FROG_HOST_INJECTED__ = false
     clearEffectiveSiteControlUrl()
@@ -94,7 +116,7 @@ export async function bootstrapHostContent(ctx: ContentScriptContext, initialCon
   if (window === window.top) {
     const { detectedCodeOrUnd } = await getDocumentInfo()
     const initialDetectedCode: LangCodeISO6393 = detectedCodeOrUnd === "und" ? "eng" : detectedCodeOrUnd
-    await storage.setItem<LangCodeISO6393>(`local:${DETECTED_CODE_STORAGE_KEY}`, initialDetectedCode)
+    await syncDetectedCodeToStorage(initialDetectedCode)
 
     // Check if auto-translation should be enabled for initial page load
     void sendMessage("checkAndAskAutoPageTranslation", { url: window.location.href, detectedCodeOrUnd })
