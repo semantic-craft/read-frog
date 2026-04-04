@@ -2,7 +2,7 @@ import { Readability } from "@mozilla/readability"
 import { removeDummyNodes } from "@/utils/content/utils"
 import { logger } from "@/utils/logger"
 
-let cachedTextContent: { url: string, textContent: string } | null = null
+let cachedArticleData: { url: string, title: string, textContent: string } | null = null
 
 async function fetchPageTextContent(): Promise<string> {
   try {
@@ -29,12 +29,18 @@ export async function getOrFetchArticleData(
     return { title }
 
   const currentUrl = window.location.href
-  if (cachedTextContent?.url === currentUrl) {
-    return { title, textContent: cachedTextContent.textContent }
+  if (cachedArticleData?.url === currentUrl) {
+    // Keep article context stable for the lifetime of a page URL. During page translation,
+    // document.title can be mutated to the translated title, and re-reading that live value
+    // would drift the prompt/context and the AI-aware cache key for the same page.
+    return {
+      title: cachedArticleData.title,
+      textContent: cachedArticleData.textContent,
+    }
   }
 
   const textContent = await fetchPageTextContent()
-  cachedTextContent = { url: currentUrl, textContent }
+  cachedArticleData = { url: currentUrl, title, textContent }
 
   return { title, textContent }
 }
