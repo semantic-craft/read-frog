@@ -44,6 +44,10 @@ export async function aiTranslate(
     return finalTranslation
   }
   catch (error) {
+    if (error instanceof Error) {
+      throw error
+    }
+
     throw new Error(extractAISDKErrorMessage(error))
   }
 }

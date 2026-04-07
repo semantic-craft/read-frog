@@ -426,7 +426,92 @@ describe("requestQueue – retry with timeout combined", () => {
   })
 })
 
-// 11. Reconfigure the request queue
+// 11. Retry policy helpers
+describe("requestQueue – retry policy", () => {
+  it("does not retry non-retryable status errors", async () => {
+    vi.useFakeTimers()
+    let attempts = 0
+
+    const q = new RequestQueue({
+      ...baseConfig,
+      maxRetries: 2,
+      baseRetryDelayMs: 100,
+    })
+
+    const error = Object.assign(new Error("Bad Request"), {
+      statusCode: 400,
+      isRetryable: false,
+    })
+
+    const failingThunk = () => {
+      attempts++
+      return Promise.reject(error)
+    }
+
+    const promise = q.enqueue(failingThunk, Date.now(), "non-retryable")
+    promise.catch(() => {})
+
+    await vi.advanceTimersByTimeAsync(1000)
+
+    expect(attempts).toBe(1)
+    await expect(promise).rejects.toBe(error)
+  })
+
+  it("applies a queue-wide cooldown for 429 responses", async () => {
+    vi.useFakeTimers()
+
+    const q = new RequestQueue({
+      ...baseConfig,
+      rate: 1,
+      capacity: 1,
+      maxRetries: 1,
+      baseRetryDelayMs: 100,
+    })
+
+    const completed: string[] = []
+    let firstAttempts = 0
+
+    const rateLimitedError = Object.assign(new Error("Too Many Requests"), {
+      statusCode: 429,
+      isRetryable: true,
+      responseHeaders: {
+        "retry-after": "2",
+      },
+    })
+
+    const firstThunk = () => {
+      firstAttempts++
+      if (firstAttempts === 1) {
+        return Promise.reject(rateLimitedError)
+      }
+
+      completed.push("retried")
+      return Promise.resolve("retried")
+    }
+
+    const secondThunk = () => {
+      completed.push("next")
+      return Promise.resolve("next")
+    }
+
+    const firstPromise = q.enqueue(firstThunk, Date.now(), "first")
+    const secondPromise = q.enqueue(secondThunk, Date.now(), "second")
+
+    await vi.advanceTimersByTimeAsync(1999)
+    expect(completed).toEqual([])
+
+    await vi.advanceTimersByTimeAsync(1)
+    expect(completed).toEqual(["next"])
+
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(completed).toEqual(["next", "retried"])
+
+    await expect(firstPromise).resolves.toBe("retried")
+    await expect(secondPromise).resolves.toBe("next")
+  })
+})
+
+// 12. Reconfigure the request queue
 describe("requestQueue – reconfigure the request queue", () => {
   it("increase the request rate", async () => {
     vi.useFakeTimers()

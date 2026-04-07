@@ -22,6 +22,98 @@ export interface QueueOptions {
   baseRetryDelayMs: number
 }
 
+interface RetryAwareError {
+  message?: unknown
+  statusCode?: unknown
+  isRetryable?: unknown
+  responseHeaders?: unknown
+}
+
+function getRetryAwareError(error: unknown): RetryAwareError | undefined {
+  return typeof error === "object" && error !== null ? error as RetryAwareError : undefined
+}
+
+function getStatusCode(error: unknown): number | undefined {
+  const statusCode = getRetryAwareError(error)?.statusCode
+  return typeof statusCode === "number" ? statusCode : undefined
+}
+
+function getMessage(error: unknown): string {
+  const message = getRetryAwareError(error)?.message
+  return typeof message === "string" ? message : ""
+}
+
+function getHeaderValue(error: unknown, key: string): string | undefined {
+  const headers = getRetryAwareError(error)?.responseHeaders
+  if (!headers) {
+    return undefined
+  }
+
+  if (headers instanceof Headers) {
+    return headers.get(key) ?? headers.get(key.toLowerCase()) ?? undefined
+  }
+
+  if (typeof headers === "object" && headers !== null) {
+    const normalizedKey = key.toLowerCase()
+    const entry = Object.entries(headers).find(([headerKey]) => headerKey.toLowerCase() === normalizedKey)
+    const value = entry?.[1]
+    return typeof value === "string" ? value : undefined
+  }
+
+  return undefined
+}
+
+function getRetryAfterMs(error: unknown, fallbackMs: number): number {
+  const retryAfterMs = getHeaderValue(error, "retry-after-ms")
+  if (retryAfterMs) {
+    const timeoutMs = Number.parseFloat(retryAfterMs)
+    if (!Number.isNaN(timeoutMs) && timeoutMs >= 0 && timeoutMs < 60_000) {
+      return Math.max(timeoutMs, fallbackMs)
+    }
+  }
+
+  const retryAfter = getHeaderValue(error, "retry-after")
+  if (retryAfter) {
+    const timeoutSeconds = Number.parseFloat(retryAfter)
+    if (!Number.isNaN(timeoutSeconds) && timeoutSeconds >= 0 && timeoutSeconds < 60) {
+      return Math.max(timeoutSeconds * 1000, fallbackMs)
+    }
+
+    const parsedMs = Date.parse(retryAfter) - Date.now()
+    if (!Number.isNaN(parsedMs) && parsedMs >= 0 && parsedMs < 60_000) {
+      return Math.max(parsedMs, fallbackMs)
+    }
+  }
+
+  return fallbackMs
+}
+
+const RATE_LIMIT_ERROR_REGEX = /too many requests|rate[ -]?limit/i
+
+function isRateLimitError(error: unknown): boolean {
+  const statusCode = getStatusCode(error)
+  if (statusCode === 429) {
+    return true
+  }
+
+  const message = getMessage(error)
+  return RATE_LIMIT_ERROR_REGEX.test(message)
+}
+
+function isRetryableError(error: unknown): boolean {
+  const retryable = getRetryAwareError(error)?.isRetryable
+  if (typeof retryable === "boolean") {
+    return retryable
+  }
+
+  const statusCode = getStatusCode(error)
+  if (statusCode != null) {
+    return statusCode === 408 || statusCode === 409 || statusCode === 429 || statusCode >= 500
+  }
+
+  return true
+}
+
 export class RequestQueue {
   private waitingQueue: BinaryHeapPQ<RequestTask & { hash: string }>
   private waitingTasks = new Map<string, RequestTask>()
@@ -31,6 +123,7 @@ export class RequestQueue {
   // token bucket
   private bucketTokens: number
   private lastRefill: number
+  private cooldownUntil = 0
 
   constructor(private options: QueueOptions) {
     this.options = options
@@ -89,8 +182,13 @@ export class RequestQueue {
     this.refillTokens()
 
     while (this.bucketTokens >= 1 && this.waitingQueue.size() > 0) {
+      const now = Date.now()
+      if (now < this.cooldownUntil) {
+        break
+      }
+
       const task = this.waitingQueue.peek()
-      if (task && task.scheduleAt <= Date.now()) {
+      if (task && task.scheduleAt <= now) {
         this.waitingQueue.pop()
         this.waitingTasks.delete(task.hash)
         this.executingTasks.set(task.hash, task)
@@ -113,7 +211,8 @@ export class RequestQueue {
         const now = Date.now()
         const delayUntilScheduled = Math.max(0, nextTask.scheduleAt - now)
         const msUntilNextToken = this.bucketTokens >= 1 ? 0 : Math.ceil((1 - this.bucketTokens) / this.options.rate * 1000)
-        const delay = Math.max(delayUntilScheduled, msUntilNextToken)
+        const msUntilCooldownEnds = Math.max(0, this.cooldownUntil - now)
+        const delay = Math.max(delayUntilScheduled, msUntilNextToken, msUntilCooldownEnds)
 
         this.nextScheduleTimer = setTimeout(() => {
           this.nextScheduleTimer = null
@@ -161,16 +260,19 @@ export class RequestQueue {
 
       // console.error(`❌ Task ${task.id} failed at ${Date.now()}:`, error)
 
+      const nextRetryCount = task.retryCount + 1
+      const baseBackoffDelayMs = this.options.baseRetryDelayMs * (2 ** (nextRetryCount - 1))
+      const delayWithoutJitter = getRetryAfterMs(error, baseBackoffDelayMs)
+      const jitter = isRateLimitError(error) ? 0 : Math.random() * 0.1 * delayWithoutJitter
+      const delayMs = delayWithoutJitter + jitter
+
+      if (isRateLimitError(error)) {
+        this.cooldownUntil = Math.max(this.cooldownUntil, Date.now() + delayMs)
+      }
+
       // Check if we should retry
-      if (task.retryCount < this.options.maxRetries) {
-        task.retryCount++
-
-        // Calculate exponential backoff delay
-        const backoffDelayMs = this.options.baseRetryDelayMs * (2 ** (task.retryCount - 1))
-
-        // Add some jitter to prevent thundering herd
-        const jitter = Math.random() * 0.1 * backoffDelayMs
-        const delayMs = backoffDelayMs + jitter
+      if (task.retryCount < this.options.maxRetries && isRetryableError(error)) {
+        task.retryCount = nextRetryCount
 
         // Schedule retry
         const retryAt = Date.now() + delayMs
