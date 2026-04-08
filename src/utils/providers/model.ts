@@ -1,4 +1,5 @@
 import type { Config } from "@/types/config/config"
+import type { LLMProviderConfig } from "@/types/config/provider"
 import { storage } from "#imports"
 import { createAlibaba } from "@ai-sdk/alibaba"
 import { createAmazonBedrock } from "@ai-sdk/amazon-bedrock"
@@ -63,18 +64,7 @@ const CUSTOM_HEADER_MAP: Partial<Record<keyof typeof CREATE_AI_MAPPER, Record<st
   anthropic: { "anthropic-dangerous-direct-browser-access": "true" },
 }
 
-async function getLanguageModelById(providerId: string) {
-  const config = await storage.getItem<Config>(`local:${CONFIG_STORAGE_KEY}`)
-  if (!config) {
-    throw new Error("Config not found")
-  }
-
-  const LLMProvidersConfig = getLLMProvidersConfig(config.providersConfig)
-  const providerConfig = getProviderConfigById(LLMProvidersConfig, providerId)
-  if (!providerConfig) {
-    throw new Error(`Provider ${providerId} not found`)
-  }
-
+function getLanguageModelByConfig(providerConfig: LLMProviderConfig) {
   const customHeaders = CUSTOM_HEADER_MAP[providerConfig.provider]
   const connectionOptions = compactObject(providerConfig.connectionOptions ?? {})
 
@@ -103,6 +93,25 @@ async function getLanguageModelById(providerId: string) {
   return provider.languageModel(modelId)
 }
 
+async function getLanguageModelById(providerId: string) {
+  const config = await storage.getItem<Config>(`local:${CONFIG_STORAGE_KEY}`)
+  if (!config) {
+    throw new Error("Config not found")
+  }
+
+  const LLMProvidersConfig = getLLMProvidersConfig(config.providersConfig)
+  const providerConfig = getProviderConfigById(LLMProvidersConfig, providerId)
+  if (!providerConfig) {
+    throw new Error(`Provider ${providerId} not found`)
+  }
+
+  return getLanguageModelByConfig(providerConfig)
+}
+
 export async function getModelById(providerId: string) {
   return getLanguageModelById(providerId)
+}
+
+export async function getModelByConfig(providerConfig: LLMProviderConfig) {
+  return getLanguageModelByConfig(providerConfig)
 }

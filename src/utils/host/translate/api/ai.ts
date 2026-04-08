@@ -3,7 +3,7 @@ import type { ArticleContent } from "@/types/content"
 import type { TranslatePromptOptions, TranslatePromptResult } from "@/utils/prompts/translate"
 import { generateText } from "ai"
 import { extractAISDKErrorMessage } from "@/utils/error/extract-message"
-import { getModelById } from "@/utils/providers/model"
+import { getModelByConfig } from "@/utils/providers/model"
 import { resolveModelId } from "@/utils/providers/model-id"
 import { getProviderOptionsWithOverride } from "@/utils/providers/options"
 
@@ -22,9 +22,9 @@ export async function aiTranslate(
   promptResolver: PromptResolver,
   options?: { isBatch?: boolean, content?: ArticleContent },
 ) {
-  const { id: providerId, model: providerModel, provider, providerOptions: userProviderOptions, temperature } = providerConfig
+  const { model: providerModel, provider, providerOptions: userProviderOptions, temperature } = providerConfig
   const modelName = resolveModelId(providerModel)
-  const model = await getModelById(providerId)
+  const model = await getModelByConfig(providerConfig)
 
   const providerOptions = getProviderOptionsWithOverride(modelName ?? "", provider, userProviderOptions)
   const { systemPrompt, prompt } = await promptResolver(targetLangName, text, options)
