@@ -1,4 +1,4 @@
-import type { PlatformConfig } from "@/entrypoints/subtitles.content/platforms"
+import type { ControlsConfig, PlatformConfig } from "@/entrypoints/subtitles.content/platforms"
 import type { FeatureUsageContext } from "@/types/analytics"
 import type { SubtitlesFetcher } from "@/utils/subtitles/fetchers/types"
 import type { SubtitlesVideoContext } from "@/utils/subtitles/processor/translator"
@@ -11,9 +11,10 @@ import { getProviderConfigById } from "@/utils/config/helpers"
 import { getLocalConfig } from "@/utils/config/storage"
 import { HIDE_NATIVE_CAPTIONS_STYLE_ID, NAVIGATION_HANDLER_DELAY, TRANSLATE_BUTTON_CONTAINER_ID } from "@/utils/constants/subtitles"
 import { waitForElement } from "@/utils/dom/wait-for-element"
-import { ToastSubtitlesError } from "@/utils/subtitles/errors"
+import { OverlaySubtitlesError, ToastSubtitlesError } from "@/utils/subtitles/errors"
 import { optimizeSubtitles } from "@/utils/subtitles/processor/optimizer"
 import { buildSubtitlesSummaryContextHash, fetchSubtitlesSummary } from "@/utils/subtitles/processor/translator"
+import { downloadSubtitlesAsSrt } from "@/utils/subtitles/srt"
 import { subtitlesPositionAtom, subtitlesSettingsPanelOpenAtom, subtitlesStore } from "./atoms"
 import { renderSubtitlesTranslateButton } from "./renderer/render-translate-button"
 import { SegmentationPipeline } from "./segmentation-pipeline"
@@ -27,21 +28,22 @@ export class UniversalVideoAdapter {
   private subtitlesScheduler: SubtitlesScheduler | null = null
   private subtitlesFetcher: SubtitlesFetcher
 
-  private originalSubtitles: SubtitlesFragment[] = []
+  private sourceSubtitles: SubtitlesFragment[] = []
+  private sourceProcessedSubtitles: SubtitlesFragment[] = []
+  private sourceVideoId: string | null = null
+
+  private sessionSubtitles: SubtitlesFragment[] = []
+  private sessionProcessedFragments: SubtitlesFragment[] = []
+  private sessionVideoId: string | null = null
+
   private isNativeSubtitlesHidden = false
-  private cachedVideoId: string | null = null
-
-  // Non-AI path: processed fragments stored directly
-  private processedFragments: SubtitlesFragment[] = []
-  // AI path: segmentation pipeline handles processing
   private segmentationPipeline: SegmentationPipeline | null = null
-
   private translationCoordinator: TranslationCoordinator | null = null
   private subtitlesSummaryContextHash: string | null = null
 
   get videoIdChanged() {
     const currentVideoId = this.config.getVideoId?.()
-    return !!(this.cachedVideoId && currentVideoId && currentVideoId !== this.cachedVideoId)
+    return !!(this.sessionVideoId && currentVideoId && currentVideoId !== this.sessionVideoId)
   }
 
   constructor({
@@ -64,8 +66,21 @@ export class UniversalVideoAdapter {
     this.setupNavigationListener()
   }
 
+  getControlsConfig(): ControlsConfig | undefined {
+    return this.config.controls
+  }
+
   toggleSubtitlesManually = (enabled: boolean) => {
     this.toggleSubtitlesWithSource(enabled, "manual")
+  }
+
+  downloadSourceSubtitles = async () => {
+    const subtitles = this.getProcessedSourceSubtitles(await this.getSourceSubtitles())
+    await downloadSubtitlesAsSrt({
+      subtitles,
+      pageTitle: document.title || "",
+      videoId: this.config.getVideoId?.(),
+    })
   }
 
   private async restorePosition() {
@@ -78,13 +93,8 @@ export class UniversalVideoAdapter {
 
   private resetForNavigation() {
     this.destroyScheduler()
-    this.translationCoordinator?.stop()
-    this.translationCoordinator = null
-    this.processedFragments = []
-    this.segmentationPipeline = null
-    this.originalSubtitles = []
-    this.cachedVideoId = null
-    this.subtitlesSummaryContextHash = null
+    this.clearRuntimeSession()
+    this.clearSourceCache()
     this.subtitlesFetcher.cleanup()
     subtitlesStore.set(subtitlesSettingsPanelOpenAtom, false)
     this.showNativeSubtitles()
@@ -111,6 +121,63 @@ export class UniversalVideoAdapter {
     this.subtitlesScheduler = new SubtitlesScheduler({ videoElement: video })
     this.subtitlesScheduler.start()
     this.subtitlesScheduler.hide()
+  }
+
+  private async getSourceSubtitles(): Promise<SubtitlesFragment[]> {
+    const currentVideoId = this.config.getVideoId?.() ?? null
+    const useSameTrack = await this.subtitlesFetcher.shouldUseSameTrack()
+    if (useSameTrack && this.sourceVideoId === currentVideoId && this.sourceSubtitles.length > 0) {
+      return this.sourceSubtitles
+    }
+
+    if (!await this.subtitlesFetcher.hasAvailableSubtitles()) {
+      throw new OverlaySubtitlesError(i18n.t("subtitles.errors.noSubtitlesFound"))
+    }
+
+    const subtitles = await this.subtitlesFetcher.fetch()
+    if (subtitles.length === 0) {
+      throw new OverlaySubtitlesError(i18n.t("subtitles.errors.noSubtitlesFound"))
+    }
+
+    this.sourceVideoId = currentVideoId
+    this.clearSourceProcessedSubtitles()
+    this.sourceSubtitles = subtitles
+    return subtitles
+  }
+
+  private getProcessedSourceSubtitles(rawSubtitles: SubtitlesFragment[]): SubtitlesFragment[] {
+    if (this.sourceProcessedSubtitles.length > 0) {
+      return this.sourceProcessedSubtitles
+    }
+
+    const processedFragments = optimizeSubtitles(
+      rawSubtitles,
+      this.subtitlesFetcher.getSourceLanguage(),
+    )
+    this.sourceProcessedSubtitles = processedFragments
+
+    return processedFragments
+  }
+
+  private clearSourceProcessedSubtitles() {
+    this.sourceProcessedSubtitles = []
+  }
+
+  private clearSourceCache() {
+    this.sourceSubtitles = []
+    this.clearSourceProcessedSubtitles()
+    this.sourceVideoId = null
+  }
+
+  private clearRuntimeSession() {
+    this.translationCoordinator?.stop()
+    this.segmentationPipeline?.stop()
+    this.translationCoordinator = null
+    this.segmentationPipeline = null
+    this.sessionSubtitles = []
+    this.sessionProcessedFragments = []
+    this.sessionVideoId = null
+    this.subtitlesSummaryContextHash = null
   }
 
   private setupNavigationListener() {
@@ -234,11 +301,12 @@ export class UniversalVideoAdapter {
   private async startTranslation(analyticsContext?: FeatureUsageContext) {
     try {
       const currentVideoId = this.config.getVideoId?.() ?? ""
-      this.cachedVideoId = currentVideoId
+      const hasCurrentSession = this.translationCoordinator !== null && this.sessionVideoId === currentVideoId
+      this.sessionVideoId = currentVideoId
 
       const useSameTrack = await this.subtitlesFetcher.shouldUseSameTrack()
 
-      if (useSameTrack) {
+      if (useSameTrack && hasCurrentSession) {
         // Clear failed states to allow retry on resume
         this.translationCoordinator?.clearFailed()
         this.segmentationPipeline?.clearFailedStarts()
@@ -252,37 +320,13 @@ export class UniversalVideoAdapter {
         return
       }
 
-      this.translationCoordinator?.stop()
-      this.translationCoordinator = null
-      this.processedFragments = []
-      this.segmentationPipeline = null
+      this.clearRuntimeSession()
+      this.sessionVideoId = currentVideoId
       this.subtitlesScheduler?.reset()
-
-      if (!await this.subtitlesFetcher.hasAvailableSubtitles()) {
-        this.subtitlesScheduler?.setState("error", { message: i18n.t("subtitles.errors.noSubtitlesFound") })
-        if (analyticsContext) {
-          void trackFeatureUsed({
-            ...analyticsContext,
-            outcome: "failure",
-          })
-        }
-        return
-      }
 
       this.subtitlesScheduler?.setState("loading")
 
-      this.originalSubtitles = await this.subtitlesFetcher.fetch()
-
-      if (this.originalSubtitles.length === 0) {
-        this.subtitlesScheduler?.setState("error", { message: i18n.t("subtitles.errors.noSubtitlesFound") })
-        if (analyticsContext) {
-          void trackFeatureUsed({
-            ...analyticsContext,
-            outcome: "failure",
-          })
-        }
-        return
-      }
+      this.sessionSubtitles = await this.getSourceSubtitles()
 
       await this.processSubtitles()
       if (analyticsContext) {
@@ -324,27 +368,24 @@ export class UniversalVideoAdapter {
 
     const videoContext: SubtitlesVideoContext = {
       videoTitle: document.title || "",
-      subtitlesTextContent: this.originalSubtitles.map(f => f.text).join(""),
+      subtitlesTextContent: this.sessionSubtitles.map(f => f.text).join(""),
     }
 
     if (useAiSegmentation) {
       this.segmentationPipeline = new SegmentationPipeline({
-        rawFragments: this.originalSubtitles,
+        rawFragments: this.sessionSubtitles,
         getVideoElement: () => this.subtitlesScheduler?.getVideoElement() ?? null,
         getSourceLanguage: () => this.subtitlesFetcher.getSourceLanguage(),
       })
     }
     else {
-      this.processedFragments = optimizeSubtitles(
-        this.originalSubtitles,
-        this.subtitlesFetcher.getSourceLanguage(),
-      )
+      this.sessionProcessedFragments = this.getProcessedSourceSubtitles(this.sessionSubtitles)
     }
 
     this.translationCoordinator = new TranslationCoordinator({
       getFragments: () => this.segmentationPipeline
         ? this.segmentationPipeline.processedFragments
-        : this.processedFragments,
+        : this.sessionProcessedFragments,
       getVideoElement: () => scheduler.getVideoElement(),
       getCurrentState: () => scheduler.getState(),
       segmentationPipeline: this.segmentationPipeline,
