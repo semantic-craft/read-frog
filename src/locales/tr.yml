@@ -875,6 +875,8 @@ thinking:
 shortcutKeySelector:
   placeholder: Lütfen kısayolu girin
 subtitles:
+  actions:
+    downloadSource: Kaynak altyazıları indir
   state:
     loading: Read Frog altyazılar yükleniyor
     error: Bir hata oluştu
