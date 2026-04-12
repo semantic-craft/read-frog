@@ -20,7 +20,6 @@ import {
 } from "@/utils/constants/subtitles"
 import { getRandomUUID } from "@/utils/crypto-polyfill"
 import { OverlaySubtitlesError } from "@/utils/subtitles/errors"
-import { optimizeSubtitles } from "@/utils/subtitles/processor/optimizer"
 import { getYoutubeVideoId } from "@/utils/subtitles/video-id"
 import { detectFormat } from "./format-detector"
 import { filterNoiseFromEvents } from "./noise-filter"
@@ -431,6 +430,6 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
       ? parseScrollingAsrSubtitles(filteredEvents, this.sourceLanguage)
       : parseStandardSubtitles(filteredEvents)
 
-    return optimizeSubtitles(fragments, this.sourceLanguage)
+    return fragments
   }
 }
