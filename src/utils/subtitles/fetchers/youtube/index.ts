@@ -83,7 +83,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     let resolvedTrack = fastPathResult.track
     let events = fastPathResult.events
 
-    if (!events) {
+    if (this.shouldFallbackFromFastPath(events, fastPathResult.playerState)) {
       const fallbackResult = await this.fetchWithFallback(videoId, fastPathResult.track)
       resolvedTrack = fallbackResult.track
       events = fallbackResult.events
@@ -94,7 +94,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     }
 
     this.sourceLanguage = resolvedTrack.languageCode
-    this.subtitles = await this.processRawEvents(events)
+    this.subtitles = await this.processRawEvents(events!)
     this.cachedTrackHash = this.buildTrackHash(videoId, resolvedTrack)
 
     return this.subtitles
@@ -164,6 +164,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
 
   private async tryFastFetch(videoId: string): Promise<{
     currentHash: string | null
+    playerState: number
     track: CaptionTrack | null
     events: YoutubeTimedText[] | null
   }> {
@@ -171,6 +172,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     if (!response.success || !response.data) {
       return {
         currentHash: null,
+        playerState: -1,
         track: null,
         events: null,
       }
@@ -183,6 +185,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     if (!track) {
       return {
         currentHash,
+        playerState: playerData.playerState,
         track: null,
         events: null,
       }
@@ -192,6 +195,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
       const events = await this.fetchTrackEvents(track, playerData)
       return {
         currentHash,
+        playerState: playerData.playerState,
         track,
         events,
       }
@@ -199,10 +203,30 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     catch {
       return {
         currentHash,
+        playerState: playerData.playerState,
         track,
         events: null,
       }
     }
+  }
+
+  private shouldFallbackFromFastPath(
+    events: YoutubeTimedText[] | null,
+    playerState: number,
+  ): boolean {
+    if (!events) {
+      return true
+    }
+
+    if (playerState >= 1) {
+      return false
+    }
+
+    const textEventCount = events.filter(event =>
+      event.segs?.some(seg => seg.utf8.trim().length > 0),
+    ).length
+
+    return textEventCount <= 1
   }
 
   private async fetchWithFallback(

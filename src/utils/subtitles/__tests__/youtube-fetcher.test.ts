@@ -103,7 +103,11 @@ describe("youtube subtitles fetcher", () => {
       success: true,
       data: playerData,
     })
-    const fetchWithRetrySpy = vi.spyOn(fetcher as any, "fetchWithRetry").mockResolvedValue([])
+    const fastPathEvents = [
+      { tStartMs: 0, dDurationMs: 1000, segs: [{ utf8: "hello" }] },
+      { tStartMs: 1000, dDurationMs: 1000, segs: [{ utf8: "world" }] },
+    ]
+    const fetchWithRetrySpy = vi.spyOn(fetcher as any, "fetchWithRetry").mockResolvedValue(fastPathEvents)
     const processRawEventsSpy = vi.spyOn(fetcher as any, "processRawEvents").mockResolvedValue([])
     const waitForPlayerStateSpy = vi.spyOn(fetcher as any, "waitForPlayerState").mockResolvedValue(undefined)
     const getPlayerDataWithPotSpy = vi.spyOn(fetcher as any, "getPlayerDataWithPot").mockResolvedValue(playerData)
@@ -115,6 +119,100 @@ describe("youtube subtitles fetcher", () => {
     expect(processRawEventsSpy).toHaveBeenCalledTimes(1)
     expect(waitForPlayerStateSpy).not.toHaveBeenCalled()
     expect(getPlayerDataWithPotSpy).not.toHaveBeenCalled()
+  })
+
+  it("falls back when the fast fetch returns empty events before the player is ready", async () => {
+    const fetcher = new YoutubeSubtitlesFetcher()
+
+    Object.defineProperty(window, "location", {
+      value: { search: "?v=test123", origin: "https://www.youtube.com", pathname: "/watch", hostname: "www.youtube.com" },
+      writable: true,
+    })
+
+    const playerData = {
+      videoId: "test123",
+      captionTracks: [{
+        baseUrl: "https://www.youtube.com/api/timedtext?v=test123&lang=en",
+        languageCode: "en",
+        vssId: ".en",
+      }],
+      audioCaptionTracks: [],
+      device: null,
+      cver: null,
+      playerState: 0,
+      selectedTrackLanguageCode: "en",
+      cachedTimedtextUrl: null,
+    }
+    const fallbackEvents = [
+      { tStartMs: 0, dDurationMs: 1000, segs: [{ utf8: "hello" }] },
+      { tStartMs: 1000, dDurationMs: 1000, segs: [{ utf8: "world" }] },
+    ]
+
+    vi.spyOn(fetcher as any, "requestPlayerData").mockResolvedValue({
+      success: true,
+      data: playerData,
+    })
+    const fetchWithRetrySpy = vi.spyOn(fetcher as any, "fetchWithRetry")
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce(fallbackEvents)
+    const processRawEventsSpy = vi.spyOn(fetcher as any, "processRawEvents").mockResolvedValue([])
+    const waitForPlayerStateSpy = vi.spyOn(fetcher as any, "waitForPlayerState").mockResolvedValue(undefined)
+    const getPlayerDataWithPotSpy = vi.spyOn(fetcher as any, "getPlayerDataWithPot").mockResolvedValue(playerData)
+
+    await expect(fetcher.fetch()).resolves.toEqual([])
+
+    expect(fetchWithRetrySpy).toHaveBeenCalledTimes(2)
+    expect(processRawEventsSpy).toHaveBeenCalledWith(fallbackEvents)
+    expect(waitForPlayerStateSpy).toHaveBeenCalledTimes(1)
+    expect(getPlayerDataWithPotSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it("falls back when the fast fetch only returns the first subtitle before the player is ready", async () => {
+    const fetcher = new YoutubeSubtitlesFetcher()
+
+    Object.defineProperty(window, "location", {
+      value: { search: "?v=test123", origin: "https://www.youtube.com", pathname: "/watch", hostname: "www.youtube.com" },
+      writable: true,
+    })
+
+    const playerData = {
+      videoId: "test123",
+      captionTracks: [{
+        baseUrl: "https://www.youtube.com/api/timedtext?v=test123&lang=en",
+        languageCode: "en",
+        vssId: ".en",
+      }],
+      audioCaptionTracks: [],
+      device: null,
+      cver: null,
+      playerState: 0,
+      selectedTrackLanguageCode: "en",
+      cachedTimedtextUrl: null,
+    }
+    const fallbackEvents = [
+      { tStartMs: 0, dDurationMs: 1000, segs: [{ utf8: "hello" }] },
+      { tStartMs: 1000, dDurationMs: 1000, segs: [{ utf8: "world" }] },
+    ]
+
+    vi.spyOn(fetcher as any, "requestPlayerData").mockResolvedValue({
+      success: true,
+      data: playerData,
+    })
+    const fetchWithRetrySpy = vi.spyOn(fetcher as any, "fetchWithRetry")
+      .mockResolvedValueOnce([
+        { tStartMs: 0, dDurationMs: 1000, segs: [{ utf8: "hello" }] },
+      ])
+      .mockResolvedValueOnce(fallbackEvents)
+    const processRawEventsSpy = vi.spyOn(fetcher as any, "processRawEvents").mockResolvedValue([])
+    const waitForPlayerStateSpy = vi.spyOn(fetcher as any, "waitForPlayerState").mockResolvedValue(undefined)
+    const getPlayerDataWithPotSpy = vi.spyOn(fetcher as any, "getPlayerDataWithPot").mockResolvedValue(playerData)
+
+    await expect(fetcher.fetch()).resolves.toEqual([])
+
+    expect(fetchWithRetrySpy).toHaveBeenCalledTimes(2)
+    expect(processRawEventsSpy).toHaveBeenCalledWith(fallbackEvents)
+    expect(waitForPlayerStateSpy).toHaveBeenCalledTimes(1)
+    expect(getPlayerDataWithPotSpy).toHaveBeenCalledTimes(1)
   })
 
   it("returns cached subtitles before attempting a fast timedtext fetch", async () => {
