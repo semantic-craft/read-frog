@@ -145,14 +145,14 @@ describe("providerOptionsField", () => {
     )
   })
 
-  it("matches recommendations by model name even when the provider differs", () => {
+  it("does not show Alibaba-only Qwen recommendations for non-Alibaba providers", () => {
     render(
       <ProviderOptionsFieldHarness
         initialConfig={{
           ...baseProviderConfig,
-          provider: "groq",
+          provider: "cerebras",
           model: {
-            model: "qwen/qwen3-32b",
+            model: "qwen-3-235b-a22b-instruct-2507",
             isCustomModel: false,
             customModel: null,
           },
@@ -162,7 +162,7 @@ describe("providerOptionsField", () => {
 
     expect(screen.getByLabelText("provider-options-editor")).toHaveAttribute(
       "placeholder",
-      JSON.stringify({ enableThinking: false }, null, 2),
+      JSON.stringify({ field: "value" }, null, 2),
     )
   })
 

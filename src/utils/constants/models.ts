@@ -119,11 +119,12 @@ export function getOpenAIGPT5ReasoningEffortPolicy(model: string): OpenAIGPT5Rea
 /**
  * Model options configuration.
  * Flat list design: first match wins, more specific patterns should be placed first.
- * Options are matched by model name, not by provider.
+ * Options are matched by model name, with optional provider scoping for provider-specific defaults.
  */
 export const LLM_MODEL_OPTIONS: Array<{
   pattern: RegExp
   options: Record<string, JSONValue>
+  providers?: readonly string[]
 }> = [
   // Gemini - specific patterns first
   {
@@ -193,12 +194,12 @@ export const LLM_MODEL_OPTIONS: Array<{
     options: { thinking: { type: "disabled" }, reasoningHistory: "disabled" } satisfies MoonshotAIProviderOptions as Record<string, JSONValue>,
   },
 
-  // Qwen models - disable thinking by default.
-  // Keep this broad because recommendation matching is model-name based rather than provider-scoped.
+  // Alibaba Qwen models - disable thinking by default.
   // Keep explicit thinking-only variants (for example `qwq-*` and `*-thinking`) untouched.
   {
     pattern: /(?:^|\/)qwen(?!.*[/.-](?:thinking|qwq)(?:[/.-]|$)).*$/i,
     options: { enableThinking: false } satisfies AlibabaProviderOptions as Record<string, JSONValue>,
+    providers: ["alibaba"],
   },
 
   // GLM models - disable thinking (compatibility issues)

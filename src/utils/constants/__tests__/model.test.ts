@@ -181,12 +181,12 @@ describe("getProviderOptions", () => {
       expect(cerebrasOptions.cerebras?.reasoningEffort).toBe("none")
     })
 
-    it("should apply broadened Qwen defaults to provider-prefixed model ids", () => {
-      const groqOptions = getProviderOptions("qwen/qwen3-32b", "groq")
-      expect(groqOptions.groq?.enableThinking).toBe(false)
+    it("should keep Alibaba-only Qwen defaults off non-Alibaba providers", () => {
+      expect(getProviderOptions("qwen-3-235b-a22b-instruct-2507", "cerebras")).toEqual({})
 
-      const deepinfraOptions = getProviderOptions("Qwen/Qwen2.5-72B-Instruct", "deepinfra")
-      expect(deepinfraOptions.deepinfra?.enableThinking).toBe(false)
+      expect(getProviderOptions("qwen/qwen3-32b", "groq")).toEqual({})
+
+      expect(getProviderOptions("Qwen/Qwen2.5-72B-Instruct", "deepinfra")).toEqual({})
     })
 
     it("should apply broadened Kimi defaults to provider-prefixed model ids", () => {
@@ -233,6 +233,11 @@ describe("getProviderOptions", () => {
       expect(options).toEqual({ alibaba: { enableThinking: false } })
     })
 
+    it("should not fall back to Alibaba-only Qwen defaults for non-Alibaba providers", () => {
+      const options = getProviderOptionsWithOverride("qwen-3-235b-a22b-instruct-2507", "cerebras")
+      expect(options).toBeUndefined()
+    })
+
     it("should use user options as-is without merging matched defaults", () => {
       const options = getProviderOptionsWithOverride("qwen3-max", "alibaba", { foo: "bar" })
       expect(options).toEqual({ alibaba: { foo: "bar" } })
@@ -273,8 +278,8 @@ describe("getProviderOptions", () => {
 
   describe("recommendation metadata", () => {
     it("should expose the matched rule index for UI suggestion state", () => {
-      const gpt5Match = getRecommendedProviderOptionsMatch("gpt-5-mini")
-      const gpt51Match = getRecommendedProviderOptionsMatch("gpt-5.1")
+      const gpt5Match = getRecommendedProviderOptionsMatch("gpt-5-mini", "openai")
+      const gpt51Match = getRecommendedProviderOptionsMatch("gpt-5.1", "openai")
 
       expect(gpt5Match?.matchIndex).toBeTypeOf("number")
       expect(gpt51Match?.matchIndex).toBeTypeOf("number")
@@ -282,18 +287,20 @@ describe("getProviderOptions", () => {
     })
 
     it("should return undefined for models without recommendations", () => {
-      expect(getRecommendedProviderOptionsMatch("plain-model")).toBeUndefined()
+      expect(getRecommendedProviderOptionsMatch("plain-model", "openai")).toBeUndefined()
     })
 
     it("should expose recommendation matches for newly covered defaults", () => {
-      expect(getRecommendedProviderOptionsMatch("kimi-k2-turbo")?.options).toEqual({
+      expect(getRecommendedProviderOptionsMatch("kimi-k2-turbo", "moonshotai")?.options).toEqual({
         thinking: { type: "disabled" },
         reasoningHistory: "disabled",
       })
 
-      expect(getRecommendedProviderOptionsMatch("qwen3.5-flash")?.options).toEqual({
+      expect(getRecommendedProviderOptionsMatch("qwen3.5-flash", "alibaba")?.options).toEqual({
         enableThinking: false,
       })
+
+      expect(getRecommendedProviderOptionsMatch("qwen-3-235b-a22b-instruct-2507", "cerebras")).toBeUndefined()
     })
   })
 })
