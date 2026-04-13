@@ -187,6 +187,9 @@ describe("getProviderOptions", () => {
 
       const deepinfraOptions = getProviderOptions("Qwen/Qwen2.5-72B-Instruct", "deepinfra")
       expect(deepinfraOptions.deepinfra?.enableThinking).toBe(false)
+
+      const cerebrasOptions = getProviderOptions("qwen-3-32b", "cerebras")
+      expect(cerebrasOptions).toEqual({})
     })
 
     it("should apply broadened Kimi defaults to provider-prefixed model ids", () => {
@@ -236,6 +239,20 @@ describe("getProviderOptions", () => {
     it("should use user options as-is without merging matched defaults", () => {
       const options = getProviderOptionsWithOverride("qwen3-max", "alibaba", { foo: "bar" })
       expect(options).toEqual({ alibaba: { foo: "bar" } })
+    })
+
+    it("should strip unsupported Cerebras provider options from user overrides", () => {
+      const options = getProviderOptionsWithOverride("qwen-3-32b", "cerebras", {
+        enableThinking: false,
+        foo: "bar",
+      })
+
+      expect(options).toEqual({ cerebras: { foo: "bar" } })
+    })
+
+    it("should drop unsupported Cerebras-only recommendations when no user override exists", () => {
+      const options = getProviderOptionsWithOverride("qwen-3-32b", "cerebras")
+      expect(options).toBeUndefined()
     })
 
     it("should normalize common OpenAI-compatible snake_case aliases", () => {
@@ -292,6 +309,13 @@ describe("getProviderOptions", () => {
       })
 
       expect(getRecommendedProviderOptionsMatch("qwen3.5-flash")?.options).toEqual({
+        enableThinking: false,
+      })
+    })
+
+    it("should suppress recommendation metadata when Cerebras strips all matched options", () => {
+      expect(getRecommendedProviderOptionsMatch("qwen-3-32b", "cerebras")).toBeUndefined()
+      expect(getRecommendedProviderOptionsMatch("qwen/qwen3-32b", "groq")?.options).toEqual({
         enableThinking: false,
       })
     })
