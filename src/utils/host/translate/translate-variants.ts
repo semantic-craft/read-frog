@@ -76,10 +76,11 @@ async function translateTextUsingPageConfig(
   // Skip translation if text is in skipLanguages list (page translation only)
   const { skipLanguages } = config.translate.page
   if (skipLanguages.length > 0 && preparedText.length >= MIN_LENGTH_FOR_SKIP_LLM_DETECTION) {
+    const enableSkipLanguageLLMDetection = config.languageDetection.mode === "llm" && !isLLMProviderConfig(providerConfig)
     const shouldSkip = await shouldSkipByLanguage(
       preparedText,
       skipLanguages,
-      config.languageDetection.mode === "llm",
+      enableSkipLanguageLLMDetection,
     )
     if (shouldSkip) {
       logger.info(`translateTextForPage: skipping translation because text is in skip language list. text: ${preparedText}`)
