@@ -1,4 +1,5 @@
 import type { FeatureUsageContext } from "@/types/analytics"
+import type { Config } from "@/types/config/config"
 import { ANALYTICS_FEATURE, ANALYTICS_SURFACE } from "@/types/analytics"
 import { isLLMProviderConfig } from "@/types/config/provider"
 import { createFeatureUsageContext, trackFeatureUsed } from "@/utils/analytics"
@@ -7,7 +8,7 @@ import { getLocalConfig } from "@/utils/config/storage"
 import { CONTENT_WRAPPER_CLASS } from "@/utils/constants/dom-labels"
 import { resolveProviderConfig } from "@/utils/constants/feature-providers"
 import { getRandomUUID } from "@/utils/crypto-polyfill"
-import { hasNoWalkAncestor, isDontWalkIntoButTranslateAsChildElement, isHTMLElement } from "@/utils/host/dom/filter"
+import { hasNoWalkAncestor, isDontWalkIntoAndDontTranslateAsChildElement, isDontWalkIntoButTranslateAsChildElement, isHTMLElement } from "@/utils/host/dom/filter"
 import { deepQueryTopLevelSelector } from "@/utils/host/dom/find"
 import { walkAndLabelElement } from "@/utils/host/dom/traversal"
 import { removeAllTranslatedWrapperNodes, translateWalkedElement } from "@/utils/host/translate/node-manipulation"
@@ -59,7 +60,8 @@ export class PageTranslationManager implements IPageTranslationManager {
   private mutationObservers: MutationObserver[] = []
   private walkId: string | null = null
   private intersectionOptions: IntersectionObserverInit
-  private dontWalkIntoElementsCache = new WeakSet<HTMLElement>()
+  private walkBlockedElementsCache = new WeakSet<HTMLElement>()
+  private activeConfig: Config | null = null
   private titleObserver: MutationObserver | null = null
   private lastSourceTitle: string | null = null
   private lastAppliedTranslatedTitle: string | null = null
@@ -125,6 +127,7 @@ export class PageTranslationManager implements IPageTranslationManager {
         enabled: true,
       })
 
+      this.activeConfig = config
       this.isPageTranslating = true
       await this.primeDocumentTitleContext(
         config.translate.enableAIContentAware && isLLMProviderConfig(providerConfig),
@@ -189,7 +192,8 @@ export class PageTranslationManager implements IPageTranslationManager {
 
     this.isPageTranslating = false
     this.walkId = null
-    this.dontWalkIntoElementsCache = new WeakSet()
+    this.walkBlockedElementsCache = new WeakSet()
+    this.activeConfig = null
     this.stopDocumentTitleTracking()
 
     if (this.intersectionObserver) {
@@ -396,6 +400,7 @@ export class PageTranslationManager implements IPageTranslationManager {
       logger.error("Global config is not initialized")
       return
     }
+    this.activeConfig = config
 
     // Skip if container has an ancestor that should not be walked into
     if (hasNoWalkAncestor(container, config))
@@ -454,33 +459,45 @@ export class PageTranslationManager implements IPageTranslationManager {
   }
 
   /**
-   * Handle style/class attribute changes and only trigger observation
-   * when element transitions from "don't walk into" to "walkable"
+   * Track whether an element is currently blocked from traversal.
+   */
+  private isWalkBlockedElement(element: HTMLElement): boolean {
+    if (isDontWalkIntoButTranslateAsChildElement(element)) {
+      return true
+    }
+
+    if (!this.activeConfig) {
+      return false
+    }
+
+    return isDontWalkIntoAndDontTranslateAsChildElement(element, this.activeConfig)
+  }
+
+  /**
+   * Handle attribute changes and only trigger observation
+   * when element transitions from blocked to walkable.
    */
   private didChangeToWalkable(element: HTMLElement): boolean {
-    const wasDontWalkInto = this.dontWalkIntoElementsCache.has(element)
-    const isDontWalkIntoNow = isDontWalkIntoButTranslateAsChildElement(element)
+    const wasWalkBlocked = this.walkBlockedElementsCache.has(element)
+    const isWalkBlockedNow = this.isWalkBlockedElement(element)
 
     // Update cache with current state
-    if (isDontWalkIntoNow) {
-      this.dontWalkIntoElementsCache.add(element)
+    if (isWalkBlockedNow) {
+      this.walkBlockedElementsCache.add(element)
     }
     else {
-      this.dontWalkIntoElementsCache.delete(element)
+      this.walkBlockedElementsCache.delete(element)
     }
 
-    // Only trigger observation if element transitioned from "don't walk into" to "walkable"
-    // wasDontWalkInto === true means it was previously not walkable
-    // isDontWalkIntoNow === false means it's now walkable
-    return wasDontWalkInto === true && isDontWalkIntoNow === false
+    return wasWalkBlocked === true && isWalkBlockedNow === false
   }
 
   /**
    * Initialize walkability state for an element and its descendants
    */
   private addDontWalkIntoElements(element: HTMLElement): void {
-    const dontWalkIntoElements = deepQueryTopLevelSelector(element, isDontWalkIntoButTranslateAsChildElement)
-    dontWalkIntoElements.forEach(el => this.dontWalkIntoElementsCache.add(el))
+    const walkBlockedElements = deepQueryTopLevelSelector(element, el => this.isWalkBlockedElement(el))
+    walkBlockedElements.forEach(el => this.walkBlockedElementsCache.add(el))
   }
 
   /**
@@ -500,7 +517,10 @@ export class PageTranslationManager implements IPageTranslationManager {
         }
         else if (
           rec.type === "attributes"
-          && (rec.attributeName === "style" || rec.attributeName === "class")
+          && (rec.attributeName === "style"
+            || rec.attributeName === "class"
+            || rec.attributeName === "hidden"
+            || rec.attributeName === "aria-hidden")
         ) {
           const el = rec.target
           if (isHTMLElement(el) && this.didChangeToWalkable(el)) {
@@ -514,7 +534,7 @@ export class PageTranslationManager implements IPageTranslationManager {
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ["style", "class"],
+      attributeFilter: ["style", "class", "hidden", "aria-hidden"],
     })
 
     this.mutationObservers.push(mutationObserver)
