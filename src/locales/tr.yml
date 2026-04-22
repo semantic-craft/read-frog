@@ -877,6 +877,7 @@ shortcutKeySelector:
 subtitles:
   actions:
     downloadSource: Kaynak altyazıları indir
+    backToMenu: Altyazı menüsüne geri dön
   state:
     loading: Read Frog altyazılar yükleniyor
     error: Bir hata oluştu

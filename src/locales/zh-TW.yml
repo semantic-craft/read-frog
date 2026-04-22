@@ -877,6 +877,7 @@ shortcutKeySelector:
 subtitles:
   actions:
     downloadSource: 下載原始字幕
+    backToMenu: 返回字幕選單
   state:
     loading: Read Frog 字幕載入中
     error: 發生錯誤

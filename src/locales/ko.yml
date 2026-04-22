@@ -877,6 +877,7 @@ shortcutKeySelector:
 subtitles:
   actions:
     downloadSource: 원본 자막 다운로드
+    backToMenu: 자막 메뉴로 돌아가기
   state:
     loading: Read Frog 자막 로딩 중
     error: 오류 발생

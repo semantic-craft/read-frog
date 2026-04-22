@@ -992,6 +992,7 @@ shortcutKeySelector:
 subtitles:
   actions:
     downloadSource: Download source subtitles
+    backToMenu: Back to subtitles menu
   state:
     loading: Read Frog loading captions
     error: Error occurred

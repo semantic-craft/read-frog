@@ -877,6 +877,7 @@ shortcutKeySelector:
 subtitles:
   actions:
     downloadSource: Скачать исходные субтитры
+    backToMenu: Назад в меню субтитров
   state:
     loading: Read Frog загрузка субтитров
     error: Произошла ошибка

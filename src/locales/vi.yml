@@ -877,6 +877,7 @@ shortcutKeySelector:
 subtitles:
   actions:
     downloadSource: Tải phụ đề gốc
+    backToMenu: Quay lại menu phụ đề
   state:
     loading: Read Frog đang tải phụ đề
     error: Đã xảy ra lỗi

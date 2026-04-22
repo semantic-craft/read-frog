@@ -992,6 +992,7 @@ shortcutKeySelector:
 subtitles:
   actions:
     downloadSource: 下载原字幕
+    backToMenu: 返回字幕菜单
   state:
     loading: Read Frog 字幕加载中
     error: 发生错误
