@@ -63,6 +63,21 @@ const CUSTOM_HEADER_MAP: Partial<Record<keyof typeof CREATE_AI_MAPPER, Record<st
   anthropic: { "anthropic-dangerous-direct-browser-access": "true" },
 }
 
+function isStringRecord(value: unknown): value is Record<string, string> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    && Object.values(value).every(item => typeof item === "string")
+}
+
+function compactStringRecord(record?: Record<string, string>) {
+  if (!record) {
+    return undefined
+  }
+
+  return Object.fromEntries(
+    Object.entries(record).filter(([, value]) => value !== ""),
+  ) as Record<string, string>
+}
+
 async function getLanguageModelById(providerId: string) {
   const config = await storage.getItem<Config>(`local:${CONFIG_STORAGE_KEY}`)
   if (!config) {
@@ -76,7 +91,13 @@ async function getLanguageModelById(providerId: string) {
   }
 
   const customHeaders = CUSTOM_HEADER_MAP[providerConfig.provider]
-  const connectionOptions = compactObject(providerConfig.connectionOptions ?? {})
+  const { headers: rawHeaders, ...rawConnectionOptions } = providerConfig.connectionOptions ?? {}
+  const connectionOptions = compactObject(rawConnectionOptions)
+  const userHeaders = isStringRecord(rawHeaders) ? compactStringRecord(rawHeaders) : undefined
+  const mergedHeaders = compactStringRecord({
+    ...(customHeaders ?? {}),
+    ...(userHeaders ?? {}),
+  })
 
   const provider = isCustomLLMProvider(providerConfig.provider)
     ? CREATE_AI_MAPPER[providerConfig.provider]({
@@ -85,13 +106,13 @@ async function getLanguageModelById(providerId: string) {
         baseURL: providerConfig.baseURL ?? "",
         supportsStructuredOutputs: true,
         ...(providerConfig.apiKey && { apiKey: providerConfig.apiKey }),
-        ...(customHeaders && { headers: customHeaders }),
+        ...(mergedHeaders && { headers: mergedHeaders }),
       })
     : CREATE_AI_MAPPER[providerConfig.provider]({
         ...connectionOptions,
         ...(providerConfig.baseURL && { baseURL: providerConfig.baseURL }),
         ...(providerConfig.apiKey && { apiKey: providerConfig.apiKey }),
-        ...(customHeaders && { headers: customHeaders }),
+        ...(mergedHeaders && { headers: mergedHeaders }),
       })
 
   const modelId = resolveModelId(providerConfig.model)

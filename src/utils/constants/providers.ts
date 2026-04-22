@@ -6,7 +6,7 @@ import deeplxLogoDark from "@/assets/providers/deeplx-dark.svg?url&no-inline"
 import deeplxLogoLight from "@/assets/providers/deeplx-light.svg?url&no-inline"
 import tensdaqLogoColor from "@/assets/providers/tensdaq-color.svg?url&no-inline"
 import { env } from "@/env"
-import { API_PROVIDER_TYPES, CUSTOM_LLM_PROVIDER_TYPES, NON_API_TRANSLATE_PROVIDERS, NON_API_TRANSLATE_PROVIDERS_MAP, NON_CUSTOM_LLM_PROVIDER_TYPES, PURE_API_PROVIDER_TYPES, PURE_TRANSLATE_PROVIDERS, TRANSLATE_PROVIDER_TYPES } from "@/types/config/provider"
+import { API_PROVIDER_TYPES, CUSTOM_LLM_PROVIDER_TYPES, LLM_PROVIDER_TYPES, NON_API_TRANSLATE_PROVIDERS, NON_API_TRANSLATE_PROVIDERS_MAP, NON_CUSTOM_LLM_PROVIDER_TYPES, PURE_API_PROVIDER_TYPES, PURE_TRANSLATE_PROVIDERS, TRANSLATE_PROVIDER_TYPES } from "@/types/config/provider"
 import { omit, pick } from "@/types/utils"
 import { getLobeIconsCDNUrlFn } from "../logo"
 
@@ -565,18 +565,35 @@ export const DEFAULT_PROVIDER_CONFIG = {
 export interface ConnectionOptionFieldDef {
   key: string
   labelKey: string
-  type: "text" | "password"
+  type: "text" | "password" | "json"
   placeholder?: string
 }
+
+const HEADERS_CONNECTION_OPTION_FIELD = {
+  key: "headers",
+  labelKey: "headers",
+  type: "json",
+  placeholder: JSON.stringify({
+    "HTTP-Referer": "https://example.com",
+    "X-Title": "Read Frog",
+  }, null, 2),
+} as const satisfies ConnectionOptionFieldDef
 
 // https://ai-sdk.dev/providers/ai-sdk-providers
 export const PROVIDER_CONNECTION_OPTIONS_FIELDS: Partial<
   Record<LLMProviderTypes, ConnectionOptionFieldDef[]>
-> = {
-  bedrock: [
-    { key: "region", labelKey: "region", type: "text", placeholder: "us-east-1" },
-  ],
-}
+> = Object.fromEntries(
+  LLM_PROVIDER_TYPES.map((provider) => {
+    if (provider === "bedrock") {
+      return [provider, [
+        { key: "region", labelKey: "region", type: "text", placeholder: "us-east-1" },
+        HEADERS_CONNECTION_OPTION_FIELD,
+      ]]
+    }
+
+    return [provider, [HEADERS_CONNECTION_OPTION_FIELD]]
+  }),
+)
 
 export const DEFAULT_PROVIDER_CONFIG_LIST: ProvidersConfig = [
   DEFAULT_PROVIDER_CONFIG["microsoft-translate"],

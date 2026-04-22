@@ -132,6 +132,7 @@ options:
       advancedOptions: Tùy chọn nâng cao
       connectionOptionLabels:
         region: Khu vực
+        headers: Header
       temperature: Nhiệt độ
       temperatureHint: Kiểm soát tính ngẫu nhiên trong phản hồi. Giá trị thấp (0) mang tính xác định hơn, giá trị cao mang tính sáng tạo hơn. Phạm vi thay đổi theo nhà cung cấp. Để trống để sử dụng giá trị mặc định của nhà cung cấp.
       providerOptions: Tùy chọn nhà cung cấp

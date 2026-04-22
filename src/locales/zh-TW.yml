@@ -132,6 +132,7 @@ options:
       advancedOptions: 進階選項
       connectionOptionLabels:
         region: 區域
+        headers: 請求標頭
       temperature: 溫度
       temperatureHint: 控制回應的隨機性。較低的值（0）更具確定性，較高的值更具創造性。範圍因提供者而異。留空則使用提供者預設值。
       providerOptions: 提供者選項

@@ -132,6 +132,7 @@ options:
       advancedOptions: Gelişmiş Seçenekler
       connectionOptionLabels:
         region: Bölge
+        headers: Başlıklar
       temperature: Sıcaklık
       temperatureHint: Yanıtlardaki rastgeleliği kontrol eder. Düşük değerler (0) daha belirleyici, yüksek değerler daha yaratıcıdır. Aralık sağlayıcıya göre değişir. Sağlayıcı varsayılanını kullanmak için boş bırakın.
       providerOptions: Sağlayıcı Seçenekleri
