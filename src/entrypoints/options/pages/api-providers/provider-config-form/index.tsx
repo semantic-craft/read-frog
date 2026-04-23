@@ -160,13 +160,13 @@ export function ProviderConfigForm() {
 
           <APIKeyField form={form} />
           <BaseURLField form={form} />
-          <ConnectionOptionsField form={form} />
           {isTranslateProviderType && (
             <TranslateModelSelector form={form} />
           )}
           <FeatureProviderSection form={form} />
           {isLLM && (
             <AdvancedOptionsSection>
+              <ConnectionOptionsField form={form} />
               <TemperatureField form={form} />
               <ProviderOptionsField form={form} />
             </AdvancedOptionsSection>

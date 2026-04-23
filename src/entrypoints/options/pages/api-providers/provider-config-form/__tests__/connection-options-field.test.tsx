@@ -3,6 +3,7 @@ import type { APIProviderConfig } from "@/types/config/provider"
 import { act, fireEvent, render, screen } from "@testing-library/react"
 import { useEffect, useState } from "react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { AdvancedOptionsSection } from "../components/advanced-options-section"
 import { ConnectionOptionsField } from "../connection-options-field"
 import { formOpts, useAppForm } from "../form"
 
@@ -44,6 +45,21 @@ const baseProviderConfig: APIProviderConfig = {
   connectionOptions: undefined,
 }
 
+const bedrockProviderConfig: APIProviderConfig = {
+  id: "provider-2",
+  name: "Bedrock",
+  enabled: true,
+  provider: "bedrock",
+  model: {
+    model: "us.meta.llama4-scout-17b-instruct-v1:0",
+    isCustomModel: false,
+    customModel: null,
+  },
+  connectionOptions: {
+    region: "us-west-2",
+  },
+}
+
 function ConnectionOptionsFieldHarness({ initialConfig }: { initialConfig: APIProviderConfig }) {
   const [providerConfig, setProviderConfig] = useState(initialConfig)
   const form = useAppForm({
@@ -61,6 +77,56 @@ function ConnectionOptionsFieldHarness({ initialConfig }: { initialConfig: APIPr
   return (
     <>
       <ConnectionOptionsField form={form} />
+      <output aria-label="persisted-connection-options">{JSON.stringify(providerConfig.connectionOptions ?? null)}</output>
+    </>
+  )
+}
+
+function ConnectionOptionsFieldSwitchHarness() {
+  const [providerConfig, setProviderConfig] = useState(baseProviderConfig)
+  const form = useAppForm({
+    ...formOpts,
+    defaultValues: providerConfig,
+    onSubmit: async ({ value }) => {
+      setProviderConfig(value)
+    },
+  })
+
+  useEffect(() => {
+    form.reset(providerConfig)
+  }, [providerConfig, form])
+
+  return (
+    <>
+      <button type="button" onClick={() => setProviderConfig(bedrockProviderConfig)}>
+        switch-provider
+      </button>
+      <ConnectionOptionsField form={form} />
+      <output aria-label="persisted-provider-id">{providerConfig.id}</output>
+      <output aria-label="persisted-connection-options">{JSON.stringify(providerConfig.connectionOptions ?? null)}</output>
+    </>
+  )
+}
+
+function ConnectionOptionsFieldInAdvancedOptionsHarness() {
+  const [providerConfig, setProviderConfig] = useState(baseProviderConfig)
+  const form = useAppForm({
+    ...formOpts,
+    defaultValues: providerConfig,
+    onSubmit: async ({ value }) => {
+      setProviderConfig(value)
+    },
+  })
+
+  useEffect(() => {
+    form.reset(providerConfig)
+  }, [providerConfig, form])
+
+  return (
+    <>
+      <AdvancedOptionsSection>
+        <ConnectionOptionsField form={form} />
+      </AdvancedOptionsSection>
       <output aria-label="persisted-connection-options">{JSON.stringify(providerConfig.connectionOptions ?? null)}</output>
     </>
   )
@@ -104,6 +170,41 @@ describe("connectionOptionsField", () => {
     )
   })
 
+  it("preserves unrelated connectionOptions keys while saving edited fields", async () => {
+    render(
+      <ConnectionOptionsFieldHarness
+        initialConfig={{
+          ...baseProviderConfig,
+          connectionOptions: {
+            timeoutMs: 30000,
+          },
+        }}
+      />,
+    )
+
+    fireEvent.change(screen.getByLabelText("connection-option-headers"), {
+      target: {
+        value: JSON.stringify({
+          Authorization: "Bearer token",
+        }),
+      },
+    })
+
+    await act(async () => {
+      vi.advanceTimersByTime(500)
+      await Promise.resolve()
+    })
+
+    expect(screen.getByLabelText("persisted-connection-options")).toHaveTextContent(
+      JSON.stringify({
+        timeoutMs: 30000,
+        headers: {
+          Authorization: "Bearer token",
+        },
+      }),
+    )
+  })
+
   it("shows a validation error and does not save malformed headers JSON", async () => {
     render(<ConnectionOptionsFieldHarness initialConfig={baseProviderConfig} />)
 
@@ -117,5 +218,61 @@ describe("connectionOptionsField", () => {
 
     expect(screen.getByText("options.apiProviders.form.invalidJson")).toBeInTheDocument()
     expect(screen.getByLabelText("persisted-connection-options")).toHaveTextContent("null")
+  })
+
+  it("keeps debounced connection-option autosave alive while advanced options is collapsed", async () => {
+    render(<ConnectionOptionsFieldInAdvancedOptionsHarness />)
+
+    const advancedTrigger = screen.getByText("options.apiProviders.form.advancedOptions")
+    fireEvent.click(advancedTrigger)
+
+    fireEvent.change(screen.getByLabelText("connection-option-headers"), {
+      target: {
+        value: JSON.stringify({
+          "X-Title": "Read Frog",
+        }),
+      },
+    })
+
+    fireEvent.click(advancedTrigger)
+
+    await act(async () => {
+      vi.advanceTimersByTime(500)
+      await Promise.resolve()
+    })
+
+    expect(screen.getByLabelText("persisted-connection-options")).toHaveTextContent(
+      JSON.stringify({
+        headers: {
+          "X-Title": "Read Frog",
+        },
+      }),
+    )
+  })
+
+  it("does not submit stale debounced headers when switching providers", async () => {
+    render(<ConnectionOptionsFieldSwitchHarness />)
+
+    fireEvent.change(screen.getByLabelText("connection-option-headers"), {
+      target: {
+        value: JSON.stringify({
+          "X-Title": "Read Frog",
+        }),
+      },
+    })
+
+    fireEvent.click(screen.getByRole("button", { name: "switch-provider" }))
+
+    await act(async () => {
+      vi.advanceTimersByTime(500)
+      await Promise.resolve()
+    })
+
+    expect(screen.getByLabelText("persisted-provider-id")).toHaveTextContent("provider-2")
+    expect(screen.getByLabelText("persisted-connection-options")).toHaveTextContent(
+      JSON.stringify({
+        region: "us-west-2",
+      }),
+    )
   })
 })

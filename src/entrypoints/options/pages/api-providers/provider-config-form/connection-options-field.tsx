@@ -20,6 +20,42 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
 }
 
+function getDraftValues(
+  fieldDefs: ConnectionOptionFieldDef[] | null,
+  connectionOptions: APIProviderConfig["connectionOptions"],
+): Record<string, string> {
+  if (!fieldDefs) {
+    return {}
+  }
+
+  return Object.fromEntries(
+    fieldDefs.map((def) => {
+      const currentValue = connectionOptions?.[def.key]
+      return [def.key, def.type === "json" ? toJsonInput(currentValue) : String(currentValue ?? "")]
+    }),
+  )
+}
+
+function sortObjectKeys(value: unknown): unknown {
+  if (!isPlainObject(value)) {
+    return value
+  }
+
+  return Object.fromEntries(
+    Object.entries(value)
+      .sort(([leftKey], [rightKey]) => leftKey.localeCompare(rightKey))
+      .map(([key, item]) => [key, sortObjectKeys(item)]),
+  )
+}
+
+function toComparableConnectionOptions(value: APIProviderConfig["connectionOptions"]) {
+  if (!value) {
+    return "null"
+  }
+
+  return JSON.stringify(sortObjectKeys(compactObject(value)))
+}
+
 function parseJsonField(
   def: ConnectionOptionFieldDef,
   input: string,
@@ -60,48 +96,31 @@ export const ConnectionOptionsField = withForm({
       return defs && defs.length > 0 ? defs : null
     }, [providerType])
 
-    const [draftValues, setDraftValues] = useState<Record<string, string>>(() => {
-      if (!fieldDefs) {
-        return {}
-      }
-
-      return Object.fromEntries(
-        fieldDefs.map((def) => {
-          const currentValue = providerConfig.connectionOptions?.[def.key]
-          return [def.key, def.type === "json" ? toJsonInput(currentValue) : String(currentValue ?? "")]
-        }),
-      )
-    })
+    const [draftValues, setDraftValues] = useState<Record<string, string>>(() =>
+      getDraftValues(fieldDefs, providerConfig.connectionOptions),
+    )
 
     const syncDraftValues = useEffectEvent(() => {
-      if (!fieldDefs) {
-        // eslint-disable-next-line react/set-state-in-effect
-        setDraftValues({})
-        return
-      }
-
       // eslint-disable-next-line react/set-state-in-effect
-      setDraftValues(Object.fromEntries(
-        fieldDefs.map((def) => {
-          const currentValue = providerConfig.connectionOptions?.[def.key]
-          return [def.key, def.type === "json" ? toJsonInput(currentValue) : String(currentValue ?? "")]
-        }),
-      ))
+      setDraftValues(getDraftValues(fieldDefs, providerConfig.connectionOptions))
     })
 
     useEffect(() => {
       syncDraftValues()
     }, [providerConfig.id, fieldDefs])
 
-    const debouncedDraftValues = useDebouncedValue(draftValues, 500)
+    const debouncedDraftState = useDebouncedValue({
+      providerId: providerConfig.id,
+      values: draftValues,
+    }, 500)
 
     const parsedDraftValues = useMemo<Record<string, ParsedConnectionOptionValue> | null>(() => {
-      if (!fieldDefs) {
+      if (!fieldDefs || debouncedDraftState.providerId !== providerConfig.id) {
         return null
       }
 
       return Object.fromEntries(fieldDefs.map((def) => {
-        const rawValue = debouncedDraftValues[def.key] ?? ""
+        const rawValue = debouncedDraftState.values[def.key] ?? ""
         if (def.type === "json") {
           return [def.key, parseJsonField(def, rawValue)]
         }
@@ -114,7 +133,22 @@ export const ConnectionOptionsField = withForm({
           } satisfies ParsedConnectionOptionValue,
         ]
       }))
-    }, [debouncedDraftValues, fieldDefs])
+    }, [debouncedDraftState, fieldDefs, providerConfig.id])
+
+    const getPreservedConnectionOptions = useEffectEvent(() => {
+      if (!fieldDefs) {
+        return {}
+      }
+
+      const renderedKeys = new Set(fieldDefs.map(def => def.key))
+      return Object.fromEntries(
+        Object.entries(providerConfig.connectionOptions ?? {}).filter(([key]) => !renderedKeys.has(key)),
+      )
+    })
+
+    const getComparableConnectionOptions = useEffectEvent(() =>
+      toComparableConnectionOptions(providerConfig.connectionOptions),
+    )
 
     useEffect(() => {
       if (!parsedDraftValues) {
@@ -130,14 +164,17 @@ export const ConnectionOptionsField = withForm({
         entry,
       ): entry is [string, Extract<ParsedConnectionOptionValue, { valid: true }>] => entry[1].valid)
 
-      const nextConnectionOptions = compactObject(
-        Object.fromEntries(validParsedDraftValues.map(([key, result]) => [key, result.value])),
-      )
+      const nextConnectionOptions = compactObject({
+        ...getPreservedConnectionOptions(),
+        ...Object.fromEntries(validParsedDraftValues.map(([key, result]) => [key, result.value])),
+      })
+      const nextValue = Object.keys(nextConnectionOptions).length > 0 ? nextConnectionOptions : undefined
 
-      form.setFieldValue(
-        "connectionOptions",
-        Object.keys(nextConnectionOptions).length > 0 ? nextConnectionOptions : undefined,
-      )
+      if (toComparableConnectionOptions(nextValue) === getComparableConnectionOptions()) {
+        return
+      }
+
+      form.setFieldValue("connectionOptions", nextValue)
       void form.handleSubmit()
     }, [parsedDraftValues, form])
 
