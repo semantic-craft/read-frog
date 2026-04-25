@@ -11,16 +11,17 @@ let cachedWebPageContext: CachedWebPageContext | null = null
 
 async function extractWebpageContent(): Promise<string> {
   try {
-    const { default: Defuddle } = await import("defuddle")
+    const { default: Defuddle, createMarkdownContent } = await import("defuddle/full")
     const result = new Defuddle(document, {
-      markdown: true,
+      separateMarkdown: true,
       url: window.location.href,
       useAsync: false,
     }).parse()
 
-    const markdownContent = result.contentMarkdown || result.content
-    if (markdownContent)
-      return markdownContent
+    if (result.contentMarkdown)
+      return result.contentMarkdown
+    if (result.content)
+      return createMarkdownContent(result.content, window.location.href)
   }
   catch (error) {
     logger.warn("Defuddle parsing failed, falling back to body text:", error)
