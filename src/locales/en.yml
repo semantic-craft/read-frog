@@ -131,6 +131,8 @@ options:
         noModelsFound: No models found
       featureProviders: Feature Providers
       advancedOptions: Advanced Options
+      requestQueueConfigOverride: Request Rate Override
+      requestQueueConfigOverrideHint: Optional per-provider override for translation request rate. Leave values empty to use the global setting for the current feature.
       connectionOptionLabels:
         region: Region
       temperature: Temperature

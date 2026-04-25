@@ -131,6 +131,8 @@ options:
         noModelsFound: 未找到模型
       featureProviders: 功能提供商
       advancedOptions: 高级选项
+      requestQueueConfigOverride: 请求速率覆盖
+      requestQueueConfigOverrideHint: 可选的供应商专属翻译请求速率覆盖。留空时会使用当前功能的全局设置。
       connectionOptionLabels:
         region: 区域
       temperature: 温度

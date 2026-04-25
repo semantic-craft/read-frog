@@ -130,6 +130,8 @@ options:
         noModelsFound: 未找到模型
       featureProviders: 功能提供商
       advancedOptions: 進階選項
+      requestQueueConfigOverride: 請求速率覆寫
+      requestQueueConfigOverrideHint: 可選的提供者專屬翻譯請求速率覆寫。留空時會使用目前功能的全域設定。
       connectionOptionLabels:
         region: 區域
       temperature: 溫度

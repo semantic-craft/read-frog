@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { LLM_PROVIDER_MODELS, NON_API_TRANSLATE_PROVIDERS, NON_API_TRANSLATE_PROVIDERS_MAP, PURE_TRANSLATE_PROVIDERS } from "@/utils/constants/models"
+import { requestQueueConfigSchema } from "./translate"
 
 // Re-export for external consumers
 export { LLM_PROVIDER_MODELS, NON_API_TRANSLATE_PROVIDERS, NON_API_TRANSLATE_PROVIDERS_MAP, PURE_TRANSLATE_PROVIDERS }
@@ -124,6 +125,7 @@ export const baseAPIProviderConfigSchema = baseProviderConfigSchema.extend({
   temperature: z.number().min(0).optional(),
   providerOptions: z.record(z.string(), z.any()).optional(),
   connectionOptions: z.record(z.string(), z.any()).optional(),
+  requestQueueConfig: requestQueueConfigSchema.partial().optional(),
 })
 
 export const baseCustomLLMProviderConfigSchema = baseAPIProviderConfigSchema.extend({

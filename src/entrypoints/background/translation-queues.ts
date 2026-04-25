@@ -3,7 +3,7 @@ import type { LLMProviderConfig, ProviderConfig } from "@/types/config/provider"
 import type { BatchQueueConfig, RequestQueueConfig } from "@/types/config/translate"
 import type { SubtitlePromptContext, WebPagePromptContext } from "@/types/content"
 import type { PromptResolver } from "@/utils/host/translate/api/ai"
-import { isLLMProviderConfig } from "@/types/config/provider"
+import { isAPIProviderConfig, isLLMProviderConfig } from "@/types/config/provider"
 import { putBatchRequestRecord } from "@/utils/batch-request-record"
 import { DEFAULT_CONFIG } from "@/utils/constants/config"
 import { BATCH_SEPARATOR } from "@/utils/constants/prompt"
@@ -158,7 +158,86 @@ interface TranslationQueueSetupConfig<TContext = unknown> {
   promptResolver: PromptResolver<TContext>
 }
 
-async function createTranslationQueues<TContext>(config: TranslationQueueSetupConfig<TContext>) {
+interface ProviderQueueBundle<TContext = unknown> {
+  requestQueue: RequestQueue
+  batchQueue: BatchQueue<TranslateBatchData<TContext>, string>
+  providerRequestQueueConfig?: Partial<RequestQueueConfig>
+}
+
+function getProviderRequestQueueConfigOverride(providerConfig: ProviderConfig): Partial<RequestQueueConfig> | undefined {
+  if (!isAPIProviderConfig(providerConfig)) {
+    return undefined
+  }
+
+  return providerConfig.requestQueueConfig
+}
+
+function mergeRequestQueueConfig(
+  baseConfig: RequestQueueConfig,
+  providerRequestQueueConfig?: Partial<RequestQueueConfig>,
+): RequestQueueConfig {
+  return {
+    ...baseConfig,
+    ...providerRequestQueueConfig,
+  }
+}
+
+function createProviderQueueRegistry<TContext>(config: TranslationQueueSetupConfig<TContext>) {
+  let globalRequestQueueConfig = { ...config.requestQueueConfig }
+  let globalBatchQueueConfig = { ...config.batchQueueConfig }
+  const queueBundleMap = new Map<string, ProviderQueueBundle<TContext>>()
+
+  return {
+    getOrCreateProviderQueues(providerConfig: ProviderConfig) {
+      const providerRequestQueueConfig = getProviderRequestQueueConfigOverride(providerConfig)
+      const mergedRequestQueueConfig = mergeRequestQueueConfig(globalRequestQueueConfig, providerRequestQueueConfig)
+      const existingBundle = queueBundleMap.get(providerConfig.id)
+
+      if (existingBundle) {
+        existingBundle.providerRequestQueueConfig = providerRequestQueueConfig
+        existingBundle.requestQueue.setQueueOptions(mergedRequestQueueConfig)
+        existingBundle.batchQueue.setBatchConfig(globalBatchQueueConfig)
+        return existingBundle
+      }
+
+      const queues = createTranslationQueues({
+        requestQueueConfig: mergedRequestQueueConfig,
+        batchQueueConfig: globalBatchQueueConfig,
+        promptResolver: config.promptResolver,
+      })
+      const nextBundle: ProviderQueueBundle<TContext> = {
+        ...queues,
+        providerRequestQueueConfig,
+      }
+      queueBundleMap.set(providerConfig.id, nextBundle)
+      return nextBundle
+    },
+    setGlobalRequestQueueConfig(nextConfig: Partial<RequestQueueConfig>) {
+      globalRequestQueueConfig = {
+        ...globalRequestQueueConfig,
+        ...nextConfig,
+      }
+
+      for (const bundle of queueBundleMap.values()) {
+        bundle.requestQueue.setQueueOptions(
+          mergeRequestQueueConfig(globalRequestQueueConfig, bundle.providerRequestQueueConfig),
+        )
+      }
+    },
+    setGlobalBatchQueueConfig(nextConfig: Partial<BatchQueueConfig>) {
+      globalBatchQueueConfig = {
+        ...globalBatchQueueConfig,
+        ...nextConfig,
+      }
+
+      for (const bundle of queueBundleMap.values()) {
+        bundle.batchQueue.setBatchConfig(globalBatchQueueConfig)
+      }
+    },
+  }
+}
+
+function createTranslationQueues<TContext>(config: TranslationQueueSetupConfig<TContext>) {
   const { rate, capacity } = config.requestQueueConfig
   const { maxCharactersPerBatch, maxItemsPerBatch } = config.batchQueueConfig
   const { promptResolver } = config
@@ -217,8 +296,7 @@ export async function setUpWebPageTranslationQueue() {
   const config = await ensureInitializedConfig()
 
   const { translate: { requestQueueConfig, batchQueueConfig } } = config ?? DEFAULT_CONFIG
-
-  const { requestQueue, batchQueue } = await createTranslationQueues({
+  const queueRegistry = createProviderQueueRegistry({
     requestQueueConfig,
     batchQueueConfig,
     promptResolver: getTranslatePrompt,
@@ -243,10 +321,12 @@ export async function setUpWebPageTranslationQueue() {
     }
 
     if (shouldUseBatchQueue(providerConfig)) {
+      const { batchQueue } = queueRegistry.getOrCreateProviderQueues(providerConfig)
       const data = { text, langConfig, providerConfig, hash, scheduleAt, context }
       result = await batchQueue.enqueue(data)
     }
     else {
+      const { requestQueue } = queueRegistry.getOrCreateProviderQueues(providerConfig)
       // Create thunk based on type and params
       const thunk = () => executeTranslate(text, langConfig, providerConfig, getTranslatePrompt)
       result = await requestQueue.enqueue(thunk, scheduleAt, hash)
@@ -271,17 +351,18 @@ export async function setUpWebPageTranslationQueue() {
       return null
     }
 
+    const { requestQueue } = queueRegistry.getOrCreateProviderQueues(providerConfig)
     return await getOrGenerateWebPageSummary(webTitle, webContent, providerConfig, requestQueue)
   })
 
   onMessage("setTranslateRequestQueueConfig", (message) => {
     const { data } = message
-    requestQueue.setQueueOptions(data)
+    queueRegistry.setGlobalRequestQueueConfig(data)
   })
 
   onMessage("setTranslateBatchQueueConfig", (message) => {
     const { data } = message
-    batchQueue.setBatchConfig(data)
+    queueRegistry.setGlobalBatchQueueConfig(data)
   })
 }
 
@@ -291,8 +372,7 @@ export async function setUpWebPageTranslationQueue() {
 export async function setUpSubtitlesTranslationQueue() {
   const config = await ensureInitializedConfig()
   const { videoSubtitles: { requestQueueConfig, batchQueueConfig } } = config ?? DEFAULT_CONFIG
-
-  const { requestQueue, batchQueue } = await createTranslationQueues({
+  const queueRegistry = createProviderQueueRegistry({
     requestQueueConfig,
     batchQueueConfig,
     promptResolver: getSubtitlesTranslatePrompt,
@@ -315,10 +395,12 @@ export async function setUpSubtitlesTranslationQueue() {
     }
 
     if (shouldUseBatchQueue(providerConfig)) {
+      const { batchQueue } = queueRegistry.getOrCreateProviderQueues(providerConfig)
       const data = { text, langConfig, providerConfig, hash, scheduleAt, context }
       result = await batchQueue.enqueue(data)
     }
     else {
+      const { requestQueue } = queueRegistry.getOrCreateProviderQueues(providerConfig)
       const thunk = () => executeTranslate(text, langConfig, providerConfig, getSubtitlesTranslatePrompt)
       result = await requestQueue.enqueue(thunk, scheduleAt, hash)
     }
@@ -341,16 +423,17 @@ export async function setUpSubtitlesTranslationQueue() {
       return null
     }
 
+    const { requestQueue } = queueRegistry.getOrCreateProviderQueues(providerConfig)
     return await getOrGenerateSubtitleSummary(videoTitle, subtitlesContext, providerConfig, requestQueue)
   })
 
   onMessage("setSubtitlesRequestQueueConfig", (message) => {
     const { data } = message
-    requestQueue.setQueueOptions(data)
+    queueRegistry.setGlobalRequestQueueConfig(data)
   })
 
   onMessage("setSubtitlesBatchQueueConfig", (message) => {
     const { data } = message
-    batchQueue.setBatchConfig(data)
+    queueRegistry.setGlobalBatchQueueConfig(data)
   })
 }

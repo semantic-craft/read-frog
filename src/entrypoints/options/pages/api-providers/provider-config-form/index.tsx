@@ -37,6 +37,7 @@ import { ConnectionOptionsField } from "./connection-options-field"
 import { FeatureProviderSection } from "./feature-provider-section"
 import { formOpts, useAppForm } from "./form"
 import { ProviderOptionsField } from "./provider-options-field"
+import { RequestQueueOverrideField } from "./request-queue-override-field"
 import { TemperatureField } from "./temperature-field"
 import { TranslateModelSelector } from "./translate-model-selector"
 
@@ -167,6 +168,7 @@ export function ProviderConfigForm() {
           <FeatureProviderSection form={form} />
           {isLLM && (
             <AdvancedOptionsSection>
+              <RequestQueueOverrideField form={form} />
               <TemperatureField form={form} />
               <ProviderOptionsField form={form} />
             </AdvancedOptionsSection>
