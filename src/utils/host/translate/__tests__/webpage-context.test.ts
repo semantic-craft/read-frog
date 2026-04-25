@@ -2,7 +2,8 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-const { mockDefuddleConstructor, mockParse, mockWarn } = vi.hoisted(() => ({
+const { mockCreateMarkdownContent, mockDefuddleConstructor, mockParse, mockWarn } = vi.hoisted(() => ({
+  mockCreateMarkdownContent: vi.fn(),
   mockDefuddleConstructor: vi.fn(),
   mockParse: vi.fn(),
   mockWarn: vi.fn(),
@@ -16,8 +17,9 @@ vi.mock("@/utils/logger", () => ({
 
 async function loadModule() {
   vi.resetModules()
-  vi.doMock("defuddle", () => ({
+  vi.doMock("defuddle/full", () => ({
     __esModule: true,
+    createMarkdownContent: mockCreateMarkdownContent,
     default: class MockDefuddle {
       constructor(...args: unknown[]) {
         mockDefuddleConstructor(...args)
@@ -34,10 +36,15 @@ async function loadModule() {
 describe("getOrCreateWebPageContext", () => {
   beforeEach(() => {
     mockDefuddleConstructor.mockReset()
+    mockCreateMarkdownContent.mockReset()
     mockParse.mockReset()
     mockWarn.mockReset()
 
-    mockParse.mockReturnValue({ contentMarkdown: "# Readable page body" })
+    mockParse.mockReturnValue({
+      content: "<h1>Readable page body</h1>",
+      contentMarkdown: "# Readable page body",
+    })
+    mockCreateMarkdownContent.mockReturnValue("# Converted readable page body")
 
     document.title = "Original Title"
     document.body.innerHTML = "<main>Page body</main>"
@@ -69,10 +76,23 @@ describe("getOrCreateWebPageContext", () => {
 
     expect(result?.webContent).toBe("# Readable page body")
     expect(mockDefuddleConstructor).toHaveBeenCalledWith(document, {
-      markdown: true,
+      separateMarkdown: true,
       url: window.location.href,
       useAsync: false,
     })
+  })
+
+  it("converts Defuddle HTML content when a separate markdown field is missing", async () => {
+    mockParse.mockReturnValueOnce({ content: "<h1>Readable page body</h1>" })
+    const { getOrCreateWebPageContext } = await loadModule()
+
+    const result = await getOrCreateWebPageContext()
+
+    expect(result?.webContent).toBe("# Converted readable page body")
+    expect(mockCreateMarkdownContent).toHaveBeenCalledWith(
+      "<h1>Readable page body</h1>",
+      window.location.href,
+    )
   })
 
   it("refreshes the cached title and content after the URL changes", async () => {
