@@ -275,7 +275,7 @@ options:
         title: 启用悬浮按钮
         description: 在网页上显示悬浮按钮，快速访问陪读蛙功能
       closeMenu:
-        disableForSite: 禁用此网站
+        disableForSite: 当前网站禁用
         disableGlobally: 全局禁用
       disabledSites:
         title: 悬浮按钮禁用网站
@@ -300,7 +300,7 @@ options:
         translate: 翻译
         speak: 朗读
       closeMenu:
-        disableForSite: 禁用此网站
+        disableForSite: 当前网站禁用
         disableGlobally: 全局禁用
       disabledSites:
         title: 选择工具栏禁用网站
