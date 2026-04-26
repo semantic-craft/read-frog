@@ -26,6 +26,7 @@ const floatingButtonSchema = z.object({
   position: z.number().min(0).max(1),
   disabledFloatingButtonPatterns: z.array(z.string()),
   clickAction: z.enum(["panel", "translate"]),
+  locked: z.boolean(),
 })
 
 const selectionToolbarFeatureSchema = z.object({

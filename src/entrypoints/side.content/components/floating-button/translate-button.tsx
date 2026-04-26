@@ -6,7 +6,7 @@ import { cn } from "@/utils/styles/utils"
 import { enablePageTranslationAtom } from "../../atoms"
 import HiddenButton from "./components/hidden-button"
 
-export default function TranslateButton({ className }: { className: string }) {
+export default function TranslateButton({ className, expanded = false }: { className: string, expanded?: boolean }) {
   const translationState = useAtomValue(enablePageTranslationAtom)
   const isEnabled = translationState.enabled
 
@@ -14,6 +14,7 @@ export default function TranslateButton({ className }: { className: string }) {
     <HiddenButton
       icon={<RiTranslate className="h-5 w-5" />}
       className={className}
+      expanded={expanded}
       onClick={() => {
         void sendMessage("tryToSetEnablePageTranslationOnContentScript", { enabled: !isEnabled })
       }}
