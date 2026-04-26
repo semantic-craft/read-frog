@@ -27,6 +27,10 @@ const floatingButtonControlClassName = cn(
   "text-neutral-400 transition-[color,left,transform] duration-300 hover:scale-110 hover:text-neutral-600 active:scale-90 active:text-neutral-600",
   "dark:text-neutral-600 dark:hover:text-neutral-400 dark:active:text-neutral-400",
 )
+const floatingButtonControlOffsetClassNames = {
+  collapsed: "left-0",
+  expanded: "-left-6",
+}
 
 export default function FloatingButton() {
   const [floatingButton, setFloatingButton] = useAtom(
@@ -42,9 +46,7 @@ export default function FloatingButton() {
   const initialClientYRef = useRef<number | null>(null)
   const isFloatingButtonLocked = floatingButton.locked
   const isFloatingButtonExpanded = isHitAreaExpanded || isDraggingButton || isSideOpen || isDropdownOpen
-  const floatingButtonControlOffsetClassName = !isFloatingButtonLocked && !isFloatingButtonExpanded
-    ? "left-0"
-    : "-left-6"
+  const isMainButtonAttached = isFloatingButtonLocked || isFloatingButtonExpanded
 
   // 按钮拖动处理
   useEffect(() => {
@@ -169,10 +171,8 @@ export default function FloatingButton() {
         <div
           className={cn(
             "border-border relative flex h-10 w-11 items-center rounded-l-full border border-r-0 bg-white shadow-lg transition-transform duration-300 dark:bg-neutral-900",
-            isFloatingButtonLocked
-              ? isFloatingButtonExpanded ? "translate-x-0 opacity-100" : "translate-x-0 opacity-60"
-              : isFloatingButtonExpanded ? "translate-x-0 opacity-100" : "translate-x-6 opacity-60",
-            (isSideOpen || isDropdownOpen) && "opacity-100",
+            isMainButtonAttached ? "translate-x-0" : "translate-x-6",
+            isFloatingButtonExpanded ? "opacity-100" : "opacity-60",
             isDraggingButton ? "cursor-move" : "cursor-pointer",
             attachSideClassName,
           )}
@@ -186,69 +186,11 @@ export default function FloatingButton() {
           />
         </div>
 
-        <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-          <DropdownMenuTrigger
-            render={(
-              <button
-                type="button"
-                aria-label="Close floating button"
-                className={cn(
-                  floatingButtonControlClassName,
-                  "-top-1",
-                  floatingButtonControlOffsetClassName,
-                  isFloatingButtonExpanded && "visible pointer-events-auto",
-                  isDropdownOpen && "visible pointer-events-auto",
-                )}
-              />
-            )}
-          >
-            <IconX className="h-3 w-3" strokeWidth={3} />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent container={shadowWrapper} align="start" side="left" className="z-2147483647 w-fit! whitespace-nowrap">
-            <DropdownMenuItem
-              onMouseDown={e => e.stopPropagation()}
-              onClick={() => {
-                const currentDomain = window.location.hostname
-                const currentPatterns = floatingButton.disabledFloatingButtonPatterns || []
-                void setFloatingButton({
-                  ...floatingButton,
-                  disabledFloatingButtonPatterns: [...currentPatterns, currentDomain],
-                })
-              }}
-            >
-              {i18n.t("options.floatingButtonAndToolbar.floatingButton.closeMenu.disableForSite")}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onMouseDown={e => e.stopPropagation()}
-              onClick={() => {
-                void setFloatingButton({ ...floatingButton, enabled: false })
-              }}
-            >
-              {i18n.t("options.floatingButtonAndToolbar.floatingButton.closeMenu.disableGlobally")}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <button
-          type="button"
-          aria-label={isFloatingButtonLocked ? "Unlock floating button" : "Lock floating button"}
-          className={cn(
-            floatingButtonControlClassName,
-            "-bottom-1",
-            floatingButtonControlOffsetClassName,
-            isFloatingButtonExpanded && "visible pointer-events-auto",
-          )}
-          onClick={() => {
-            void setFloatingButton({
-              ...floatingButton,
-              locked: !isFloatingButtonLocked,
-            })
-          }}
-        >
-          {isFloatingButtonLocked
-            ? <IconLock className="h-3 w-3" strokeWidth={3} />
-            : <IconLockOpen className="h-3 w-3" strokeWidth={3} />}
-        </button>
+        <FloatingButtonCloseMenu
+          expanded={isFloatingButtonExpanded}
+          onDropdownOpenChange={setIsDropdownOpen}
+        />
+        <FloatingButtonLockControl expanded={isFloatingButtonExpanded} />
       </div>
       <HiddenButton
         className={attachSideClassName}
@@ -259,5 +201,110 @@ export default function FloatingButton() {
         }}
       />
     </div>
+  )
+}
+
+interface FloatingButtonCloseMenuProps {
+  expanded: boolean
+  onDropdownOpenChange: (open: boolean) => void
+}
+
+function FloatingButtonCloseMenu({
+  expanded,
+  onDropdownOpenChange,
+}: FloatingButtonCloseMenuProps) {
+  const [floatingButton, setFloatingButton] = useAtom(configFieldsAtomMap.floatingButton)
+  const [open, setOpen] = useState(false)
+  const controlOffsetClassName = !floatingButton.locked && !expanded
+    ? floatingButtonControlOffsetClassNames.collapsed
+    : floatingButtonControlOffsetClassNames.expanded
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen)
+    onDropdownOpenChange(nextOpen)
+  }
+
+  const handleDisableForSite = () => {
+    const currentDomain = window.location.hostname
+    const currentPatterns = floatingButton.disabledFloatingButtonPatterns || []
+
+    void setFloatingButton({
+      ...floatingButton,
+      disabledFloatingButtonPatterns: [...currentPatterns, currentDomain],
+    })
+  }
+
+  const handleDisableGlobally = () => {
+    void setFloatingButton({ ...floatingButton, enabled: false })
+  }
+
+  return (
+    <DropdownMenu open={open} onOpenChange={handleOpenChange}>
+      <DropdownMenuTrigger
+        render={(
+          <button
+            type="button"
+            aria-label="Close floating button"
+            className={cn(
+              floatingButtonControlClassName,
+              "-top-1",
+              controlOffsetClassName,
+              expanded && "visible pointer-events-auto",
+              open && "visible pointer-events-auto",
+            )}
+          />
+        )}
+      >
+        <IconX className="h-3 w-3" strokeWidth={3} />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent container={shadowWrapper} align="start" side="left" className="z-2147483647 w-fit! whitespace-nowrap">
+        <DropdownMenuItem
+          onMouseDown={e => e.stopPropagation()}
+          onClick={handleDisableForSite}
+        >
+          {i18n.t("options.floatingButtonAndToolbar.floatingButton.closeMenu.disableForSite")}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onMouseDown={e => e.stopPropagation()}
+          onClick={handleDisableGlobally}
+        >
+          {i18n.t("options.floatingButtonAndToolbar.floatingButton.closeMenu.disableGlobally")}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+interface FloatingButtonLockControlProps {
+  expanded: boolean
+}
+
+function FloatingButtonLockControl({ expanded }: FloatingButtonLockControlProps) {
+  const [floatingButton, setFloatingButton] = useAtom(configFieldsAtomMap.floatingButton)
+  const locked = floatingButton.locked
+  const controlOffsetClassName = !locked && !expanded
+    ? floatingButtonControlOffsetClassNames.collapsed
+    : floatingButtonControlOffsetClassNames.expanded
+
+  const handleToggleLocked = () => {
+    void setFloatingButton({ ...floatingButton, locked: !locked })
+  }
+
+  return (
+    <button
+      type="button"
+      aria-label={locked ? "Unlock floating button" : "Lock floating button"}
+      className={cn(
+        floatingButtonControlClassName,
+        "-bottom-1",
+        controlOffsetClassName,
+        expanded && "visible pointer-events-auto",
+      )}
+      onClick={handleToggleLocked}
+    >
+      {locked
+        ? <IconLock className="h-3 w-3" strokeWidth={3} />
+        : <IconLockOpen className="h-3 w-3" strokeWidth={3} />}
+    </button>
   )
 }
