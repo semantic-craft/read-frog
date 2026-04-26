@@ -1,5 +1,5 @@
 import { browser, i18n } from "#imports"
-import { IconSettings, IconX } from "@tabler/icons-react"
+import { IconLock, IconLockOpen, IconSettings, IconX } from "@tabler/icons-react"
 import { useAtom, useAtomValue } from "jotai"
 import { useEffect, useRef, useState } from "react"
 import readFrogLogo from "@/assets/icons/read-frog.png?url&no-inline"
@@ -22,6 +22,11 @@ import HiddenButton from "./components/hidden-button"
 import TranslateButton from "./translate-button"
 
 const readFrogLogoUrl = new URL(readFrogLogo, browser.runtime.getURL("/")).href
+const floatingButtonControlClassName = cn(
+  "absolute invisible cursor-pointer pointer-events-none flex size-6 items-center justify-center",
+  "text-neutral-400 transition-[color,left,transform] duration-300 hover:scale-110 hover:text-neutral-600 active:scale-90 active:text-neutral-600",
+  "dark:text-neutral-600 dark:hover:text-neutral-400 dark:active:text-neutral-400",
+)
 
 export default function FloatingButton() {
   const [floatingButton, setFloatingButton] = useAtom(
@@ -32,8 +37,14 @@ export default function FloatingButton() {
   const [isSideOpen, setIsSideOpen] = useAtom(isSideOpenAtom)
   const [isDraggingButton, setIsDraggingButton] = useAtom(isDraggingButtonAtom)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isHitAreaExpanded, setIsHitAreaExpanded] = useState(false)
   const [dragPosition, setDragPosition] = useState<number | null>(null)
   const initialClientYRef = useRef<number | null>(null)
+  const isFloatingButtonLocked = floatingButton.locked
+  const isFloatingButtonExpanded = isHitAreaExpanded || isDraggingButton || isSideOpen || isDropdownOpen
+  const floatingButtonControlOffsetClassName = !isFloatingButtonLocked && !isFloatingButtonExpanded
+    ? "left-0"
+    : "-left-6"
 
   // 按钮拖动处理
   useEffect(() => {
@@ -125,47 +136,73 @@ export default function FloatingButton() {
 
   const attachSideClassName = isDraggingButton || isSideOpen || isDropdownOpen ? "translate-x-0" : ""
 
+  const handleMouseEnter = () => {
+    setIsHitAreaExpanded(true)
+  }
+
+  const handleMouseLeave = () => {
+    if (!isDropdownOpen) {
+      setIsHitAreaExpanded(false)
+    }
+  }
+
   if (!floatingButton.enabled || floatingButton.disabledFloatingButtonPatterns.some(pattern => matchDomainPattern(window.location.href, pattern))) {
     return null
   }
 
   return (
     <div
-      className="group fixed z-2147483647 flex flex-col items-end gap-2 print:hidden"
+      className={cn(
+        "fixed z-2147483647 flex flex-col items-end gap-2 print:hidden",
+        isFloatingButtonExpanded && "pl-6",
+      )}
       style={{
         right: isSideOpen
           ? `calc(${sideContent.width}px + var(--removed-body-scroll-bar-size, 0px))`
           : "var(--removed-body-scroll-bar-size, 0px)",
         top: `${(dragPosition ?? floatingButton.position) * 100}vh`,
       }}
+      onMouseLeave={handleMouseLeave}
     >
-      <TranslateButton className={attachSideClassName} />
-      <div
-        className={cn(
-          "border-border flex h-10 w-11 items-center rounded-l-full border border-r-0 bg-white opacity-60 shadow-lg group-hover:opacity-100 dark:bg-neutral-900",
-          "translate-x-6 transition-transform duration-300 group-hover:translate-x-0",
-          (isSideOpen || isDropdownOpen) && "opacity-100",
-          isDraggingButton ? "cursor-move" : "cursor-pointer",
-          attachSideClassName,
-        )}
-        onMouseDown={handleButtonDragStart}
-      >
+      <TranslateButton className={attachSideClassName} expanded={isFloatingButtonExpanded} />
+      <div className="relative">
+        <div
+          className={cn(
+            "border-border relative flex h-10 w-11 items-center rounded-l-full border border-r-0 bg-white shadow-lg transition-transform duration-300 dark:bg-neutral-900",
+            isFloatingButtonLocked
+              ? isFloatingButtonExpanded ? "translate-x-0 opacity-100" : "translate-x-0 opacity-60"
+              : isFloatingButtonExpanded ? "translate-x-0 opacity-100" : "translate-x-6 opacity-60",
+            (isSideOpen || isDropdownOpen) && "opacity-100",
+            isDraggingButton ? "cursor-move" : "cursor-pointer",
+            attachSideClassName,
+          )}
+          onMouseDown={handleButtonDragStart}
+          onMouseEnter={handleMouseEnter}
+        >
+          <img
+            src={readFrogLogoUrl}
+            alt={APP_NAME}
+            className="ml-1 h-8 w-8 rounded-full"
+          />
+        </div>
+
         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger
             render={(
               <button
                 type="button"
-                title="Close floating button"
+                aria-label="Close floating button"
                 className={cn(
-                  "border-border absolute -top-1 -left-1 invisible cursor-pointer rounded-full border bg-neutral-100 dark:bg-neutral-900",
-                  "group-hover:visible",
-                  isDropdownOpen && "visible",
+                  floatingButtonControlClassName,
+                  "-top-1",
+                  floatingButtonControlOffsetClassName,
+                  isFloatingButtonExpanded && "visible pointer-events-auto",
+                  isDropdownOpen && "visible pointer-events-auto",
                 )}
-                onMouseDown={e => e.stopPropagation()} // 父级不会收到 mousedown
               />
             )}
           >
-            <IconX className="h-3 w-3 text-neutral-400 dark:text-neutral-600" />
+            <IconX className="h-3 w-3" strokeWidth={3} />
           </DropdownMenuTrigger>
           <DropdownMenuContent container={shadowWrapper} align="start" side="left" className="z-2147483647 w-fit! whitespace-nowrap">
             <DropdownMenuItem
@@ -191,14 +228,31 @@ export default function FloatingButton() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <img
-          src={readFrogLogoUrl}
-          alt={APP_NAME}
-          className="ml-1 h-8 w-8 rounded-full"
-        />
+
+        <button
+          type="button"
+          aria-label={isFloatingButtonLocked ? "Unlock floating button" : "Lock floating button"}
+          className={cn(
+            floatingButtonControlClassName,
+            "-bottom-1",
+            floatingButtonControlOffsetClassName,
+            isFloatingButtonExpanded && "visible pointer-events-auto",
+          )}
+          onClick={() => {
+            void setFloatingButton({
+              ...floatingButton,
+              locked: !isFloatingButtonLocked,
+            })
+          }}
+        >
+          {isFloatingButtonLocked
+            ? <IconLock className="h-3 w-3" strokeWidth={3} />
+            : <IconLockOpen className="h-3 w-3" strokeWidth={3} />}
+        </button>
       </div>
       <HiddenButton
         className={attachSideClassName}
+        expanded={isFloatingButtonExpanded}
         icon={<IconSettings className="h-5 w-5" />}
         onClick={() => {
           void sendMessage("openOptionsPage", undefined)
