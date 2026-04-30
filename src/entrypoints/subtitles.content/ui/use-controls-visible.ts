@@ -1,6 +1,6 @@
 import type { ControlsConfig } from "@/entrypoints/subtitles.content/platforms"
 import { useEffect, useEffectEvent, useState } from "react"
-import { getContainingShadowRoot } from "@/utils/host/dom/node"
+import { resolvePlayerContainer } from "./player-container"
 
 interface ControlsInfo {
   controlsVisible: boolean
@@ -17,36 +17,44 @@ export function useControlsInfo(
     if (!controlsConfig)
       return
 
-    setInfo({
+    const nextInfo = {
       controlsVisible: controlsConfig.checkVisibility(container),
       controlsHeight: controlsConfig.measureHeight(container),
-    })
+    }
+
+    setInfo(prev => prev.controlsVisible === nextInfo.controlsVisible && prev.controlsHeight === nextInfo.controlsHeight
+      ? prev
+      : nextInfo)
   })
 
   const setupObserver = useEffectEvent(() => {
     if (!controlsConfig)
       return
 
-    const element = elementRef.current
-    const shadowRoot = element ? getContainingShadowRoot(element) : null
-    const shadowHost = shadowRoot?.host as HTMLElement | undefined
-    const videoContainer = shadowHost?.parentElement ?? controlsConfig.findVideoContainer?.()
-    if (!videoContainer)
+    const playerContainer = resolvePlayerContainer(elementRef.current, controlsConfig)
+    if (!playerContainer)
       return
 
-    updateInfo(videoContainer)
+    updateInfo(playerContainer)
 
     const observer = new MutationObserver(() => {
-      updateInfo(videoContainer)
+      updateInfo(playerContainer)
     })
 
-    observer.observe(videoContainer, {
+    observer.observe(playerContainer, {
       attributes: true,
       attributeFilter: ["class"],
-      subtree: true,
     })
 
-    return () => observer.disconnect()
+    const resizeObserver = new ResizeObserver(() => {
+      updateInfo(playerContainer)
+    })
+    resizeObserver.observe(playerContainer)
+
+    return () => {
+      observer.disconnect()
+      resizeObserver.disconnect()
+    }
   })
 
   useEffect(() => {

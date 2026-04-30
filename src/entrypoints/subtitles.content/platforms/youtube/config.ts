@@ -13,6 +13,7 @@ interface YoutubeConfigOptions {
 
 export function getYoutubeConfig(options: YoutubeConfigOptions = {}): PlatformConfig {
   const { embedded } = options
+  const findPlayerContainer = () => document.querySelector<HTMLElement>("#movie_player.html5-video-player, #movie_player")
 
   return {
     embedded,
@@ -33,11 +34,10 @@ export function getYoutubeConfig(options: YoutubeConfigOptions = {}): PlatformCo
 
     controls: embedded
       ? {
-          findVideoContainer: () => document.querySelector<HTMLElement>("#movie_player"),
-          measureHeight: () => {
-            const wrapper = document.querySelector(".quick-actions-wrapper")
-            const player = document.querySelector("#movie_player")
-            const progressBar = player?.querySelector(".ytp-progress-bar-container")
+          findPlayerContainer,
+          measureHeight: (container) => {
+            const wrapper = container.querySelector(".quick-actions-wrapper")
+            const progressBar = container.querySelector(".ytp-progress-bar-container")
             if (!wrapper || !progressBar)
               return DEFAULT_CONTROLS_HEIGHT
             return wrapper.getBoundingClientRect().top - progressBar.getBoundingClientRect().top
@@ -45,15 +45,14 @@ export function getYoutubeConfig(options: YoutubeConfigOptions = {}): PlatformCo
           checkVisibility: () => true,
         }
       : {
+          findPlayerContainer,
           measureHeight: (container) => {
-            const player = container.closest(".html5-video-player")
-            const progressBar = player?.querySelector(".ytp-progress-bar-container")
+            const progressBar = container.querySelector(".ytp-progress-bar-container")
             const controlsBar = progressBar?.parentElement
             return controlsBar?.getBoundingClientRect().height ?? DEFAULT_CONTROLS_HEIGHT
           },
           checkVisibility: (container) => {
-            const player = container.closest(".html5-video-player")
-            return !!player && !player.classList.contains("ytp-autohide")
+            return !container.classList.contains("ytp-autohide")
           },
         },
 

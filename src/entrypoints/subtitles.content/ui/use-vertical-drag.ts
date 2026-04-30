@@ -1,10 +1,11 @@
 import type { RefObject } from "react"
 import type { SubtitlePosition } from "../atoms"
+import type { ControlsConfig } from "@/entrypoints/subtitles.content/platforms"
 import { useAtom } from "jotai"
 import { useEffect, useEffectEvent, useRef, useState } from "react"
 import { DEFAULT_SUBTITLE_POSITION } from "@/utils/constants/subtitles"
-import { getContainingShadowRoot } from "@/utils/host/dom/node"
 import { subtitlesPositionAtom } from "../atoms"
+import { resolvePlayerContainer } from "./player-container"
 
 const BASE_FONT_RATIO = 0.03
 
@@ -33,18 +34,23 @@ interface AnchorPositionContext {
   controlsHeight: number
 }
 
-function getVideoContainer(element: HTMLElement): HTMLElement | null {
-  const rootNode = getContainingShadowRoot(element)
-  const shadowHost = rootNode?.host as HTMLElement | undefined
-  return shadowHost?.parentElement ?? null
+interface MaxPositionPercentContext {
+  videoHeight: number
+  containerHeight: number
+  controlsVisible: boolean
+  controlsHeight: number
+  anchor: SubtitlePosition["anchor"]
 }
 
-function getRects(containerRef: RefObject<HTMLDivElement | null>): Rects | null {
+function getRects(
+  containerRef: RefObject<HTMLDivElement | null>,
+  controlsConfig?: ControlsConfig,
+): Rects | null {
   const container = containerRef.current
   if (!container)
     return null
 
-  const videoContainer = getVideoContainer(container)
+  const videoContainer = resolvePlayerContainer(container, controlsConfig)
   if (!videoContainer)
     return null
 
@@ -56,7 +62,31 @@ function getRects(containerRef: RefObject<HTMLDivElement | null>): Rects | null 
   }
 }
 
-function calculateAnchorPosition(ctx: AnchorPositionContext): SubtitlePosition {
+export function getControlsOffsetPercent(
+  controlsVisible: boolean,
+  controlsHeight: number,
+  videoHeight: number,
+  anchor: SubtitlePosition["anchor"],
+): number {
+  if (!controlsVisible || anchor !== "bottom" || videoHeight <= 0)
+    return 0
+
+  return (controlsHeight / videoHeight) * 100
+}
+
+export function getMaxPositionPercent(ctx: MaxPositionPercentContext): number {
+  const { videoHeight, containerHeight, controlsVisible, controlsHeight, anchor } = ctx
+  if (videoHeight <= 0)
+    return 0
+
+  const reservedHeight = controlsVisible && anchor === "bottom"
+    ? controlsHeight
+    : 0
+
+  return ((videoHeight - containerHeight - reservedHeight) / videoHeight) * 100
+}
+
+export function calculateAnchorPosition(ctx: AnchorPositionContext): SubtitlePosition {
   const { videoRect, containerRect, controlsVisible, controlsHeight } = ctx
   const videoHeight = videoRect.height
 
@@ -73,19 +103,43 @@ function calculateAnchorPosition(ctx: AnchorPositionContext): SubtitlePosition {
 
   const subtitleBottom = videoHeight - (containerRect.bottom - videoRect.top)
   const subtitleBottomPercent = (subtitleBottom / videoHeight) * 100
-  const controlsOffsetPercent = controlsVisible ? (controlsHeight / videoHeight) * 100 : 0
+  const controlsOffsetPercent = getControlsOffsetPercent(controlsVisible, controlsHeight, videoHeight, "bottom")
   const percent = subtitleBottomPercent - controlsOffsetPercent
 
   return { percent: Math.max(0, percent), anchor: "bottom" }
 }
 
+export function getSubtitlePositionStyle(
+  position: SubtitlePosition,
+  controlsVisible: boolean,
+  controlsHeight: number,
+  videoHeight: number,
+): SubtitlePositionStyle {
+  const controlsOffsetPercent = getControlsOffsetPercent(
+    controlsVisible,
+    controlsHeight,
+    videoHeight,
+    position.anchor,
+  )
+
+  return position.anchor === "top"
+    ? { top: `${position.percent}%`, bottom: "unset" }
+    : { bottom: `${position.percent + controlsOffsetPercent}%`, top: "unset" }
+}
+
 interface UseVerticalDragOptions {
+  controlsConfig?: ControlsConfig
   controlsVisible: boolean
   controlsHeight: number
   onDragEnd?: (position: SubtitlePosition) => void
 }
 
-export function useVerticalDrag({ controlsVisible, controlsHeight, onDragEnd }: UseVerticalDragOptions) {
+export function useVerticalDrag({
+  controlsConfig,
+  controlsVisible,
+  controlsHeight,
+  onDragEnd,
+}: UseVerticalDragOptions) {
   const containerRef = useRef<HTMLDivElement>(null)
   const handleRef = useRef<HTMLDivElement>(null)
   const isDraggingRef = useRef(false)
@@ -100,7 +154,7 @@ export function useVerticalDrag({ controlsVisible, controlsHeight, onDragEnd }: 
   })
 
   const updateWindowStyle = useEffectEvent(() => {
-    const rects = getRects(containerRef)
+    const rects = getRects(containerRef, controlsConfig)
     if (!rects)
       return
 
@@ -126,7 +180,7 @@ export function useVerticalDrag({ controlsVisible, controlsHeight, onDragEnd }: 
     if (!isDraggingRef.current)
       return
 
-    const rects = getRects(containerRef)
+    const rects = getRects(containerRef, controlsConfig)
     if (!rects)
       return
 
@@ -143,10 +197,13 @@ export function useVerticalDrag({ controlsVisible, controlsHeight, onDragEnd }: 
       ? startPositionRef.current.percent - deltaPercent
       : startPositionRef.current.percent + deltaPercent
 
-    const reservedHeight = controlsVisible && startPositionRef.current.anchor === "bottom"
-      ? controlsHeight
-      : 0
-    const maxPercent = ((videoHeight - containerRect.height - reservedHeight) / videoHeight) * 100
+    const maxPercent = getMaxPositionPercent({
+      videoHeight,
+      containerHeight: containerRect.height,
+      controlsVisible,
+      controlsHeight,
+      anchor: startPositionRef.current.anchor,
+    })
     newPercent = Math.max(0, Math.min(maxPercent, newPercent))
 
     // Check if we need to switch anchor (crossed midline)
@@ -178,12 +235,18 @@ export function useVerticalDrag({ controlsVisible, controlsHeight, onDragEnd }: 
   })
 
   const clampPosition = useEffectEvent(() => {
-    const rects = getRects(containerRef)
+    const rects = getRects(containerRef, controlsConfig)
     if (!rects)
       return
 
     const { videoRect, containerRect } = rects
-    const maxPercent = ((videoRect.height - containerRect.height) / videoRect.height) * 100
+    const maxPercent = getMaxPositionPercent({
+      videoHeight: videoRect.height,
+      containerHeight: containerRect.height,
+      controlsVisible,
+      controlsHeight,
+      anchor: position.anchor,
+    })
     const clampedPercent = Math.max(0, Math.min(maxPercent, position.percent))
 
     if (position.percent !== clampedPercent) {
@@ -197,7 +260,7 @@ export function useVerticalDrag({ controlsVisible, controlsHeight, onDragEnd }: 
     if (!handle || !container)
       return
 
-    const videoContainer = getVideoContainer(container)
+    const videoContainer = resolvePlayerContainer(container, controlsConfig)
 
     handle.addEventListener("mousedown", onMouseDown)
     window.addEventListener("mousemove", onMouseMove)
@@ -225,13 +288,11 @@ export function useVerticalDrag({ controlsVisible, controlsHeight, onDragEnd }: 
     return setupListeners()
   }, [])
 
-  const controlsOffsetPercent = controlsVisible && position.anchor === "bottom" && windowStyle.height > 0
-    ? (controlsHeight / windowStyle.height) * 100
-    : 0
+  useEffect(() => {
+    clampPosition()
+  }, [clampPosition, controlsVisible, controlsHeight, position.anchor])
 
-  const positionStyle: SubtitlePositionStyle = position.anchor === "top"
-    ? { top: `${position.percent}%`, bottom: "unset" }
-    : { bottom: `${position.percent + controlsOffsetPercent}%`, top: "unset" }
+  const positionStyle = getSubtitlePositionStyle(position, controlsVisible, controlsHeight, windowStyle.height)
 
   return {
     refs: { container: containerRef, handle: handleRef },

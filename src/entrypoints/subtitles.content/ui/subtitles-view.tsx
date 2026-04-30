@@ -50,6 +50,7 @@ export function SubtitlesView({ showContent }: SubtitlesViewProps) {
   const setVideoSubtitles = useSetAtom(configFieldsAtomMap.videoSubtitles)
 
   const { refs, windowStyle, positionStyle, isDragging } = useVerticalDrag({
+    controlsConfig,
     controlsVisible,
     controlsHeight,
     onDragEnd: pos => void setVideoSubtitles({ position: pos }),
