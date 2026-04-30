@@ -290,7 +290,7 @@ export function useVerticalDrag({
 
   useEffect(() => {
     clampPosition()
-  }, [clampPosition, controlsVisible, controlsHeight, position.anchor])
+  }, [controlsVisible, controlsHeight, position.anchor])
 
   const positionStyle = getSubtitlePositionStyle(position, controlsVisible, controlsHeight, windowStyle.height)
 
