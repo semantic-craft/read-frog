@@ -4,6 +4,8 @@ import { Activity, useRef } from "react"
 import { configFieldsAtomMap } from "@/utils/atoms/config"
 import { SUBTITLES_VIEW_CLASS } from "@/utils/constants/subtitles"
 import { cn } from "@/utils/styles/utils"
+import { getSubtitleLineVisibility } from "@/utils/subtitles/display-rules"
+import { currentSubtitleAtom } from "../atoms"
 import { MainSubtitle, TranslationSubtitle } from "./subtitle-lines"
 import { useSubtitlesUI } from "./subtitles-ui-context"
 import { useControlsInfo } from "./use-controls-visible"
@@ -15,11 +17,11 @@ interface SubtitlesViewProps {
 
 function SubtitlesContent() {
   const { style } = useAtomValue(configFieldsAtomMap.videoSubtitles)
+  const subtitle = useAtomValue(currentSubtitleAtom)
   const { displayMode, translationPosition, container } = style
 
   const translationAbove = translationPosition === "above"
-  const showMain = displayMode !== "translationOnly"
-  const showTranslation = displayMode !== "originalOnly"
+  const { showMain, showTranslation } = getSubtitleLineVisibility(subtitle, displayMode)
 
   const containerStyle = {
     backgroundColor: `rgba(0, 0, 0, ${container.backgroundOpacity / 100})`,

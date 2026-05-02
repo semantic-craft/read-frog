@@ -851,6 +851,12 @@ options:
   videoSubtitles:
     title: 视频字幕
     description: 当前仅支持 YouTube 视频字幕
+    language:
+      title: 字幕原始语言
+      description: 单独设置字幕翻译使用的原始语言，不影响网页翻译的目标语言。
+      sourceLabel: 原始语言
+      placeholder: 搜索语言或保持自动
+      sourceDescription: 自动模式会跟随平台或翻译服务商的语言判断；如果当前字幕轨语言不对，可以手动固定语言。
     provider:
       title: 翻译服务商
       description: 选择用于视频字幕翻译的翻译服务商

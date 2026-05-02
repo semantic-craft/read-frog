@@ -66,6 +66,114 @@ describe("subtitles translator", () => {
     expect(firstRequest.hash).not.toBe(secondRequest.hash)
   })
 
+  it("uses the subtitle-specific source language with the global target language", async () => {
+    getLocalConfigMock.mockResolvedValueOnce({
+      ...DEFAULT_CONFIG,
+      language: {
+        ...DEFAULT_CONFIG.language,
+        targetCode: "jpn",
+      },
+      videoSubtitles: {
+        ...DEFAULT_CONFIG.videoSubtitles,
+        providerId: "openai-default",
+        sourceCode: "eng",
+      },
+    })
+
+    const { translateSubtitles } = await import("../translator")
+
+    await translateSubtitles(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+      "zh-CN",
+    )
+
+    expect(sendMessageMock).toHaveBeenCalledWith(
+      "enqueueSubtitlesTranslateRequest",
+      expect.objectContaining({
+        langConfig: expect.objectContaining({
+          sourceCode: "eng",
+          targetCode: "jpn",
+        }),
+      }),
+    )
+  })
+
+  it("skips translation when the detected subtitle language matches the global target language", async () => {
+    getLocalConfigMock.mockResolvedValueOnce({
+      ...DEFAULT_CONFIG,
+      language: {
+        ...DEFAULT_CONFIG.language,
+        targetCode: "cmn",
+      },
+      videoSubtitles: {
+        ...DEFAULT_CONFIG.videoSubtitles,
+        providerId: "openai-default",
+        sourceCode: "auto",
+      },
+    })
+
+    const { translateSubtitles } = await import("../translator")
+    const fragments = await translateSubtitles(
+      [{ text: "你好", start: 0, end: 1_000 }],
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+      "zh-CN",
+    )
+
+    expect(sendMessageMock).not.toHaveBeenCalled()
+    expect(fragments).toEqual([
+      {
+        text: "你好",
+        start: 0,
+        end: 1_000,
+        translation: "",
+        translationSkippedReason: "same-language",
+      },
+    ])
+  })
+
+  it("does not skip translation when source and target use different exact codes", async () => {
+    getLocalConfigMock.mockResolvedValueOnce({
+      ...DEFAULT_CONFIG,
+      language: {
+        ...DEFAULT_CONFIG.language,
+        targetCode: "cmn",
+      },
+      videoSubtitles: {
+        ...DEFAULT_CONFIG.videoSubtitles,
+        providerId: "openai-default",
+        sourceCode: "auto",
+      },
+    })
+
+    const { translateSubtitles } = await import("../translator")
+
+    await translateSubtitles(
+      [{ text: "你好", start: 0, end: 1_000 }],
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+      "zh-TW",
+    )
+
+    expect(sendMessageMock).toHaveBeenCalledWith(
+      "enqueueSubtitlesTranslateRequest",
+      expect.objectContaining({
+        langConfig: expect.objectContaining({
+          sourceCode: "auto",
+          targetCode: "cmn",
+        }),
+      }),
+    )
+  })
+
   it("keeps summary as a distinct hash input", async () => {
     const { translateSubtitles } = await import("../translator")
 
@@ -82,6 +190,51 @@ describe("subtitles translator", () => {
       subtitlesTextContent: "subtitle transcript",
       summary: "summary-b",
     })
+
+    const firstHash = sendMessageMock.mock.calls[0][1].hash
+    const secondHash = sendMessageMock.mock.calls[1][1].hash
+
+    expect(firstHash).not.toBe(secondHash)
+  })
+
+  it("keeps subtitle source language as a distinct hash input", async () => {
+    const { translateSubtitles } = await import("../translator")
+
+    getLocalConfigMock.mockResolvedValueOnce({
+      ...DEFAULT_CONFIG,
+      videoSubtitles: {
+        ...DEFAULT_CONFIG.videoSubtitles,
+        providerId: "openai-default",
+        sourceCode: "auto",
+      },
+    })
+
+    await translateSubtitles(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+      "fr",
+    )
+
+    getLocalConfigMock.mockResolvedValueOnce({
+      ...DEFAULT_CONFIG,
+      videoSubtitles: {
+        ...DEFAULT_CONFIG.videoSubtitles,
+        providerId: "openai-default",
+        sourceCode: "eng",
+      },
+    })
+
+    await translateSubtitles(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+      "fr",
+    )
 
     const firstHash = sendMessageMock.mock.calls[0][1].hash
     const secondHash = sendMessageMock.mock.calls[1][1].hash

@@ -736,6 +736,12 @@ options:
   videoSubtitles:
     title: Video Altyazıları
     description: Şu anda yalnızca YouTube video altyazılarını desteklemektedir
+    language:
+      title: Altyazı Kaynak Dili
+      description: Sayfa çevirisinin hedef dilini değiştirmeden altyazı çevirisinde kullanılacak kaynak dili seçin.
+      sourceLabel: Kaynak Dil
+      placeholder: Dilleri ara veya otomatik bırak
+      sourceDescription: Otomatik, platformun veya çeviri sağlayıcısının dil tespitini kullanır. Mevcut altyazı parçasının dili yanlışsa sabit bir dil seçin.
     provider:
       title: Çeviri Sağlayıcısı
       description: Video altyazı çevirisi için kullanılacak çeviri sağlayıcısını seçin

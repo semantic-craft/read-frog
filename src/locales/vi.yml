@@ -736,6 +736,12 @@ options:
   videoSubtitles:
     title: Phụ đề video
     description: Hiện chỉ hỗ trợ phụ đề video YouTube
+    language:
+      title: Ngôn ngữ gốc của phụ đề
+      description: Chọn ngôn ngữ gốc dùng để dịch phụ đề mà không làm thay đổi ngôn ngữ đích của dịch trang web.
+      sourceLabel: Ngôn ngữ gốc
+      placeholder: Tìm ngôn ngữ hoặc giữ tự động
+      sourceDescription: Tự động sẽ theo nhận diện ngôn ngữ của nền tảng hoặc nhà cung cấp dịch. Hãy chọn ngôn ngữ cố định nếu ngôn ngữ của track phụ đề hiện tại bị sai.
     provider:
       title: Nhà cung cấp dịch thuật
       description: Chọn nhà cung cấp dịch thuật để sử dụng cho phụ đề video

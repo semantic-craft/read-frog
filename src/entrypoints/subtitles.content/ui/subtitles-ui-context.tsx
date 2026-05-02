@@ -7,6 +7,7 @@ import { subtitlesStore } from "../atoms"
 interface SubtitlesUIContextValue {
   toggleSubtitles: (enabled: boolean) => void
   downloadSourceSubtitles: () => Promise<void>
+  refreshSubtitleTranslation: () => void
   controlsConfig?: ControlsConfig
   embedded?: boolean
 }
@@ -23,7 +24,7 @@ export function useSubtitlesUI() {
 
 export type SubtitlesProvidersAdapter = Pick<
   UniversalVideoAdapter,
-  "downloadSourceSubtitles" | "embedded" | "getControlsConfig" | "toggleSubtitlesManually"
+  "downloadSourceSubtitles" | "embedded" | "getControlsConfig" | "refreshSubtitleTranslation" | "toggleSubtitlesManually"
 >
 
 export function SubtitlesProviders({
@@ -39,6 +40,7 @@ export function SubtitlesProviders({
         value={{
           toggleSubtitles: adapter.toggleSubtitlesManually,
           downloadSourceSubtitles: adapter.downloadSourceSubtitles,
+          refreshSubtitleTranslation: adapter.refreshSubtitleTranslation,
           controlsConfig: adapter.getControlsConfig(),
           embedded: adapter.embedded,
         }}

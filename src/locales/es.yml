@@ -851,6 +851,12 @@ options:
   videoSubtitles:
     title: Subtítulos de video
     description: Actualmente solo admite subtítulos de videos de YouTube
+    language:
+      title: Idioma de origen de subtítulos
+      description: Elige el idioma de origen usado para traducir subtítulos sin cambiar el idioma objetivo de traducción de la página.
+      sourceLabel: Idioma de origen
+      placeholder: Buscar idiomas o mantener auto
+      sourceDescription: Auto sigue la detección del idioma de la plataforma o del proveedor. Elige un idioma fijo si la pista de subtítulos actual es incorrecta.
     provider:
       title: Proveedor de traducción
       description: Elige qué proveedor de traducción usar para la traducción de subtítulos de video

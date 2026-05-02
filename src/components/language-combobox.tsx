@@ -22,6 +22,7 @@ interface LanguageComboboxProps {
   detectedLangCode?: LangCodeISO6393
   placeholder?: string
   className?: string
+  container?: HTMLElement | null
 }
 
 export function LanguageCombobox({
@@ -30,6 +31,7 @@ export function LanguageCombobox({
   detectedLangCode,
   placeholder,
   className,
+  container,
 }: LanguageComboboxProps) {
   const languageItems = useMemo(
     () => getLanguageItems(detectedLangCode),
@@ -51,7 +53,7 @@ export function LanguageCombobox({
         className={className}
         placeholder={placeholder ?? i18n.t("translationHub.searchLanguages")}
       />
-      <ComboboxContent className="w-fit">
+      <ComboboxContent container={container}>
         <ComboboxList>
           {(item: LanguageItem) => (
             <ComboboxItem key={item.value} value={item}>

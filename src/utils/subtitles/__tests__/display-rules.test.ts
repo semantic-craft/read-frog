@@ -1,6 +1,6 @@
 import type { StateData, SubtitlesFragment } from "../types"
 import { describe, expect, it } from "vitest"
-import { hasRenderableSubtitleByMode, isAwaitingTranslation } from "../display-rules"
+import { getSubtitleLineVisibility, hasRenderableSubtitleByMode, isAwaitingTranslation } from "../display-rules"
 
 function makeSubtitle(overrides?: Partial<SubtitlesFragment>): SubtitlesFragment {
   return {
@@ -31,6 +31,11 @@ describe("hasRenderableSubtitleByMode", () => {
     const sub = makeSubtitle({ translation: "你好" })
     expect(hasRenderableSubtitleByMode(sub, "translationOnly")).toBe(true)
   })
+
+  it("returns true for translationOnly when translation is intentionally skipped", () => {
+    const sub = makeSubtitle({ translationSkippedReason: "same-language" })
+    expect(hasRenderableSubtitleByMode(sub, "translationOnly")).toBe(true)
+  })
 })
 
 describe("isAwaitingTranslation", () => {
@@ -41,6 +46,11 @@ describe("isAwaitingTranslation", () => {
 
   it("has subtitle, translated → false", () => {
     const sub = makeSubtitle({ translation: "你好" })
+    expect(isAwaitingTranslation(sub, null)).toBe(false)
+  })
+
+  it("has subtitle, same-language skip → false", () => {
+    const sub = makeSubtitle({ translationSkippedReason: "same-language" })
     expect(isAwaitingTranslation(sub, null)).toBe(false)
   })
 
@@ -63,5 +73,23 @@ describe("isAwaitingTranslation", () => {
     const idleState: StateData = { state: "idle" }
     // subtitle without translation → awaiting, regardless of stateData
     expect(isAwaitingTranslation(sub, idleState)).toBe(true)
+  })
+})
+
+describe("getSubtitleLineVisibility", () => {
+  it("shows only original text for translationOnly when translation is skipped", () => {
+    const sub = makeSubtitle({ translationSkippedReason: "same-language" })
+    expect(getSubtitleLineVisibility(sub, "translationOnly")).toEqual({
+      showMain: true,
+      showTranslation: false,
+    })
+  })
+
+  it("shows only translation text for translationOnly when translation exists", () => {
+    const sub = makeSubtitle({ translation: "你好" })
+    expect(getSubtitleLineVisibility(sub, "translationOnly")).toEqual({
+      showMain: false,
+      showTranslation: true,
+    })
   })
 })

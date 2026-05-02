@@ -41,8 +41,12 @@ export class SubtitlesScheduler {
         continue
       }
 
-      if (newSub.translation) {
-        const updatedSub = { ...existing, translation: newSub.translation }
+      if (newSub.translation || newSub.translationSkippedReason) {
+        const updatedSub = {
+          ...existing,
+          translation: newSub.translation,
+          translationSkippedReason: newSub.translationSkippedReason,
+        }
         const idx = this.subtitles.findIndex(s => s.start === existing.start)
         if (idx >= 0) {
           this.subtitles[idx] = updatedSub

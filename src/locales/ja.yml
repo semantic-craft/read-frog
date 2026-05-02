@@ -736,6 +736,12 @@ options:
   videoSubtitles:
     title: 動画字幕
     description: 現在 YouTube 動画字幕のみ対応
+    language:
+      title: 字幕の元言語
+      description: 字幕翻訳に使う元言語を個別に設定します。Web ページ翻訳の対象言語には影響しません。
+      sourceLabel: 元言語
+      placeholder: 言語を検索、または自動のまま
+      sourceDescription: 自動ではプラットフォームまたは翻訳プロバイダーの言語判定を使います。字幕トラックの言語が違う場合は固定言語を選んでください。
     provider:
       title: 翻訳プロバイダー
       description: 動画字幕翻訳に使用する翻訳プロバイダーを選択

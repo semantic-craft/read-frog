@@ -15,7 +15,7 @@ import { OverlaySubtitlesError, ToastSubtitlesError } from "@/utils/subtitles/er
 import { optimizeSubtitles } from "@/utils/subtitles/processor/optimizer"
 import { buildSubtitlesSummaryContextHash, fetchSubtitlesSummary } from "@/utils/subtitles/processor/translator"
 import { downloadSubtitlesAsSrt } from "@/utils/subtitles/srt"
-import { subtitlesPositionAtom, subtitlesSettingsPanelOpenAtom, subtitlesSettingsPanelViewAtom, subtitlesStore } from "./atoms"
+import { subtitlesPositionAtom, subtitlesSettingsPanelOpenAtom, subtitlesSettingsPanelViewAtom, subtitlesStore, subtitlesVisibleAtom } from "./atoms"
 import { renderSubtitlesTranslateButton } from "./renderer/render-translate-button"
 import { SegmentationPipeline } from "./segmentation-pipeline"
 import { SubtitlesScheduler } from "./subtitles-scheduler"
@@ -90,6 +90,22 @@ export class UniversalVideoAdapter {
       pageTitle: document.title || "",
       videoId: this.config.getVideoId?.(),
     })
+  }
+
+  refreshSubtitleTranslation = () => {
+    if (
+      !this.subtitlesScheduler
+      || !this.translationCoordinator
+      || this.sessionSubtitles.length === 0
+      || !subtitlesStore.get(subtitlesVisibleAtom)
+    ) {
+      return
+    }
+
+    this.clearRuntimeSession()
+    this.subtitlesScheduler.reset()
+    this.subtitlesScheduler.setState("loading")
+    void this.processSubtitles()
   }
 
   private async restorePosition() {
@@ -460,7 +476,7 @@ export class UniversalVideoAdapter {
       onTranslated: fragments => scheduler.supplementSubtitles(fragments),
       onStateChange: (state, data) => scheduler.setState(state, data),
     })
-    this.translationCoordinator.start(videoContext)
+    this.translationCoordinator.start(videoContext, this.subtitlesFetcher.getSourceLanguage())
     const summaryContextHash = buildSubtitlesSummaryContextHash(videoContext, providerConfig)
     this.subtitlesSummaryContextHash = summaryContextHash ?? null
 
