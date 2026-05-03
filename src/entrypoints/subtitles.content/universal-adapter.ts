@@ -460,7 +460,7 @@ export class UniversalVideoAdapter {
       onTranslated: fragments => scheduler.supplementSubtitles(fragments),
       onStateChange: (state, data) => scheduler.setState(state, data),
     })
-    this.translationCoordinator.start(videoContext)
+    this.translationCoordinator.start(videoContext, this.subtitlesFetcher.getSourceLanguage())
     const summaryContextHash = buildSubtitlesSummaryContextHash(videoContext, providerConfig)
     this.subtitlesSummaryContextHash = summaryContextHash ?? null
 

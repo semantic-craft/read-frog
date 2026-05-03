@@ -12,12 +12,35 @@ export interface LanguageItem<T extends LangCodeISO6393 | "auto" = LangCodeISO63
   name: string
 }
 
+const COMMON_SUBTITLE_LANGUAGE_CODES: LangCodeISO6393[] = [
+  "eng",
+  "cmn",
+  "cmn-Hant",
+  "jpn",
+  "kor",
+  "arb",
+  "tur",
+  "rus",
+  "vie",
+  "tha",
+  "deu",
+  "spa",
+  "fra",
+  "por",
+  "ind",
+  "hin",
+]
+
 export function getLanguageName(code: LangCodeISO6393) {
   return i18n.t(`languages.${camelCase(code)}` as Parameters<typeof i18n.t>[0])
 }
 
 export function getLanguageLabel(code: LangCodeISO6393) {
   return `${getLanguageName(code)} (${LANG_CODE_TO_LOCALE_NAME[code]})`
+}
+
+export function getLanguageValueLabel(value: LangCodeISO6393 | "auto") {
+  return value === "auto" ? i18n.t("popup.autoLang") : getLanguageName(value)
 }
 
 export function getTargetLanguageItems(): LanguageItem<LangCodeISO6393>[] {
@@ -29,17 +52,29 @@ export function getTargetLanguageItems(): LanguageItem<LangCodeISO6393>[] {
 }
 
 export function getLanguageItems(detectedLangCode?: LangCodeISO6393): LanguageItem[] {
-  const items: LanguageItem[] = getTargetLanguageItems()
-
-  if (detectedLangCode) {
-    items.unshift({
+  return [
+    {
       value: "auto",
-      label: getLanguageLabel(detectedLangCode),
-      name: getLanguageName(detectedLangCode),
-    })
-  }
+      label: detectedLangCode ? getLanguageLabel(detectedLangCode) : i18n.t("popup.autoLang"),
+      name: detectedLangCode ? getLanguageName(detectedLangCode) : i18n.t("popup.autoLang"),
+    },
+    ...getTargetLanguageItems(),
+  ]
+}
 
-  return items
+export function getCommonSubtitleLanguageItems(): LanguageItem[] {
+  return [
+    {
+      value: "auto",
+      label: i18n.t("popup.autoLang"),
+      name: i18n.t("popup.autoLang"),
+    },
+    ...COMMON_SUBTITLE_LANGUAGE_CODES.map(code => ({
+      value: code,
+      label: getLanguageName(code),
+      name: getLanguageName(code),
+    })),
+  ]
 }
 
 export function filterLanguage(item: LanguageItem, query: string): boolean {

@@ -5,6 +5,7 @@ import { SubtitlesConfig } from "./subtitles-config"
 import { SubtitlesCustomPrompts } from "./subtitles-custom-prompts"
 import { SubtitlesRequestBatch } from "./subtitles-request-batch"
 import { SubtitlesRequestRate } from "./subtitles-request-rate"
+import { SubtitlesSourceLanguage } from "./subtitles-source-language"
 import { SubtitlesStyleSettings } from "./subtitles-style-settings"
 
 export function VideoSubtitlesPage() {
@@ -12,6 +13,7 @@ export function VideoSubtitlesPage() {
     <PageLayout title={i18n.t("options.videoSubtitles.title")}>
       <div className="*:border-b [&>*:last-child]:border-b-0">
         <SubtitlesConfig />
+        <SubtitlesSourceLanguage />
         <SubtitlesStyleSettings />
         <SubtitlesCustomPrompts />
         <SubtitlesRequestRate />

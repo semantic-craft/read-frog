@@ -1,3 +1,4 @@
+import type { LangCodeISO6393 } from "@read-frog/definitions"
 import type { SubtitlesFragment } from "../types"
 import type { Config } from "@/types/config/config"
 import type { ProviderConfig } from "@/types/config/provider"
@@ -8,6 +9,7 @@ import { APICallError } from "ai"
 import { isLLMProviderConfig } from "@/types/config/provider"
 import { getProviderConfigById } from "@/utils/config/helpers"
 import { getLocalConfig } from "@/utils/config/storage"
+import { resolveLanguageCodeFromLocale } from "@/utils/content/page-language"
 import { cleanText } from "@/utils/content/utils"
 import { Sha256Hex } from "@/utils/hash"
 import { prepareTranslationText } from "@/utils/host/translate/text-preparation"
@@ -45,6 +47,20 @@ export interface SubtitlesVideoContext {
   summary?: string | null
 }
 
+interface SubtitleLanguageConfig {
+  sourceCode: Config["videoSubtitles"]["sourceCode"]
+  targetCode: Config["language"]["targetCode"]
+  level: Config["language"]["level"]
+}
+
+type SubtitleBuilderRole = "main" | "translation"
+
+interface SubtitleBuildResult {
+  fragments: SubtitlesFragment[]
+  hadRequests: boolean
+  allRejected: boolean
+}
+
 export function buildSubtitlesSummaryContextHash(
   videoContext: Pick<SubtitlesVideoContext, "subtitlesTextContent">,
   providerConfig?: ProviderConfig,
@@ -68,10 +84,12 @@ function normalizeSubtitlePromptContext(videoContext: SubtitlesVideoContext): Su
 async function buildSubtitleHashComponents(
   text: string,
   providerConfig: ProviderConfig,
-  partialLangConfig: { sourceCode: Config["language"]["sourceCode"], targetCode: Config["language"]["targetCode"] },
+  partialLangConfig: { sourceCode: SubtitleLanguageConfig["sourceCode"], targetCode: SubtitleLanguageConfig["targetCode"] },
+  role: SubtitleBuilderRole,
   enableAIContentAware: boolean,
   subtitlePromptContext: SubtitlePromptContext,
   subtitlesTextContent: string,
+  actualSourceCode?: LangCodeISO6393 | null,
 ): Promise<string[]> {
   const preparedText = prepareTranslationText(text)
   const normalizedSubtitlesTextContent = normalizePromptContextValue(subtitlesTextContent)
@@ -80,7 +98,12 @@ async function buildSubtitleHashComponents(
     JSON.stringify(providerConfig),
     partialLangConfig.sourceCode,
     partialLangConfig.targetCode,
+    `role:${role}`,
   ]
+
+  if (actualSourceCode) {
+    hashComponents.push(`actualSourceCode:${actualSourceCode}`)
+  }
 
   if (!isLLMProviderConfig(providerConfig)) {
     return hashComponents
@@ -111,8 +134,10 @@ async function buildSubtitleHashComponents(
 
 async function translateSingleSubtitle(
   text: string,
-  langConfig: Config["language"],
+  langConfig: SubtitleLanguageConfig,
   providerConfig: ProviderConfig,
+  role: SubtitleBuilderRole,
+  actualSourceCode: LangCodeISO6393 | null,
   enableAIContentAware: boolean,
   videoContext: SubtitlesVideoContext,
 ): Promise<string> {
@@ -121,9 +146,11 @@ async function translateSingleSubtitle(
     text,
     providerConfig,
     { sourceCode: langConfig.sourceCode, targetCode: langConfig.targetCode },
+    role,
     enableAIContentAware,
     subtitlePromptContext,
     videoContext.subtitlesTextContent,
+    actualSourceCode,
   )
 
   if (enableAIContentAware) {
@@ -140,6 +167,200 @@ async function translateSingleSubtitle(
     videoTitle: enableAIContentAware ? subtitlePromptContext.videoTitle : undefined,
     summary: enableAIContentAware ? subtitlePromptContext.videoSummary : undefined,
   })
+}
+
+function getSubtitleLanguageConfig(config: Config): SubtitleLanguageConfig {
+  return {
+    sourceCode: config.videoSubtitles.sourceCode,
+    targetCode: config.language.targetCode,
+    level: config.language.level,
+  }
+}
+
+function resolveActualSubtitleSourceCode(
+  sourceLanguageHint?: string,
+): LangCodeISO6393 | null {
+  return resolveLanguageCodeFromLocale(sourceLanguageHint)
+}
+
+function buildRuntimeLanguageConfig(
+  targetCode: SubtitleLanguageConfig["targetCode"],
+  level: SubtitleLanguageConfig["level"],
+  actualSourceCode: LangCodeISO6393 | null,
+): SubtitleLanguageConfig {
+  return {
+    sourceCode: actualSourceCode ?? "auto",
+    targetCode,
+    level,
+  }
+}
+
+function resolveMainSubtitleTargetCode(
+  configuredSourceCode: SubtitleLanguageConfig["sourceCode"],
+  actualSourceCode: LangCodeISO6393 | null,
+): LangCodeISO6393 | null {
+  if (configuredSourceCode === "auto") {
+    return actualSourceCode
+  }
+
+  return configuredSourceCode
+}
+
+async function buildTranslatedField(
+  fragments: SubtitlesFragment[],
+  providerConfig: ProviderConfig,
+  langConfig: SubtitleLanguageConfig,
+  role: SubtitleBuilderRole,
+  actualSourceCode: LangCodeISO6393 | null,
+  enableAIContentAware: boolean,
+  videoContext: SubtitlesVideoContext,
+): Promise<{
+  values: Map<number, string>
+  hadRequests: boolean
+  allRejected: boolean
+}> {
+  if (fragments.length === 0) {
+    return {
+      values: new Map(),
+      hadRequests: false,
+      allRejected: false,
+    }
+  }
+
+  const translationPromises = fragments.map(fragment =>
+    translateSingleSubtitle(
+      fragment.text,
+      langConfig,
+      providerConfig,
+      role,
+      actualSourceCode,
+      enableAIContentAware,
+      videoContext,
+    ),
+  )
+
+  const results = await Promise.allSettled(translationPromises)
+  const values = new Map<number, string>()
+
+  results.forEach((result, index) => {
+    if (result.status === "fulfilled") {
+      values.set(fragments[index].start, result.value)
+    }
+  })
+
+  return {
+    values,
+    hadRequests: true,
+    allRejected: results.length > 0 && results.every((result): result is PromiseRejectedResult => result.status === "rejected"),
+  }
+}
+
+export async function buildMainSubtitles(
+  fragments: SubtitlesFragment[],
+  trackSourceLanguage: string | undefined,
+  videoContext: SubtitlesVideoContext,
+): Promise<SubtitleBuildResult> {
+  const config = await getLocalConfig()
+  if (!config) {
+    return {
+      fragments,
+      hadRequests: false,
+      allRejected: false,
+    }
+  }
+
+  const providerConfig = getProviderConfigById(config.providersConfig, config.videoSubtitles.providerId)
+  if (!providerConfig) {
+    return {
+      fragments,
+      hadRequests: false,
+      allRejected: false,
+    }
+  }
+
+  const subtitleLangConfig = getSubtitleLanguageConfig(config)
+  const actualSourceCode = resolveActualSubtitleSourceCode(trackSourceLanguage)
+  const targetCode = resolveMainSubtitleTargetCode(config.videoSubtitles.sourceCode, actualSourceCode)
+
+  if (!targetCode || targetCode === actualSourceCode) {
+    return {
+      fragments,
+      hadRequests: false,
+      allRejected: false,
+    }
+  }
+
+  const runtimeLangConfig = buildRuntimeLanguageConfig(targetCode, subtitleLangConfig.level, actualSourceCode)
+  const enableAIContentAware = !!config.translate.enableAIContentAware
+  const { values, hadRequests, allRejected } = await buildTranslatedField(
+    fragments,
+    providerConfig,
+    runtimeLangConfig,
+    "main",
+    actualSourceCode,
+    enableAIContentAware,
+    videoContext,
+  )
+
+  return {
+    hadRequests,
+    allRejected,
+    fragments: fragments.map(fragment => ({
+      ...fragment,
+      text: values.get(fragment.start) ?? fragment.text,
+    })),
+  }
+}
+
+export async function buildTranslationSubtitles(
+  fragments: SubtitlesFragment[],
+  trackSourceLanguage: string | undefined,
+  videoContext: SubtitlesVideoContext,
+): Promise<SubtitleBuildResult> {
+  const config = await getLocalConfig()
+  if (!config) {
+    return {
+      fragments: fragments.map(fragment => ({ ...fragment, translation: "" })),
+      hadRequests: false,
+      allRejected: false,
+    }
+  }
+
+  const providerConfig = getProviderConfigById(config.providersConfig, config.videoSubtitles.providerId)
+  if (!providerConfig) {
+    return {
+      fragments: fragments.map(fragment => ({ ...fragment, translation: "" })),
+      hadRequests: false,
+      allRejected: false,
+    }
+  }
+
+  const subtitleLangConfig = getSubtitleLanguageConfig(config)
+  const actualSourceCode = resolveActualSubtitleSourceCode(trackSourceLanguage)
+  const runtimeLangConfig = buildRuntimeLanguageConfig(
+    subtitleLangConfig.targetCode,
+    subtitleLangConfig.level,
+    actualSourceCode,
+  )
+  const enableAIContentAware = !!config.translate.enableAIContentAware
+  const { values, hadRequests, allRejected } = await buildTranslatedField(
+    fragments,
+    providerConfig,
+    runtimeLangConfig,
+    "translation",
+    actualSourceCode,
+    enableAIContentAware,
+    videoContext,
+  )
+
+  return {
+    hadRequests,
+    allRejected,
+    fragments: fragments.map(fragment => ({
+      ...fragment,
+      translation: values.get(fragment.start) ?? "",
+    })),
+  }
 }
 
 export async function fetchSubtitlesSummary(
@@ -170,38 +391,24 @@ export async function fetchSubtitlesSummary(
 export async function translateSubtitles(
   fragments: SubtitlesFragment[],
   videoContext: SubtitlesVideoContext,
+  sourceLanguageHint?: string,
 ): Promise<SubtitlesFragment[]> {
-  const config = await getLocalConfig()
-  if (!config) {
-    return fragments.map(f => ({ ...f, translation: "" }))
+  const [mainResult, translationResult] = await Promise.all([
+    buildMainSubtitles(fragments, sourceLanguageHint, videoContext),
+    buildTranslationSubtitles(fragments, sourceLanguageHint, videoContext),
+  ])
+
+  if (mainResult.hadRequests && translationResult.hadRequests
+    && mainResult.allRejected && translationResult.allRejected && fragments.length) {
+    throw new Error(toFriendlyErrorMessage(new Error("Empty response")))
   }
 
-  const providerConfig = getProviderConfigById(config.providersConfig, config.videoSubtitles.providerId)
-
-  if (!providerConfig) {
-    return fragments.map(f => ({ ...f, translation: "" }))
-  }
-
-  const langConfig = config.language
-  const enableAIContentAware = !!config.translate.enableAIContentAware
-
-  const translationPromises = fragments.map(fragment =>
-    translateSingleSubtitle(fragment.text, langConfig, providerConfig, enableAIContentAware, videoContext),
+  const translationByStart = new Map(
+    translationResult.fragments.map(fragment => [fragment.start, fragment.translation ?? ""]),
   )
 
-  const results = await Promise.allSettled(translationPromises)
-
-  // If all translations failed, throw with friendly error message
-  const allRejected = results.every((r): r is PromiseRejectedResult => r.status === "rejected")
-  if (allRejected && results.length) {
-    throw new Error(toFriendlyErrorMessage(results[0].reason))
-  }
-
-  return fragments.map((fragment, index) => {
-    const result = results[index]
-    return {
-      ...fragment,
-      translation: result.status === "fulfilled" ? result.value : "",
-    }
-  })
+  return mainResult.fragments.map(fragment => ({
+    ...fragment,
+    translation: translationByStart.get(fragment.start) ?? "",
+  }))
 }

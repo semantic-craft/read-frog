@@ -851,6 +851,12 @@ options:
   videoSubtitles:
     title: Video Subtitles
     description: Currently only supports YouTube video subtitles
+    language:
+      title: Main Subtitle
+      description: Choose the source language used for subtitle translation without changing the webpage translation target language.
+      sourceLabel: Main Subtitle
+      placeholder: Search subtitle languages or keep auto
+      sourceDescription: Auto follows the platform or provider language detection. Choose a fixed language if the current subtitle track language is wrong.
     provider:
       title: Translation Provider
       description: Choose which translation provider to use for video subtitle translation

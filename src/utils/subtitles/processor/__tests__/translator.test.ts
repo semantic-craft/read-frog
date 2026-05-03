@@ -89,6 +89,114 @@ describe("subtitles translator", () => {
     expect(firstHash).not.toBe(secondHash)
   })
 
+  it("uses the subtitle-specific source language with the global target language", async () => {
+    getLocalConfigMock.mockResolvedValueOnce({
+      ...DEFAULT_CONFIG,
+      language: {
+        ...DEFAULT_CONFIG.language,
+        targetCode: "jpn",
+      },
+      videoSubtitles: {
+        ...DEFAULT_CONFIG.videoSubtitles,
+        providerId: "openai-default",
+        sourceCode: "eng",
+      },
+    })
+
+    const { translateSubtitles } = await import("../translator")
+
+    await translateSubtitles(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+      "zh-CN",
+    )
+
+    expect(sendMessageMock).toHaveBeenCalledWith(
+      "enqueueSubtitlesTranslateRequest",
+      expect.objectContaining({
+        langConfig: expect.objectContaining({
+          sourceCode: "eng",
+          targetCode: "jpn",
+        }),
+      }),
+    )
+  })
+
+  it("keeps subtitle source language as a distinct hash input", async () => {
+    const { translateSubtitles } = await import("../translator")
+
+    getLocalConfigMock.mockResolvedValueOnce({
+      ...DEFAULT_CONFIG,
+      videoSubtitles: {
+        ...DEFAULT_CONFIG.videoSubtitles,
+        providerId: "openai-default",
+        sourceCode: "auto",
+      },
+    })
+
+    await translateSubtitles(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+      "fr",
+    )
+
+    getLocalConfigMock.mockResolvedValueOnce({
+      ...DEFAULT_CONFIG,
+      videoSubtitles: {
+        ...DEFAULT_CONFIG.videoSubtitles,
+        providerId: "openai-default",
+        sourceCode: "eng",
+      },
+    })
+
+    await translateSubtitles(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+      "fr",
+    )
+
+    const firstHash = sendMessageMock.mock.calls[0][1].hash
+    const secondHash = sendMessageMock.mock.calls[1][1].hash
+
+    expect(firstHash).not.toBe(secondHash)
+  })
+
+  it("keeps the detected subtitle language as a distinct hash input when sourceCode is auto", async () => {
+    const { translateSubtitles } = await import("../translator")
+
+    await translateSubtitles(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+      "zh-CN",
+    )
+
+    await translateSubtitles(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+      "zh-TW",
+    )
+
+    const firstHash = sendMessageMock.mock.calls[0][1].hash
+    const secondHash = sendMessageMock.mock.calls[1][1].hash
+
+    expect(firstHash).not.toBe(secondHash)
+  })
+
   it("requests subtitle summary through a dedicated background message", async () => {
     sendMessageMock.mockResolvedValue("Generated summary")
 

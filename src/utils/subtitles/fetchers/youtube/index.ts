@@ -18,6 +18,7 @@ import {
   WAIT_TIMEDTEXT_REQUEST_TYPE,
   WAIT_TIMEDTEXT_RESPONSE_TYPE,
 } from "@/utils/constants/subtitles"
+import { resolveLanguageCodeFromLocale } from "@/utils/content/page-language"
 import { getRandomUUID } from "@/utils/crypto-polyfill"
 import { OverlaySubtitlesError } from "@/utils/subtitles/errors"
 import { getYoutubeVideoId } from "@/utils/subtitles/video-id"
@@ -153,7 +154,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
       return null
     }
 
-    const track = this.selectTrack(response.data.captionTracks, response.data.selectedTrackLanguageCode)
+    const track = await this.selectTrack(response.data.captionTracks, response.data.selectedTrackLanguageCode)
     return this.buildTrackHash(videoId, track)
   }
 
@@ -183,7 +184,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     }
 
     const playerData = response.data
-    const track = this.selectTrack(playerData.captionTracks, playerData.selectedTrackLanguageCode)
+    const track = await this.selectTrack(playerData.captionTracks, playerData.selectedTrackLanguageCode)
     const currentHash = this.buildTrackHash(videoId, track)
 
     if (!track) {
@@ -222,7 +223,7 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
     await this.waitForPlayerState(videoId)
 
     const playerData = await this.getPlayerDataWithPot(videoId)
-    const track = this.selectTrack(playerData.captionTracks, playerData.selectedTrackLanguageCode)
+    const track = await this.selectTrack(playerData.captionTracks, playerData.selectedTrackLanguageCode)
       ?? preferredTrack
 
     if (!track) {
@@ -339,7 +340,25 @@ export class YoutubeSubtitlesFetcher implements SubtitlesFetcher {
    * 4. Auto-generated ASR subtitles (lower quality but better than nothing)
    * 5. First available track as fallback
    */
-  private selectTrack(tracks: CaptionTrack[], selectedLanguageCode: string | null): CaptionTrack | null {
+  private async selectTrack(tracks: CaptionTrack[], selectedLanguageCode: string | null): Promise<CaptionTrack | null> {
+    if (tracks.length === 0)
+      return null
+
+    const preferredSourceCode = (await getLocalConfig())?.videoSubtitles?.sourceCode ?? "auto"
+
+    if (preferredSourceCode !== "auto") {
+      const preferredTracks = tracks.filter(track =>
+        resolveLanguageCodeFromLocale(track.languageCode) === preferredSourceCode,
+      )
+      const preferredTrack = this.pickTrackByPriority(preferredTracks, null)
+      if (preferredTrack)
+        return preferredTrack
+    }
+
+    return this.pickTrackByPriority(tracks, selectedLanguageCode)
+  }
+
+  private pickTrackByPriority(tracks: CaptionTrack[], selectedLanguageCode: string | null): CaptionTrack | null {
     if (tracks.length === 0)
       return null
 

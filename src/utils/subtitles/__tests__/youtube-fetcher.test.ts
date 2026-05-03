@@ -1,10 +1,19 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import * as configStorage from "@/utils/config/storage"
 import { PLAYER_DATA_REQUEST_TYPE, PLAYER_DATA_RESPONSE_TYPE } from "@/utils/constants/subtitles"
 import { YoutubeSubtitlesFetcher } from "../fetchers/youtube"
 
 describe("youtube subtitles fetcher", () => {
+  beforeEach(() => {
+    vi.spyOn(configStorage, "getLocalConfig").mockResolvedValue({
+      videoSubtitles: {
+        sourceCode: "auto",
+        aiSegmentation: false,
+      },
+    } as any)
+  })
+
   afterEach(() => {
     document.body.innerHTML = ""
     vi.restoreAllMocks()
@@ -249,6 +258,57 @@ describe("youtube subtitles fetcher", () => {
     expect(processRawEventsSpy).toHaveBeenCalledTimes(1)
     expect(waitForPlayerStateSpy).toHaveBeenCalledTimes(1)
     expect(getPlayerDataWithPotSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it("prefers the configured main subtitle language track over the player-selected track", async () => {
+    const fetcher = new YoutubeSubtitlesFetcher()
+
+    Object.defineProperty(window, "location", {
+      value: { search: "?v=test123", origin: "https://www.youtube.com", pathname: "/watch", hostname: "www.youtube.com" },
+      writable: true,
+    })
+
+    vi.spyOn(configStorage, "getLocalConfig").mockResolvedValue({
+      videoSubtitles: {
+        sourceCode: "fra",
+        aiSegmentation: false,
+      },
+    } as any)
+
+    const playerData = {
+      videoId: "test123",
+      captionTracks: [
+        {
+          baseUrl: "https://www.youtube.com/api/timedtext?v=test123&lang=en",
+          languageCode: "en",
+          vssId: ".en",
+        },
+        {
+          baseUrl: "https://www.youtube.com/api/timedtext?v=test123&lang=fr",
+          languageCode: "fr",
+          vssId: ".fr",
+        },
+      ],
+      audioCaptionTracks: [],
+      device: null,
+      cver: null,
+      playerState: 1,
+      selectedTrackLanguageCode: "en",
+      cachedTimedtextUrl: null,
+    }
+
+    vi.spyOn(fetcher as any, "requestPlayerData").mockResolvedValue({
+      success: true,
+      data: playerData,
+    })
+    const fetchWithRetrySpy = vi.spyOn(fetcher as any, "fetchWithRetry").mockResolvedValue([])
+    vi.spyOn(fetcher as any, "processRawEvents").mockResolvedValue([])
+
+    await expect(fetcher.fetch()).resolves.toEqual([])
+
+    expect(fetchWithRetrySpy).toHaveBeenCalledTimes(1)
+    expect(fetchWithRetrySpy.mock.calls[0]?.[0]).toContain("lang=fr")
+    expect(fetcher.getSourceLanguage()).toBe("fr")
   })
 
   it("returns raw parser fragments for non-AI standard subtitles", async () => {
