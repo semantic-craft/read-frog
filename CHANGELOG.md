@@ -1,5 +1,13 @@
 # @read-frog/extension
 
+## 1.33.4
+
+### Patch Changes
+
+- [#1455](https://github.com/mengxi-ream/read-frog/pull/1455) [`f63b83f`](https://github.com/mengxi-ream/read-frog/commit/f63b83f1acca92e69cf95599d5326d732bebf1b5) Thanks [@taiiiyang](https://github.com/taiiiyang)! - fix: parse webpage context from a detached Defuddle snapshot to avoid mutating the live page DOM
+
+- [#1453](https://github.com/mengxi-ream/read-frog/pull/1453) [`47c50c7`](https://github.com/mengxi-ream/read-frog/commit/47c50c767a3a9af2700c7290539705e458ff538a) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - perf: avoid eager iframe host injection for node translation
+
 ## 1.33.3
 
 ### Patch Changes
