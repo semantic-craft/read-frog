@@ -278,7 +278,7 @@ export async function buildDirectSubtitleTranslations(
   videoContext: SubtitlesVideoContext,
 ): Promise<SubtitleTranslationValuesResult> {
   const actualSourceCode = resolveActualSubtitleSourceCode(trackSourceLanguage)
-  if (shouldSkipSubtitleTranslation(targetLanguage, actualSourceCode)) {
+  if (!targetLanguage || shouldSkipSubtitleTranslation(targetLanguage, actualSourceCode)) {
     return {
       values: new Map(),
       hadRequests: false,
