@@ -89,6 +89,259 @@ describe("subtitles translator", () => {
     expect(firstHash).not.toBe(secondHash)
   })
 
+  it("builds direct subtitle translations from the youtube track language to the target language", async () => {
+    getLocalConfigMock.mockResolvedValueOnce({
+      ...DEFAULT_CONFIG,
+      language: {
+        ...DEFAULT_CONFIG.language,
+        targetCode: "jpn",
+      },
+      videoSubtitles: {
+        ...DEFAULT_CONFIG.videoSubtitles,
+        providerId: "openai-default",
+      },
+    })
+
+    const { buildDirectSubtitleTranslations } = await import("../translator")
+
+    const result = await buildDirectSubtitleTranslations(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      "zh-CN",
+      "eng",
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+    )
+
+    expect(sendMessageMock).toHaveBeenCalledWith(
+      "enqueueSubtitlesTranslateRequest",
+      expect.objectContaining({
+        providerConfig: expect.objectContaining({
+          id: "microsoft-translate-default",
+        }),
+        langConfig: expect.objectContaining({
+          sourceCode: "cmn",
+          targetCode: "eng",
+        }),
+      }),
+    )
+    expect(result.values.get(0)).toBe("translated subtitle")
+  })
+
+  it("builds translation subtitles from the youtube track language to the global target language", async () => {
+    getLocalConfigMock.mockResolvedValueOnce({
+      ...DEFAULT_CONFIG,
+      language: {
+        ...DEFAULT_CONFIG.language,
+        targetCode: "jpn",
+      },
+      videoSubtitles: {
+        ...DEFAULT_CONFIG.videoSubtitles,
+        providerId: "openai-default",
+      },
+    })
+
+    const { buildTranslationSubtitles } = await import("../translator")
+
+    await buildTranslationSubtitles(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      "zh-CN",
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+    )
+
+    expect(sendMessageMock).toHaveBeenCalledWith(
+      "enqueueSubtitlesTranslateRequest",
+      expect.objectContaining({
+        providerConfig: expect.objectContaining({
+          id: "openai-default",
+        }),
+        langConfig: expect.objectContaining({
+          sourceCode: "cmn",
+          targetCode: "jpn",
+        }),
+      }),
+    )
+  })
+
+  it("shares cache hashes between direct translation and the main subtitle wrapper when inputs match", async () => {
+    getLocalConfigMock.mockResolvedValue({
+      ...DEFAULT_CONFIG,
+      language: {
+        ...DEFAULT_CONFIG.language,
+        targetCode: "eng",
+      },
+    })
+
+    const { buildDirectSubtitleTranslations, buildMainSubtitles } = await import("../translator")
+
+    await buildDirectSubtitleTranslations(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      "zh-CN",
+      "eng",
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+    )
+
+    await buildMainSubtitles(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      "zh-CN",
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+      "eng",
+    )
+
+    const firstHash = sendMessageMock.mock.calls[0][1].hash
+    const secondHash = sendMessageMock.mock.calls[1][1].hash
+
+    expect(firstHash).toBe(secondHash)
+  })
+
+  it("skips direct subtitle translation when the target language matches the youtube track language", async () => {
+    const { buildDirectSubtitleTranslations } = await import("../translator")
+
+    const result = await buildDirectSubtitleTranslations(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      "zh-CN",
+      "cmn",
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+    )
+
+    expect(sendMessageMock).not.toHaveBeenCalled()
+    expect(result.values.size).toBe(0)
+    expect(result.hadRequests).toBe(false)
+  })
+
+  it("builds main subtitles by applying direct translation values to subtitle text", async () => {
+    const { buildMainSubtitles } = await import("../translator")
+
+    const result = await buildMainSubtitles(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      "fr",
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+      "eng",
+    )
+
+    expect(result.fragments).toEqual([
+      {
+        text: "translated subtitle",
+        start: 0,
+        end: 1_000,
+      },
+    ])
+  })
+
+  it("keeps direct subtitle target language as a distinct hash input", async () => {
+    const { buildDirectSubtitleTranslations } = await import("../translator")
+
+    await buildDirectSubtitleTranslations(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      "fr",
+      "eng",
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+    )
+
+    await buildDirectSubtitleTranslations(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      "fr",
+      "jpn",
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+    )
+
+    const firstHash = sendMessageMock.mock.calls[0][1].hash
+    const secondHash = sendMessageMock.mock.calls[1][1].hash
+
+    expect(firstHash).not.toBe(secondHash)
+  })
+
+  it("shares cache hashes between direct and translation builders when provider and languages match", async () => {
+    getLocalConfigMock.mockResolvedValue({
+      ...DEFAULT_CONFIG,
+      language: {
+        ...DEFAULT_CONFIG.language,
+        targetCode: "eng",
+      },
+      videoSubtitles: {
+        ...DEFAULT_CONFIG.videoSubtitles,
+        providerId: "microsoft-translate-default",
+      },
+    })
+
+    const { buildDirectSubtitleTranslations, buildTranslationSubtitles } = await import("../translator")
+
+    await buildDirectSubtitleTranslations(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      "fr",
+      "eng",
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+    )
+
+    await buildTranslationSubtitles(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      "fr",
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+    )
+
+    const firstHash = sendMessageMock.mock.calls[0][1].hash
+    const secondHash = sendMessageMock.mock.calls[1][1].hash
+
+    expect(firstHash).toBe(secondHash)
+  })
+
+  it("keeps the detected subtitle language as a distinct hash input", async () => {
+    const { buildDirectSubtitleTranslations } = await import("../translator")
+
+    await buildDirectSubtitleTranslations(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      "fr",
+      "eng",
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+    )
+
+    await buildDirectSubtitleTranslations(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      "ja",
+      "eng",
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+    )
+
+    const firstHash = sendMessageMock.mock.calls[0][1].hash
+    const secondHash = sendMessageMock.mock.calls[1][1].hash
+
+    expect(firstHash).not.toBe(secondHash)
+  })
+
   it("requests subtitle summary through a dedicated background message", async () => {
     sendMessageMock.mockResolvedValue("Generated summary")
 
@@ -149,6 +402,45 @@ describe("subtitles translator", () => {
     const request = sendMessageMock.mock.calls[0][1]
     expect(request.videoTitle).toBe("Video title")
     expect(request.summary).toBeNull()
+  })
+
+  it("merges translated main subtitles and translation subtitles independently", async () => {
+    sendMessageMock
+      .mockResolvedValueOnce("main translated")
+      .mockResolvedValueOnce("translation translated")
+
+    getLocalConfigMock.mockResolvedValue({
+      ...DEFAULT_CONFIG,
+      language: {
+        ...DEFAULT_CONFIG.language,
+        targetCode: "jpn",
+      },
+      videoSubtitles: {
+        ...DEFAULT_CONFIG.videoSubtitles,
+        providerId: "openai-default",
+      },
+    })
+
+    const { translateSubtitles } = await import("../translator")
+
+    const result = await translateSubtitles(
+      [{ text: "hello", start: 0, end: 1_000 }],
+      {
+        videoTitle: "Video title",
+        subtitlesTextContent: "subtitle transcript",
+      },
+      "zh-CN",
+      "eng",
+    )
+
+    expect(result).toEqual([
+      {
+        text: "main translated",
+        start: 0,
+        end: 1_000,
+        translation: "translation translated",
+      },
+    ])
   })
 
   it("builds subtitle summary context hashes from subtitles text and provider config", async () => {

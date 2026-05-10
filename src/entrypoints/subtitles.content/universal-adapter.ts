@@ -430,6 +430,9 @@ export class UniversalVideoAdapter {
     const providerConfig = config
       ? getProviderConfigById(config.providersConfig, config.videoSubtitles.providerId)
       : undefined
+    const directSubtitleTargetLanguage = config?.videoSubtitles?.style.displayMode === "translationOnly"
+      ? undefined
+      : config?.language.targetCode
 
     const videoContext: SubtitlesVideoContext = {
       videoTitle: document.title || "",
@@ -460,7 +463,11 @@ export class UniversalVideoAdapter {
       onTranslated: fragments => scheduler.supplementSubtitles(fragments),
       onStateChange: (state, data) => scheduler.setState(state, data),
     })
-    this.translationCoordinator.start(videoContext)
+    this.translationCoordinator.start(
+      videoContext,
+      this.subtitlesFetcher.getSourceLanguage(),
+      directSubtitleTargetLanguage,
+    )
     const summaryContextHash = buildSubtitlesSummaryContextHash(videoContext, providerConfig)
     this.subtitlesSummaryContextHash = summaryContextHash ?? null
 

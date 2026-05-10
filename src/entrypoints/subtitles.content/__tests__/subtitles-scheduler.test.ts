@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { subtitlesStateAtom, subtitlesStore } from "../atoms"
+import { currentSubtitleAtom, subtitlesStateAtom, subtitlesStore } from "../atoms"
 import { SubtitlesScheduler } from "../subtitles-scheduler"
 
 describe("subtitles scheduler", () => {
@@ -23,5 +23,30 @@ describe("subtitles scheduler", () => {
 
     vi.advanceTimersByTime(5_000)
     expect(subtitlesStore.get(subtitlesStateAtom)).toBeNull()
+  })
+
+  it("merges subtitle patches without clearing an existing translation", () => {
+    const videoElement = {
+      currentTime: 0,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    } as unknown as HTMLVideoElement
+
+    const scheduler = new SubtitlesScheduler({ videoElement })
+    scheduler.start()
+
+    scheduler.supplementSubtitles([
+      { text: "hello", translation: "你好", start: 0, end: 1_000 },
+    ])
+    scheduler.supplementSubtitles([
+      { text: "hello world", start: 0, end: 1_000 },
+    ])
+
+    expect(subtitlesStore.get(currentSubtitleAtom)).toEqual({
+      text: "hello world",
+      translation: "你好",
+      start: 0,
+      end: 1_000,
+    })
   })
 })

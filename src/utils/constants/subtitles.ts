@@ -13,6 +13,9 @@ export const SENTENCE_END_PATTERN = /[,.。?？！!；;…؟۔\n]$/
 // On-demand translation constants
 export const TRANSLATION_BATCH_SIZE = 5
 export const TRANSLATE_LOOK_AHEAD_MS = 30_000
+export const DIRECT_TRANSLATION_WARMUP_BATCH_SIZE = 10
+export const DIRECT_TRANSLATION_WARMUP_LOOK_AHEAD_MS = 120_000
+export const DIRECT_TRANSLATION_WARMUP_INTERVAL_MS = 2_000
 export const PROCESS_LOOK_AHEAD_MS = 60_000
 
 // DOM IDs

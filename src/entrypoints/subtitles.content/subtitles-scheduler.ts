@@ -3,6 +3,24 @@ import { currentSubtitleAtom, currentTimeMsAtom, subtitlesStateAtom, subtitlesSt
 
 const ERROR_STATE_AUTO_HIDE_MS = 5_000
 
+function mergeSubtitlePatch(
+  existing: SubtitlesFragment,
+  patch: SubtitlesFragment,
+): SubtitlesFragment | null {
+  const hasUpdatedTranslation = Object.hasOwn(patch, "translation")
+    && patch.translation !== existing.translation
+
+  if (patch.text === existing.text && !hasUpdatedTranslation) {
+    return null
+  }
+
+  return {
+    ...existing,
+    text: patch.text,
+    translation: hasUpdatedTranslation ? patch.translation : existing.translation,
+  }
+}
+
 export class SubtitlesScheduler {
   private videoElement: HTMLVideoElement
   private subtitles: SubtitlesFragment[] = []
@@ -41,8 +59,8 @@ export class SubtitlesScheduler {
         continue
       }
 
-      if (newSub.translation) {
-        const updatedSub = { ...existing, translation: newSub.translation }
+      const updatedSub = mergeSubtitlePatch(existing, newSub)
+      if (updatedSub) {
         const idx = this.subtitles.findIndex(s => s.start === existing.start)
         if (idx >= 0) {
           this.subtitles[idx] = updatedSub
