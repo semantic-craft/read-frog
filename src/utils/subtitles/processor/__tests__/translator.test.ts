@@ -151,6 +151,39 @@ describe("subtitles translator", () => {
     expect(request.summary).toBeNull()
   })
 
+  it("keeps subtitle video title context when AI content awareness is disabled", async () => {
+    getLocalConfigMock.mockResolvedValueOnce({
+      ...DEFAULT_CONFIG,
+      translate: {
+        ...DEFAULT_CONFIG.translate,
+        enableAIContentAware: false,
+      },
+      videoSubtitles: {
+        ...DEFAULT_CONFIG.videoSubtitles,
+        providerId: "openai-default",
+      },
+    })
+
+    const { translateSubtitles } = await import("../translator")
+
+    await translateSubtitles([{ text: "hello", start: 0, end: 1_000 }], {
+      videoTitle: "Video title",
+      subtitlesTextContent: "subtitle transcript",
+      summary: "Ignored summary",
+    })
+
+    const request = sendMessageMock.mock.calls[0][1]
+    expect(request.videoTitle).toBe("Video title")
+    expect(request.summary).toBeUndefined()
+    expect(getSubtitlesTranslatePromptMock).toHaveBeenCalledWith(expect.any(String), "hello", expect.objectContaining({
+      isBatch: true,
+      context: {
+        videoTitle: "Video title",
+        videoSummary: undefined,
+      },
+    }))
+  })
+
   it("builds subtitle summary context hashes from subtitles text and provider config", async () => {
     const { buildSubtitlesSummaryContextHash } = await import("../translator")
 

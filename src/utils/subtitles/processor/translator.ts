@@ -89,7 +89,7 @@ async function buildSubtitleHashComponents(
   const targetLangName = LANG_CODE_TO_EN_NAME[partialLangConfig.targetCode]
   const { systemPrompt, prompt } = await getSubtitlesTranslatePrompt(targetLangName, preparedText, {
     isBatch: true,
-    context: enableAIContentAware ? subtitlePromptContext : undefined,
+    context: subtitlePromptContext,
   })
   hashComponents.push(systemPrompt, prompt)
   hashComponents.push(enableAIContentAware ? "enableAIContentAware=true" : "enableAIContentAware=false")
@@ -117,17 +117,21 @@ async function translateSingleSubtitle(
   videoContext: SubtitlesVideoContext,
 ): Promise<string> {
   const subtitlePromptContext = normalizeSubtitlePromptContext(videoContext)
+  const promptContext: SubtitlePromptContext = {
+    videoTitle: subtitlePromptContext.videoTitle,
+    videoSummary: enableAIContentAware ? subtitlePromptContext.videoSummary : undefined,
+  }
   const hashComponents = await buildSubtitleHashComponents(
     text,
     providerConfig,
     { sourceCode: langConfig.sourceCode, targetCode: langConfig.targetCode },
     enableAIContentAware,
-    subtitlePromptContext,
+    promptContext,
     videoContext.subtitlesTextContent,
   )
 
   if (enableAIContentAware) {
-    const summary = subtitlePromptContext.videoSummary
+    const summary = promptContext.videoSummary
     hashComponents.push(summary ? "subtitleSummary=ready" : "subtitleSummary=missing")
   }
 
@@ -137,8 +141,8 @@ async function translateSingleSubtitle(
     providerConfig,
     scheduleAt: Date.now(),
     hash: Sha256Hex(...hashComponents),
-    videoTitle: enableAIContentAware ? subtitlePromptContext.videoTitle : undefined,
-    summary: enableAIContentAware ? subtitlePromptContext.videoSummary : undefined,
+    videoTitle: promptContext.videoTitle,
+    summary: enableAIContentAware ? promptContext.videoSummary : undefined,
   })
 }
 
