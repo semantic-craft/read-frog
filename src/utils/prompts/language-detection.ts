@@ -1,8 +1,11 @@
 import type { LangCodeISO6393 } from "@read-frog/definitions"
-import { LANG_CODE_TO_EN_NAME, langCodeISO6393Schema } from "@read-frog/definitions"
+import { LANG_CODE_ISO6393_OPTIONS, LANG_CODE_TO_EN_NAME, langCodeISO6393Schema } from "@read-frog/definitions"
 import z from "zod"
 
 const PUNCTUATION_AND_WHITESPACE_PATTERN = /['"`,.\s]/g
+const ISO6393_BY_NORMALIZED_CODE = new Map(
+  LANG_CODE_ISO6393_OPTIONS.map(code => [normalizeLanguageDetectionOutput(code), code] as const),
+)
 
 const supportedLanguageList = Object.entries(LANG_CODE_TO_EN_NAME)
   .map(([code, name]) => `- ${code}: ${name}`)
@@ -26,6 +29,14 @@ export function normalizeLanguageDetectionOutput(rawOutput: string): string {
 
 export function parseDetectedLanguageCode(rawOutput: string): LangCodeISO6393 | "und" | null {
   const cleanedCode = normalizeLanguageDetectionOutput(rawOutput)
-  const parseResult = langCodeISO6393Schema.or(z.literal("und")).safeParse(cleanedCode)
+  const canonicalCode = cleanedCode === "und"
+    ? "und"
+    : ISO6393_BY_NORMALIZED_CODE.get(cleanedCode)
+
+  if (!canonicalCode) {
+    return null
+  }
+
+  const parseResult = langCodeISO6393Schema.or(z.literal("und")).safeParse(canonicalCode)
   return parseResult.success ? parseResult.data : null
 }

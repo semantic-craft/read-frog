@@ -91,6 +91,21 @@ describe("translate-text", () => {
       expect(mockGetOrCreateWebPageContext).not.toHaveBeenCalled()
       expect(mockGetOrGenerateWebPageSummary).not.toHaveBeenCalled()
     })
+
+    it("translates Traditional Chinese text when the target language is Simplified Chinese", async () => {
+      mockSendMessage.mockResolvedValue("鸟哥的 Linux 私房菜提供基础学习篇、服务器架设篇与各种实务文件。")
+      const traditionalText = "鳥哥的 Linux 私房菜提供基礎學習篇、伺服器架設篇與各種實務文件，適合想要學習繁體中文技術文章的使用者閱讀。"
+
+      const result = await translateTextForPage(traditionalText)
+
+      expect(result).toBe("鸟哥的 Linux 私房菜提供基础学习篇、服务器架设篇与各种实务文件。")
+      expect(mockSendMessage).toHaveBeenCalledWith("enqueueTranslateRequest", expect.objectContaining({
+        text: traditionalText,
+        langConfig: expect.objectContaining({
+          targetCode: "cmn",
+        }),
+      }))
+    })
   })
 
   describe("translateTextForPageTitle", () => {

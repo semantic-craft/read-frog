@@ -17,6 +17,19 @@ import { cleanText } from "./utils"
 const DEFAULT_MIN_LENGTH = 10
 const DEFAULT_MAX_LENGTH_FOR_LLM = 500
 const LLM_DETECTION_FALLBACK_TOAST_ID = "llm-detection-fallback"
+const CHINESE_VARIANT_MIN_HITS = 2
+
+const TRADITIONAL_CHINESE_VARIANT_CHARS = new Set([
+  "個", "們", "這", "為", "鳥", "書", "與", "學", "習", "體", "範", "氣", "設", "種", "實", "務", "適",
+  "簡", "術", "閱", "讀", "網", "頁", "標", "題", "內", "廣", "東", "關", "係", "長", "萬", "轉", "換",
+  "測", "試", "請", "輸", "譯", "擴", "瀏", "覽", "錯", "誤", "應", "該", "發", "現", "業", "號",
+])
+
+const SIMPLIFIED_CHINESE_VARIANT_CHARS = new Set([
+  "个", "们", "这", "为", "鸟", "书", "与", "学", "习", "体", "范", "气", "设", "种", "实", "务", "适",
+  "简", "术", "阅", "读", "网", "页", "标", "题", "内", "广", "东", "关", "系", "长", "万", "转", "换",
+  "测", "试", "请", "输", "译", "扩", "浏", "览", "器", "错", "误", "应", "该", "发", "现", "业", "号",
+])
 
 export type DetectionSource = "llm" | "franc" | "fallback"
 
@@ -34,6 +47,34 @@ export interface DetectLanguageOptions {
 export interface DetectLanguageResult {
   code: LangCodeISO6393 | "und"
   source: DetectionSource
+}
+
+function countChineseVariantChars(text: string, variantChars: Set<string>): number {
+  let count = 0
+  for (const char of text) {
+    if (variantChars.has(char)) {
+      count += 1
+    }
+  }
+  return count
+}
+
+function refineMandarinChineseVariant(text: string, detectedCode: LangCodeISO6393): LangCodeISO6393 {
+  if (detectedCode !== "cmn") {
+    return detectedCode
+  }
+
+  const traditionalHits = countChineseVariantChars(text, TRADITIONAL_CHINESE_VARIANT_CHARS)
+  const simplifiedHits = countChineseVariantChars(text, SIMPLIFIED_CHINESE_VARIANT_CHARS)
+
+  if (
+    traditionalHits >= CHINESE_VARIANT_MIN_HITS
+    && traditionalHits >= simplifiedHits + CHINESE_VARIANT_MIN_HITS
+  ) {
+    return "cmn-Hant"
+  }
+
+  return "cmn"
 }
 
 /**
@@ -64,7 +105,7 @@ export async function detectLanguageWithSource(
         options?.providerConfig,
       )
       if (llmResult && llmResult !== "und") {
-        return { code: llmResult, source: "llm" }
+        return { code: refineMandarinChineseVariant(trimmedText, llmResult), source: "llm" }
       }
     }
     catch (error) {
@@ -80,7 +121,10 @@ export async function detectLanguageWithSource(
   if (francResult === "und") {
     return { code: "und", source: "fallback" }
   }
-  return { code: francResult as LangCodeISO6393, source: "franc" }
+  return {
+    code: refineMandarinChineseVariant(trimmedText, francResult as LangCodeISO6393),
+    source: "franc",
+  }
 }
 
 /**
