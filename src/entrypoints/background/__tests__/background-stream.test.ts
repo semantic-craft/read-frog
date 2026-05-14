@@ -5,6 +5,8 @@ const streamTextMock = vi.fn()
 const outputObjectMock = vi.fn((params: Record<string, unknown>) => params)
 const getModelByIdMock = vi.fn()
 const loggerErrorMock = vi.fn()
+const translationCacheGetMock = vi.fn()
+const translationCachePutMock = vi.fn()
 const parsePartialJsonMock = vi.fn(async (text: string | undefined) => {
   if (!text) {
     return { state: "undefined-input", value: undefined }
@@ -45,6 +47,15 @@ vi.mock("@/utils/providers/model", () => ({
 vi.mock("@/utils/logger", () => ({
   logger: {
     error: loggerErrorMock,
+  },
+}))
+
+vi.mock("@/utils/db/dexie/db", () => ({
+  db: {
+    translationCache: {
+      get: translationCacheGetMock,
+      put: translationCachePutMock,
+    },
   },
 }))
 
@@ -101,6 +112,7 @@ describe("background-stream", () => {
   beforeEach(() => {
     vi.resetModules()
     vi.clearAllMocks()
+    translationCacheGetMock.mockResolvedValue(undefined)
   })
 
   it("streams structured object output from background", async () => {
@@ -141,6 +153,7 @@ describe("background-stream", () => {
       model: "mock-model",
       prompt: "Analyze selection",
     }))
+    expect(translationCachePutMock).not.toHaveBeenCalled()
     expect(result).toEqual({
       output: {
         score: 97,
@@ -183,6 +196,82 @@ describe("background-stream", () => {
       score: "99",
       summary: "text",
     }).success).toBe(false)
+  })
+
+  it("returns cached structured object streams without calling the model", async () => {
+    translationCacheGetMock.mockResolvedValue({
+      key: "stream-structured-object:custom-action-cache",
+      translation: JSON.stringify({ term: "frog", definition: "a small amphibian" }),
+      createdAt: new Date(),
+    })
+
+    const { runStructuredObjectStreamInBackground } = await import("../background-stream")
+    const result = await runStructuredObjectStreamInBackground({
+      providerId: "openai-default",
+      cacheKey: "custom-action-cache",
+      prompt: "Define frog",
+      outputSchema: [
+        { name: "term", type: "string" },
+        { name: "definition", type: "string" },
+      ],
+    })
+
+    expect(translationCacheGetMock).toHaveBeenCalledWith("stream-structured-object:custom-action-cache")
+    expect(getModelByIdMock).not.toHaveBeenCalled()
+    expect(streamTextMock).not.toHaveBeenCalled()
+    expect(result).toEqual({
+      output: { term: "frog", definition: "a small amphibian" },
+      thinking: { status: "complete", text: "" },
+    })
+  })
+
+  it("caches completed structured object stream results", async () => {
+    getModelByIdMock.mockResolvedValue("mock-model")
+    streamTextMock.mockReturnValue({
+      fullStream: (async function* () {
+        yield { type: "text-delta", text: "{\"term\":\"frog\",\"definition\":\"a small amphibian\"}" }
+      })(),
+    })
+
+    const { runStructuredObjectStreamInBackground } = await import("../background-stream")
+    const result = await runStructuredObjectStreamInBackground({
+      providerId: "openai-default",
+      cacheKey: "custom-action-cache",
+      prompt: "Define frog",
+      outputSchema: [
+        { name: "term", type: "string" },
+        { name: "definition", type: "string" },
+      ],
+    })
+
+    expect(result.output).toEqual({ term: "frog", definition: "a small amphibian" })
+    expect(translationCachePutMock).toHaveBeenCalledWith(expect.objectContaining({
+      key: "stream-structured-object:custom-action-cache",
+      translation: JSON.stringify({ term: "frog", definition: "a small amphibian" }),
+    }))
+  })
+
+  it("returns cached text stream snapshots without calling the model", async () => {
+    translationCacheGetMock.mockResolvedValue({
+      key: "stream-text:selection-translation-cache",
+      translation: "cached translation",
+      createdAt: new Date(),
+    })
+
+    const { runStreamTextInBackground } = await import("../background-stream")
+    const result = await runStreamTextInBackground({
+      providerId: "openai-default",
+      cacheKey: "selection-translation-cache",
+      prompt: "Translate selection",
+    })
+
+    expect(translationCacheGetMock).toHaveBeenCalledWith("stream-text:selection-translation-cache")
+    expect(getModelByIdMock).not.toHaveBeenCalled()
+    expect(streamTextMock).not.toHaveBeenCalled()
+    expect(result).toEqual({
+      output: "cached translation",
+      thinking: { status: "complete", text: "" },
+    })
   })
 
   it("streams text via background stream port handler", async () => {

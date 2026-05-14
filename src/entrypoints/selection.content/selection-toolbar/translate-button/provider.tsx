@@ -15,6 +15,7 @@ import { configFieldsAtomMap, writeConfigAtom } from "@/utils/atoms/config"
 import { filterEnabledProvidersConfig } from "@/utils/config/helpers"
 import { buildFeatureProviderPatch } from "@/utils/constants/feature-providers"
 import { streamBackgroundText } from "@/utils/content-script/background-stream-client"
+import { Sha256Hex } from "@/utils/hash"
 import { prepareTranslationText } from "@/utils/host/translate/text-preparation"
 import { translateTextCore } from "@/utils/host/translate/translate-text"
 import { getOrCreateWebPageContext } from "@/utils/host/translate/webpage-context"
@@ -111,10 +112,20 @@ async function translateWithLlm({
         }
       : undefined,
   )
+  const cacheKey = Sha256Hex(
+    "selectionTranslation",
+    preparedText,
+    translateRequest.language.sourceCode,
+    translateRequest.language.targetCode,
+    JSON.stringify(providerConfig),
+    systemPrompt,
+    prompt,
+  )
 
   const translatedText = await streamBackgroundText(
     {
       providerId,
+      cacheKey,
       system: systemPrompt,
       prompt,
       providerOptions,

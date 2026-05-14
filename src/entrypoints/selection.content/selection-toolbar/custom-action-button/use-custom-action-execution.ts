@@ -13,6 +13,7 @@ import { ANALYTICS_FEATURE } from "@/types/analytics"
 import { isLLMProviderConfig } from "@/types/config/provider"
 import { createFeatureUsageContext, trackFeatureUsed } from "@/utils/analytics"
 import { streamBackgroundStructuredObject } from "@/utils/content-script/background-stream-client"
+import { Sha256Hex } from "@/utils/hash"
 import { getOrCreateWebPageContext } from "@/utils/host/translate/webpage-context"
 import { resolveModelId } from "@/utils/providers/model-id"
 import { getProviderOptionsWithOverride } from "@/utils/providers/options"
@@ -54,6 +55,7 @@ interface CustomActionExecutionRequest {
   }
   key: string
   payload: {
+    cacheKey: string
     outputSchema: Array<{ name: string, type: SelectionToolbarCustomAction["outputSchema"][number]["type"] }>
     prompt: string
     providerId: string
@@ -217,6 +219,17 @@ function buildCustomActionExecutionRequest({
     providerConfig.providerOptions,
   )
   const outputSchema = action.outputSchema.map(({ name, type }) => ({ name, type }))
+  const cacheKey = Sha256Hex(stringifyExecutionRequestKey({
+    model: providerConfig.model,
+    outputSchema: action.outputSchema.map(({ description, name, type }) => ({ description, name, type })),
+    prompt,
+    promptTokens,
+    provider: providerConfig.provider,
+    providerId: providerConfig.id,
+    providerOptions,
+    system: systemPrompt,
+    temperature: providerConfig.temperature,
+  }))
 
   return {
     analytics: {
@@ -241,6 +254,7 @@ function buildCustomActionExecutionRequest({
     }),
     payload: {
       providerId: providerConfig.id,
+      cacheKey,
       system: systemPrompt,
       prompt,
       outputSchema,

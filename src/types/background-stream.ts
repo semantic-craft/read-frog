@@ -4,6 +4,8 @@ import type { SelectionToolbarCustomActionOutputType } from "@/types/config/sele
 
 interface BaseBackgroundStreamSerializablePayload {
   providerId: string
+  cacheKey?: string
+  bypassCache?: boolean
   system?: string
   prompt?: string
   messages?: JSONValue[]

@@ -17,11 +17,14 @@ import type {
 import { Output, parsePartialJson, streamText } from "ai"
 import { z } from "zod"
 import { BACKGROUND_STREAM_PORTS } from "@/types/background-stream"
+import { db } from "@/utils/db/dexie/db"
 import { extractAISDKErrorMessage } from "@/utils/error/extract-message"
 import { logger } from "@/utils/logger"
 import { getModelById } from "@/utils/providers/model"
 
 const invalidStreamStartPayloadMessage = "Invalid stream start payload"
+const STREAM_TEXT_CACHE_PREFIX = "stream-text"
+const STREAM_STRUCTURED_OBJECT_CACHE_PREFIX = "stream-structured-object"
 
 function createStreamAbortError(message: string) {
   return new DOMException(message, "AbortError")
@@ -40,6 +43,8 @@ const streamPortStartEnvelopeSchema = z.object({
 
 const streamTextPayloadSchema = z.object({
   providerId: z.string().trim().min(1),
+  cacheKey: z.string().trim().min(1).optional(),
+  bypassCache: z.boolean().optional(),
 }).loose()
 
 const structuredObjectFieldSchema = z.object({
@@ -49,6 +54,8 @@ const structuredObjectFieldSchema = z.object({
 
 const structuredObjectPayloadSchema = z.object({
   providerId: z.string().trim().min(1),
+  cacheKey: z.string().trim().min(1).optional(),
+  bypassCache: z.boolean().optional(),
   outputSchema: z.array(structuredObjectFieldSchema).min(1),
 }).loose().superRefine((payload, ctx) => {
   const nameSet = new Set<string>()
@@ -240,15 +247,86 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value)
 }
 
+function createCompletedThinkingSnapshot(): ThinkingSnapshot {
+  return {
+    status: "complete",
+    text: "",
+  }
+}
+
+function createStreamCacheKey(prefix: string, cacheKey: string) {
+  return `${prefix}:${cacheKey}`
+}
+
+async function getCachedTextStreamSnapshot(cacheKey: string): Promise<BackgroundTextStreamSnapshot | null> {
+  const cached = await db.translationCache.get(createStreamCacheKey(STREAM_TEXT_CACHE_PREFIX, cacheKey))
+  if (!cached) {
+    return null
+  }
+
+  return createStreamSnapshot(cached.translation, createCompletedThinkingSnapshot())
+}
+
+async function putCachedTextStreamSnapshot(cacheKey: string, snapshot: BackgroundTextStreamSnapshot) {
+  if (!snapshot.output) {
+    return
+  }
+
+  await db.translationCache.put({
+    key: createStreamCacheKey(STREAM_TEXT_CACHE_PREFIX, cacheKey),
+    translation: snapshot.output,
+    createdAt: new Date(),
+  })
+}
+
+function parseCachedStructuredObject(value: string): Record<string, unknown> | null {
+  try {
+    const parsed = JSON.parse(value)
+    return isRecord(parsed) ? parsed : null
+  }
+  catch {
+    return null
+  }
+}
+
+async function getCachedStructuredObjectSnapshot(cacheKey: string): Promise<BackgroundStructuredObjectStreamSnapshot | null> {
+  const cached = await db.translationCache.get(createStreamCacheKey(STREAM_STRUCTURED_OBJECT_CACHE_PREFIX, cacheKey))
+  if (!cached) {
+    return null
+  }
+
+  const value = parseCachedStructuredObject(cached.translation)
+  if (!value) {
+    return null
+  }
+
+  return createStreamSnapshot(value, createCompletedThinkingSnapshot())
+}
+
+async function putCachedStructuredObjectSnapshot(cacheKey: string, snapshot: BackgroundStructuredObjectStreamSnapshot) {
+  await db.translationCache.put({
+    key: createStreamCacheKey(STREAM_STRUCTURED_OBJECT_CACHE_PREFIX, cacheKey),
+    translation: JSON.stringify(snapshot.output),
+    createdAt: new Date(),
+  })
+}
+
 export async function runStreamTextInBackground(
   serializablePayload: BackgroundStreamTextSerializablePayload,
   options: StreamRuntimeOptions<BackgroundTextStreamSnapshot> = {},
 ): Promise<BackgroundTextStreamSnapshot> {
-  const { providerId, ...streamTextParams } = serializablePayload
+  const { providerId, cacheKey, bypassCache, ...streamTextParams } = serializablePayload
   const { signal, onChunk, onError } = options
 
   if (signal?.aborted) {
     throw new DOMException("stream aborted", "AbortError")
+  }
+
+  if (cacheKey && !bypassCache) {
+    const cachedSnapshot = await getCachedTextStreamSnapshot(cacheKey)
+    if (cachedSnapshot) {
+      return cachedSnapshot
+    }
   }
 
   const model = await getModelById(providerId)
@@ -305,18 +383,30 @@ export async function runStreamTextInBackground(
     status: "complete",
   }
 
-  return createStreamSnapshot(cumulativeText, thinking)
+  const snapshot = createStreamSnapshot(cumulativeText, thinking)
+  if (cacheKey) {
+    await putCachedTextStreamSnapshot(cacheKey, snapshot)
+  }
+
+  return snapshot
 }
 
 export async function runStructuredObjectStreamInBackground(
   serializablePayload: BackgroundStreamStructuredObjectSerializablePayload,
   options: StreamRuntimeOptions<BackgroundStructuredObjectStreamSnapshot> = {},
 ): Promise<BackgroundStructuredObjectStreamSnapshot> {
-  const { providerId, outputSchema, ...streamParams } = serializablePayload
+  const { providerId, outputSchema, cacheKey, bypassCache, ...streamParams } = serializablePayload
   const { signal, onChunk, onError } = options
 
   if (signal?.aborted) {
     throw new DOMException("stream aborted", "AbortError")
+  }
+
+  if (cacheKey && !bypassCache) {
+    const cachedSnapshot = await getCachedStructuredObjectSnapshot(cacheKey)
+    if (cachedSnapshot) {
+      return cachedSnapshot
+    }
   }
 
   const model = await getModelById(providerId)
@@ -395,7 +485,12 @@ export async function runStructuredObjectStreamInBackground(
     status: "complete",
   }
 
-  return createStreamSnapshot(finalValue, thinking)
+  const snapshot = createStreamSnapshot(finalValue, thinking)
+  if (cacheKey) {
+    await putCachedStructuredObjectSnapshot(cacheKey, snapshot)
+  }
+
+  return snapshot
 }
 
 const parseStreamTextStartMessage = createStartMessageParser<BackgroundStreamTextSerializablePayload>(streamTextPayloadSchema)
