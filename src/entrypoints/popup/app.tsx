@@ -14,7 +14,7 @@ import { SiteControlToggle } from "./components/site-control-toggle"
 import TranslateButton from "./components/translate-button"
 import TranslatePromptSelector from "./components/translate-prompt-selector"
 import TranslateProviderField from "./components/translate-provider-field"
-import { TranslationHubButton } from "./components/translation-hub-button"
+import { TranslationHubButton, TranslationHubFooterButton } from "./components/translation-hub-button"
 import TranslationModeSelector from "./components/translation-mode-selector"
 
 function App() {
@@ -54,10 +54,13 @@ function App() {
             {i18n.t("popup.options")}
           </span>
         </button>
-        <span className="text-sm text-neutral-500 dark:text-neutral-400">
-          {version}
-        </span>
-        <MoreMenu />
+        <div className="flex items-center gap-1">
+          <span className="px-1 text-sm text-neutral-500 dark:text-neutral-400">
+            {version}
+          </span>
+          <TranslationHubFooterButton />
+          <MoreMenu />
+        </div>
       </div>
     </>
   )
