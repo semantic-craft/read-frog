@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from "vitest"
+import { BLOCK_CONTENT_CLASS, CONTENT_WRAPPER_CLASS, NOTRANSLATE_CLASS } from "@/utils/constants/dom-labels"
 import {
   buildContextSnapshot,
   createRangeSnapshot,
@@ -122,6 +123,38 @@ describe("buildContextSnapshot", () => {
     expect(buildContextSnapshot(createSelectionSnapshot(range))).toEqual({
       text: "Alpha Beta gamma",
       paragraphs: ["Alpha Beta gamma"],
+    })
+  })
+
+  it("excludes Read Frog translated content when building paragraph context", () => {
+    document.body.innerHTML = `
+      <article>
+        <p id="paragraph">
+          Original
+          <strong id="selection">word</strong>
+          tail
+          <span class="${NOTRANSLATE_CLASS} ${CONTENT_WRAPPER_CLASS}">
+            <br>
+            <span class="${NOTRANSLATE_CLASS} ${BLOCK_CONTENT_CLASS}">
+              Translated text that should not be sent back to the model
+            </span>
+          </span>
+        </p>
+      </article>
+    `
+
+    const selectionNode = document.getElementById("selection")?.firstChild
+    if (!selectionNode) {
+      throw new Error("Selection node not found")
+    }
+
+    const range = document.createRange()
+    range.setStart(selectionNode, 0)
+    range.setEnd(selectionNode, selectionNode.textContent?.length ?? 0)
+
+    expect(buildContextSnapshot(createSelectionSnapshot(range))).toEqual({
+      text: "Original word tail",
+      paragraphs: ["Original word tail"],
     })
   })
 })

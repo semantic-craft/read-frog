@@ -1,3 +1,9 @@
+import {
+  CONTENT_WRAPPER_CLASS,
+  REACT_SHADOW_HOST_CLASS,
+  TRANSLATION_ERROR_CONTAINER_CLASS,
+} from "@/utils/constants/dom-labels"
+
 export interface SelectionRangeSnapshot {
   startContainer: Node
   startOffset: number
@@ -286,6 +292,36 @@ function isParagraphLikeDisplay(element: Element) {
   return PARAGRAPH_DISPLAY_VALUES.has(window.getComputedStyle(element).display)
 }
 
+function isReadFrogGeneratedElement(element: Element) {
+  return element.classList.contains(CONTENT_WRAPPER_CLASS)
+    || element.classList.contains(TRANSLATION_ERROR_CONTAINER_CLASS)
+    || element.classList.contains(REACT_SHADOW_HOST_CLASS)
+}
+
+function isInsideReadFrogGeneratedContent(node: Node, boundary: Node) {
+  let current: Node | null = node
+
+  while (current) {
+    if (current instanceof Element && isReadFrogGeneratedElement(current)) {
+      return true
+    }
+    if (current === boundary) {
+      return false
+    }
+    current = getParentNodeAcrossShadow(current)
+  }
+
+  return false
+}
+
+function shouldIncludeContextTextNode(node: Node, boundary: Node) {
+  if (normalizeParagraphText(node.textContent ?? "") === "") {
+    return false
+  }
+
+  return !isInsideReadFrogGeneratedContent(node, boundary)
+}
+
 function findParagraphOwner(node: Node | null): ParagraphOwner | null {
   let current = getNearestParentElement(node)
   let semanticFallback: ParagraphOwner | null = null
@@ -320,9 +356,9 @@ function extractOwnerText(owner: ParagraphOwner) {
   const textParts: string[] = []
   const walker = document.createTreeWalker(owner, NodeFilter.SHOW_TEXT, {
     acceptNode(node) {
-      return normalizeParagraphText(node.textContent ?? "") === ""
-        ? NodeFilter.FILTER_REJECT
-        : NodeFilter.FILTER_ACCEPT
+      return shouldIncludeContextTextNode(node, owner)
+        ? NodeFilter.FILTER_ACCEPT
+        : NodeFilter.FILTER_REJECT
     },
   })
 
@@ -368,9 +404,9 @@ function collectParagraphOwners(rangeSnapshots: SelectionRangeSnapshot[]) {
     const traversalRoot = getTraversalRoot(rangeSnapshot)
     const walker = document.createTreeWalker(traversalRoot, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
-        return normalizeParagraphText(node.textContent ?? "") === ""
-          ? NodeFilter.FILTER_REJECT
-          : NodeFilter.FILTER_ACCEPT
+        return shouldIncludeContextTextNode(node, traversalRoot)
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_REJECT
       },
     })
 
