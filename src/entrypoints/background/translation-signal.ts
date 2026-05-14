@@ -16,6 +16,17 @@ function notifyPageTranslationStateChanged(tabId: number, enabled: boolean) {
     .catch(error => logger.warn("Failed to notify page translation state change", error))
 }
 
+const PRESERVE_TRANSLATION_STATE_NAVIGATION_TYPES = new Set([
+  "link",
+  "form_submit",
+  "reload",
+])
+
+function shouldPreserveTranslationStateForNavigation(transitionType?: string): boolean {
+  return typeof transitionType === "string"
+    && PRESERVE_TRANSLATION_STATE_NAVIGATION_TYPES.has(transitionType)
+}
+
 function requestManagerToTogglePageTranslation(
   tabId: number,
   enabled: boolean,
@@ -132,10 +143,11 @@ export function translationMessage() {
     await storage.removeItem(getTranslationStateKey(tabId))
   })
 
-  // Clear translation state when navigating to a new page in the same tab
   browser.webNavigation.onCommitted.addListener(async (details) => {
-    // Only handle main frame navigations, not iframes
     if (details.frameId !== 0)
+      return
+
+    if (shouldPreserveTranslationStateForNavigation(details.transitionType))
       return
 
     await storage.removeItem(getTranslationStateKey(details.tabId))

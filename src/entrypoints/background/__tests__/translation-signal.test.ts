@@ -188,4 +188,37 @@ describe("translationMessage", () => {
       analyticsContext: undefined,
     }, 42)
   })
+
+  it("keeps page translation enabled across same-tab link navigations", async () => {
+    await setupSubject()
+
+    const navigationHandler = webNavigationOnCommittedAddListenerMock.mock.calls[0]?.[0]
+    expect(navigationHandler).toBeTypeOf("function")
+
+    await navigationHandler({ tabId: 42, frameId: 0, transitionType: "link" })
+
+    expect(storageRemoveItemMock).not.toHaveBeenCalledWith(getTranslationStateKey(42))
+  })
+
+  it("clears page translation state for typed same-tab navigations", async () => {
+    await setupSubject()
+
+    const navigationHandler = webNavigationOnCommittedAddListenerMock.mock.calls[0]?.[0]
+    expect(navigationHandler).toBeTypeOf("function")
+
+    await navigationHandler({ tabId: 42, frameId: 0, transitionType: "typed" })
+
+    expect(storageRemoveItemMock).toHaveBeenCalledWith(getTranslationStateKey(42))
+  })
+
+  it("clears page translation state when the tab is closed", async () => {
+    await setupSubject()
+
+    const tabRemovedHandler = tabsOnRemovedAddListenerMock.mock.calls[0]?.[0]
+    expect(tabRemovedHandler).toBeTypeOf("function")
+
+    await tabRemovedHandler(42)
+
+    expect(storageRemoveItemMock).toHaveBeenCalledWith(getTranslationStateKey(42))
+  })
 })
