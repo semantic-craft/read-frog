@@ -12,10 +12,12 @@ import { getLocalConfig } from "@/utils/config/storage"
 import { HIDE_NATIVE_CAPTIONS_STYLE_ID, NAVIGATION_HANDLER_DELAY, TRANSLATE_BUTTON_CONTAINER_ID } from "@/utils/constants/subtitles"
 import { resolveLanguageCodeFromLocale } from "@/utils/content/page-language"
 import { waitForElement } from "@/utils/dom/wait-for-element"
+import { logger } from "@/utils/logger"
 import { OverlaySubtitlesError, ToastSubtitlesError } from "@/utils/subtitles/errors"
 import { optimizeSubtitles } from "@/utils/subtitles/processor/optimizer"
 import { buildSubtitlesSummaryContextHash, fetchSubtitlesSummary } from "@/utils/subtitles/processor/translator"
 import { downloadSubtitlesAsSrt } from "@/utils/subtitles/srt"
+import { microsoftWarmup } from "@/utils/subtitles/warmup/microsoft-warmup"
 import { subtitlesPositionAtom, subtitlesSettingsPanelOpenAtom, subtitlesSettingsPanelViewAtom, subtitlesStore } from "./atoms"
 import { renderSubtitlesTranslateButton } from "./renderer/render-translate-button"
 import { SegmentationPipeline } from "./segmentation-pipeline"
@@ -514,6 +516,23 @@ export class UniversalVideoAdapter {
     }
     else {
       this.sessionProcessedFragments = [...this.sourceProcessedSubtitles]
+    }
+
+    const langConfig = config?.language
+    if (langConfig && !useAiSegmentation && providerConfig) {
+      const fragments = this.segmentationPipeline
+        ? this.segmentationPipeline.processedFragments
+        : this.sessionProcessedFragments
+      void microsoftWarmup(
+        fragments, langConfig.sourceCode, langConfig.targetCode,
+        providerConfig.provider,
+        (chunk) => {
+          const untranslated = chunk.filter(f => !scheduler.hasTranslation(f.start))
+          if (untranslated.length > 0) {
+            scheduler.supplementSubtitles(untranslated)
+          }
+        },
+      ).catch(error => logger.warn("Warmup translation failed:", error))
     }
 
     this.translationCoordinator = new TranslationCoordinator({

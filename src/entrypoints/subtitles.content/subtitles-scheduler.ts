@@ -63,6 +63,11 @@ export class SubtitlesScheduler {
     }
   }
 
+  hasTranslation(start: number): boolean {
+    const sub = this.subtitles.find(s => s.start === start)
+    return !!sub?.translation
+  }
+
   getVideoElement(): HTMLVideoElement {
     return this.videoElement
   }

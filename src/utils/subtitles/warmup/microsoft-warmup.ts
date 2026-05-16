@@ -1,11 +1,14 @@
+import type { LangCodeISO6393 } from "@read-frog/definitions"
 import type { SubtitlesFragment } from "../types"
+import { ISO6393_TO_6391 } from "@read-frog/definitions"
+import { isNonAPIProvider } from "@/types/config/provider"
 import { logger } from "@/utils/logger"
 import { sendMessage } from "@/utils/message"
 
 const MS_BATCH_MAX_ELEMENTS = 100
 const MS_BATCH_MAX_CHARACTERS = 50_000
 
-function chunkFragments(fragments: SubtitlesFragment[]): SubtitlesFragment[][] {
+export function chunkFragments(fragments: SubtitlesFragment[]): SubtitlesFragment[][] {
   const chunks: SubtitlesFragment[][] = []
   let currentChunk: SubtitlesFragment[] = []
   let currentCharCount = 0
@@ -32,48 +35,46 @@ function chunkFragments(fragments: SubtitlesFragment[]): SubtitlesFragment[][] {
   return chunks
 }
 
-export async function microsoftWarmupTranslate(
+function resolveTranslateLangs(sourceCode: LangCodeISO6393 | "auto", targetCode: LangCodeISO6393) {
+  const sourceLang = sourceCode === "auto" ? "auto" : (ISO6393_TO_6391[sourceCode] ?? "auto")
+  const targetLang = ISO6393_TO_6391[targetCode]
+  return { sourceLang, targetLang }
+}
+
+export async function microsoftWarmup(
   fragments: SubtitlesFragment[],
-  fromLang: string,
-  toLang: string,
-): Promise<SubtitlesFragment[]> {
-  if (fragments.length === 0) {
-    return []
+  sourceCode: LangCodeISO6393 | "auto",
+  targetCode: LangCodeISO6393,
+  provider: string,
+  onChunkTranslated: (translated: SubtitlesFragment[]) => void,
+): Promise<void> {
+  if (fragments.length === 0 || isNonAPIProvider(provider)) {
+    return
+  }
+
+  const { sourceLang, targetLang } = resolveTranslateLangs(sourceCode, targetCode)
+  if (!targetLang) {
+    return
   }
 
   const chunks = chunkFragments(fragments)
-  const results = await Promise.allSettled(
-    chunks.map(chunk =>
-      sendMessage("microsoftBatchTranslate", {
-        texts: chunk.map(f => f.text),
-        fromLang,
-        toLang,
-      }),
-    ),
-  )
-
-  const translatedFragments = [...fragments]
-  let globalIndex = 0
 
   for (let i = 0; i < chunks.length; i++) {
-    const result = results[i]
     const chunk = chunks[i]
-
-    if (result.status === "fulfilled") {
-      const translations = result.value
-      for (let j = 0; j < chunk.length; j++) {
-        translatedFragments[globalIndex + j] = {
-          ...translatedFragments[globalIndex + j],
-          translation: translations[j],
-        }
-      }
+    try {
+      const translations = await sendMessage("microsoftBatchTranslate", {
+        texts: chunk.map(f => f.text),
+        fromLang: sourceLang,
+        toLang: targetLang,
+      })
+      const translated = chunk.map((f, j) => ({
+        ...f,
+        translation: translations[j],
+      }))
+      onChunkTranslated(translated)
     }
-    else {
-      logger.warn(`Microsoft warmup chunk ${i} failed:`, result.reason)
+    catch (error) {
+      logger.warn(`Microsoft warmup chunk ${i} failed:`, error)
     }
-
-    globalIndex += chunk.length
   }
-
-  return translatedFragments
 }
