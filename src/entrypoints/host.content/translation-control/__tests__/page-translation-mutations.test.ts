@@ -215,6 +215,36 @@ describe("pageTranslationManager mutation re-walk", () => {
     mockSendMessage.mockResolvedValue(undefined)
   })
 
+  it("immediately translates already visible paragraphs when page translation starts", async () => {
+    document.body.innerHTML = `
+      <section>
+        <p id="top-result">Visible search result</p>
+      </section>
+    `
+
+    const manager = new PageTranslationManager()
+    const topResult = document.getElementById("top-result") as HTMLElement
+    vi.spyOn(topResult, "getBoundingClientRect").mockReturnValue({
+      x: 100,
+      y: 100,
+      width: 320,
+      height: 24,
+      top: 100,
+      left: 100,
+      right: 420,
+      bottom: 124,
+      toJSON: () => ({}),
+    } as DOMRect)
+
+    await manager.start()
+    await flushDomUpdates()
+
+    expect(mockTranslateWalkedElement).toHaveBeenCalledWith(topResult, "walk-id", DEFAULT_CONFIG)
+    expect(intersectionObservers[0].unobserve).toHaveBeenCalledWith(topResult)
+
+    manager.stop()
+  })
+
   it("observes and translates hidden accordion content after it becomes visible", async () => {
     document.body.innerHTML = `
       <section id="accordion" hidden>

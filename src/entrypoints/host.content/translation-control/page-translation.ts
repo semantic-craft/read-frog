@@ -142,16 +142,13 @@ export class PageTranslationManager implements IPageTranslationManager {
       this.intersectionObserver = new IntersectionObserver(async (entries, observer) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            if (isHTMLElement(entry.target)) {
-              if (!entry.target.closest(`.${CONTENT_WRAPPER_CLASS}`)) {
-                const currentConfig = await getLocalConfig()
-                if (!currentConfig) {
-                  logger.error("Global config is not initialized")
-                  return
-                }
-                void translateWalkedElement(entry.target, walkId, currentConfig)
-              }
+            const currentConfig = await getLocalConfig()
+            if (!currentConfig) {
+              logger.error("Global config is not initialized")
+              return
             }
+
+            this.translateObservedElement(entry.target, walkId, currentConfig)
             observer.unobserve(entry.target)
           }
         }
@@ -410,7 +407,8 @@ export class PageTranslationManager implements IPageTranslationManager {
 
   private async observerTopLevelParagraphs(container: HTMLElement, existingConfig?: Config): Promise<void> {
     const observer = this.intersectionObserver
-    if (!this.walkId || !observer)
+    const walkId = this.walkId
+    if (!walkId || !observer)
       return
 
     const config = existingConfig ?? await getLocalConfig()
@@ -423,14 +421,14 @@ export class PageTranslationManager implements IPageTranslationManager {
     if (hasNoWalkAncestor(container, config))
       return
 
-    walkAndLabelElement(container, this.walkId, config)
+    walkAndLabelElement(container, walkId, config)
     // if container itself has paragraph and the id
-    if (container.hasAttribute("data-read-frog-paragraph") && container.getAttribute("data-read-frog-walked") === this.walkId) {
+    if (container.hasAttribute("data-read-frog-paragraph") && container.getAttribute("data-read-frog-walked") === walkId) {
       observer.observe(container)
       return
     }
 
-    const paragraphs = this.collectParagraphElementsDeep(container, this.walkId)
+    const paragraphs = this.collectParagraphElementsDeep(container, walkId)
     const topLevelParagraphs = paragraphs.filter((el) => {
       const ancestor = el.parentElement?.closest("[data-read-frog-paragraph]")
       // keep it if either:
@@ -438,7 +436,92 @@ export class PageTranslationManager implements IPageTranslationManager {
       //  • the ancestor is *not* inside container
       return !ancestor || !container.contains(ancestor)
     })
-    topLevelParagraphs.forEach(el => observer.observe(el))
+    topLevelParagraphs.forEach((el) => {
+      observer.observe(el)
+      this.translateIfAlreadyWithinPreloadRange(el, walkId, config, observer)
+    })
+  }
+
+  private translateObservedElement(target: Element, walkId: string, config: Config): void {
+    if (!this.isPageTranslating || this.walkId !== walkId || !isHTMLElement(target)) {
+      return
+    }
+
+    if (target.closest(`.${CONTENT_WRAPPER_CLASS}`)) {
+      return
+    }
+
+    void translateWalkedElement(target, walkId, config)
+  }
+
+  private translateIfAlreadyWithinPreloadRange(
+    element: HTMLElement,
+    walkId: string,
+    config: Config,
+    observer: IntersectionObserver,
+  ): void {
+    if (!this.isElementWithinPreloadRange(element)) {
+      return
+    }
+
+    this.translateObservedElement(element, walkId, config)
+    observer.unobserve(element)
+  }
+
+  private isElementWithinPreloadRange(element: HTMLElement): boolean {
+    const elementRect = element.getBoundingClientRect()
+    if (elementRect.width <= 0 || elementRect.height <= 0) {
+      return false
+    }
+
+    const rootRect = this.getExpandedIntersectionRootRect()
+
+    return elementRect.bottom > rootRect.top
+      && elementRect.top < rootRect.bottom
+      && elementRect.right > rootRect.left
+      && elementRect.left < rootRect.right
+  }
+
+  private getExpandedIntersectionRootRect(): DOMRectReadOnly {
+    const root = this.intersectionOptions.root
+    const rootRect = root && "getBoundingClientRect" in root
+      ? root.getBoundingClientRect()
+      : new DOMRectReadOnly(
+          0,
+          0,
+          window.innerWidth || document.documentElement.clientWidth,
+          window.innerHeight || document.documentElement.clientHeight,
+        )
+
+    const [top, right, bottom, left] = this.parseRootMargin(rootRect)
+    return new DOMRectReadOnly(
+      rootRect.left - left,
+      rootRect.top - top,
+      rootRect.width + left + right,
+      rootRect.height + top + bottom,
+    )
+  }
+
+  private parseRootMargin(rootRect: DOMRectReadOnly): [number, number, number, number] {
+    const rootMargin = this.intersectionOptions.rootMargin ?? "0px"
+    const parts = rootMargin.trim().split(/\s+/).filter(Boolean)
+    const [top = "0px", right = top, bottom = top, left = right] = parts
+
+    return [
+      this.parseRootMarginValue(top, rootRect.height),
+      this.parseRootMarginValue(right, rootRect.width),
+      this.parseRootMarginValue(bottom, rootRect.height),
+      this.parseRootMarginValue(left, rootRect.width),
+    ]
+  }
+
+  private parseRootMarginValue(value: string, referenceLength: number): number {
+    const parsed = Number.parseFloat(value)
+    if (!Number.isFinite(parsed)) {
+      return 0
+    }
+
+    return value.endsWith("%") ? referenceLength * parsed / 100 : parsed
   }
 
   /**
