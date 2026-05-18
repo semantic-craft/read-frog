@@ -18,6 +18,7 @@ export class TranslationCoordinator {
   private translatingStarts = new Set<number>()
   private translatedStarts = new Set<number>()
   private failedStarts = new Set<number>()
+  private warmupStarts = new Set<number>()
   private isTranslating = false
   private lastEmittedState: SubtitlesState = "idle"
   private videoContext: SubtitlesVideoContext = { videoTitle: "", subtitlesTextContent: "" }
@@ -72,6 +73,7 @@ export class TranslationCoordinator {
     this.translatingStarts.clear()
     this.translatedStarts.clear()
     this.failedStarts.clear()
+    this.warmupStarts.clear()
     this.isTranslating = false
     this.lastEmittedState = "idle"
     this.videoContext = { videoTitle: "", subtitlesTextContent: "" }
@@ -79,6 +81,12 @@ export class TranslationCoordinator {
 
   clearFailed() {
     this.failedStarts.clear()
+  }
+
+  addWarmupStarts(starts: number[]) {
+    for (const start of starts) {
+      this.warmupStarts.add(start)
+    }
   }
 
   private handleTranslationTick = () => {
@@ -172,7 +180,9 @@ export class TranslationCoordinator {
   }
 
   private isCueResolved(startMs: number): boolean {
-    return this.translatedStarts.has(startMs) || this.failedStarts.has(startMs)
+    return this.translatedStarts.has(startMs)
+      || this.failedStarts.has(startMs)
+      || this.warmupStarts.has(startMs)
   }
 
   private updateLoadingStateAt(timeMs: number, fragments: SubtitlesFragment[]) {

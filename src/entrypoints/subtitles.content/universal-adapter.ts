@@ -518,6 +518,17 @@ export class UniversalVideoAdapter {
       this.sessionProcessedFragments = [...this.sourceProcessedSubtitles]
     }
 
+    this.translationCoordinator = new TranslationCoordinator({
+      getFragments: () => this.segmentationPipeline
+        ? this.segmentationPipeline.processedFragments
+        : this.sessionProcessedFragments,
+      getVideoElement: () => scheduler.getVideoElement(),
+      getCurrentState: () => scheduler.getState(),
+      segmentationPipeline: this.segmentationPipeline,
+      onTranslated: fragments => scheduler.supplementSubtitles(fragments),
+      onStateChange: (state, data) => scheduler.setState(state, data),
+    })
+
     const langConfig = config?.language
     if (langConfig && !useAiSegmentation && providerConfig) {
       const fragments = this.segmentationPipeline
@@ -530,21 +541,11 @@ export class UniversalVideoAdapter {
           const untranslated = chunk.filter(f => !scheduler.hasTranslation(f.start))
           if (untranslated.length > 0) {
             scheduler.supplementSubtitles(untranslated)
+            this.translationCoordinator?.addWarmupStarts(untranslated.map(f => f.start))
           }
         },
       ).catch(error => logger.warn("Warmup translation failed:", error))
     }
-
-    this.translationCoordinator = new TranslationCoordinator({
-      getFragments: () => this.segmentationPipeline
-        ? this.segmentationPipeline.processedFragments
-        : this.sessionProcessedFragments,
-      getVideoElement: () => scheduler.getVideoElement(),
-      getCurrentState: () => scheduler.getState(),
-      segmentationPipeline: this.segmentationPipeline,
-      onTranslated: fragments => scheduler.supplementSubtitles(fragments),
-      onStateChange: (state, data) => scheduler.setState(state, data),
-    })
     this.translationCoordinator.start(videoContext)
     const summaryContextHash = buildSubtitlesSummaryContextHash(videoContext, providerConfig)
     this.subtitlesSummaryContextHash = summaryContextHash ?? null
