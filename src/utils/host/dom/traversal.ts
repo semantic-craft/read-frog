@@ -19,6 +19,25 @@ import {
 
 const NON_NEWLINE_WHITESPACE_RE = /[^\S\n]/
 
+// Some sites wrap multiple block sections in an inline-like shell; promote those
+// containers back to block so bilingual translation can recurse into each section.
+function hasMultipleMeaningfulDirectBlockChildren(validChildNodes: ChildNode[]): boolean {
+  let blockChildCount = 0
+
+  for (const child of validChildNodes) {
+    if (!isHTMLElement(child) || !child.hasAttribute(BLOCK_ATTRIBUTE))
+      continue
+
+    blockChildCount += 1
+    // Keep the existing single-block-child behavior, and only promote wrappers that
+    // clearly act as structural containers for multiple block sections.
+    if (blockChildCount >= 2)
+      return true
+  }
+
+  return false
+}
+
 export function extractTextContent(node: TransNode, config: Config): string {
   if (isTextNode(node)) {
     const text = node.textContent ?? ""
@@ -127,16 +146,18 @@ export function walkAndLabelElement(
   }
 
   const isInlineNode = isShallowInlineHTMLElement(element)
+  const shouldPromoteInlineToBlock = isInlineNode && hasMultipleMeaningfulDirectBlockChildren(validChildNodes)
+  const isEffectivelyInlineNode = isInlineNode && !shouldPromoteInlineToBlock
 
-  if (isShallowBlockHTMLElement(element) || forceBlock || isCustomForceBlockTranslation(element)) {
+  if (isShallowBlockHTMLElement(element) || forceBlock || isCustomForceBlockTranslation(element) || shouldPromoteInlineToBlock) {
     element.setAttribute(BLOCK_ATTRIBUTE, "")
   }
-  else if (isInlineNode) {
+  else if (isEffectivelyInlineNode) {
     element.setAttribute(INLINE_ATTRIBUTE, "")
   }
 
   return {
     forceBlock,
-    isInlineNode,
+    isInlineNode: isEffectivelyInlineNode,
   }
 }

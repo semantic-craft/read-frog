@@ -1090,6 +1090,57 @@ describe("translate", () => {
         expect(node.textContent).toBe(`${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}${MOCK_ORIGINAL_TEXT}`)
       })
     })
+    describe("inline node has multiple block node children", () => {
+      it("bilingual mode: should promote the inline wrapper to block and translate nested sections separately", async () => {
+        render(
+          <article data-testid="test-node">
+            <div className="item-selector-wrap">{MOCK_ORIGINAL_TEXT}</div>
+            <div className="docsum-wrap" style={{ display: "inline-block" }}>
+              <div className="docsum-content">
+                <a className="docsum-title">
+                  {MOCK_ORIGINAL_TEXT}
+                  <b>{MOCK_ORIGINAL_TEXT}</b>
+                </a>
+                <div className="docsum-citation">{MOCK_ORIGINAL_TEXT}</div>
+                <div className="docsum-snippet">{MOCK_ORIGINAL_TEXT}</div>
+              </div>
+              <div className="result-actions-bar bottom-bar">
+                <button>{MOCK_ORIGINAL_TEXT}</button>
+              </div>
+            </div>
+          </article>,
+        )
+        const node = screen.getByTestId("test-node")
+        const docsumWrap = node.querySelector(".docsum-wrap") as HTMLElement
+        const docsumContent = node.querySelector(".docsum-content") as HTMLElement
+        const docsumTitle = node.querySelector(".docsum-title") as HTMLElement
+        const docsumCitation = node.querySelector(".docsum-citation") as HTMLElement
+        const docsumSnippet = node.querySelector(".docsum-snippet") as HTMLElement
+
+        await removeOrShowPageTranslation("bilingual", true)
+
+        expectNodeLabels(docsumWrap, [BLOCK_ATTRIBUTE])
+        expect(docsumWrap).not.toHaveAttribute(INLINE_ATTRIBUTE)
+        expectNodeLabels(docsumContent, [BLOCK_ATTRIBUTE, PARAGRAPH_ATTRIBUTE])
+        expect(node.lastElementChild).toBe(docsumWrap)
+        expect(Array.from(docsumWrap.children).some(child => child.classList.contains(CONTENT_WRAPPER_CLASS))).toBe(false)
+
+        const titleWrapper = expectTranslationWrapper(docsumTitle, "bilingual")
+        expect(titleWrapper).toBe(docsumTitle.lastChild)
+        expectTranslatedContent(titleWrapper, INLINE_CONTENT_CLASS)
+
+        const citationWrapper = expectTranslationWrapper(docsumCitation, "bilingual")
+        expect(citationWrapper).toBe(docsumCitation.lastChild)
+        expectTranslatedContent(citationWrapper, BLOCK_CONTENT_CLASS)
+
+        const snippetWrapper = expectTranslationWrapper(docsumSnippet, "bilingual")
+        expect(snippetWrapper).toBe(docsumSnippet.lastChild)
+        expectTranslatedContent(snippetWrapper, BLOCK_CONTENT_CLASS)
+
+        await removeOrShowPageTranslation("bilingual", true)
+        expect(node.querySelector(`.${CONTENT_WRAPPER_CLASS}`)).toBeFalsy()
+      })
+    })
     describe("force inline tags inside paragraphs", () => {
       it("bilingual mode: should not split paragraph when inline tag has only decorative block child", async () => {
         render(
