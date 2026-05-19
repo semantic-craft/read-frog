@@ -42,7 +42,7 @@ export class SubtitlesScheduler {
       }
 
       if (newSub.translation) {
-        const updatedSub = { ...existing, translation: newSub.translation }
+        const updatedSub = { ...existing, translation: newSub.translation, isWarmup: newSub.isWarmup ?? false }
         const idx = this.subtitles.findIndex(s => s.start === existing.start)
         if (idx >= 0) {
           this.subtitles[idx] = updatedSub

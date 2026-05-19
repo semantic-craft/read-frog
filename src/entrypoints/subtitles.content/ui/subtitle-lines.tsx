@@ -1,4 +1,5 @@
 import type { SubtitleTextStyle } from "@/types/config/subtitles"
+import { i18n } from "#imports"
 import { useAtomValue } from "jotai"
 import { configFieldsAtomMap } from "@/utils/atoms/config"
 import { SUBTITLE_FONT_FAMILIES } from "@/utils/constants/subtitles"
@@ -40,6 +41,7 @@ export function TranslationSubtitle({ content, className }: SubtitleLineProps) {
   const { style } = useAtomValue(configFieldsAtomMap.videoSubtitles)
   const language = useAtomValue(configFieldsAtomMap.language)
   const text = content ?? subtitle?.translation ?? ""
+  const isWarmup = subtitle?.isWarmup ?? false
   const { dir, lang } = getLanguageDirectionAndLang(language.targetCode)
 
   return (
@@ -50,6 +52,13 @@ export function TranslationSubtitle({ content, className }: SubtitleLineProps) {
       lang={lang}
     >
       {text}
+      {isWarmup && (
+        <span className="ml-2 text-xs opacity-60">
+          (
+          {i18n.t("subtitles.state.warmup")}
+          )
+        </span>
+      )}
     </div>
   )
 }

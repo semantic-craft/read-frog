@@ -888,6 +888,7 @@ subtitles:
   state:
     loading: Read Frog altyazılar yükleniyor
     error: Bir hata oluştu
+    warmup: Hızlı çeviri
   errors:
     http429: 429 YouTube altyazı API'sine çok fazla istek gönderildi. Lütfen biraz bekleyip tekrar deneyin.
     http404: 404 YouTube altyazı bulunamadı.

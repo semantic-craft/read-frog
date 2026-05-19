@@ -70,6 +70,7 @@ export async function microsoftWarmup(
       const translated = chunk.map((f, j) => ({
         ...f,
         translation: translations[j],
+        isWarmup: true,
       }))
       onChunkTranslated(translated)
     }

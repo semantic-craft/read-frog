@@ -1003,6 +1003,7 @@ subtitles:
   state:
     loading: Read Frog está cargando subtítulos
     error: Se produjo un error
+    warmup: Traducción rápida
   errors:
     http429: 429 Demasiadas solicitudes a la API de subtítulos de youtube; inténtalo de nuevo más tarde
     http404: 404 Subtítulos de Youtube no encontrados

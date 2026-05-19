@@ -53,8 +53,8 @@ describe("microsoftWarmup", () => {
 
     expect(onChunk).toHaveBeenCalledTimes(1)
     expect(onChunk).toHaveBeenCalledWith([
-      { text: "Hello", start: 0, end: 1000, translation: "你好" },
-      { text: "World", start: 1000, end: 2000, translation: "世界" },
+      { text: "Hello", start: 0, end: 1000, translation: "你好", isWarmup: true },
+      { text: "World", start: 1000, end: 2000, translation: "世界", isWarmup: true },
     ])
     expect(mockSendMessage).toHaveBeenCalledWith("microsoftBatchTranslate", {
       texts: ["Hello", "World"],

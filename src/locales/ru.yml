@@ -888,6 +888,7 @@ subtitles:
   state:
     loading: Read Frog загрузка субтитров
     error: Произошла ошибка
+    warmup: Быстрый перевод
   errors:
     http429: 429 Слишком много запросов к API YouTube субтитров, пожалуйста, попробуйте снова позже
     http404: 404 Субтитры YouTube не найдены
