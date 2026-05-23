@@ -112,6 +112,7 @@ const { registry: STRUCTURED_OBJECT_REGISTRY } = defineRegistry(structuredObject
   components: {
     ObjectContainer: ({ children }) => <div className="space-y-3">{children}</div>,
     FieldRow: ({ props }) => {
+      const isFirefox = import.meta.env.BROWSER === "firefox"
       const { label, type, value, pending, speakingEnabled } = props
       const speakButtonDisabled = pending || value.length === 0
 
@@ -122,7 +123,7 @@ const { registry: STRUCTURED_OBJECT_REGISTRY } = defineRegistry(structuredObject
               {getFieldTypeIcon(type)}
               <span className="truncate">{label}</span>
             </div>
-            {speakingEnabled && (
+            {speakingEnabled && !isFirefox && (
               <FieldSpeakButton text={value} disabled={speakButtonDisabled} />
             )}
           </div>

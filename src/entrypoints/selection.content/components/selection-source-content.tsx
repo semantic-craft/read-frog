@@ -20,6 +20,7 @@ export function SelectionSourceContent({
   emptyPlaceholder,
   separatorClassName,
 }: SelectionSourceContentProps) {
+  const isFirefox = import.meta.env.BROWSER === "firefox"
   const [actionsExpanded, setActionsExpanded] = useState(defaultExpanded)
   const displayText = text || emptyPlaceholder || ""
 
@@ -49,7 +50,7 @@ export function SelectionSourceContent({
         <Activity mode={actionsExpanded ? "visible" : "hidden"}>
           <div className="flex items-center gap-1">
             <CopyButton text={text ?? undefined} />
-            <SpeakButton text={text ?? undefined} />
+            {!isFirefox && <SpeakButton text={text ?? undefined} />}
           </div>
         </Activity>
       </div>

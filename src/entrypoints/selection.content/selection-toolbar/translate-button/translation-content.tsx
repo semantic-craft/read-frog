@@ -19,6 +19,7 @@ export function TranslationContent({
   isTranslating,
   thinking,
 }: TranslationContentProps) {
+  const isFirefox = import.meta.env.BROWSER === "firefox"
   const showLoadingIndicator = isTranslating && !thinking && !translatedText
   const showStreamingIndicator = isTranslating && !thinking && translatedText
   return (
@@ -36,7 +37,7 @@ export function TranslationContent({
         <Activity mode={translatedText ? "visible" : "hidden"}>
           <div className="flex items-center gap-1">
             <CopyButton text={translatedText} />
-            <SpeakButton text={translatedText} />
+            {!isFirefox && <SpeakButton text={translatedText} />}
           </div>
         </Activity>
       </div>
