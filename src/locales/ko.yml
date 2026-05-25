@@ -888,7 +888,7 @@ subtitles:
   state:
     loading: Read Frog 자막 로딩 중
     error: 오류 발생
-    warmup: 빠른 번역
+    warmup: Microsoft 번역 워밍업
   errors:
     http429: 429 유튜브 자막 인터페이스 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요
     http404: 404 유튜브 자막을 찾을 수 없습니다

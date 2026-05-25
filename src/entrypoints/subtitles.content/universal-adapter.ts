@@ -47,6 +47,7 @@ export class UniversalVideoAdapter {
   private segmentationPipeline: SegmentationPipeline | null = null
   private translationCoordinator: TranslationCoordinator | null = null
   private subtitlesSummaryContextHash: string | null = null
+  private warmupFragments: SubtitlesFragment[] = []
 
   get embedded() {
     return this.config.embedded
@@ -170,6 +171,8 @@ export class UniversalVideoAdapter {
     this.sourceSubtitles = subtitles
     this.sourceProcessedSubtitles = this.buildSourceProcessedSubtitles(subtitles)
 
+    void this.startWarmup()
+
     return subtitles
   }
 
@@ -180,6 +183,62 @@ export class UniversalVideoAdapter {
     return optimizeSubtitles(rawSubtitles, sourceLanguage)
   }
 
+  private async startWarmup() {
+    this.warmupFragments = []
+    const config = await getLocalConfig()
+    if (!config)
+      return
+
+    const useAiSegmentation = !!config.videoSubtitles?.aiSegmentation
+    const providerConfig = getProviderConfigById(config.providersConfig, config.videoSubtitles.providerId)
+    const langConfig = config.language
+
+    if (useAiSegmentation || !providerConfig)
+      return
+
+    await microsoftWarmup(
+      this.sourceProcessedSubtitles,
+      langConfig.sourceCode,
+      langConfig.targetCode,
+      providerConfig.provider,
+      (chunk) => {
+        this.warmupFragments.push(...chunk)
+      },
+    )
+  }
+
+  private applyWarmupTranslations(
+    scheduler: SubtitlesScheduler,
+    config: Awaited<ReturnType<typeof getLocalConfig>>,
+    providerConfig: ReturnType<typeof getProviderConfigById>,
+  ) {
+    const useAiSegmentation = !!config?.videoSubtitles?.aiSegmentation
+
+    if (useAiSegmentation)
+      return
+
+    if (this.warmupFragments.length > 0) {
+      scheduler.supplementSubtitles(this.warmupFragments)
+      this.translationCoordinator?.addWarmupStarts(this.warmupFragments.map(f => f.start))
+    }
+    else if (config?.language && providerConfig) {
+      const fragments = this.segmentationPipeline
+        ? this.segmentationPipeline.processedFragments
+        : this.sessionProcessedFragments
+      void microsoftWarmup(
+        fragments, config.language.sourceCode, config.language.targetCode,
+        providerConfig.provider,
+        (chunk) => {
+          const untranslated = chunk.filter(f => !scheduler.hasTranslation(f.start))
+          if (untranslated.length > 0) {
+            scheduler.supplementSubtitles(untranslated)
+            this.translationCoordinator?.addWarmupStarts(untranslated.map(f => f.start))
+          }
+        },
+      ).catch(error => logger.warn("Warmup translation failed:", error))
+    }
+  }
+
   private clearSourceProcessedSubtitles() {
     this.sourceProcessedSubtitles = []
   }
@@ -188,6 +247,7 @@ export class UniversalVideoAdapter {
     this.sourceSubtitles = []
     this.clearSourceProcessedSubtitles()
     this.sourceVideoId = null
+    this.warmupFragments = []
   }
 
   private clearRuntimeSession() {
@@ -529,23 +589,8 @@ export class UniversalVideoAdapter {
       onStateChange: (state, data) => scheduler.setState(state, data),
     })
 
-    const langConfig = config?.language
-    if (langConfig && !useAiSegmentation && providerConfig) {
-      const fragments = this.segmentationPipeline
-        ? this.segmentationPipeline.processedFragments
-        : this.sessionProcessedFragments
-      void microsoftWarmup(
-        fragments, langConfig.sourceCode, langConfig.targetCode,
-        providerConfig.provider,
-        (chunk) => {
-          const untranslated = chunk.filter(f => !scheduler.hasTranslation(f.start))
-          if (untranslated.length > 0) {
-            scheduler.supplementSubtitles(untranslated)
-            this.translationCoordinator?.addWarmupStarts(untranslated.map(f => f.start))
-          }
-        },
-      ).catch(error => logger.warn("Warmup translation failed:", error))
-    }
+    this.applyWarmupTranslations(scheduler, config, providerConfig)
+
     this.translationCoordinator.start(videoContext)
     const summaryContextHash = buildSubtitlesSummaryContextHash(videoContext, providerConfig)
     this.subtitlesSummaryContextHash = summaryContextHash ?? null

@@ -2,7 +2,6 @@ import type { StateData, SubtitlesFragment, SubtitlesState } from "@/utils/subti
 import { currentSubtitleAtom, currentTimeMsAtom, subtitlesStateAtom, subtitlesStore, subtitlesVisibleAtom } from "./atoms"
 
 const ERROR_STATE_AUTO_HIDE_MS = 5_000
-
 export class SubtitlesScheduler {
   private videoElement: HTMLVideoElement
   private subtitles: SubtitlesFragment[] = []
@@ -41,16 +40,18 @@ export class SubtitlesScheduler {
         continue
       }
 
-      if (newSub.translation) {
-        const updatedSub = { ...existing, translation: newSub.translation, isWarmup: newSub.isWarmup ?? false }
-        const idx = this.subtitles.findIndex(s => s.start === existing.start)
-        if (idx >= 0) {
-          this.subtitles[idx] = updatedSub
-        }
+      if (!newSub.translation) {
+        continue
+      }
 
-        if (currentSubtitle && existing.start === currentSubtitle.start) {
-          currentSubtitleUpdated = true
-        }
+      const updatedSub = { ...existing, translation: newSub.translation, isWarmup: newSub.isWarmup ?? false }
+      const idx = this.subtitles.findIndex(s => s.start === existing.start)
+      if (idx >= 0) {
+        this.subtitles[idx] = updatedSub
+      }
+
+      if (currentSubtitle && existing.start === currentSubtitle.start) {
+        currentSubtitleUpdated = true
       }
     }
 

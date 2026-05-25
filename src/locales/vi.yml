@@ -888,7 +888,7 @@ subtitles:
   state:
     loading: Read Frog đang tải phụ đề
     error: Đã xảy ra lỗi
-    warmup: Dịch nhanh
+    warmup: Khởi động dịch Microsoft
   errors:
     http429: 429 Đã gửi quá nhiều yêu cầu đến API phụ đề Youtube, vui lòng thử lại sau
     http404: 404 Không tìm thấy phụ đề Youtube

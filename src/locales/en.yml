@@ -1003,7 +1003,7 @@ subtitles:
   state:
     loading: Read Frog loading captions
     error: Error occurred
-    warmup: Quick Translate
+    warmup: Microsoft Translate Warmup
   errors:
     http429: 429 Too many requests to youtube subtitle API, please try again later
     http404: 404 Youtube captions not found

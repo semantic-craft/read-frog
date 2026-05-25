@@ -1003,7 +1003,7 @@ subtitles:
   state:
     loading: Read Frog 字幕加载中
     error: 发生错误
-    warmup: 快速翻译
+    warmup: 微软翻译预热
   errors:
     http429: 429 youtube 字幕接口请求次数过多，请稍后再试
     http404: 404 未找到 youtube 字幕

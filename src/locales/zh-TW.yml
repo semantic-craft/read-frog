@@ -888,7 +888,7 @@ subtitles:
   state:
     loading: Read Frog 字幕載入中
     error: 發生錯誤
-    warmup: 快速翻譯
+    warmup: 微軟翻譯預熱
   errors:
     http429: 429 youtube 字幕介面請求次數過多，請稍後再試
     http404: 404 找不到 youtube 字幕
