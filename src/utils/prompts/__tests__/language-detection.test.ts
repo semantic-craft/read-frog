@@ -20,6 +20,10 @@ describe("parseDetectedLanguageCode", () => {
     expect(parseDetectedLanguageCode(`\`\`\`\n${validJson}\n\`\`\``)).toBe("eng")
   })
 
+  it("strips code fences with whitespace before the info string", () => {
+    expect(parseDetectedLanguageCode(`\`\`\` json\n${validJson}\n\`\`\``)).toBe("eng")
+  })
+
   it("returns und when the model reports an undetermined language", () => {
     expect(parseDetectedLanguageCode(JSON.stringify({ reason: "Unknown.", code: "und" }))).toBe("und")
   })

@@ -68,7 +68,7 @@ Your output:
 ${supportedLanguageList}`
 }
 
-const LEADING_CODE_FENCE_PATTERN = /^```[a-z]*\s*/i
+const LEADING_CODE_FENCE_PATTERN = /^```[ \t]*\w*[ \t]*\n?/
 const TRAILING_CODE_FENCE_PATTERN = /\s*```$/
 
 export function normalizeLanguageDetectionOutput(rawOutput: string): string {
