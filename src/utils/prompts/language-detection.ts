@@ -1,13 +1,15 @@
 import type { LangCodeISO6393 } from "@read-frog/definitions"
 import { LANG_CODE_TO_EN_NAME, langCodeISO6393Schema } from "@read-frog/definitions"
 import z from "zod"
+import { logger } from "../logger"
 
 const supportedLanguageList = Object.entries(LANG_CODE_TO_EN_NAME)
   .map(([code, name]) => `- ${code}: ${name}`)
   .join("\n")
 
 export const languageDetectionOutputSchema = z.object({
-  reason: z.string().describe("The reason why LLM pick this code. Just for soft reasoning. No need to consume."),
+  // Optional for lenient validation
+  reason: z.string().optional().describe("The reason why LLM pick this code. Just for soft reasoning. No need to consume."),
   code: z.union([langCodeISO6393Schema, z.literal("und")]),
 })
 
@@ -22,7 +24,7 @@ You should give a raw JSON string which satisfies following schema:
 
 \`\`\`typescript
 type Output = {
-  /** The reason why you pick this code. Be concice. */
+  /** The reason why you pick this code. Be concise. */
   reason: string
   /** ISO 639-3 code */
   code: string
@@ -62,17 +64,18 @@ export function normalizeLanguageDetectionOutput(rawOutput: string): string {
     .replace(LEADING_CODE_FENCE_PATTERN, "")
     .replace(TRAILING_CODE_FENCE_PATTERN, "")
     .trim()
+    .toLowerCase()
 }
 
 export function parseDetectedLanguageCode(rawOutput: string): LangCodeISO6393 | "und" | null {
   const cleanedOutput = normalizeLanguageDetectionOutput(rawOutput)
-  let data: string
+  let data: unknown
 
   try {
     data = JSON.parse(cleanedOutput)
   }
   catch {
-    console.warn("Failed to parse language detection output. Fallback to null.", rawOutput)
+    logger.warn("Failed to parse language detection output. Fallback to null.", rawOutput)
     return null
   }
 
@@ -82,7 +85,7 @@ export function parseDetectedLanguageCode(rawOutput: string): LangCodeISO6393 | 
     return parseResult.data.code
   }
   else {
-    console.warn("Failed to parse language detection output. Fallback to null.", data)
+    logger.warn("Failed to parse language detection output. Fallback to null.", data)
     return null
   }
 }
