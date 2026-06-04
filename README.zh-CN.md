@@ -28,7 +28,13 @@
 
 </div>
 
-![2025 Recap](/assets/2025-recap.png)
+<div align="center">
+  <img src="/assets/promotion/sponsor-title.svg" alt="Sponsor" width="120" />
+  <br /><br />
+  <a href="https://readfrog.s.gy/RWqJeX">
+    <img src="/assets/promotion/ucloud.jpg" alt="UCloud" />
+  </a>
+</div>
 
 <details>
 <summary><kbd>目录</kbd></summary>
