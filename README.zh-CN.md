@@ -30,6 +30,8 @@
 
 <div align="center">
   <img src="/assets/promotion/sponsor-title.svg" alt="Sponsor" width="120" />
+  <br />
+  注册<a href="https://readfrog.s.gy/RWqJeX">优云智算</a>：用最少的钱，换最高的编程效率。
   <br /><br />
   <a href="https://readfrog.s.gy/RWqJeX">
     <img src="/assets/promotion/ucloud.jpg" alt="UCloud" />
