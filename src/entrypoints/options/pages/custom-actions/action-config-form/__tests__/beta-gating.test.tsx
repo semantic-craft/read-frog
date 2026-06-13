@@ -34,6 +34,10 @@ vi.mock("../notebase-connection-field", () => ({
   ),
 }))
 
+vi.mock("../../components/ai-feature-store", () => ({
+  PublishActionButton: () => <div>PublishActionButton</div>,
+}))
+
 function cloneConfig(config: Config): Config {
   return JSON.parse(JSON.stringify(config)) as Config
 }
