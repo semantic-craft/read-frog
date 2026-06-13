@@ -166,6 +166,13 @@ export const SEARCH_ITEMS: SearchItem[] = [
     pageKey: "options.translation.title",
   },
   {
+    sectionId: "never-auto-translate-website",
+    route: "/translation",
+    titleKey: "options.translation.neverAutoTranslateWebsite.title",
+    descriptionKey: "options.translation.neverAutoTranslateWebsite.description",
+    pageKey: "options.translation.title",
+  },
+  {
     sectionId: "auto-translate-languages",
     route: "/translation",
     titleKey: "options.translation.autoTranslateLanguages.title",
@@ -250,6 +257,13 @@ export const SEARCH_ITEMS: SearchItem[] = [
     route: "/selection-toolbar",
     titleKey: "options.floatingButtonAndToolbar.selectionToolbar.opacity.title",
     descriptionKey: "options.floatingButtonAndToolbar.selectionToolbar.opacity.description",
+    pageKey: "options.overlayTools.selectionToolbar.title",
+  },
+  {
+    sectionId: "selection-translation-shortcut",
+    route: "/selection-toolbar",
+    titleKey: "options.floatingButtonAndToolbar.selectionToolbar.shortcut.title",
+    descriptionKey: "options.floatingButtonAndToolbar.selectionToolbar.shortcut.description",
     pageKey: "options.overlayTools.selectionToolbar.title",
   },
   {

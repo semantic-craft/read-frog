@@ -1,5 +1,63 @@
 # @read-frog/extension
 
+## 1.34.1
+
+### Patch Changes
+
+- [#1682](https://github.com/mengxi-ream/read-frog/pull/1682) [`6b08f61`](https://github.com/mengxi-ream/read-frog/commit/6b08f6181a264dc4f847015d4441dc62d724cccb) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - fix(provider-options): match recommended provider option models case-insensitively
+
+- [#1679](https://github.com/mengxi-ream/read-frog/pull/1679) [`e0358f5`](https://github.com/mengxi-ream/read-frog/commit/e0358f514086bdd74089dedecbf020d89b45529b) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - style(provider-selector): use compact provider select triggers
+
+- [#1649](https://github.com/mengxi-ream/read-frog/pull/1649) [`540b288`](https://github.com/mengxi-ream/read-frog/commit/540b288f5de83d2300c36d88b71b4484fbe00f11) Thanks [@EurFelux](https://github.com/EurFelux)! - fix(language-detection): harden LLM output parsing with JSON prompt and code fence stripping
+
+- [#1521](https://github.com/mengxi-ream/read-frog/pull/1521) [`2f4252f`](https://github.com/mengxi-ream/read-frog/commit/2f4252f1d59975d20322bf93dadc37b6d4c01053) Thanks [@AjTheSpidey](https://github.com/AjTheSpidey)! - Add page metadata description prompt tokens and migrate subtitle title prompts to `{{webTitle}}`.
+
+- [#1678](https://github.com/mengxi-ream/read-frog/pull/1678) [`4e8dd71`](https://github.com/mengxi-ream/read-frog/commit/4e8dd7105125697ffdbc017b5945e37477104230) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - feat(popup): add a quick toggle for bilingual and translation-only modes
+
+## 1.34.0
+
+### Minor Changes
+
+- [#1670](https://github.com/mengxi-ream/read-frog/pull/1670) [`f97a4b4`](https://github.com/mengxi-ream/read-frog/commit/f97a4b40e1960979ce672bde68156418a3145489) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - feat(notebase): auto-create Notebase for unconnected Custom Actions
+
+### Patch Changes
+
+- [#1624](https://github.com/mengxi-ream/read-frog/pull/1624) [`80aeb34`](https://github.com/mengxi-ream/read-frog/commit/80aeb349d9e2169b11dc1eee6d1589241bdb8da2) Thanks [@ringoshiina](https://github.com/ringoshiina)! - feat(subtitles): export translated subtitles
+
+  Add a "Download translated subtitles" action that exports a complete AI-translated SRT from the full source subtitle track. Fail closed on missing translations, rejects same-language export, and falls back to source timing when AI segmentation produces coverage gaps.
+
+- [#1623](https://github.com/mengxi-ream/read-frog/pull/1623) [`ac20ede`](https://github.com/mengxi-ream/read-frog/commit/ac20edeab104a7f72a263663b103a38e589dc5b2) Thanks [@qup1010](https://github.com/qup1010)! - refactor(page-translation): fix method name typo and comment errors
+
+## 1.33.12
+
+### Patch Changes
+
+- [#1638](https://github.com/mengxi-ream/read-frog/pull/1638) [`ae20cd8`](https://github.com/mengxi-ream/read-frog/commit/ae20cd81f77d72e39b1fcd91ff3777cb9591c72e) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - feat(translation): add a never auto-translate website list
+
+- [#1652](https://github.com/mengxi-ream/read-frog/pull/1652) [`9ef5ed4`](https://github.com/mengxi-ream/read-frog/commit/9ef5ed494e40583ff6f9baf3386e0856299c2d9a) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - fix(notebase): align extension with current Notebase API
+
+- [#1618](https://github.com/mengxi-ream/read-frog/pull/1618) [`c9b157a`](https://github.com/mengxi-ream/read-frog/commit/c9b157ad56a42d2ba691cbbbbc9859d378802f5d) Thanks [@ananaBMaster](https://github.com/ananaBMaster)! - fix(providers): migrate 302.AI configs to custom provider
+
+  Remove 302.AI as a built-in provider, migrate existing configs to an OpenAI-compatible custom provider, and seed DeepSeek with `deepseek-v4-flash` for new installs.
+
+- [#1637](https://github.com/mengxi-ream/read-frog/pull/1637) [`da8ab16`](https://github.com/mengxi-ream/read-frog/commit/da8ab168d16ff3b09fdce7abcab6cc1259e5b466) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - fix(translation): update the preset translation text color
+
+- [#1628](https://github.com/mengxi-ream/read-frog/pull/1628) [`17e77d7`](https://github.com/mengxi-ream/read-frog/commit/17e77d79bfb919b0875330536a8063c3d7ff820b) Thanks [@doggy8088](https://github.com/doggy8088)! - docs(i18n): update incorrect zh-TW translations
+
+## 1.33.11
+
+### Patch Changes
+
+- [#1610](https://github.com/mengxi-ream/read-frog/pull/1610) [`4f7a3cf`](https://github.com/mengxi-ream/read-frog/commit/4f7a3cf675802c5df86492419cfa8ef9c38f261f) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - i18n(options): localize UI language labels
+
+- [#1608](https://github.com/mengxi-ream/read-frog/pull/1608) [`dbd7c61`](https://github.com/mengxi-ream/read-frog/commit/dbd7c612ec77c15ef1161a78df1d128aeca5be55) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - fix(content): verify page language metadata against visible text
+
+## 1.33.10
+
+### Patch Changes
+
+- [#1588](https://github.com/mengxi-ream/read-frog/pull/1588) [`a6bfac3`](https://github.com/mengxi-ream/read-frog/commit/a6bfac3cc499847c7e7a1be18ea8b7a7996cf59d) Thanks [@mengxi-ream](https://github.com/mengxi-ream)! - i18n(options): replace subtitle survey entry with Notebase early access survey
+
 ## 1.33.9
 
 ### Patch Changes
