@@ -2,6 +2,10 @@ name: Read Frog
 extName: Read Frog - Çevir ve Öğren
 extDescription: Read Frog, herhangi bir web sitesinden dilleri derinlemesine öğrenmenize yardımcı olmak için tasarlanmış açık kaynaklı bir tarayıcı uzantısıdır.
 uninstallSurveyUrl: https://tally.so/r/nPK6Ob
+errors:
+  unknown: Bir şeyler ters gitti
+  action_collection_not_found: Eylem koleksiyonu bulunamadı.
+  action_collection_invalid_content: Eylem içeriği geçersiz. Prompt ve çıktı alanlarını kontrol edin.
 dataTypes:
   string: Metin
   number: Sayı
@@ -445,6 +449,31 @@ options:
           outputSchemaRequired: En az bir çıktı alanı ekleyin
           fieldKeyRequired: Alan adı gerekli
           duplicateFieldKey: Alan adları benzersiz olmalıdır
+        actionCollection:
+          shareLinkCopied: Paylaşım bağlantısı kopyalandı
+          installed: Koleksiyon yüklendi
+          installedDescription: $1 artık Eylemlerim bölümünde kullanılabilir.
+          installBlockedNoProvider: Eylemleri indirmeden önce bir LLM sağlayıcısı ekleyin.
+          reinstalled: Koleksiyon yeniden yüklendi
+          published: Mağazaya yayınlandı
+          publishedDescription: Geçerli anlık görüntü artık Yayınlananlar sekmenizde yayında.
+          publishedJumpTitle: Başarıyla yayınlandı
+          publishedJumpDescription: Yayınlanan eyleminizi görüntülemek için mağaza sayfasını açmak ister misiniz?
+          publishedJumpConfirm: Mağaza sayfasını aç
+          publishedJumpCancel: Şimdi değil
+          publishButton: Mağazaya Yayınla
+          publishDialogDescription: Bir açıklama ekleyin ve bu eylemi başkalarının yükleyebilmesi için mağazada yayınlayın.
+          cancel: İptal
+          publishing: Yayınlanıyor...
+          installButton: Yükle
+          installing: Yükleniyor...
+          copyShareLink: Paylaşım bağlantısını kopyala
+          viewMyPublished: Yayınladıklarım
+          featured: Öne çıkanlar
+          descriptionInput: Açıklama
+          descriptionInputPlaceholder: Bu eylemin ne yaptığına dair kısa bir açıklama
+          store:
+            viewDetailPage: Ayrıntı sayfasına git
     contextMenu:
       title: Bağlam Menüsü
       translate:

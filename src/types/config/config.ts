@@ -182,6 +182,10 @@ export const configSchema = z.object({
 
   data.selectionToolbar.customActions.forEach((action, index) => {
     const providerId = action.providerId
+    if (!providerId) {
+      return
+    }
+
     if (!providerIdsSet.has(providerId)) {
       ctx.addIssue({
         code: "invalid_value",

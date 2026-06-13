@@ -23,6 +23,18 @@ export const selectionToolbarCustomActionNotebaseConnectionSchema = z.object({
   mappings: z.array(selectionToolbarCustomActionNotebaseMappingSchema),
 })
 
+export const selectionToolbarCustomActionCollectionSourceSchema = z.object({
+  collectionId: z.number().int().positive(),
+  slug: z.string().trim().min(1),
+  version: z.number().int().positive(),
+  name: z.string().trim().min(1),
+  description: z.string(),
+  authorDisplayName: z.string().trim().min(1),
+  authorAvatarUrl: z.string().trim().url().optional(),
+  shareUrl: z.string().trim().min(1),
+  installedAt: z.string().datetime(),
+})
+
 export const selectionToolbarCustomActionSchema = z.object({
   id: z.string().nonempty(),
   name: z.string().nonempty(),
@@ -33,6 +45,7 @@ export const selectionToolbarCustomActionSchema = z.object({
   prompt: z.string(),
   outputSchema: z.array(selectionToolbarCustomActionOutputFieldSchema).min(1),
   notebaseConnection: selectionToolbarCustomActionNotebaseConnectionSchema.optional(),
+  actionCollection: selectionToolbarCustomActionCollectionSourceSchema.optional(),
 }).superRefine((action, ctx) => {
   const nameSet = new Set<string>()
   const outputFieldIds = new Set<string>()
@@ -129,4 +142,5 @@ export type SelectionToolbarCustomActionOutputType = z.infer<typeof selectionToo
 export type SelectionToolbarCustomActionOutputField = z.infer<typeof selectionToolbarCustomActionOutputFieldSchema>
 export type SelectionToolbarCustomActionNotebaseMapping = z.infer<typeof selectionToolbarCustomActionNotebaseMappingSchema>
 export type SelectionToolbarCustomActionNotebaseConnection = z.infer<typeof selectionToolbarCustomActionNotebaseConnectionSchema>
+export type SelectionToolbarCustomActionCollectionSource = z.infer<typeof selectionToolbarCustomActionCollectionSourceSchema>
 export type SelectionToolbarCustomAction = z.infer<typeof selectionToolbarCustomActionSchema>

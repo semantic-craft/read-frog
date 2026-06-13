@@ -2,6 +2,10 @@ name: Read Frog
 extName: Read Frog - Traduce y aprende
 extDescription: Read Frog es una extensión de navegador de código abierto diseñada para ayudarte a aprender idiomas en profundidad desde cualquier sitio web.
 uninstallSurveyUrl: https://tally.so/r/nPK6Ob
+errors:
+  unknown: Algo salió mal
+  action_collection_not_found: No se encontró la colección de acciones.
+  action_collection_invalid_content: El contenido de la acción no es válido. Revisa los campos de prompt y salida.
 dataTypes:
   string: Texto
   number: Número
@@ -438,6 +442,31 @@ options:
             description: Esta acción no se puede deshacer.
             confirm: Eliminar
             cancel: Cancelar
+        actionCollection:
+          shareLinkCopied: Enlace para compartir copiado
+          installed: Colección instalada
+          installedDescription: $1 ya está disponible en Mis acciones.
+          installBlockedNoProvider: Agrega un proveedor de LLM antes de descargar acciones.
+          reinstalled: Colección reinstalada
+          published: Publicado en la tienda
+          publishedDescription: La instantánea actual ya está activa en tu pestaña Publicado.
+          publishedJumpTitle: Publicado correctamente
+          publishedJumpDescription: ¿Abrir la página de la tienda para ver tu acción publicada?
+          publishedJumpConfirm: Abrir página de la tienda
+          publishedJumpCancel: Ahora no
+          publishButton: Publicar en la tienda
+          publishDialogDescription: Añade una descripción y publica esta acción en la tienda para que otros la instalen.
+          cancel: Cancelar
+          publishing: Publicando...
+          installButton: Instalar
+          installing: Instalando...
+          copyShareLink: Copiar enlace para compartir
+          viewMyPublished: Mis publicadas
+          featured: Destacados
+          descriptionInput: Descripción
+          descriptionInputPlaceholder: Una breve descripción de lo que hace esta acción
+          store:
+            viewDetailPage: Ir a la página de detalles
         templates:
           dialogTitle: Elegir una plantilla
           dialogDescription: Selecciona una plantilla para crear rápidamente una nueva acción AI, o empieza desde cero.

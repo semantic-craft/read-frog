@@ -2,6 +2,10 @@ name: 陪读蛙
 extName: 陪读蛙 - 翻译与学习
 extDescription: 陪读蛙是一款开放源代码的浏览器插件，旨在帮助您从任何网站深入学习语言。
 uninstallSurveyUrl: https://tally.so/r/3E9XDL
+errors:
+  unknown: 出现错误
+  action_collection_not_found: 未找到指令集合。
+  action_collection_invalid_content: 指令内容无效，请检查提示词和输出字段。
 dataTypes:
   string: 文本
   number: 数字
@@ -438,6 +442,31 @@ options:
             description: 此操作无法撤销。
             confirm: 删除
             cancel: 取消
+        actionCollection:
+          shareLinkCopied: 分享链接已复制
+          installed: 集合已安装
+          installedDescription: $1 现已在「我的指令」中可用。
+          installBlockedNoProvider: 下载指令前请先添加 LLM 服务商。
+          reinstalled: 集合已重新安装
+          published: 已发布到商店
+          publishedDescription: 当前快照已上线到你的「已发布」标签页。
+          publishedJumpTitle: 发布成功
+          publishedJumpDescription: 是否打开商店页面查看你发布的指令？
+          publishedJumpConfirm: 打开商店页面
+          publishedJumpCancel: 暂不
+          publishButton: 发布到商店
+          publishDialogDescription: 填写描述后，将该指令发布到商店供他人下载。
+          cancel: 取消
+          publishing: 发布中…
+          installButton: 安装
+          installing: 安装中…
+          copyShareLink: 复制分享链接
+          viewMyPublished: 我的已发布
+          featured: 商店精选
+          descriptionInput: 描述
+          descriptionInputPlaceholder: 简要描述该指令的作用
+          store:
+            viewDetailPage: 前往详情页
         templates:
           dialogTitle: 选择模板
           dialogDescription: 选择模板快速创建新的 AI 指令，或从空白开始。

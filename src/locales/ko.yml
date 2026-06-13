@@ -2,6 +2,10 @@ name: Read Frog
 extName: Read Frog - 번역하고 배우기
 extDescription: Read Frog는 모든 웹사이트에서 언어를 깊이 있게 학습할 수 있도록 도와주는 오픈 소스 브라우저 확장 프로그램입니다.
 uninstallSurveyUrl: https://tally.so/r/nPK6Ob
+errors:
+  unknown: 문제가 발생했습니다
+  action_collection_not_found: 액션 컬렉션을 찾을 수 없습니다.
+  action_collection_invalid_content: 액션 내용이 올바르지 않습니다. 프롬프트와 출력 필드를 확인하세요.
 dataTypes:
   string: 텍스트
   number: 숫자
@@ -445,6 +449,31 @@ options:
           outputSchemaRequired: 최소 하나의 출력 필드를 추가하세요
           fieldKeyRequired: 필드 이름은 필수입니다
           duplicateFieldKey: 필드 이름은 고유해야 합니다
+        actionCollection:
+          shareLinkCopied: 공유 링크가 복사되었습니다
+          installed: 컬렉션이 설치되었습니다
+          installedDescription: 이제 내 액션에서 $1을(를) 사용할 수 있습니다.
+          installBlockedNoProvider: 액션을 다운로드하기 전에 LLM 제공업체를 추가하세요.
+          reinstalled: 컬렉션이 다시 설치되었습니다
+          published: 스토어에 게시되었습니다
+          publishedDescription: 현재 스냅샷이 게시됨 탭에 실시간으로 반영되었습니다.
+          publishedJumpTitle: 게시 완료
+          publishedJumpDescription: 게시한 액션을 보려면 스토어 페이지를 여시겠습니까?
+          publishedJumpConfirm: 스토어 페이지 열기
+          publishedJumpCancel: 나중에
+          publishButton: 스토어에 게시
+          publishDialogDescription: 설명을 입력하고 이 액션을 스토어에 게시하여 다른 사용자가 설치할 수 있도록 합니다。
+          cancel: 취소
+          publishing: 게시하는 중...
+          installButton: 설치
+          installing: 설치하는 중...
+          copyShareLink: 공유 링크 복사
+          viewMyPublished: 내 게시물
+          featured: 추천
+          descriptionInput: 설명
+          descriptionInputPlaceholder: 이 액션이 하는 일에 대한 짧은 설명
+          store:
+            viewDetailPage: 상세 페이지로 이동
     contextMenu:
       title: 컨텍스트 메뉴
       translate:

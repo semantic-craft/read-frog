@@ -2,6 +2,10 @@ name: Read Frog
 extName: "Read Frog - Translate & Learn"
 extDescription: Read Frog is an open source browser extension designed to help you learn languages deeply from any website.
 uninstallSurveyUrl: https://tally.so/r/nPK6Ob
+errors:
+  unknown: Something went wrong
+  action_collection_not_found: Action collection not found.
+  action_collection_invalid_content: The action content is invalid. Check the prompt and output fields.
 dataTypes:
   string: Text
   number: Number
@@ -438,6 +442,31 @@ options:
             description: This action cannot be undone.
             confirm: Delete
             cancel: Cancel
+        actionCollection:
+          shareLinkCopied: Share link copied
+          installed: Collection installed
+          installedDescription: $1 is now available in My actions.
+          installBlockedNoProvider: Add an LLM provider before downloading actions.
+          reinstalled: Collection reinstalled
+          published: Published to the store
+          publishedDescription: The current snapshot is now live in your Published tab.
+          publishedJumpTitle: Published successfully
+          publishedJumpDescription: Open the store page to view your published action?
+          publishedJumpConfirm: Open store page
+          publishedJumpCancel: Not now
+          publishButton: Publish to Store
+          publishDialogDescription: Add a description, then publish this action to the store for others to install.
+          cancel: Cancel
+          publishing: Publishing...
+          installButton: Install
+          installing: Installing...
+          copyShareLink: Copy share link
+          viewMyPublished: My published
+          featured: Featured
+          descriptionInput: Description
+          descriptionInputPlaceholder: A short description of what this action does
+          store:
+            viewDetailPage: Go to detail page
         templates:
           dialogTitle: Choose a Template
           dialogDescription: Select a template to quickly create a new AI action, or start from scratch.

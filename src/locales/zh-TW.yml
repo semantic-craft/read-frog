@@ -2,6 +2,10 @@ name: 陪讀蛙
 extName: 陪讀蛙 - 翻譯與學習
 extDescription: 陪讀蛙是一款開放源代碼的瀏覽器插件，旨在幫助您從任何網站深入學習語言。
 uninstallSurveyUrl: https://tally.so/r/3E9XDL
+errors:
+  unknown: 發生錯誤
+  action_collection_not_found: 找不到指令集。
+  action_collection_invalid_content: 指令內容無效。請檢查提示詞與輸出欄位。
 dataTypes:
   string: 文字
   number: 數字
@@ -445,6 +449,31 @@ options:
           outputSchemaRequired: 至少需要一個輸出欄位
           fieldKeyRequired: 欄位名不能為空
           duplicateFieldKey: 欄位名不能重複
+        actionCollection:
+          shareLinkCopied: 已複製分享連結
+          installed: 已安裝指令集
+          installedDescription: $1 現已可在「我的指令」中使用。
+          installBlockedNoProvider: 下載指令前請先新增 LLM 提供商。
+          reinstalled: 已重新安裝指令集
+          published: 已發佈到商店
+          publishedDescription: 目前的快照已在你的「已發佈」分頁中上線。
+          publishedJumpTitle: 發佈成功
+          publishedJumpDescription: 要開啟商店頁面查看你已發佈的指令嗎？
+          publishedJumpConfirm: 開啟商店頁面
+          publishedJumpCancel: 暫時不要
+          publishButton: 發佈到商店
+          publishDialogDescription: 填寫描述後，將該指令發佈到商店供他人下載。
+          cancel: 取消
+          publishing: 發佈中...
+          installButton: 安裝
+          installing: 安裝中...
+          copyShareLink: 複製分享連結
+          viewMyPublished: 我的已發布
+          featured: 商店精選
+          descriptionInput: 描述
+          descriptionInputPlaceholder: 簡短描述這個指令的功能
+          store:
+            viewDetailPage: 前往詳細頁面
     contextMenu:
       title: 右鍵選單
       translate:

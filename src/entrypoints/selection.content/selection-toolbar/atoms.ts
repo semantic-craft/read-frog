@@ -125,7 +125,7 @@ export const selectionToolbarCustomActionRequestAtomFamily = atomFamily((actionI
       return {
         language: config.language,
         action,
-        providerConfig: action
+        providerConfig: action?.providerId
           ? getProviderConfigById(config.providersConfig, action.providerId) ?? null
           : null,
       }

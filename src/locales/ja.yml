@@ -2,6 +2,10 @@ name: 読書カエル
 extName: 読書カエル - 翻訳して学ぶ
 extDescription: 読書カエルは、あらゆるウェブサイトから言語を深く学ぶために設計されたオープンソースのブラウザ拡張機能です。
 uninstallSurveyUrl: https://tally.so/r/nPK6Ob
+errors:
+  unknown: 問題が発生しました
+  action_collection_not_found: アクションコレクションが見つかりません。
+  action_collection_invalid_content: アクションの内容が無効です。プロンプトと出力フィールドを確認してください。
 dataTypes:
   string: テキスト
   number: 数値
@@ -445,6 +449,31 @@ options:
           outputSchemaRequired: 少なくとも1つの出力フィールドを追加してください
           fieldKeyRequired: フィールド名は必須です
           duplicateFieldKey: フィールド名は一意である必要があります
+        actionCollection:
+          shareLinkCopied: 共有リンクをコピーしました
+          installed: コレクションをインストールしました
+          installedDescription: $1 が「マイアクション」で利用可能になりました。
+          installBlockedNoProvider: アクションをダウンロードする前に LLM プロバイダーを追加してください。
+          reinstalled: コレクションを再インストールしました
+          published: ストアに公開しました
+          publishedDescription: 現在のスナップショットが「公開済み」タブで公開されました。
+          publishedJumpTitle: 公開に成功しました
+          publishedJumpDescription: ストアページを開いて、公開したアクションを表示しますか？
+          publishedJumpConfirm: ストアページを開く
+          publishedJumpCancel: 後で
+          publishButton: ストアに公開
+          publishDialogDescription: 説明を入力して、このアクションをストアに公開し、他のユーザーがインストールできるようにします。
+          cancel: キャンセル
+          publishing: 公開中...
+          installButton: インストール
+          installing: インストール中...
+          copyShareLink: 共有リンクをコピー
+          viewMyPublished: マイ公開
+          featured: おすすめ
+          descriptionInput: 説明
+          descriptionInputPlaceholder: このアクションの機能を簡潔に説明してください
+          store:
+            viewDetailPage: 詳細ページへ移動
     contextMenu:
       title: コンテキストメニュー
       translate:

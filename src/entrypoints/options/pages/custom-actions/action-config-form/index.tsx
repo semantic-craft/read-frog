@@ -23,6 +23,7 @@ import {
 import { sanitizeSelectionToolbarCustomAction } from "@/utils/notebase"
 import { cn } from "@/utils/styles/utils"
 import { selectedCustomActionIdAtom } from "../atoms"
+import { PublishActionButton } from "../components/ai-feature-store"
 import { formOpts, useAppForm } from "./form"
 import { IconField } from "./icon-field"
 import { NameField } from "./name-field"
@@ -105,6 +106,10 @@ function CustomActionConfigEditor({ selectedAction }: { selectedAction: Selectio
     <form.AppForm>
       <div className={cn("flex-1 bg-card rounded-xl p-4 border flex flex-col justify-between")}>
         <div className="flex flex-col gap-4">
+          <div className="flex justify-end">
+            <PublishActionButton action={selectedAction} />
+          </div>
+
           <NameField form={form} />
 
           <IconField form={form} />
@@ -137,7 +142,7 @@ function CustomActionConfigEditor({ selectedAction }: { selectedAction: Selectio
 
           {betaExperienceConfig.enabled && <NotebaseConnectionField form={form} />}
         </div>
-        <div className="flex justify-end mt-8">
+        <div className="mt-8 flex flex-wrap items-center justify-end gap-3">
           <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
             <AlertDialogTrigger render={<Button type="button" variant="destructive" />}>
               {i18n.t("options.floatingButtonAndToolbar.selectionToolbar.customActions.form.delete")}

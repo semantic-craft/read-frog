@@ -76,7 +76,7 @@ export function CustomActionCardList() {
             </Button>
           )}
         />
-        <AddActionDialog onSelect={handleTemplateSelect} />
+        <AddActionDialog onSelectTemplate={handleTemplateSelect} />
       </Dialog>
 
       {llmProviders.length === 0 && (
@@ -115,26 +115,30 @@ function CustomActionCard({ action }: { action: SelectionToolbarCustomAction }) 
       )}
       onClick={() => setSelectedCustomActionId(action.id)}
     >
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="size-4">
-            <Icon icon={action.icon} className="size-4 text-zinc-600 dark:text-zinc-300 shrink-0" />
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="size-4 shrink-0">
+                <Icon icon={action.icon} className="size-4 text-zinc-600 dark:text-zinc-300" />
+              </div>
+              <span className="text-sm font-medium truncate">{action.name}</span>
+            </div>
           </div>
-          <span className="text-sm font-medium truncate">{action.name}</span>
+          <Switch
+            checked={action.enabled !== false}
+            onCheckedChange={(checked) => {
+              void setSelectionToolbarConfig({
+                ...selectionToolbarConfig,
+                customActions: customActions.map(item =>
+                  item.id === action.id ? { ...item, enabled: checked } : item,
+                ),
+              })
+            }}
+            onPointerDown={event => event.stopPropagation()}
+            onClick={event => event.stopPropagation()}
+          />
         </div>
-        <Switch
-          checked={action.enabled !== false}
-          onCheckedChange={(checked) => {
-            void setSelectionToolbarConfig({
-              ...selectionToolbarConfig,
-              customActions: customActions.map(item =>
-                item.id === action.id ? { ...item, enabled: checked } : item,
-              ),
-            })
-          }}
-          onPointerDown={event => event.stopPropagation()}
-          onClick={event => event.stopPropagation()}
-        />
       </div>
     </div>
   )

@@ -1268,6 +1268,9 @@ describe("selection toolbar requests", () => {
     if (!action) {
       throw new Error("Default custom action is missing")
     }
+    if (!action.providerId) {
+      throw new Error("Default custom action provider is missing")
+    }
     const nextProviderId = findAlternateLLMProviderId(store.get(configAtom), action.providerId)
     if (!nextProviderId) {
       throw new Error("No alternate LLM provider available for custom action provider switch test")

@@ -2,6 +2,10 @@ name: Read Frog
 extName: Read Frog - Переводи и учись
 extDescription: Read Frog — расширение браузера с открытым исходным кодом, которое поможет вам глубоко изучать языки на любом веб-сайте.
 uninstallSurveyUrl: https://tally.so/r/nPK6Ob
+errors:
+  unknown: Что-то пошло не так
+  action_collection_not_found: Коллекция действий не найдена.
+  action_collection_invalid_content: Содержимое действия недействительно. Проверьте поля промпта и вывода.
 dataTypes:
   string: Текст
   number: Число
@@ -445,6 +449,31 @@ options:
           outputSchemaRequired: Добавьте хотя бы одно поле вывода
           fieldKeyRequired: Имя поля обязательно
           duplicateFieldKey: Имена полей должны быть уникальными
+        actionCollection:
+          shareLinkCopied: Ссылка для общего доступа скопирована
+          installed: Коллекция установлена
+          installedDescription: $1 теперь доступно в разделе «Мои действия».
+          installBlockedNoProvider: Добавьте LLM-провайдера перед загрузкой действий.
+          reinstalled: Коллекция переустановлена
+          published: Опубликовано в магазине
+          publishedDescription: Текущий снимок теперь доступен во вкладке «Опубликованные».
+          publishedJumpTitle: Успешно опубликовано
+          publishedJumpDescription: Открыть страницу магазина, чтобы посмотреть опубликованное действие?
+          publishedJumpConfirm: Открыть страницу магазина
+          publishedJumpCancel: Не сейчас
+          publishButton: Опубликовать в магазине
+          publishDialogDescription: Добавьте описание и опубликуйте это действие в магазине, чтобы другие могли его установить.
+          cancel: Отмена
+          publishing: Публикация...
+          installButton: Установить
+          installing: Установка...
+          copyShareLink: Скопировать ссылку для общего доступа
+          viewMyPublished: Мои публикации
+          featured: Рекомендуемые
+          descriptionInput: Описание
+          descriptionInputPlaceholder: Краткое описание того, что делает это действие
+          store:
+            viewDetailPage: Перейти на страницу с подробностями
     contextMenu:
       title: Контекстное меню
       translate:

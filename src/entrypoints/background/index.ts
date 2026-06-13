@@ -57,6 +57,10 @@ export default defineBackground({
       await openOptionsPage()
     })
 
+    onMessage("requestActionCollectionInstall", async (message) => {
+      await openOptionsPage(`#/custom-actions?installActionCollection=${message.data.collectionId}`)
+    })
+
     setupSidePanelMessageHandler({
       extensionBrowser: browser,
       logger,
