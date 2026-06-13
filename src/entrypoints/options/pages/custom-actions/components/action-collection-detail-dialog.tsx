@@ -40,23 +40,6 @@ export function useActionCollectionDetailDialog() {
   return value
 }
 
-interface DetailContentValue {
-  detail: ActionCollectionDetail
-  isInstalling: boolean
-  install: () => void
-  shareUrl: string
-}
-
-const DetailContentContext = createContext<DetailContentValue | null>(null)
-
-function useDetailContent() {
-  const value = use(DetailContentContext)
-  if (!value) {
-    throw new Error("useDetailContent must be used within the detail dialog")
-  }
-  return value
-}
-
 function hasInstallableProvider(config: Config) {
   return getEnabledLLMProvidersConfig(config.providersConfig).length > 0
 }
@@ -105,16 +88,12 @@ export function ActionCollectionProvider({ children }: { children: ReactNode }) 
         <DialogContent className="flex max-h-[85vh] flex-col gap-0 p-0 sm:max-w-2xl">
           {match({ detail, isLoading })
             .with({ detail: P.nonNullable }, ({ detail }) => (
-              <DetailContentContext
-                value={{
-                  detail,
-                  isInstalling: installMutation.isPending,
-                  install: handleInstallClick,
-                  shareUrl: buildActionCollectionShareUrl(detail.collectionId),
-                }}
-              >
-                <ActionCollectionDetailContent />
-              </DetailContentContext>
+              <ActionCollectionDetailContent
+                detail={detail}
+                isInstalling={installMutation.isPending}
+                install={handleInstallClick}
+                shareUrl={buildActionCollectionShareUrl(detail.collectionId)}
+              />
             ))
             .with({ isLoading: true }, () => <DetailDialogSkeleton />)
             .otherwise(() => null)}
@@ -135,9 +114,12 @@ function DetailDialogSkeleton() {
   )
 }
 
-function ActionCollectionDetailContent() {
-  const { detail, isInstalling, install, shareUrl } = useDetailContent()
-
+function ActionCollectionDetailContent({ detail, isInstalling, install, shareUrl }: {
+  detail: ActionCollectionDetail
+  isInstalling: boolean
+  install: () => void
+  shareUrl: string
+}) {
   return (
     <>
       <DialogHeader className="gap-3 border-b p-6 pr-12">
