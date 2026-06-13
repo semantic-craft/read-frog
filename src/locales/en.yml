@@ -6,6 +6,7 @@ errors:
   unknown: Something went wrong
   action_collection_not_found: Action collection not found.
   action_collection_invalid_content: The action content is invalid. Check the prompt and output fields.
+  action_collection_name_taken: You already have a collection with this name.
 dataTypes:
   string: Text
   number: Number

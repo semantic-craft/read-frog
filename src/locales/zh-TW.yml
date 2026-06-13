@@ -6,6 +6,7 @@ errors:
   unknown: 發生錯誤
   action_collection_not_found: 找不到指令集。
   action_collection_invalid_content: 指令內容無效。請檢查提示詞與輸出欄位。
+  action_collection_name_taken: 你已有同名的指令集。
 dataTypes:
   string: 文字
   number: 數字

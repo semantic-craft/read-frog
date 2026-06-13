@@ -6,6 +6,7 @@ errors:
   unknown: Algo salió mal
   action_collection_not_found: No se encontró la colección de acciones.
   action_collection_invalid_content: El contenido de la acción no es válido. Revisa los campos de prompt y salida.
+  action_collection_name_taken: Ya tienes una colección con este nombre.
 dataTypes:
   string: Texto
   number: Número

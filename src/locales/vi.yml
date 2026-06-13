@@ -6,6 +6,7 @@ errors:
   unknown: Đã xảy ra lỗi
   action_collection_not_found: Không tìm thấy bộ sưu tập hành động.
   action_collection_invalid_content: Nội dung hành động không hợp lệ. Hãy kiểm tra các trường prompt và đầu ra.
+  action_collection_name_taken: Bạn đã có một bộ sưu tập với tên này.
 dataTypes:
   string: Văn bản
   number: Số

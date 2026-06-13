@@ -6,6 +6,7 @@ errors:
   unknown: Bir şeyler ters gitti
   action_collection_not_found: Eylem koleksiyonu bulunamadı.
   action_collection_invalid_content: Eylem içeriği geçersiz. Prompt ve çıktı alanlarını kontrol edin.
+  action_collection_name_taken: Bu ada sahip bir koleksiyonunuz zaten var.
 dataTypes:
   string: Metin
   number: Sayı

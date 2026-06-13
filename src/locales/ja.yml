@@ -6,6 +6,7 @@ errors:
   unknown: 問題が発生しました
   action_collection_not_found: アクションコレクションが見つかりません。
   action_collection_invalid_content: アクションの内容が無効です。プロンプトと出力フィールドを確認してください。
+  action_collection_name_taken: 同じ名前のコレクションがすでに存在します。
 dataTypes:
   string: テキスト
   number: 数値

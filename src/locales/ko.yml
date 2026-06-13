@@ -6,6 +6,7 @@ errors:
   unknown: 문제가 발생했습니다
   action_collection_not_found: 액션 컬렉션을 찾을 수 없습니다.
   action_collection_invalid_content: 액션 내용이 올바르지 않습니다. 프롬프트와 출력 필드를 확인하세요.
+  action_collection_name_taken: 같은 이름의 컬렉션이 이미 있습니다.
 dataTypes:
   string: 텍스트
   number: 숫자

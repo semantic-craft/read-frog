@@ -6,6 +6,7 @@ errors:
   unknown: Что-то пошло не так
   action_collection_not_found: Коллекция действий не найдена.
   action_collection_invalid_content: Содержимое действия недействительно. Проверьте поля промпта и вывода.
+  action_collection_name_taken: У вас уже есть коллекция с таким именем.
 dataTypes:
   string: Текст
   number: Число
