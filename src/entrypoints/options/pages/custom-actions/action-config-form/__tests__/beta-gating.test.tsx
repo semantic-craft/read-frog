@@ -34,7 +34,7 @@ vi.mock("../notebase-connection-field", () => ({
   ),
 }))
 
-vi.mock("../../components/ai-feature-store", () => ({
+vi.mock("../../components/publish-action-button", () => ({
   PublishActionButton: () => <div>PublishActionButton</div>,
 }))
 

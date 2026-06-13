@@ -33,7 +33,6 @@ export const selectionToolbarCustomActionNotebaseConnectionSchema = z.object({
 
 export const selectionToolbarCustomActionCollectionSourceSchema = z.object({
   collectionId: z.number().int().positive(),
-  slug: z.string().trim().min(1),
   version: z.number().int().positive(),
   name: z.string().trim().min(1),
   description: z.string(),

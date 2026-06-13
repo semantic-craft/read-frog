@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import type { SelectionToolbarCustomAction } from "@/types/config/selection-toolbar"
 import { useAtomValue } from "jotai"
 import { i18n } from "#imports"
@@ -7,7 +8,8 @@ import { withForm } from "./form"
 
 export const NameField = withForm({
   ...{ defaultValues: {} as SelectionToolbarCustomAction },
-  render: function Render({ form }) {
+  props: {} as { labelExtra?: ReactNode },
+  render: function Render({ form, labelExtra }) {
     const selectionToolbarConfig = useAtomValue(configFieldsAtomMap.selectionToolbar)
     const selectedActionId = useAtomValue(selectedCustomActionIdAtom)
     const customActions = selectionToolbarConfig.customActions ?? []
@@ -30,7 +32,7 @@ export const NameField = withForm({
           },
         }}
       >
-        {field => <field.InputFieldAutoSave formForSubmit={form} label={i18n.t("options.floatingButtonAndToolbar.selectionToolbar.customActions.form.name")} />}
+        {field => <field.InputFieldAutoSave formForSubmit={form} label={i18n.t("options.floatingButtonAndToolbar.selectionToolbar.customActions.form.name")} labelExtra={labelExtra} />}
       </form.AppField>
     )
   },

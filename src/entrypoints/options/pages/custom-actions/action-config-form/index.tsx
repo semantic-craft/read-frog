@@ -23,7 +23,7 @@ import {
 import { sanitizeSelectionToolbarCustomAction } from "@/utils/notebase/connection"
 import { cn } from "@/utils/styles/utils"
 import { selectedCustomActionIdAtom } from "../atoms"
-import { PublishActionButton } from "../components/ai-feature-store"
+import { PublishActionButton } from "../components/publish-action-button"
 import { formOpts, useAppForm } from "./form"
 import { IconField } from "./icon-field"
 import { NameField } from "./name-field"
@@ -106,11 +106,7 @@ function CustomActionConfigEditor({ selectedAction }: { selectedAction: Selectio
     <form.AppForm>
       <div className={cn("flex-1 bg-card rounded-xl p-4 border flex flex-col justify-between")}>
         <div className="flex flex-col gap-4">
-          <div className="flex justify-end">
-            <PublishActionButton action={selectedAction} />
-          </div>
-
-          <NameField form={form} />
+          <NameField form={form} labelExtra={<PublishActionButton action={selectedAction} />} />
 
           <IconField form={form} />
 

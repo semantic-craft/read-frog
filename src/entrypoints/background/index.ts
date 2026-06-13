@@ -1,6 +1,7 @@
 import "@/utils/zod-config"
 import { browser, defineBackground } from "#imports"
 import { env } from "@/env"
+import { INSTALL_ACTION_COLLECTION_PARAM } from "@/utils/constants/action-collection"
 import { logger } from "@/utils/logger"
 import { onMessage } from "@/utils/message"
 import { openOptionsPage } from "@/utils/navigation"
@@ -59,7 +60,7 @@ export default defineBackground({
     })
 
     onMessage("requestActionCollectionInstall", async (message) => {
-      await openOptionsPage({ route: `/custom-actions?installActionCollection=${message.data.collectionId}` })
+      await openOptionsPage({ route: `/custom-actions?${INSTALL_ACTION_COLLECTION_PARAM}=${message.data.collectionId}` })
     })
 
     setupSidePanelMessageHandler({
