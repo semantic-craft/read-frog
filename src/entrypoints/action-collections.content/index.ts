@@ -1,12 +1,12 @@
-import { defineContentScript } from "#imports"
-import { env } from "@/env"
-import { sendMessage } from "@/utils/message"
 import {
   ACTION_COLLECTION_EXTENSION_SOURCE,
   ACTION_COLLECTION_PAGE_SOURCE,
   OPEN_ACTION_COLLECTION_INSTALL_ACK_TYPE,
   OPEN_ACTION_COLLECTION_INSTALL_REQUEST_TYPE,
-} from "./bridge"
+} from "@read-frog/definitions"
+import { defineContentScript } from "#imports"
+import { env } from "@/env"
+import { sendMessage } from "@/utils/message"
 
 export default defineContentScript({
   matches: env.WXT_OFFICIAL_SITE_ORIGINS.map((origin: string) => `${origin}/*`),
