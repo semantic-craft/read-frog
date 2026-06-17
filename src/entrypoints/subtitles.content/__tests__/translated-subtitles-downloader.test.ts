@@ -262,6 +262,95 @@ describe("translatedSubtitlesDownloader", () => {
     }))
   })
 
+  it("retries unsafe AI segmentation with smaller chunks before falling back", async () => {
+    const source = [
+      { text: "The first half of this transcript segment has enough words to stay readable.", start: 0, end: 29000 },
+      { text: "The second half should be exported with its original safe timing after retry.", start: 30000, end: 59000 },
+    ]
+    const retryFirst = [{ ...source[0], text: "Retried first half." }]
+    const retrySecond = [{ ...source[1], text: "Retried second half." }]
+    mocks.getLocalConfig.mockResolvedValue(createConfig({ aiSegmentation: true }))
+    mocks.aiSegmentBlock
+      .mockResolvedValueOnce([{ text: "Collapsed.", start: 0, end: 1 }])
+      .mockResolvedValueOnce(retryFirst)
+      .mockResolvedValueOnce(retrySecond)
+
+    await createDownloader(source, false).downloader.download()
+
+    expect(mocks.aiSegmentBlock).toHaveBeenCalledTimes(3)
+    expect(mocks.aiSegmentBlock).toHaveBeenNthCalledWith(1, source, expect.any(Object))
+    expect(mocks.aiSegmentBlock).toHaveBeenNthCalledWith(2, [source[0]], expect.any(Object))
+    expect(mocks.aiSegmentBlock).toHaveBeenNthCalledWith(3, [source[1]], expect.any(Object))
+    expect(mocks.downloadSubtitlesAsSrt).toHaveBeenCalledWith(expect.objectContaining({
+      subtitles: [
+        { text: "zh:Retried first half.", start: 0, end: 29000 },
+        { text: "zh:Retried second half.", start: 30000, end: 59000 },
+      ],
+    }))
+  })
+
+  it("falls back to optimized source timing when AI segmentation creates overlapping export cues", async () => {
+    const questionText = "I was wondering whether you have tested scaling laws when source text is transformed into image inputs across many different controlled experiments."
+    mocks.getLocalConfig.mockResolvedValue(createConfig({ aiSegmentation: true }))
+    mocks.aiSegmentBlock.mockResolvedValue([
+      { text: "Hello.", start: 0, end: 3420 },
+      { text: questionText, start: 500, end: 3420 },
+    ])
+
+    await createDownloader([
+      { text: "Hello.", start: 0, end: 500 },
+      { text: questionText, start: 500, end: 3420 },
+    ], false).downloader.download()
+
+    expect(mocks.downloadSubtitlesAsSrt).toHaveBeenCalledWith(expect.objectContaining({
+      subtitles: [
+        { text: "zh:Hello.", start: 0, end: 500 },
+        { text: `zh:${questionText}`, start: 500, end: 3420 },
+      ],
+    }))
+  })
+
+  it("falls back when optimization hides a raw collapsed AI segment", async () => {
+    mocks.getLocalConfig.mockResolvedValue(createConfig({ aiSegmentation: true }))
+    mocks.aiSegmentBlock.mockResolvedValue([
+      { text: "Hi.", start: 500, end: 501 },
+      { text: "OK.", start: 501, end: 1000 },
+    ])
+
+    await createDownloader([
+      { text: "Hi.", start: 0, end: 500 },
+      { text: "OK.", start: 500, end: 1000 },
+    ], false).downloader.download()
+
+    expect(mocks.aiSegmentBlock).toHaveBeenCalledTimes(1)
+    expect(mocks.downloadSubtitlesAsSrt).toHaveBeenCalledWith(expect.objectContaining({
+      subtitles: [
+        { text: "zh:Hi. OK.", start: 0, end: 1000 },
+      ],
+    }))
+  })
+
+  it("falls back to optimized source timing when AI segmentation collapses a cue to a boundary", async () => {
+    const followUpText = "Actually this next cue contains enough words that it should remain separate from the short greeting during subtitle optimization across many different transcript timing examples."
+    mocks.getLocalConfig.mockResolvedValue(createConfig({ aiSegmentation: true }))
+    mocks.aiSegmentBlock.mockResolvedValue([
+      { text: "Hi.", start: 500, end: 501 },
+      { text: followUpText, start: 501, end: 3500 },
+    ])
+
+    await createDownloader([
+      { text: "Hi.", start: 0, end: 500 },
+      { text: followUpText, start: 500, end: 3500 },
+    ], false).downloader.download()
+
+    expect(mocks.downloadSubtitlesAsSrt).toHaveBeenCalledWith(expect.objectContaining({
+      subtitles: [
+        { text: "zh:Hi.", start: 0, end: 500 },
+        { text: `zh:${followUpText}`, start: 500, end: 3500 },
+      ],
+    }))
+  })
+
   it("continues without a summary when summary generation fails", async () => {
     mocks.fetchSubtitlesSummary.mockRejectedValue(new Error("Summary failed"))
     await createDownloader(lines(1)).downloader.download()
