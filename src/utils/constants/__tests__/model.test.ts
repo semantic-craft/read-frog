@@ -74,15 +74,21 @@ describe("getProviderOptions", () => {
       ]))
     })
 
+    it("should expose Azure shortcut deployment names for GPT, DeepSeek, and Grok", () => {
+      expect(LLM_PROVIDER_MODELS.azure).toEqual(expect.arrayContaining([
+        "gpt-5.4-mini",
+        "gpt-5.4",
+        "DeepSeek-V4-Flash",
+        "DeepSeek-V4-Pro",
+        "grok-4.3",
+        "grok-4-20-non-reasoning",
+        "grok-4-20-reasoning",
+      ]))
+    })
+
     it("should expose the supported Anthropic Fable model ids", () => {
       expect(LLM_PROVIDER_MODELS.anthropic).toContain("claude-fable-5")
       expect(LLM_PROVIDER_MODELS.bedrock).toContain("us.anthropic.claude-fable-5")
-    })
-
-    it("should keep the DeepSeek selector aligned with documented chat-capable models", () => {
-      expect(LLM_PROVIDER_MODELS.deepseek).toEqual(["deepseek-chat", "deepseek-reasoner"])
-      expect(LLM_PROVIDER_MODELS.deepseek).not.toContain("deepseek-v4-flash")
-      expect(LLM_PROVIDER_MODELS.deepseek).not.toContain("deepseek-v4-pro")
     })
 
     it("should return the documented floor for GPT-5 model-specific reasoning", () => {
@@ -163,11 +169,14 @@ describe("getProviderOptions", () => {
       const deepseekReasonerOptions = getProviderOptions("deepseek-reasoner", "deepseek")
       expect(deepseekReasonerOptions.deepseek?.thinking).toEqual({ type: "disabled" })
 
-      const migratedCustomDeepseekV4FlashOptions = getProviderOptions("DeepSeek-V4-Flash", "deepseek")
-      expect(migratedCustomDeepseekV4FlashOptions.deepseek?.thinking).toEqual({ type: "disabled" })
+      const deepseekV4FlashOptions = getProviderOptions("deepseek-v4-flash", "deepseek")
+      expect(deepseekV4FlashOptions.deepseek?.thinking).toEqual({ type: "disabled" })
 
-      const migratedCustomDeepseekV4ProOptions = getProviderOptions("deepseek-v4-pro", "deepseek")
-      expect(migratedCustomDeepseekV4ProOptions.deepseek?.thinking).toEqual({ type: "disabled" })
+      const mixedCaseDeepseekV4FlashOptions = getProviderOptions("DeepSeek-V4-Flash", "deepseek")
+      expect(mixedCaseDeepseekV4FlashOptions.deepseek?.thinking).toEqual({ type: "disabled" })
+
+      const deepseekV4ProOptions = getProviderOptions("deepseek-v4-pro", "deepseek")
+      expect(deepseekV4ProOptions.deepseek?.thinking).toEqual({ type: "disabled" })
 
       const cohereReasoningOptions = getProviderOptions("command-a-reasoning-08-2025", "cohere")
       expect(cohereReasoningOptions.cohere?.thinking).toEqual({ type: "disabled" })
@@ -382,7 +391,7 @@ describe("getProviderOptions", () => {
         enableThinking: false,
       })
 
-      expect(getRecommendedProviderOptionsMatch("deepseek-reasoner")?.options).toEqual({
+      expect(getRecommendedProviderOptionsMatch("DeepSeek-V4-Flash")?.options).toEqual({
         thinking: { type: "disabled" },
       })
 
