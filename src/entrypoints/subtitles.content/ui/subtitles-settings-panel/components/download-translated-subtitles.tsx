@@ -1,11 +1,28 @@
 import { IconDownload, IconLanguage, IconLoader2 } from "@tabler/icons-react"
+import { cva } from "class-variance-authority"
 import { i18n } from "#imports"
 import { Button } from "@/components/ui/base-ui/button"
+import { DOWNLOAD_TRANSLATED_SUBTITLES_MESSAGE_TONE } from "./download-translated-subtitles.constants"
 import { SubtitlesSettingsItem } from "./subtitles-settings-item"
 import { useDownloadTranslatedSubtitles } from "./use-download-translated-subtitles"
 
+const downloadTranslatedSubtitlesMessageVariants = cva(
+  "text-xs leading-4 drop-shadow-[0_1px_1px_rgba(0,0,0,0.85)]",
+  {
+    variants: {
+      tone: {
+        [DOWNLOAD_TRANSLATED_SUBTITLES_MESSAGE_TONE.Muted]: "text-muted-foreground",
+        [DOWNLOAD_TRANSLATED_SUBTITLES_MESSAGE_TONE.Success]: "text-emerald-300",
+      },
+    },
+    defaultVariants: {
+      tone: DOWNLOAD_TRANSLATED_SUBTITLES_MESSAGE_TONE.Muted,
+    },
+  },
+)
+
 export function DownloadTranslatedSubtitles() {
-  const { message, progress, isRunning, download } = useDownloadTranslatedSubtitles()
+  const { message, messageTone, progress, isRunning, download } = useDownloadTranslatedSubtitles()
   const buttonId = "read-frog-download-translated-subtitles"
   const title = i18n.t("subtitles.actions.downloadTranslated")
 
@@ -16,7 +33,10 @@ export function DownloadTranslatedSubtitles() {
         <div className="flex min-w-0 flex-col">
           <span className="truncate">{title}</span>
           {message && (
-            <span className="text-xs leading-4 text-yellow-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.85)]" aria-live="polite">
+            <span
+              className={downloadTranslatedSubtitlesMessageVariants({ tone: messageTone })}
+              aria-live="polite"
+            >
               {message}
               {progress !== null && (
                 <>
