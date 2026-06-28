@@ -1,6 +1,6 @@
 import type { Config } from "@/types/config/config"
 import type { ProvidersConfig } from "@/types/config/provider"
-import { useStore } from "@tanstack/react-form"
+import { useSelector } from "@tanstack/react-store"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -39,6 +39,7 @@ import { formOpts, useAppForm } from "./form"
 import { ProviderHeadersField } from "./provider-headers-field"
 import { ProviderOptionsField } from "./provider-options-field"
 import { ProviderSpecificSettingsField } from "./provider-specific-settings-field"
+import { ReasoningField } from "./reasoning-field"
 import { TemperatureField } from "./temperature-field"
 import { TranslateModelSelector } from "./translate-model-selector"
 
@@ -61,8 +62,8 @@ export function ProviderConfigForm() {
     },
   })
 
-  const providerType = useStore(form.store, state => state.values.provider)
-  const apiKey = useStore(form.store, state => state.values.apiKey)
+  const providerType = useSelector(form.store, state => state.values.provider)
+  const apiKey = useSelector(form.store, state => state.values.apiKey)
   const isTranslateProviderType = isTranslateProvider(providerType)
   const isLLM = isLLMProvider(providerType)
 
@@ -168,8 +169,11 @@ export function ProviderConfigForm() {
           <APIKeyField form={form} />
           <BaseURLField form={form} />
           <ProviderSpecificSettingsField form={form} />
-          {isTranslateProviderType && (
-            <TranslateModelSelector form={form} />
+          {isTranslateProviderType && isLLM && (
+            <>
+              <TranslateModelSelector form={form} />
+              <ReasoningField form={form} />
+            </>
           )}
           <FeatureProviderSection form={form} />
           {isLLM && (
