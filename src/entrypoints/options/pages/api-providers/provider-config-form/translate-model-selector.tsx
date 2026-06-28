@@ -1,5 +1,5 @@
 import type { APIProviderConfig } from "@/types/config/provider"
-import { useStore } from "@tanstack/react-form"
+import { useSelector } from "@tanstack/react-store"
 import { useSetAtom } from "jotai"
 import { toast } from "sonner"
 import { i18n } from "#imports"
@@ -15,10 +15,10 @@ import { withForm } from "./form"
 export const TranslateModelSelector = withForm({
   ...{ defaultValues: {} as APIProviderConfig },
   render: function Render({ form }) {
-    const providerConfig = useStore(form.store, state => state.values)
+    const providerConfig = useSelector(form.store, state => state.values)
     const setProviderConfig = useSetAtom(providerConfigAtom(providerConfig.id))
     if (!isLLMProviderConfig(providerConfig))
-      return <></>
+      return null
 
     const modelId = resolveModelId(providerConfig.model)
     const { isCustomModel, customModel, model } = providerConfig.model
